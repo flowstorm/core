@@ -1,5 +1,5 @@
 # first stage - build app preferably using common builder
-FROM registry.gitlab.com/promethistai/common/builder as BUILDER
+FROM registry.gitlab.com/promethistai/common/builder AS builder
 
 WORKDIR /project
 

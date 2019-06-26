@@ -5,6 +5,9 @@ stages:
 build app:
   stage: build
   image: docker:stable
+  only:
+    changes:
+      - app/**/*
   services:
     - docker:dind
   variables:
