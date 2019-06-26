@@ -3,5 +3,9 @@ stages:
 
 build:
   stage: build
+  only:
+  - tags
+  except:
+  - /^(?!master).+@/
   script:
     - echo "project_name=$CI_PROJECT_NAME commit_ref_name=$CI_COMMIT_REF_NAME commit_short_sha=$CI_COMMIT_SHORT_SHA"
