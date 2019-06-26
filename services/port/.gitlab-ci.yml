@@ -1,7 +1,24 @@
 stages:
-  - build
+  - deploy
 
-build:
-  stage: build
+deploy non-production:
+  stage: deploy
+  image: registry.gitlab.com/promethistai/common/deployer
+  only:
+    - develop
+    - preview
   script:
-    - echo "project_name=$CI_PROJECT_NAME commit_ref_name=$CI_COMMIT_REF_NAME commit_short_sha=$CI_COMMIT_SHORT_SHA"
+    - kctx ${K8S_DEFAULT_URL} ${K8S_DEFAULT_CERT} ${K8S_DEFAULT_TOKEN}
+    - helm upgrade --install --namespace $CI_COMMIT_REF_NAME --set namespace=$CI_COMMIT_REF_NAME $CI_PROJECT_NAME-$CI_COMMIT_REF_NAME deploy/$CI_PROJECT_NAME
+
+deploy production:
+  stage: deploy
+  image: registry.gitlab.com/promethistai/common/deployer
+  only:
+    - tags
+  except:
+    - /^(?!master).+@/
+  script:
+    - sed -i -- 's/0.0/$CI_COMMIT_REF_NAME/g' deploy/$CI_PROJECT_NAME/Chart.yaml
+    - kctx ${K8S_DEFAULT_URL} ${K8S_DEFAULT_CERT} ${K8S_DEFAULT_TOKEN}
+    - helm upgrade --install $CI_PROJECT_NAME deploy/$CI_PROJECT_NAME
