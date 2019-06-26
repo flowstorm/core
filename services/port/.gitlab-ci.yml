@@ -1,5 +1,21 @@
 stages:
+  - build
   - deploy
+
+build app:
+  stage: build
+  image: docker:stable
+  services:
+    - docker:dind
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_DRIVER: overlay2
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker build --cache-from $CI_REGISTRY_IMAGE --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA app
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
 
 deploy non-production:
   stage: deploy
@@ -14,6 +30,8 @@ deploy non-production:
       --recreate-pods
       --namespace $CI_COMMIT_REF_NAME
       --set namespace=$CI_COMMIT_REF_NAME
+      --set imagePullPolicy=Always
+      --set app.image.tag=$CI_COMMIT_REF_NAME
       $CI_PROJECT_NAME-$CI_COMMIT_REF_NAME
       deploy/$CI_PROJECT_NAME
 
@@ -29,5 +47,6 @@ deploy production:
     - kctx ${K8S_DEFAULT_URL} ${K8S_DEFAULT_CERT} ${K8S_DEFAULT_TOKEN}
     - helm upgrade
       --install
+      --set app.image.tag=$CI_COMMIT_REF_NAME
       $CI_PROJECT_NAME
       deploy/$CI_PROJECT_NAME

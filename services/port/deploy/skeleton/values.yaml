@@ -2,7 +2,7 @@ namespace: default
 name: skeleton
 replicas: 1
 imagePullSecrets: docker-registry
-imagePullPolicy: Always
+imagePullPolicy: IfNotPresent
 
 service:
   type: ClusterIP
@@ -12,7 +12,7 @@ app:
   http:
     port: 80
   image:
-    name: registry.gitlab.com/promethistai/common/nginx
+    name: registry.gitlab.com/promethistai/common/skeleton
     tag: latest
   resources:
     requests:
