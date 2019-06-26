@@ -1,5 +1,0 @@
-apiVersion: v1
-name: test-ci
-version: 0.0
-description: Test CI Helm Chart
-appVersion: "0.0"
