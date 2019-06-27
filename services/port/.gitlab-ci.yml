@@ -27,7 +27,7 @@ deploy non-production:
     - develop
     - preview
   script:
-    - sed -i -- "s/0.0/$CI_COMMIT_SHORT_SHA/g" deploy/$CI_PROJECT_NAME/Chart.yaml
+    - sed -i -- "s/chart.version/$CI_COMMIT_SHORT_SHA/g; s/app.version/$CI_COMMIT_REF_NAME/g" deploy/$CI_PROJECT_NAME/Chart.yaml
     - kctx ${K8S_DEFAULT_URL} ${K8S_DEFAULT_CERT} ${K8S_DEFAULT_TOKEN}
     - helm upgrade
       --install
@@ -37,6 +37,7 @@ deploy non-production:
       --set git.ref=$CI_COMMIT_REF_NAME
       --set git.commit=$CI_COMMIT_SHORT_SHA
       --set app.image.tag=$CI_COMMIT_REF_NAME
+      --set imagePullPolicy=Always
       $CI_PROJECT_NAME-$CI_COMMIT_REF_NAME
       deploy/$CI_PROJECT_NAME
 
@@ -48,7 +49,7 @@ deploy production:
   except:
     - /^(?!master).+@/
   script:
-    - sed -i -- "s/0.0/$CI_COMMIT_REF_NAME/g" deploy/$CI_PROJECT_NAME/Chart.yaml
+    - sed -i -- "s/chart.version/$CI_COMMIT_REF_NAME/g; s/app.version/$CI_COMMIT_REF_NAME/g" deploy/$CI_PROJECT_NAME/Chart.yaml
     - kctx ${K8S_DEFAULT_URL} ${K8S_DEFAULT_CERT} ${K8S_DEFAULT_TOKEN}
     - helm upgrade
       --install
