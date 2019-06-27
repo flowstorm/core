@@ -21,7 +21,15 @@ spec:
           ports:
             - containerPort: {{ .Values.app.http.port }}
               name: http
+          volumeMounts:
+            - name: config
+              mountPath: /var/www/html/index.html
+              subPath: deploy.json
           resources:
           {{- toYaml .Values.app.resources | nindent 12 }}
       imagePullSecrets:
-        - name: docker-registry
+        - name: {{ .Values.imagePullSecrets }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ .Values.name }}

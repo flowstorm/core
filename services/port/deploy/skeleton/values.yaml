@@ -17,3 +17,6 @@ app:
   resources:
     requests:
       cpu: 0.01
+git:
+  ref: branch_or_tag
+  commit: short_sha
