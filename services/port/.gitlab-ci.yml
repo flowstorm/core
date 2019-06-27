@@ -31,11 +31,12 @@ deploy non-production:
     - kctx ${K8S_DEFAULT_URL} ${K8S_DEFAULT_CERT} ${K8S_DEFAULT_TOKEN}
     - helm upgrade
       --install
+      --recreate-pods
       --namespace $CI_COMMIT_REF_NAME
       --set namespace=$CI_COMMIT_REF_NAME
       --set git.ref=$CI_COMMIT_REF_NAME
       --set git.commit=$CI_COMMIT_SHORT_SHA
-      --set app.image.tag=$CI_COMMIT_SHORT_SHA
+      --set app.image.tag=$CI_COMMIT_REF_NAME
       $CI_PROJECT_NAME-$CI_COMMIT_REF_NAME
       deploy/$CI_PROJECT_NAME
 
