@@ -1,5 +1,5 @@
 # first stage - build app preferably using common builder
-FROM registry.gitlab.com/promethistai/common/builder AS builder
+FROM registry.promethist.ai/common/common/builder AS builder
 
 WORKDIR /project
 
@@ -8,7 +8,7 @@ COPY . .
 #TODO RUN some build command(s)
 
 # second stage - build app runtime
-FROM registry.gitlab.com/promethistai/common/nginx
+FROM registry.promethist.ai/common/common/nginx
 
 WORKDIR /app
 

@@ -22,7 +22,7 @@ build app:
 
 deploy non-production:
   stage: deploy
-  image: registry.gitlab.com/promethistai/common/deployer
+  image: registry.promethist.ai/common/common/deployer
   only:
     - develop
     - preview
@@ -43,7 +43,7 @@ deploy non-production:
 
 deploy production:
   stage: deploy
-  image: registry.gitlab.com/promethistai/common/deployer
+  image: registry.promethist.ai/common/common/deployer
   only:
     - tags
   except:
