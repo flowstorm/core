@@ -47,7 +47,7 @@ deploy production:
   only:
     - tags
   except:
-    - /^(?!master).+@/
+    - /^(!master).+@/
   script:
     - sed -i -- "s/chart.version/$CI_COMMIT_REF_NAME/g; s/app.version/$CI_COMMIT_REF_NAME/g" deploy/$CI_PROJECT_NAME/Chart.yaml
     - kctx ${K8S_DEFAULT_URL} ${K8S_DEFAULT_CERT} ${K8S_DEFAULT_TOKEN}
