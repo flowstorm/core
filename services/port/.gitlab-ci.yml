@@ -28,8 +28,8 @@ deploy non-production:
     - preview
   script:
     - sed -i -- "s/chart.version/$CI_COMMIT_SHORT_SHA/g; s/app.version/$CI_COMMIT_REF_NAME/g" deploy/$CI_PROJECT_NAME/Chart.yaml
-    - gcloud auth activate-service-account --key-file=${GCP_SA_KEY} --project=promethistai
-    - gcloud container clusters get-credentials default --region europe-west3-a
+    - gcloud auth activate-service-account --key-file=${GCP_SA_KEY} --project=${GCP_PROJECT}
+    - gcloud container clusters get-credentials ${GCP_CLUSTER} --region ${GCP_REGION}
     - helm upgrade
       --install
       --recreate-pods
@@ -51,8 +51,8 @@ deploy production:
     - /^(!master).+@/
   script:
     - sed -i -- "s/chart.version/$CI_COMMIT_REF_NAME/g; s/app.version/$CI_COMMIT_REF_NAME/g" deploy/$CI_PROJECT_NAME/Chart.yaml
-    - gcloud auth activate-service-account --key-file=${GCP_SA_KEY} --project=promethistai
-    - gcloud container clusters get-credentials default --region europe-west3-a
+    - gcloud auth activate-service-account --key-file=${GCP_SA_KEY} --project=${GCP_PROJECT}
+    - gcloud container clusters get-credentials ${GCP_CLUSTER} --region ${GCP_REGION}
     - helm upgrade
       --install
       --set git.ref=$CI_COMMIT_REF_NAME
