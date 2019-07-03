@@ -31,7 +31,7 @@ deploy client:
     changes:
       - client/**/*
   script:
-    - rsync -arv -e "ssh -i $SSH_ID_RSA" client/html deployer@jump.promethist.ai:/ext/cluster/default/$CI_COMMIT_REF_NAME/gateway/html/$CI_PROJECT_NAME/client
+    - rsync -arv -e "ssh -o StrictHostKeyChecking=no -i $SSH_ID_RSA" client/html deployer@jump.promethist.ai:/ext/cluster/default/$CI_COMMIT_REF_NAME/gateway/html/$CI_PROJECT_NAME/client
 
 deploy app non-production:
   stage: deploy
