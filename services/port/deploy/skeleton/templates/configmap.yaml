@@ -4,8 +4,9 @@ metadata:
   namespace: {{ .Values.namespace }}
   name: {{ .Values.name }}
 data:
-  deploy.json: |
+  check.json: |
     {
+      "health": 1,
       "name": "{{ .Values.name }}",
       "namespace": "{{ .Values.namespace }}",
       "git.ref": "{{ .Values.git.ref }}",
