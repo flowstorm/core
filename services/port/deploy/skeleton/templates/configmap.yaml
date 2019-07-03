@@ -4,7 +4,7 @@ metadata:
   namespace: {{ .Values.namespace }}
   name: {{ .Values.name }}
 data:
-  check.json: |
+  deploy.json: |
     {
       "health": 1,
       "name": "{{ .Values.name }}",

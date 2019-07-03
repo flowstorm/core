@@ -20,12 +20,28 @@ build app:
     - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
     - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
 
-deploy non-production:
+deploy client:
   stage: deploy
   image: registry.promethist.ai/common/common/deployer
   only:
-    - develop
-    - preview
+    refs:
+      - develop
+      - preview
+      - master
+    changes:
+      - client/**/*
+  script:
+    - rsync -arv -e "ssh -i $SSH_ID_RSA" client/html deployer@jump.promethist.ai:/ext/cluster/default/$CI_COMMIT_REF_NAME/gateway/html/$CI_PROJECT_NAME/client
+
+deploy app non-production:
+  stage: deploy
+  image: registry.promethist.ai/common/common/deployer
+  only:
+    refs:
+      - develop
+      - preview
+    changes:
+      - app/**/*
   script:
     - sed -i -- "s/chart.version/$CI_COMMIT_SHORT_SHA/g; s/app.version/$CI_COMMIT_REF_NAME/g" deploy/$CI_PROJECT_NAME/Chart.yaml
     - gcloud auth activate-service-account --key-file=${GCP_SA_KEY} --project=${GCP_PROJECT}
@@ -42,11 +58,14 @@ deploy non-production:
       $CI_PROJECT_NAME-$CI_COMMIT_REF_NAME
       deploy/$CI_PROJECT_NAME
 
-deploy production:
+deploy app production:
   stage: deploy
   image: registry.promethist.ai/common/common/deployer
   only:
-    - tags
+    refs:
+      - tags
+    changes:
+      - app/**/*
   except:
     - /^(!master).+@/
   script:

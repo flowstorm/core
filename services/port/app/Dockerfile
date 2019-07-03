@@ -13,6 +13,6 @@ FROM registry.promethist.ai/common/common/nginx
 WORKDIR /app
 
 #TODO copy app files from builder into runtime
-COPY --from=builder /project/www /var/www/html
+COPY --from=builder /project/html /var/www/html
 
 #TODO define app ENTRYPOINT
