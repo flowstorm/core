@@ -35,7 +35,7 @@ deploy client:
     - ssh-keyscan jump.promethist.ai >> ~/.ssh/known_hosts
     - chmod 600 $SSH_ID_RSA
   script:
-    - rsync -arv -e "ssh -i $SSH_ID_RSA" client/html deployer@jump.promethist.ai:/ext/cluster/default/$CI_COMMIT_REF_NAME/gateway/html/$CI_PROJECT_NAME/client
+    - rsync -arv -e "ssh -i $SSH_ID_RSA" client/html/* deployer@jump.promethist.ai:/ext/cluster/default/$CI_COMMIT_REF_NAME/gateway/html/$CI_PROJECT_NAME/client
 
 deploy app non-production:
   stage: deploy
