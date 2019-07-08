@@ -1,1 +1,1 @@
-structure depends on application technology used to implement server app.
+structure depends on application technology used to implement server app
