@@ -5,8 +5,6 @@ stages:
 build app:
   stage: build
   image: docker:stable
-  tags:
-    - default
   only:
     changes:
       - app/**/*
