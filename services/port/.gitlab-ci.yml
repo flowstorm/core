@@ -47,7 +47,7 @@ deploy app non-production:
     changes:
       - app/**/*
   script:
-    - sed -i -- "s/chart.version/$CI_COMMIT_SHORT_SHA/g; s/app.version/$CI_COMMIT_REF_NAME/g" deploy/$CI_PROJECT_NAME/Chart.yaml
+    - sed -i -- "s/chart.version/$CI_COMMIT_SHORT_SHA/g; s/app.version/$CI_COMMIT_REF_NAME/g" deploy/app/Chart.yaml
     - gcloud auth activate-service-account --key-file=${GCP_SA_KEY} --project=${GCP_PROJECT}
     - gcloud container clusters get-credentials ${GCP_CLUSTER} --region ${GCP_REGION}
     - helm upgrade
@@ -60,7 +60,7 @@ deploy app non-production:
       --set app.image.tag=$CI_COMMIT_REF_NAME
       --set imagePullPolicy=Always
       $CI_PROJECT_NAME-$CI_COMMIT_REF_NAME
-      deploy/$CI_PROJECT_NAME
+      deploy/app
 
 deploy app production:
   stage: deploy
@@ -73,7 +73,7 @@ deploy app production:
   except:
     - /^(!master).+@/
   script:
-    - sed -i -- "s/chart.version/$CI_COMMIT_REF_NAME/g; s/app.version/$CI_COMMIT_REF_NAME/g" deploy/$CI_PROJECT_NAME/Chart.yaml
+    - sed -i -- "s/chart.version/$CI_COMMIT_REF_NAME/g; s/app.version/$CI_COMMIT_REF_NAME/g" deploy/app/Chart.yaml
     - gcloud auth activate-service-account --key-file=${GCP_SA_KEY} --project=${GCP_PROJECT}
     - gcloud container clusters get-credentials ${GCP_CLUSTER} --region ${GCP_REGION}
     - helm upgrade
@@ -82,4 +82,4 @@ deploy app production:
       --set git.commit=$CI_COMMIT_SHORT_SHA
       --set app.image.tag=$CI_COMMIT_REF_NAME
       $CI_PROJECT_NAME
-      deploy/$CI_PROJECT_NAME
+      deploy/app
