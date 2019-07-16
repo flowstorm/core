@@ -1,2 +1,5 @@
 .idea
-
+.gradle
+*local*
+app/build/
+app/out/
