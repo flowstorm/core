@@ -1,24 +1,18 @@
-# first stage - build and package app
+# first stage - build app preferably using common builder
 FROM registry.promethist.ai/common/common/builder AS builder
 
 WORKDIR /project
 
-#COPY ./build.gradle.kts .
-#COPY ./gradlew .
-#COPY ./gradle/wrapper ./gradle/wrapper/
-## this prevents docker build to download gradle and its dependencies every run (layer will be taken from docker cache)
-#RUN ./gradlew downloadDependencies
-
 COPY . .
-RUN ./gradlew assembleDist
+
+#TODO RUN some build command(s)
 
 # second stage - build app runtime
-FROM registry.promethist.ai/common/common/java:openjdk-8
+FROM registry.promethist.ai/common/common/nginx
 
 WORKDIR /app
 
-COPY --from=builder /project/build/distributions/datastore-app.tar .
+#TODO copy app files from builder into runtime
+COPY --from=builder /project/html /var/www/html
 
-RUN tar xvf datastore-app.tar && mv datastore-app/* . && rm -rf datastore-app*
-
-CMD ["/app/bin/datastore-app"]
+#TODO define app ENTRYPOINT

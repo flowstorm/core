@@ -4,9 +4,12 @@ metadata:
   namespace: {{ .Values.namespace }}
   name: {{ .Values.name }}
 data:
-  config.properties: |
-    name={{ .Values.name }}
-    namespace={{ .Values.namespace }}
-    git.ref={{ .Values.git.ref }}
-    git.commit={{ .Values.git.commit }}
-    app.image={{ .Values.app.image.name }}:{{ .Values.app.image.tag }}
+  deploy.json: |
+    {
+      "health": 1,
+      "name": "{{ .Values.name }}",
+      "namespace": "{{ .Values.namespace }}",
+      "git.ref": "{{ .Values.git.ref }}",
+      "git.commit": "{{ .Values.git.commit }}",
+      "app.image": "{{ .Values.app.image.name }}:{{ .Values.app.image.tag }}"
+    }
