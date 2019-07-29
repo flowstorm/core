@@ -1,3 +1,4 @@
+package: com.promethistai.skeleton
 namespace: default
 name: skeleton
 replicas: 1
@@ -10,13 +11,15 @@ service:
     port: 80
 app:
   http:
-    port: 80
+    port: 8080
   image:
     name: registry.promethist.ai/common/skeleton
     tag: latest
   resources:
     requests:
       cpu: 0.01
+  logging: FALSE
+  tracing: OFF
 git:
   ref: branch_or_tag
   commit: short_sha

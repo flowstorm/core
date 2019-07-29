@@ -4,12 +4,12 @@ metadata:
   namespace: {{ .Values.namespace }}
   name: {{ .Values.name }}
 data:
-  deploy.json: |
-    {
-      "health": 1,
-      "name": "{{ .Values.name }}",
-      "namespace": "{{ .Values.namespace }}",
-      "git.ref": "{{ .Values.git.ref }}",
-      "git.commit": "{{ .Values.git.commit }}",
-      "app.image": "{{ .Values.app.image.name }}:{{ .Values.app.image.tag }}"
-    }
+  config.properties: |
+    package={{ .Values.package }}
+    name={{ .Values.name }}
+    namespace={{ .Values.namespace }}
+    git.ref={{ .Values.git.ref }}
+    git.commit={{ .Values.git.commit }}
+    app.image={{ .Values.app.image.name }}:{{ .Values.app.image.tag }}
+    app.logging={{ .Values.app.logging }}
+    app.tracing={{ .Values.app.tracing }}

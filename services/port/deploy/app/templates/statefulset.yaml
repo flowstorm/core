@@ -23,8 +23,8 @@ spec:
               name: http
           volumeMounts:
             - name: config
-              mountPath: /var/www/html/check/index.html
-              subPath: deploy.json
+              mountPath: /app/config.properties
+              subPath: config.properties
           resources:
           {{- toYaml .Values.app.resources | nindent 12 }}
       imagePullSecrets:
