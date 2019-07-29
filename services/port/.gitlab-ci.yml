@@ -43,6 +43,7 @@ deploy app non-production:
       - preview
     changes:
       - app/**/*
+      - deploy/app/**/*
   script:
     - sed -i -- "s/chart.version/$CI_COMMIT_SHORT_SHA/g; s/app.version/$CI_COMMIT_REF_NAME/g" deploy/app/Chart.yaml
     - gcloud auth activate-service-account --key-file=${GCP_SA_KEY} --project=${GCP_PROJECT}
@@ -67,6 +68,7 @@ deploy app production:
       - tags
     changes:
       - app/**/*
+      - deploy/app/**/*
   except:
     - /^(!master).+@/
   script:

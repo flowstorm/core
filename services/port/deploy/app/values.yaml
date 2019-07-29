@@ -18,8 +18,8 @@ app:
   resources:
     requests:
       cpu: 0.01
-  logging: FALSE
-  tracing: OFF
+  logging: "FALSE"
+  tracing: "OFF"
 git:
   ref: branch_or_tag
   commit: short_sha
