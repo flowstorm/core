@@ -26,6 +26,6 @@ docker-compose up -d
 ```
 
 #### ToDo's 
-* gitlab-ci.yml update including gcloud endpoints deployment (which requires API extensions), hello resources should demonstrate using of authorized API key
+* support for google swagger extensions (e.g. quotas)
 * `com.promethistai.common.*` classes should be moved to separated java library (`com.promethistai.common:common-lib`) and referenced by dependency
 * FIX compiling Java first

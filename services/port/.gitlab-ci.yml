@@ -13,7 +13,7 @@ build app:
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
-    - docker build --cache-from $CI_REGISTRY_IMAGE --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA app
+    - docker build --cache-from $CI_REGISTRY_IMAGE --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA --build-arg API_HOST=$CI_PROJECT_NAME.$CI_COMMIT_REF_NAME.promethist.ai app
     - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
     - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
 
@@ -61,7 +61,6 @@ deploy app non-production:
       $CI_PROJECT_NAME-$CI_COMMIT_REF_NAME
       deploy/app
     - docker run --rm -v /tmp:/tmp $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME sh -c "cp /app/swagger.yaml /tmp/swagger.$CI_COMMIT_SHORT_SHA.yaml"
-    - sed -i -- "s/localhost:8080/$CI_PROJECT_NAME.$CI_COMMIT_REF_NAME.promethist.ai/g" /tmp/swagger.$CI_COMMIT_SHORT_SHA.yaml
     - gcloud endpoints services deploy /tmp/swagger.$CI_COMMIT_SHORT_SHA.yaml
 
 deploy app production:
@@ -88,5 +87,4 @@ deploy app production:
       $CI_PROJECT_NAME
       deploy/app
     - docker run --rm -v /tmp:/tmp $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME sh -c "cp /app/swagger.yaml /tmp/swagger.$CI_COMMIT_SHORT_SHA.yaml"
-    - sed -i -- "s/localhost:8080/$CI_PROJECT_NAME.promethist.ai/g" /tmp/swagger.$CI_COMMIT_SHORT_SHA.yaml
     - gcloud endpoints services deploy /tmp/swagger.$CI_COMMIT_SHORT_SHA.yaml

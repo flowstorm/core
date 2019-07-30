@@ -13,6 +13,7 @@ import javax.ws.rs.core.MediaType
 class HelloResource {
 
     @GET
+    @Path("hello")
     @ApiOperation(value = "Sample operation", authorizations = [
             Authorization("apiKey")
         ]/*, extensions = [
