@@ -19,7 +19,7 @@
         <main.class>com.promethistai.common.JerseyApplication</main.class>
         <!-- swagger properties -->
         <api.host>localhost:8080</api.host>
-        <api.locations>com.promethistai.common.resources;com.promethistai.skeleton.resources</api.locations>
+        <api.locations>com.promethistai.common.resources,com.promethistai.skeleton.resources</api.locations>
         <api.version>v1</api.version>
         <api.description>This is a sample Skeleton API</api.description>
     </properties>
@@ -172,7 +172,7 @@
             <plugin>
                 <groupId>com.github.kongchen</groupId>
                 <artifactId>swagger-maven-plugin</artifactId>
-                <version>3.1.2</version>
+                <version>3.1.7</version>
                 <configuration>
                     <apiSources>
                         <apiSource>
@@ -194,11 +194,13 @@
                                     <url>https://promethist.ai</url>
                                 </contact>
                             </info>
-                            <!--<securityDefinitions>
+                            <securityDefinitions>
                                 <securityDefinition>
-                                    <json>/securityDefinition.json</json>
+                                    <name>apiKey</name>
+                                    <type>apiKey</type>
+                                    <in>query</in>
                                 </securityDefinition>
-                            </securityDefinitions>-->
+                            </securityDefinitions>
                         </apiSource>
                     </apiSources>
                 </configuration>

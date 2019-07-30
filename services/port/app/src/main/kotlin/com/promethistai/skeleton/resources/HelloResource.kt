@@ -1,7 +1,6 @@
 package com.promethistai.skeleton.resources
 
-import io.swagger.annotations.Api
-import io.swagger.annotations.ApiOperation
+import io.swagger.annotations.*
 import javax.ws.rs.GET
 import javax.ws.rs.Path
 import javax.ws.rs.Produces
@@ -14,7 +13,14 @@ import javax.ws.rs.core.MediaType
 class HelloResource {
 
     @GET
-    @ApiOperation("Sample operation")
+    @ApiOperation(value = "Sample operation", authorizations = [
+            Authorization("apiKey")
+        ]/*, extensions = [
+        Extension(name = "google-quota", properties = [
+            ExtensionProperty(name = "name1", value = "value1"),
+            ExtensionProperty(name = "name2", value = "value2")
+        ])
+    ]*/)
     fun getHello(): Hello {
         return Hello("Hello Kotlin from Skeleton app!")
     }

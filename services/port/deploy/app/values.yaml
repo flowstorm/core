@@ -7,11 +7,12 @@ imagePullPolicy: IfNotPresent
 
 service:
   type: ClusterIP
-  http:
+  host: skeleton.promethist.ai
+  esp:
     port: 80
-app:
-  http:
+  app:
     port: 8080
+app:
   image:
     name: registry.promethist.ai/common/skeleton
     tag: latest
@@ -20,6 +21,13 @@ app:
       cpu: 0.01
   logging: "FALSE"
   tracing: "OFF"
+esp:
+  image:
+    name: gcr.io/endpoints-release/endpoints-runtime
+    tag: 1
+  resources:
+    requests:
+      cpu: 0.01
 git:
   ref: branch_or_tag
   commit: short_sha

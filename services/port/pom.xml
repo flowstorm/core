@@ -10,6 +10,11 @@
     <artifactId>skeleton</artifactId>
     <version>0.0.0-SNAPSHOT</version>
     <name>Skeleton</name>
+
+    <properties>
+        <app.version>0.0.0</app.version>
+    </properties>
+
     <modules>
         <module>app</module>
     </modules>

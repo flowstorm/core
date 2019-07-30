@@ -10,7 +10,10 @@ spec:
   selector:
     app: {{ .Values.name }}
   ports:
-    - name: http
-      port: {{ .Values.service.http.port }}
-      targetPort: {{ .Values.app.http.port }}
+    - name: http-app
+      port: {{ .Values.service.app.port }}
+      targetPort: {{ .Values.service.app.port }}
+    - name: http-esp
+      port: {{ .Values.service.esp.port }}
+      targetPort: {{ .Values.service.esp.port }}
 

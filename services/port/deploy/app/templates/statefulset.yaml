@@ -19,14 +19,27 @@ spec:
           image: {{ .Values.app.image.name }}:{{ .Values.app.image.tag }}
           imagePullPolicy: {{ .Values.imagePullPolicy }}
           ports:
-            - containerPort: {{ .Values.app.http.port }}
-              name: http
+            - containerPort: {{ .Values.service.app.port }}
+              name: http-app
           volumeMounts:
             - name: config
               mountPath: /app/config.properties
               subPath: config.properties
           resources:
           {{- toYaml .Values.app.resources | nindent 12 }}
+        - name: esp
+          image: {{ .Values.esp.image.name }}:{{ .Values.esp.image.tag }}
+          ports:
+            - containerPort: {{ .Values.service.esp.port }}
+              name: http-esp
+          args: [
+            "--http_port={{ .Values.service.esp.port }}",
+            "--backend=127.0.0.1:{{ .Values.service.app.port }}",
+            "--service={{ .Values.service.host }}",
+            "--rollout_strategy=managed"
+          ]
+          resources:
+          {{- toYaml .Values.esp.resources | nindent 12 }}
       imagePullSecrets:
         - name: {{ .Values.imagePullSecrets }}
       volumes:

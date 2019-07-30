@@ -53,12 +53,16 @@ deploy app non-production:
       --recreate-pods
       --namespace $CI_COMMIT_REF_NAME
       --set namespace=$CI_COMMIT_REF_NAME
+      --set service.host=$CI_PROJECT_NAME.$CI_COMMIT_REF_NAME.promethist.ai
       --set git.ref=$CI_COMMIT_REF_NAME
       --set git.commit=$CI_COMMIT_SHORT_SHA
       --set app.image.tag=$CI_COMMIT_REF_NAME
       --set imagePullPolicy=Always
       $CI_PROJECT_NAME-$CI_COMMIT_REF_NAME
       deploy/app
+    - docker run --rm -v /tmp:/tmp $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME sh -c "cp /app/swagger.yaml /tmp/swagger.$CI_COMMIT_SHORT_SHA.yaml"
+    - sed -i -- "s/localhost:8080/$CI_PROJECT_NAME.$CI_COMMIT_REF_NAME.promethist.ai/g" /tmp/swagger.$CI_COMMIT_SHORT_SHA.yaml
+    - gcloud endpoints services deploy /tmp/swagger.$CI_COMMIT_SHORT_SHA.yaml
 
 deploy app production:
   stage: deploy
@@ -77,8 +81,12 @@ deploy app production:
     - gcloud container clusters get-credentials ${GCP_CLUSTER} --region ${GCP_REGION}
     - helm upgrade
       --install
+      --set service.host=$CI_PROJECT_NAME.promethist.ai
       --set git.ref=$CI_COMMIT_REF_NAME
       --set git.commit=$CI_COMMIT_SHORT_SHA
       --set app.image.tag=$CI_COMMIT_REF_NAME
       $CI_PROJECT_NAME
       deploy/app
+    - docker run --rm -v /tmp:/tmp $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME sh -c "cp /app/swagger.yaml /tmp/swagger.$CI_COMMIT_SHORT_SHA.yaml"
+    - sed -i -- "s/localhost:8080/$CI_PROJECT_NAME.promethist.ai/g" /tmp/swagger.$CI_COMMIT_SHORT_SHA.yaml
+    - gcloud endpoints services deploy /tmp/swagger.$CI_COMMIT_SHORT_SHA.yaml
