@@ -1,10 +1,7 @@
 package com.promethistai.skeleton.resources
 
 import io.swagger.annotations.*
-import javax.ws.rs.GET
-import javax.ws.rs.Path
-import javax.ws.rs.Produces
-import javax.ws.rs.WebApplicationException
+import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
 
 @Path("/")
@@ -22,8 +19,8 @@ class HelloResource {
             ExtensionProperty(name = "name2", value = "value2")
         ])
     ]*/)
-    fun getHello(): Hello {
-        return Hello("Hello Kotlin from Skeleton app!")
+    fun getHello(@ApiParam(hidden = true) @QueryParam("key") apiKey: String): Hello {
+        return Hello("Hello Kotlin from Skeleton app (apiKey=$apiKey)")
     }
 
     @GET
