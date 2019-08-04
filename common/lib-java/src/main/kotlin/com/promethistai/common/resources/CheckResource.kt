@@ -1,6 +1,6 @@
 package com.promethistai.common.resources
 
-import com.promethistai.common.Config
+import com.promethistai.common.AppConfig
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import javax.ws.rs.GET
@@ -16,11 +16,12 @@ class CheckResource {
     @GET
     @ApiOperation("Check service health and basic config parameters")
     fun getCheck(): Check {
-        val config = Config.instance
+        val config = AppConfig.instance
         return Check(
                 1.0,
                 config["name"],
                 config["namespace"],
+                config["package"],
                 config["git.ref"],
                 config["git.commit"],
                 config["app.image"])

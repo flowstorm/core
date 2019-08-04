@@ -20,10 +20,10 @@ class JerseyApplication : ResourceConfig() {
         packages(
             "com.promethistai.common.filters",
             "com.promethistai.common.resources",
-            Config.instance["package"] + ".filters",
-            Config.instance["package"] + ".resources"
+            AppConfig.instance["package"] + ".filters",
+            AppConfig.instance["package"] + ".resources"
         )
-        if ("TRUE" == Config.instance["app.logging"])
+        if ("TRUE" == AppConfig.instance["app.logging"])
             register(LoggingFeature(Logger.getLogger(LoggingFeature.DEFAULT_LOGGER_NAME), Level.INFO, LoggingFeature.Verbosity.PAYLOAD_ANY, 10000))
     }
 }
