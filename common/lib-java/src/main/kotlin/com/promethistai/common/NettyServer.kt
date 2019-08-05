@@ -13,9 +13,9 @@ import javax.ws.rs.ext.ContextResolver
  */
 class NettyServer(private val resourceConfig: ResourceConfig) {
 
-    val channel =
+    private val channel =
         NettyHttpContainerProvider.createHttp2Server(
-            URI.create(AppConfig.instance["server.baseUri"]?:"http://localhost:8080/"),
+            URI.create("http://localhost:" + (AppConfig.instance["server.port"]?:"8080") + "/"),
             resourceConfig.register(ContextResolver<ObjectMapper> {
                 ObjectMapper().registerModule(KotlinModule())
             }).property(ServerProperties.TRACING, AppConfig.instance["app.tracing"]?:"OFF"),
