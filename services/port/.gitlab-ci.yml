@@ -17,23 +17,6 @@ build app:
     - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
     - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
 
-deploy client:
-  stage: deploy
-  image: registry.promethist.ai/common/common/deployer
-  only:
-    refs:
-      - develop
-      - preview
-      - master
-    changes:
-      - client/**/*
-  before_script:
-    - mkdir -p ~/.ssh
-    - ssh-keyscan jump.promethist.ai >> ~/.ssh/known_hosts
-    - chmod 600 $SSH_ID_RSA
-  script:
-    - rsync -arv -e "ssh -i $SSH_ID_RSA" client/html/* deployer@jump.promethist.ai:/ext/cluster/default/$CI_COMMIT_REF_NAME/gateway/html/$CI_PROJECT_NAME/client
-
 deploy app non-production:
   stage: deploy
   image: registry.promethist.ai/common/common/deployer

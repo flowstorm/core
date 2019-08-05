@@ -19,7 +19,7 @@ spec:
           image: {{ .Values.app.image.name }}:{{ .Values.app.image.tag }}
           imagePullPolicy: {{ .Values.imagePullPolicy }}
           ports:
-            - containerPort: {{ .Values.service.app.port }}
+            - containerPort: {{ .Values.app.port }}
               name: http-app
           volumeMounts:
             - name: config

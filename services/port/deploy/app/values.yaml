@@ -1,20 +1,18 @@
-package: com.promethistai.skeleton
 namespace: default
-name: skeleton
+name: port
 replicas: 1
 imagePullSecrets: promethistai-registry
 imagePullPolicy: IfNotPresent
 
 service:
   type: ClusterIP
-  host: skeleton.promethist.ai
-  esp:
-    port: 80
+  host: port.promethist.ai
   app:
-    port: 8080
+    port: 80
 app:
+  port: 8080
   image:
-    name: registry.promethist.ai/common/skeleton
+    name: registry.promethist.ai/common/port
     tag: latest
   resources:
     requests:

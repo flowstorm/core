@@ -5,7 +5,6 @@ metadata:
   name: {{ .Values.name }}
 data:
   config.properties: |
-    package={{ .Values.package }}
     name={{ .Values.name }}
     namespace={{ .Values.namespace }}
     git.ref={{ .Values.git.ref }}
