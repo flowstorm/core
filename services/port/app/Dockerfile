@@ -1,9 +1,6 @@
 # first stage - build app preferably using common builder
 FROM registry.promethist.ai/common/common/builder AS builder
 
-ARG VERSION=0.0.0
-ARG API_HOST=localhost:8080
-
 WORKDIR /project
 
 # download dependencies
@@ -12,17 +9,12 @@ RUN mvn verify --fail-never
 
 # build and package app
 COPY . .
-#RUN mvn versions:set -DnewVersion=${version} versions:commit
-RUN mvn -Dapi.host=${API_HOST} package
+RUN mvn clean package
 
 # second stage - build app runtime
-FROM registry.promethist.ai/common/common/java:openjdk-8
+FROM jetty:9.4.18-jre8-alpine
 
-WORKDIR /app
+RUN java -jar $JETTY_HOME/start.jar --create-startd --add-to-start=http2 --approve-all-licenses
 
-#TODO copy app files from builder into runtime
-COPY --from=builder /project/config.properties /app/
-COPY --from=builder /project/target/classes/swagger.* /app/
-COPY --from=builder /project/target/app-jar-with-dependencies.jar /app/app.jar
-
-CMD ["java", "-jar", "app.jar" ]
+COPY --from=builder /project/app.properties .
+COPY --from=builder /project/target/app.war /var/lib/jetty/webapps/ROOT.war
