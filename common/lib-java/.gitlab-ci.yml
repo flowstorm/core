@@ -1,4 +1,4 @@
-build:
+build release:
   stage: deploy
   image: registry.promethist.ai/common/common/builder
   only:
