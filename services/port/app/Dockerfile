@@ -1,6 +1,8 @@
 # first stage - build app preferably using common builder
 FROM registry.promethist.ai/common/common/builder AS builder
 
+ARG API_HOST=localhost:8080
+
 WORKDIR /project
 
 # download dependencies
@@ -9,7 +11,8 @@ RUN mvn verify --fail-never
 
 # build and package app
 COPY . .
-RUN mvn clean package
+
+RUN mvn -Dapi.host=${API_HOST} clean package
 
 # second stage - build app runtime
 FROM jetty:9.4.18-jre8-alpine
