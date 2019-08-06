@@ -1,11 +1,10 @@
-package com.promethistai.port.stt.impl
+package com.promethistai.port.stt
 
 import com.google.api.gax.rpc.ClientStream
 import com.google.cloud.speech.v1.RecognitionConfig
 import com.google.cloud.speech.v1.StreamingRecognitionConfig
 import com.google.cloud.speech.v1.StreamingRecognizeRequest
 import com.google.protobuf.ByteString
-import com.promethistai.port.stt.SttStream
 
 class GoogleSttStream(private val clientStream: ClientStream<StreamingRecognizeRequest>) : SttStream {
 

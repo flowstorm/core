@@ -1,8 +1,7 @@
-package com.promethistai.port.bot.impl
+package com.promethistai.port.bot
 
 import com.google.gson.GsonBuilder
 import com.promethistai.common.AppConfig
-import com.promethistai.port.bot.BotService
 import java.io.IOException
 import java.io.InputStreamReader
 import java.net.URL

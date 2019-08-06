@@ -1,4 +1,4 @@
-package com.promethistai.port.stt.impl
+package com.promethistai.port.stt
 
 import com.google.api.gax.rpc.ResponseObserver
 import com.google.api.gax.rpc.StreamController

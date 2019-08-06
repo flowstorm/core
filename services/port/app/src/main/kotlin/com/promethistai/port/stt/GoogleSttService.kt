@@ -1,10 +1,7 @@
-package com.promethistai.port.stt.impl
+package com.promethistai.port.stt
 
 import com.google.cloud.speech.v1.RecognitionConfig
 import com.google.cloud.speech.v1.SpeechClient
-import com.promethistai.port.stt.SttConfig
-import com.promethistai.port.stt.SttCallback
-import com.promethistai.port.stt.SttService
 import java.util.concurrent.TimeUnit
 
 class GoogleSttService(config: SttConfig, callback: SttCallback) : SttService {

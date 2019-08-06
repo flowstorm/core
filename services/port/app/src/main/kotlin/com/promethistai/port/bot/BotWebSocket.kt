@@ -4,8 +4,10 @@ import com.google.gson.GsonBuilder
 import com.google.gson.JsonSyntaxException
 import com.promethistai.port.stt.SttCallback
 import com.promethistai.port.stt.SttService
+import com.promethistai.port.stt.SttServiceFactory
 import com.promethistai.port.stt.SttStream
 import com.promethistai.port.tts.TtsService
+import com.promethistai.port.tts.TtsServiceFactory
 import org.eclipse.jetty.websocket.api.WebSocketAdapter
 import java.io.IOException
 import java.nio.ByteBuffer
@@ -13,7 +15,7 @@ import java.nio.ByteBuffer
 class BotWebSocket : WebSocketAdapter() {
 
     private val gson = GsonBuilder().create()
-    private val botService = BotService.create()
+    private val botService = BotServiceFactory.create()
     private var sttService: SttService? = null
     private var sttStream: SttStream? = null
     private var clientCapabilities: BotClientCapabilities = BotClientCapabilities()
@@ -48,7 +50,7 @@ class BotWebSocket : WebSocketAdapter() {
 
                 BotEvent.Type.InputAudioStreamOpen -> {
                     close()
-                    sttService = SttService.create(speechProvider, event.sttConfig!!,
+                    sttService = SttServiceFactory.create(speechProvider, event.sttConfig!!,
                         object : SttCallback {
 
                             override fun onResponse(transcript: String, confidence: Float, final: Boolean) {
@@ -117,7 +119,7 @@ class BotWebSocket : WebSocketAdapter() {
 
     @Throws(IOException::class)
     internal fun sendAudio(text: String, voice: String, lang: String) {
-        TtsService.create(speechProvider).use { service ->
+        TtsServiceFactory.create(speechProvider).use { service ->
             val audio = service.speak(text, voice, lang)
             remote.sendBytes(ByteBuffer.wrap(audio))
         }

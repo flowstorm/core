@@ -26,7 +26,7 @@ class SttWebSocket : WebSocketAdapter() {
                         return
                     val language = command.params?.get("language") as String
                     val sampleRate = command.params?.get("sampleRate") as Double
-                    client = SttService.create("google", SttConfig(language, Math.round(sampleRate).toInt()),
+                    client = SttServiceFactory.create("google", SttConfig(language, Math.round(sampleRate).toInt()),
                         object : SttCallback {
                             override fun onResponse(transcript: String, confidence: Float, final: Boolean) {
                                 val event = SttEvent()
