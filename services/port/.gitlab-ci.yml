@@ -68,8 +68,6 @@ deploy app non-production:
       --set imagePullPolicy=Always
       $CI_PROJECT_NAME-$CI_COMMIT_REF_NAME
       deploy/app
-    - docker run --rm -v /tmp:/tmp $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME sh -c "cp /app/swagger.yaml /tmp/swagger.$CI_COMMIT_SHORT_SHA.yaml"
-    - gcloud endpoints services deploy /tmp/swagger.$CI_COMMIT_SHORT_SHA.yaml
 
 deploy app production:
   stage: deploy
@@ -94,5 +92,3 @@ deploy app production:
       --set app.image.tag=$CI_COMMIT_REF_NAME
       $CI_PROJECT_NAME
       deploy/app
-    - docker run --rm -v /tmp:/tmp $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME sh -c "cp /app/swagger.yaml /tmp/swagger.$CI_COMMIT_SHORT_SHA.yaml"
-    - gcloud endpoints services deploy /tmp/swagger.$CI_COMMIT_SHORT_SHA.yaml
