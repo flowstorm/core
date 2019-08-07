@@ -8,7 +8,7 @@ import org.glassfish.jersey.servlet.ServletContainer
 
 class JettyServer(private val resourceConfig: ResourceConfig) {
 
-    private val server = Server((AppConfig.instance["server.port"]?:"8080").toInt())
+    private val server = Server(AppConfig.instance.get("server.port", "8080").toInt())
 
     init {
         val servlet = ServletHolder(ServletContainer(resourceConfig))

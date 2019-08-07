@@ -3,6 +3,7 @@ package com.promethistai.common
 import java.io.FileInputStream
 import java.io.IOException
 import java.io.Serializable
+import java.lang.NullPointerException
 import java.util.*
 
 /**
@@ -27,12 +28,19 @@ class AppConfig: Serializable, Cloneable {
         }
     }
 
-    operator fun get(key: String): String? {
-        return if (this.properties[key] == null) null else this.properties[key] as String
+    fun get(key: String, defaultValue: String): String {
+        return if (properties[key] == null) defaultValue else properties[key] as String
+    }
+
+    operator fun get(key: String): String {
+        return if (properties[key] == null)
+            throw NullPointerException("Missing config property $key")
+        else
+            properties[key] as String
     }
 
     operator fun set(key: String, value: Any) {
-        this.properties[key] = value
+        properties[key] = value
     }
 
     override fun toString(): String {
