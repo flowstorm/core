@@ -40,6 +40,20 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!-- slf4j (for local run) -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.5</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.7.5</version>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- jersey -->
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
@@ -125,7 +139,12 @@
         <dependency>
             <groupId>com.promethistai.common</groupId>
             <artifactId>common-lib</artifactId>
-            <version>1.0.2</version>
+            <version>${promethistai.common.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.promethistai.datastore</groupId>
+            <artifactId>datastore-api</artifactId>
+            <version>${promethistai.datastore.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>

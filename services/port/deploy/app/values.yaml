@@ -3,6 +3,7 @@ name: port
 replicas: 1
 imagePullSecrets: promethistai-registry
 imagePullPolicy: IfNotPresent
+apiKey: AIzaSyDpYmTgXGmZY-vWO6ryOcSQ5YZhBsu6NWc
 
 service:
   type: ClusterIP

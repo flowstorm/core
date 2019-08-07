@@ -2,7 +2,7 @@ package com.promethistai.port.stt
 
 interface SttCallback {
 
-    fun onResponse(transcript: String, confidence: Float, final: Boolean)
+    fun onResponse(transcript: String, confidence: Float, isFinal: Boolean)
 
     fun onOpen()
 

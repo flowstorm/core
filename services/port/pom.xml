@@ -14,6 +14,8 @@
     <properties>
         <kotlin.version>1.3.41</kotlin.version>
         <jersey.version>2.28</jersey.version>
+        <promethistai.common.version>1.0.3-SNAPSHOT</promethistai.common.version>
+        <promethistai.datastore.version>1.0.0-SNAPSHOT</promethistai.datastore.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.compiler.incremental>false</kotlin.compiler.incremental>
     </properties>

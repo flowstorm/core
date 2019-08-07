@@ -7,8 +7,10 @@ data:
   config.properties: |
     name={{ .Values.name }}
     namespace={{ .Values.namespace }}
+    service.host={{ .Values.service.host }}
     git.ref={{ .Values.git.ref }}
     git.commit={{ .Values.git.commit }}
     app.image={{ .Values.app.image.name }}:{{ .Values.app.image.tag }}
     app.logging={{ .Values.app.logging }}
     app.tracing={{ .Values.app.tracing }}
+    apiKey={{ .Values.apiKey }}

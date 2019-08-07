@@ -1,3 +1,5 @@
 package com.promethistai.port.resources
 
-data class PortConfig(val id: String)
+import com.promethistai.datastore.resources.Object
+
+data class PortConfig(val id: Long, val contract: Object)

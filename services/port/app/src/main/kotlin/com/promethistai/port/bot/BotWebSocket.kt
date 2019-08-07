@@ -1,21 +1,22 @@
 package com.promethistai.port.bot
 
 import com.google.gson.GsonBuilder
-import com.google.gson.JsonSyntaxException
 import com.promethistai.port.stt.SttCallback
 import com.promethistai.port.stt.SttService
 import com.promethistai.port.stt.SttServiceFactory
 import com.promethistai.port.stt.SttStream
-import com.promethistai.port.tts.TtsService
 import com.promethistai.port.tts.TtsServiceFactory
 import org.eclipse.jetty.websocket.api.WebSocketAdapter
 import java.io.IOException
 import java.nio.ByteBuffer
+import javax.inject.Inject
 
 class BotWebSocket : WebSocketAdapter() {
 
+    @Inject
+    lateinit var botService: BotService
+
     private val gson = GsonBuilder().create()
-    private val botService = BotServiceFactory.create()
     private var sttService: SttService? = null
     private var sttStream: SttStream? = null
     private var clientCapabilities: BotClientCapabilities = BotClientCapabilities()
@@ -88,9 +89,7 @@ class BotWebSocket : WebSocketAdapter() {
                 else -> {}
             }
 
-        } catch (e: JsonSyntaxException) {
-            e.printStackTrace()
-        } catch (e: IOException) {
+        } catch (e: Exception) {
             e.printStackTrace()
         }
     }

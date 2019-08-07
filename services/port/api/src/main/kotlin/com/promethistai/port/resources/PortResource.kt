@@ -17,7 +17,7 @@ interface PortResource {
     @Path("config")
     @ApiOperation(value = "Get port configuration")
     @Produces(MediaType.APPLICATION_JSON)
-    fun config(@QueryParam("id") id: String): PortConfig
+    fun config(@QueryParam("id") id: Long): PortConfig
 
     @GET
     @Path("bot/text")
