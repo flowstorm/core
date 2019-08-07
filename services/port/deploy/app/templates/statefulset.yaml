@@ -23,8 +23,8 @@ spec:
               name: http-app
           volumeMounts:
             - name: config
-              mountPath: /app.properties
-              subPath: config.properties
+              mountPath: /var/lib/jetty/app.properties
+              subPath: app.properties
           resources:
           {{- toYaml .Values.app.resources | nindent 12 }}
       imagePullSecrets:
