@@ -26,9 +26,8 @@ deploy api:
     changes:
       - api/**/*
   script:
-    - cd api
-    - mvn versions:set -DnewVersion=$CI_COMMIT_REF_NAME
-    - mvn deploy
+    - mvn -pl .,api versions:set -DnewVersion=$CI_COMMIT_REF_NAME
+    - mvn -pl .,api deploy
 
 deploy api snapshot:
   stage: deploy
@@ -39,8 +38,7 @@ deploy api snapshot:
     changes:
       - api/**/*
   script:
-    - cd api
-    - mvn deploy
+    - mvn -pl .,api deploy
 
 deploy app non-production:
   stage: deploy

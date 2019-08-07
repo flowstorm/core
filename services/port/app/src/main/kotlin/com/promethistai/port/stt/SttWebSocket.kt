@@ -33,7 +33,7 @@ class SttWebSocket : WebSocketAdapter() {
                                 event.type = SttEvent.Type.Recognized
                                 event.params["transcript"] = transcript
                                 event.params["confidence"] = confidence
-                                event.params["final"] = final
+                                event.params["isFinal"] = final
                                 sendEvent(event)
                             }
 
