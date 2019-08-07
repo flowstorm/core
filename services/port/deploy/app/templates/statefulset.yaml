@@ -23,7 +23,7 @@ spec:
               name: http-app
           volumeMounts:
             - name: config
-              mountPath: /app/config.properties
+              mountPath: /app.properties
               subPath: config.properties
           resources:
           {{- toYaml .Values.app.resources | nindent 12 }}

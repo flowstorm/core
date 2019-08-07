@@ -40,12 +40,12 @@ interface PortResource {
     @POST
     @Path("audio/output")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    @ApiOperation(value = "BronzeRabbit backward compatibility (see tts)")
+    @ApiOperation(hidden = true, value = "BronzeRabbit backward compatibility (see tts)")
     fun ttsBR(request: TtsRequest): ByteArray
 
     @GET
     @Path("voices")
-    @ApiOperation(value = "BronzeRabbit backward compatibility (see tts/voices)")
+    @ApiOperation(hidden = true, value = "BronzeRabbit backward compatibility (see tts/voices)")
     @Produces(MediaType.APPLICATION_JSON)
     fun ttsVoicesBR(): List<TtsVoice>
 

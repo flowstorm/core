@@ -4,7 +4,7 @@ metadata:
   namespace: {{ .Values.namespace }}
   name: {{ .Values.name }}
 data:
-  config.properties: |
+  app.properties: |
     name={{ .Values.name }}
     namespace={{ .Values.namespace }}
     service.host={{ .Values.service.host }}
