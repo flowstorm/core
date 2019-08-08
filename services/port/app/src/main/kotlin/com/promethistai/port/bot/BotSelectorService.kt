@@ -26,8 +26,8 @@ class BotSelectorService : BotService {
             return javaClass.getDeclaredField("${name}Service").get(this) as BotService
     }
 
-    override fun process(key: String, text: String): BotService.Response =
-        getBotService(key).process(key, text)
+    override fun message(key: String, text: String): BotService.Response =
+        getBotService(key).message(key, text)
 
     override fun welcome(key: String): String =
         getBotService(key).welcome(key)

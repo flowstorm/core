@@ -44,7 +44,7 @@ class BotWebSocket : WebSocketAdapter() {
                 }
 
                 BotEvent.Type.Text -> {
-                    val response = botService.process(event.key!!, event.text!!)
+                    val response = botService.message(event.key!!, event.text!!)
                     val text = response.answer.trim()
                     if (text.isNotEmpty())
                         sendText(text)
@@ -59,7 +59,7 @@ class BotWebSocket : WebSocketAdapter() {
                                 try {
                                     if (final) {
                                         sendEvent(BotEvent(BotEvent.Type.Recognized, transcript))
-                                        val response = botService.process(event.key!!, transcript)
+                                        val response = botService.message(event.key!!, transcript)
                                         val answer = response.answer.trim()
                                         if (answer.isNotEmpty())
                                             sendText(answer)

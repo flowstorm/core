@@ -24,8 +24,12 @@ class PortResourceImpl : PortResource {
 
     override fun getConfig(key: String): PortConfig = configService.getConfig(key)
 
-    override fun botText(key: String, text: String): BotService.Response {
-        return botService.process(key, text)
+    override fun message(key: String, text: String): BotService.Response {
+        return botService.message(key, text)
+    }
+
+    override fun welcome(key: String): String {
+        return botService.welcome(key)
     }
 
     override fun tts(provider: String, request: TtsRequest): ByteArray {

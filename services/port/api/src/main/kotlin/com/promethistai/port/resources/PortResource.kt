@@ -11,18 +11,13 @@ import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
 
 @Api(description = "Port resource")
-interface PortResource {
+interface PortResource : BotService {
 
     @GET
     @Path("config")
     @ApiOperation(value = "Get port configuration")
     @Produces(MediaType.APPLICATION_JSON)
     fun getConfig(@QueryParam("key") key: String): PortConfig
-
-    @GET
-    @Path("bot/text")
-    @Produces(MediaType.APPLICATION_JSON)
-    fun botText(@QueryParam("key") key: String, @QueryParam("text") text: String): BotService.Response
 
     @POST
     @Path("tts")
