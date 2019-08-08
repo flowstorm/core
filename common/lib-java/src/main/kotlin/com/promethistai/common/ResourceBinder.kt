@@ -17,11 +17,7 @@ abstract class ResourceBinder : AbstractBinder() {
         return bindFactory(object : Factory<I> {
 
             override fun provide(): I {
-                val target = ClientBuilder.newClient()
-                        .target(targetUrl)
-                        .register(JacksonFeature::class)
-
-                return WebResourceFactory.newResource(iface, target)
+                return RestClient.instance(iface, targetUrl)
             }
 
             override fun dispose(obj: I) {
