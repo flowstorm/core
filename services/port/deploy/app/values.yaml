@@ -4,7 +4,8 @@ replicas: 1
 imagePullSecrets: promethistai-registry
 imagePullPolicy: IfNotPresent
 apiKey: AIzaSyDpYmTgXGmZY-vWO6ryOcSQ5YZhBsu6NWc
-
+datastore:
+  endpoint: "https://datastore.develop.promethist.ai/"
 service:
   type: ClusterIP
   host: port.promethist.ai

@@ -10,6 +10,6 @@ interface BotService {
 
     fun process(key: String, text: String): Response
 
-    fun welcome(): String
+    fun welcome(key: String): String
 
 }

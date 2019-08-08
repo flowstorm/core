@@ -39,7 +39,8 @@ class BotWebSocket : WebSocketAdapter() {
 
                 BotEvent.Type.Capabilities -> {
                     clientCapabilities = event.capabilities!!
-                    sendText(botService.welcome())
+                    val text = botService.welcome(event.key!!)
+                    sendText(text)
                 }
 
                 BotEvent.Type.Text -> {

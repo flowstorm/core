@@ -1,8 +1,6 @@
 package com.promethistai.port.resources
 
-import com.promethistai.common.AppConfig
-import com.promethistai.datastore.resources.Object
-import com.promethistai.datastore.resources.ObjectResource
+import com.promethistai.port.ConfigService
 import com.promethistai.port.PortResource
 import com.promethistai.port.bot.BotService
 import com.promethistai.port.tts.TtsRequest
@@ -10,7 +8,6 @@ import com.promethistai.port.tts.TtsServiceFactory
 import com.promethistai.port.tts.TtsVoice
 import javax.inject.Inject
 import javax.ws.rs.*
-import javax.ws.rs.core.Response
 
 @Path("/")
 class PortResourceImpl : PortResource {
@@ -19,23 +16,13 @@ class PortResourceImpl : PortResource {
      * Example of dependency injection
      * @see com.promethistai.port.Application constructor
      */
-    @Inject lateinit var botService: BotService
-    @Inject lateinit var objectResource: ObjectResource
-    @Inject lateinit var appConfig: AppConfig
+    @Inject
+    lateinit var botService: BotService
 
-    override fun getConfig(key: String): PortConfig {
-        /*
-        val contracts = objectResource.queryObjects("port", appConfig["apiKey"],
-                "SELECT * FROM contract WHERE key=@key",
-                Object().set("key", key))
-        */
-        val contracts = objectResource.filterObjects("port", "contract", appConfig["apiKey"], Object().set("key", key))
+    @Inject
+    lateinit var configService: ConfigService
 
-        return if (contracts.isEmpty())
-            throw WebApplicationException(Response.Status.NOT_FOUND)
-        else
-            PortConfig(appConfig["service.host"], contracts[0])
-    }
+    override fun getConfig(key: String): PortConfig = configService.getConfig(key)
 
     override fun botText(key: String, text: String): BotService.Response {
         return botService.process(key, text)

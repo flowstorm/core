@@ -14,3 +14,4 @@ data:
     app.logging={{ .Values.app.logging }}
     app.tracing={{ .Values.app.tracing }}
     apiKey={{ .Values.apiKey }}
+    datastore.endpoint={{ .Values.datastore.endpoint }}

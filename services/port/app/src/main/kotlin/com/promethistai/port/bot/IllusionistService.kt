@@ -12,8 +12,8 @@ import javax.net.ssl.HttpsURLConnection
 
 class IllusionistService : BotService {
 
-    //var portResource: PortResource? = null @Inject set
-    @Inject lateinit var appConfig: AppConfig
+    @Inject
+    lateinit var appConfig: AppConfig
 
     override fun process(key: String, text: String): BotService.Response {
         try {
@@ -40,7 +40,7 @@ class IllusionistService : BotService {
         return GsonBuilder().create().fromJson<T>(InputStreamReader(conn.inputStream), responseType)
     }
 
-    override fun welcome(): String {
+    override fun welcome(key: String): String {
         return "Hi!"
     }
 
