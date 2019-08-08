@@ -17,12 +17,12 @@ interface PortResource {
     @Path("config")
     @ApiOperation(value = "Get port configuration")
     @Produces(MediaType.APPLICATION_JSON)
-    fun config(@QueryParam("id") id: Long): PortConfig
+    fun getConfig(@QueryParam("key") key: String): PortConfig
 
     @GET
     @Path("bot/text")
     @Produces(MediaType.APPLICATION_JSON)
-    fun bot(@QueryParam("text") text: String): BotService.Response
+    fun botText(@QueryParam("key") key: String, @QueryParam("text") text: String): BotService.Response
 
     @POST
     @Path("tts")

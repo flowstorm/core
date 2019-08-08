@@ -15,9 +15,9 @@ class IllusionistService : BotService {
     //var portResource: PortResource? = null @Inject set
     @Inject lateinit var appConfig: AppConfig
 
-    override fun process(text: String): BotService.Response {
+    override fun process(key: String, text: String): BotService.Response {
         try {
-            val url = URL("""https://illusionist.${appConfig["namespace"]}.promethist.ai/query/GlobalRepeat1?key=AIzaSyDgHsjHyK4cS11nEUJuRGeVUEDITi6OtZA&query=${URLEncoder.encode(text, "utf-8")}""")
+            val url = URL("""https://illusionist.${appConfig["namespace"]}.promethist.ai/query/GlobalRepeat1?key=$key&query=${URLEncoder.encode(text, "utf-8")}""")
             val responses = restCall(url, Array<BotService.Response>::class.java, "POST")
             return if (responses.isNotEmpty())
                 responses[0]

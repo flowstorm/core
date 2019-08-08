@@ -8,7 +8,7 @@ interface BotService {
         var answer: String,
         var confidence: Double) : Serializable
 
-    fun process(text: String): Response
+    fun process(key: String, text: String): Response
 
     fun welcome(): String
 
