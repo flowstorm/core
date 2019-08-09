@@ -1,5 +1,6 @@
 package com.promethistai.common.resources
 
+import com.promethistai.common.AppConfig
 import io.swagger.annotations.Api
 import java.io.InputStream
 import javax.ws.rs.GET
@@ -25,7 +26,7 @@ class SwaggerResource {
     }
 
     /**
-     * Searches for swagger file resource in classpath, in /META_INF/<project>-api/swagger.$format first,
+     * Searches for swagger file resource in classpath, in /META_INF/${AppConfig.instance["name"]}-api/swagger.$format first,
      * /swagger.$format aftewards.
      *
      * @param format file format (json or yaml)
@@ -33,8 +34,7 @@ class SwaggerResource {
      */
     private fun getSwaggerResourceStream(format: String): InputStream {
         val name = "swagger.${format}"
-        val names = javaClass.`package`.name.split(".")
-        val defaultLocation = "/META-INF/${names[2]}-api/"
+        val defaultLocation = "/META-INF/${AppConfig.instance["name"]}-api/"
         for (path in arrayOf(defaultLocation, "/")) {
             val resourceStream = this::class.java.getResourceAsStream("${path}${name}")
             if (resourceStream != null)
