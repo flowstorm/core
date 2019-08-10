@@ -109,7 +109,7 @@
                             <host>${api.host}</host>
                             <basePath>/</basePath>
                             <outputFormats>json,yaml</outputFormats>
-                            <swaggerDirectory>${project.build.outputDirectory}</swaggerDirectory>
+                            <swaggerDirectory>${project.build.outputDirectory}/META-INF/${project.artifactId}</swaggerDirectory>
                             <info>
                                 <title>${project.name}</title>
                                 <version>${api.version}</version>

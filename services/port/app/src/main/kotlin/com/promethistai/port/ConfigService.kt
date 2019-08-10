@@ -25,7 +25,7 @@ class ConfigService {
         val contracts = objectResource.filterObjects("port", "contract", appConfig["apiKey"], Object().set("key", key))
 
         return if (contracts.isEmpty())
-            throw WebApplicationException(Response.Status.NOT_FOUND)
+            throw WebApplicationException("Port contract not found for key $key", Response.Status.NOT_FOUND)
         else
             PortConfig(appConfig["service.host"], contracts[0])
     }

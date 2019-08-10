@@ -15,8 +15,8 @@ import javax.ws.rs.core.MediaType
 interface BotService {
 
     data class Response(
-        var answer: String,
-        var confidence: Double) : Serializable
+        var answer: String = "",
+        var confidence: Double = 1.0) : Serializable
 
     @GET
     @Path("bot/message")

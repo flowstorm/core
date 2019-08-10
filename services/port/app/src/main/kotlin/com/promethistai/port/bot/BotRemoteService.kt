@@ -6,18 +6,26 @@ import javax.inject.Inject
 
 class BotRemoteService : BotService {
 
+    class ServiceRef(val service: BotService, val key: String)
+
     @Inject
     lateinit var configService: ConfigService
 
-    private fun getBotService(key: String): BotService {
-        val remoteEndpoint = configService.getConfig(key).contract["remoteEndpoint"] as String
-        return RestClient.instance<BotService>(BotService::class.java, remoteEndpoint)
+    private fun getServiceRef(key: String): ServiceRef {
+        val contract = configService.getConfig(key).contract
+        return ServiceRef(
+                RestClient.instance<BotService>(BotService::class.java, contract["remoteEndpoint"] as String),
+                (contract["remoteBotKey"] as String)?:key)
     }
 
-    override fun message(key: String, text: String): BotService.Response =
-            getBotService(key).message(key, text)
+    override fun message(key: String, text: String): BotService.Response {
+        val ref = getServiceRef(key)
+        return ref.service.message(ref.key, text)
+    }
 
-    override fun welcome(key: String): String =
-            getBotService(key).welcome(key)
+    override fun welcome(key: String): String {
+        val ref = getServiceRef(key)
+        return ref.service.welcome(ref.key)
+    }
 
 }
