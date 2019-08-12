@@ -20,7 +20,8 @@ class IllusionistService : BotService {
         try {
             val contract = configService.getConfig(key).contract
             val botKey = contract["botKey"]?:key
-            val url = URL("""https://illusionist.${appConfig["namespace"]}.promethist.ai/query/GlobalRepeat1?key=${botKey}&query=${URLEncoder.encode(text, "utf-8")}""")
+            val model = contract["model"]?:"GlobalRepeat1"
+            val url = URL("""https://illusionist.${appConfig["namespace"]}.promethist.ai/query/${model}?key=${botKey}&query=${URLEncoder.encode(text, "utf-8")}""")
             val responses = RestClient.call(url, Array<BotService.Response>::class.java, "POST")
             return if (responses.isNotEmpty())
                 responses[0]
