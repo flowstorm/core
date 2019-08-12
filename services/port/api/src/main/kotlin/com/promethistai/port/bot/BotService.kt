@@ -22,7 +22,7 @@ interface BotService {
     @Path("bot/message")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Message to bot", authorizations = [
-        Authorization("apiKey")
+        Authorization("key")
     ])
     fun message(@QueryParam("key") key: String, @QueryParam("text") text: String): Response
 
@@ -30,7 +30,7 @@ interface BotService {
     @Path("bot/welcome")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Welcome message from bot", authorizations = [
-        Authorization("apiKey")
+        Authorization("key")
     ])
     fun welcome(@QueryParam("key") key: String): String
 
