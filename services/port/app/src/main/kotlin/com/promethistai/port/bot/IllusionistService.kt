@@ -2,6 +2,7 @@ package com.promethistai.port.bot
 
 import com.promethistai.common.AppConfig
 import com.promethistai.common.RestClient
+import com.promethistai.port.ConfigService
 import java.io.IOException
 import java.net.URL
 import java.net.URLEncoder
@@ -12,9 +13,14 @@ class IllusionistService : BotService {
     @Inject
     lateinit var appConfig: AppConfig
 
+    @Inject
+    lateinit var configService: ConfigService
+
     override fun message(key: String, text: String): BotService.Response {
         try {
-            val url = URL("""https://illusionist.${appConfig["namespace"]}.promethist.ai/query/GlobalRepeat1?key=$key&query=${URLEncoder.encode(text, "utf-8")}""")
+            val contract = configService.getConfig(key).contract
+            val botKey = contract["botKey"]?:key
+            val url = URL("""https://illusionist.${appConfig["namespace"]}.promethist.ai/query/GlobalRepeat1?key=${botKey}&query=${URLEncoder.encode(text, "utf-8")}""")
             val responses = RestClient.call(url, Array<BotService.Response>::class.java, "POST")
             return if (responses.isNotEmpty())
                 responses[0]

@@ -15,7 +15,7 @@ class BotRemoteService : BotService {
         val contract = configService.getConfig(key).contract
         return ServiceRef(
                 RestClient.instance<BotService>(BotService::class.java, contract["remoteEndpoint"] as String),
-                (contract["remoteBotKey"] as String)?:key)
+                (contract["botKey"] as String)?:key)
     }
 
     override fun message(key: String, text: String): BotService.Response {
