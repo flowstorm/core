@@ -49,6 +49,8 @@ class AppConfig: Serializable, Cloneable {
 
     companion object {
         const val FILENAME = "app.properties"
+
+        @JvmStatic
         val instance = AppConfig()
 
         @JvmStatic
