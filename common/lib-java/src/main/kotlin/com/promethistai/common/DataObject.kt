@@ -13,14 +13,16 @@ open class DataObject: Hashtable<String, Serializable> {
 
     open class Deserializer<O>(val objectClass: Class<O>): JsonDeserializer<O>() where O : DataObject {
 
+        open val skipFields = setOf<String>()
+
         override fun deserialize(parser: JsonParser?, ctx: DeserializationContext?): O {
             val mapper = ObjectMapper()
             val codec = parser!!.codec
             val tree = codec.readTree<JsonNode>(parser)
             val obj = objectClass.newInstance()
             for (field in tree.fields()) {
-                if (field.key.startsWith("_"))
-                    continue // skip special fields with _ prefix
+                if (skipFields.contains(field.key))
+                    continue
                 obj[field.key] = deserializeField(obj, tree, field, mapper, null)
             }
             return obj
