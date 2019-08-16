@@ -58,8 +58,15 @@ open class DataObject: Hashtable<String, Serializable> {
     constructor(): super()
 
     constructor(props: Map<String, Serializable>): this() {
+        set(props)
+    }
+
+    fun set(props: Map<String, Serializable>): DataObject {
         for (prop in props)
             this[prop.key] = prop.value
+        return this
     }
+
+
 
 }
