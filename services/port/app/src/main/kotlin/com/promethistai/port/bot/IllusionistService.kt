@@ -28,7 +28,7 @@ class IllusionistService : BotService {
             val contract = configService.getConfig(key).contract
             val botKey = contract["botKey"]?:key
             val model = contract["model"]?:"GlobalRepeat1"
-            val remoteEndpoint = """https://illusionist.${appConfig["namespace"]}.promethist.ai/query/${model}"""
+            val remoteEndpoint = """https://illusionist.${appConfig["namespace"]}.promethist.ai/query"""
             val url = URL("""${remoteEndpoint}/${model}?key=${botKey}&query=${URLEncoder.encode(message.text, "utf-8")}""")
             if (logger.isInfoEnabled)
                 logger.info("remoteEndpoint = $remoteEndpoint, botKey = $botKey")
