@@ -5,6 +5,7 @@ import com.promethistai.common.JerseyApplication
 import com.promethistai.common.ResourceBinder
 import com.promethistai.datastore.resources.ObjectResource
 import com.promethistai.port.bot.*
+import com.promethistai.port.resources.PortResource
 import com.promethistai.port.resources.PortResourceImpl
 
 class Application : JerseyApplication() {

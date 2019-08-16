@@ -17,7 +17,7 @@
     <properties>
         <swagger.version>1.5.22</swagger.version>
         <api.host>localhost:8080</api.host>
-        <api.locations>com.promethistai.common.resources,com.promethistai.promethistai.resources</api.locations>
+        <api.locations>com.promethistai.common.resources,com.promethistai.port.resources</api.locations>
         <api.version>v1</api.version>
         <api.description>PromethistAI Port API</api.description>
     </properties>
@@ -60,16 +60,10 @@
             <artifactId>common-lib</artifactId>
             <version>${promethistai.common.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.promethistai.datastore</groupId>
-            <artifactId>datastore-api</artifactId>
-            <version>${promethistai.datastore.version}</version>
-        </dependency>
     </dependencies>
 
     <build>
         <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
-        <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
         <plugins>
             <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>

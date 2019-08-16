@@ -1,7 +1,6 @@
 package com.promethistai.port.servlets
 
 import com.google.gson.Gson
-import com.promethistai.common.AppConfig
 import com.promethistai.port.AppClientManifest
 import com.promethistai.port.Endpoints
 import java.io.IOException
@@ -17,11 +16,17 @@ class AppManifestServlet : HttpServlet() {
     @Throws(ServletException::class)
     override fun doGet(httpRequest: HttpServletRequest, httpResponse: HttpServletResponse) {
         val manifest = AppClientManifest()
-        val host = AppConfig.instance["service.host"]
-        manifest.sttAudioInputStream = endpoint(httpRequest, "ws", host!!, Endpoints.AUDIO_INPUT_STREAM)
-        manifest.ttsAudioOutput = endpoint(httpRequest, "http", host, Endpoints.AUDIO_OUTPUT)
-        manifest.ttsVoice = endpoint(httpRequest, "http", host, Endpoints.VOICE)
-        manifest.channel = endpoint(httpRequest, "ws", host, Endpoints.CHAT_CHANNEL)
+        var sec = ""
+        var host = httpRequest.serverName
+        if (httpRequest.serverName != "localhost") {
+            sec = "s"
+        } else if (httpRequest.serverPort != 80) {
+            host += ":${httpRequest.serverPort}"
+        }
+        manifest.sttAudioInputStream = "ws${sec}://${host}${Endpoints.AUDIO_INPUT_STREAM}"
+        manifest.ttsAudioOutput = "http${sec}://${host}${Endpoints.AUDIO_OUTPUT}"
+        manifest.ttsVoice = "http${sec}://${host}${Endpoints.VOICE}"
+        manifest.channel = "ws${sec}://${host}${Endpoints.CHAT_CHANNEL}"
 
         httpResponse.status = HttpServletResponse.SC_OK
         httpResponse.contentType = "application/json"
@@ -31,13 +36,6 @@ class AppManifestServlet : HttpServlet() {
         } catch (e: IOException) {
             throw ServletException(e)
         }
-    }
-
-    internal fun endpoint(httpRequest: HttpServletRequest, endpointProtocol: String, endpointHost: String, endpointPath: String): String {
-        return if ("localhost" == httpRequest.serverName)
-            endpointProtocol + "://localhost:" + httpRequest.serverPort + endpointPath
-        else
-            endpointProtocol + "s://" + endpointHost + endpointPath
     }
 
 }

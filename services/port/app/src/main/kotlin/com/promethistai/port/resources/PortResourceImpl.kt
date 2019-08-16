@@ -1,16 +1,20 @@
 package com.promethistai.port.resources
 
 import com.promethistai.port.ConfigService
-import com.promethistai.port.PortResource
+import com.promethistai.port.PortConfig
 import com.promethistai.port.bot.BotService
+import com.promethistai.port.bot.Message
 import com.promethistai.port.tts.TtsRequest
 import com.promethistai.port.tts.TtsServiceFactory
 import com.promethistai.port.tts.TtsVoice
+import org.slf4j.LoggerFactory
 import javax.inject.Inject
 import javax.ws.rs.*
 
 @Path("/")
 class PortResourceImpl : PortResource {
+
+    private var logger = LoggerFactory.getLogger(PortResourceImpl::class.java)
 
     /**
      * Example of dependency injection
@@ -24,19 +28,32 @@ class PortResourceImpl : PortResource {
 
     override fun getConfig(key: String): PortConfig = configService.getConfig(key)
 
-    override fun message(key: String, text: String): BotService.Response {
-        return botService.message(key, text)
+    override fun message(key: String, message: Message): Message? {
+        return botService.message(key, message)
     }
 
-    override fun welcome(key: String): String {
-        return botService.welcome(key)
+    override fun messageQueuePush(key: String, message: Message): Boolean {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        if (logger.isInfoEnabled)
+            logger.info("message = $message")
+    }
+
+    override fun messageQueuePop(key: String, limit: Int): List<Message> {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val messages = mutableListOf<Message>()
+        if (logger.isInfoEnabled)
+            logger.info("limit = $limit, response = $messages")
     }
 
     override fun tts(provider: String, request: TtsRequest): ByteArray {
+        if (logger.isInfoEnabled)
+            logger.info("provider = $provider, request = $request")
         return TtsServiceFactory.create(provider).speak(request.text!!, request.voice!!, request.language!!)
     }
 
     override fun ttsVoices(provider: String): List<TtsVoice> {
+        if (logger.isInfoEnabled)
+            logger.info("provider = $provider")
         return TtsServiceFactory.create(provider).voices
     }
 

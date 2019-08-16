@@ -18,14 +18,9 @@ class BotRemoteService : BotService {
                 (contract["botKey"] as String)?:key)
     }
 
-    override fun message(key: String, text: String): BotService.Response {
+    override fun message(key: String, message: Message): Message? {
         val ref = getServiceRef(key)
-        return ref.service.message(ref.key, text)
-    }
-
-    override fun welcome(key: String): String {
-        val ref = getServiceRef(key)
-        return ref.service.welcome(ref.key)
+        return ref.service.message(ref.key, message)
     }
 
 }

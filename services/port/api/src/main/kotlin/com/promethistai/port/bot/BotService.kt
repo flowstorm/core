@@ -1,37 +1,28 @@
 package com.promethistai.port.bot
 
-import io.swagger.annotations.Api
-import io.swagger.annotations.ApiOperation
-import io.swagger.annotations.ApiParam
-import io.swagger.annotations.Authorization
-import java.io.Serializable
-import javax.ws.rs.GET
-import javax.ws.rs.Path
-import javax.ws.rs.Produces
-import javax.ws.rs.QueryParam
+import io.swagger.annotations.*
+import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
 
 @Api(description = "Bot service")
 interface BotService {
 
-    data class Response(
-        var answer: String = "",
-        var confidence: Double = 1.0) : Serializable
-
-    @GET
-    @Path("bot/message")
+    /**
+     * Message should always contain following properties
+     * - text = message text
+     * - key = client key
+     * @return Message if there is direct response, otherwise null
+     */
+    @PUT
+    @Path("message")
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Message to bot", authorizations = [
         Authorization("key")
     ])
-    fun message(@QueryParam("key") key: String, @QueryParam("text") text: String): Response
+    //@ApiResponse
+    fun message(@ApiParam("Client key", required = true) @QueryParam("key") key: String,
+                @ApiParam("Message", required = true) message: Message): Message?
 
-    @GET
-    @Path("bot/welcome")
-    @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "Welcome message from bot", authorizations = [
-        Authorization("key")
-    ])
-    fun welcome(@QueryParam("key") key: String): String
 
 }

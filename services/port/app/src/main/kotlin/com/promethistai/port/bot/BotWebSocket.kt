@@ -39,15 +39,15 @@ class BotWebSocket : WebSocketAdapter() {
 
                 BotEvent.Type.Capabilities -> {
                     clientCapabilities = event.capabilities!!
-                    val text = botService.welcome(event.key!!)
-                    sendText(text)
+                    val message = botService.message(event.key!!, Message()) // sending empty message - bot should introduce himself
+                    if (message != null)
+                        sendMessage(message)
                 }
 
                 BotEvent.Type.Text -> {
-                    val response = botService.message(event.key!!, event.text!!)
-                    val text = response.answer.trim()
-                    if (text.isNotEmpty())
-                        sendText(text)
+                    val message = botService.message(event.key!!, Message(event.text!!)) //TODO client should send Message instead of text
+                    if (message != null)
+                        sendMessage(message)
                 }
 
                 BotEvent.Type.InputAudioStreamOpen -> {
@@ -59,10 +59,9 @@ class BotWebSocket : WebSocketAdapter() {
                                 try {
                                     if (final) {
                                         sendEvent(BotEvent(BotEvent.Type.Recognized, transcript))
-                                        val response = botService.message(event.key!!, transcript)
-                                        val answer = response.answer.trim()
-                                        if (answer.isNotEmpty())
-                                            sendText(answer)
+                                        val message = botService.message(event.key!!, Message(transcript))
+                                        if (message != null)
+                                            sendMessage(message)
                                     }
                                 } catch (e: IOException) {
                                     e.printStackTrace()
@@ -127,10 +126,13 @@ class BotWebSocket : WebSocketAdapter() {
     }
 
     @Throws(IOException::class)
-    internal fun sendText(text: String) {
-        sendEvent(BotEvent(BotEvent.Type.Text, text))
-        if (speechToText && !clientCapabilities.webSpeechSynthesis) {
-            sendAudio(text, "cs-CZ-Wavenet-A", "cs-CZ")    //FIXME
+    internal fun sendMessage(message: Message) {
+        val text = message.text.trim()
+        if (text.isNotEmpty()) {
+            sendEvent(BotEvent(BotEvent.Type.Text, text))
+            if (speechToText && !clientCapabilities.webSpeechSynthesis) {
+                sendAudio(text, "cs-CZ-Wavenet-A", "cs-CZ")    //FIXME
+            }
         }
     }
 
