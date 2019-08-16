@@ -30,9 +30,10 @@ class BotSelectorService : BotService {
     }
 
     override fun message(key: String, message: Message): Message? {
-        val response = getBotService(key).message(key, message)
+        val botService = getBotService(key)
+        val response = botService.message(key, message)
         if (logger.isInfoEnabled)
-            logger.info("message = $message, response = $response")
+            logger.info("botService = $botService, key = $key, message = $message, response = $response")
         return response
     }
 

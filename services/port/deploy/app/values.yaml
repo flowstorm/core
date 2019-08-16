@@ -19,7 +19,7 @@ app:
   resources:
     requests:
       cpu: 0.01
-  logging: "TRUE"
+  logging: "FALSE"
   tracing: "OFF"
 git:
   ref: branch_or_tag

@@ -2,25 +2,24 @@ package com.promethistai.port.bot
 
 import com.promethistai.common.RestClient
 import com.promethistai.port.ConfigService
+import org.slf4j.LoggerFactory
 import javax.inject.Inject
 
 class BotRemoteService : BotService {
 
-    class ServiceRef(val service: BotService, val key: String)
-
     @Inject
     lateinit var configService: ConfigService
 
-    private fun getServiceRef(key: String): ServiceRef {
-        val contract = configService.getConfig(key).contract
-        return ServiceRef(
-                RestClient.instance<BotService>(BotService::class.java, contract["remoteEndpoint"] as String),
-                (contract["botKey"] as String)?:key)
-    }
+    private var logger = LoggerFactory.getLogger(BotRemoteService::class.java)
 
     override fun message(key: String, message: Message): Message? {
-        val ref = getServiceRef(key)
-        return ref.service.message(ref.key, message)
+        val contract = configService.getConfig(key).contract
+        val remoteEndpoint = contract["remoteEndpoint"] as String
+        val botService = RestClient.instance<BotService>(BotService::class.java, remoteEndpoint)
+        val botKey = (contract["botKey"] as String)?:key
+        if (logger.isInfoEnabled)
+            logger.info("remoteEndpoint = $remoteEndpoint, botKey = $botKey")
+        return botService.message(botKey, message)
     }
 
 }

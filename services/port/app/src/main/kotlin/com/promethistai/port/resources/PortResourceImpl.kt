@@ -35,14 +35,14 @@ class PortResourceImpl : PortResource {
     override fun messageQueuePush(key: String, message: Message): Boolean {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
         if (logger.isInfoEnabled)
-            logger.info("message = $message")
+            logger.info("key = $key, message = $message")
     }
 
     override fun messageQueuePop(key: String, limit: Int): List<Message> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
         val messages = mutableListOf<Message>()
         if (logger.isInfoEnabled)
-            logger.info("limit = $limit, response = $messages")
+            logger.info("key = $key, limit = $limit, response = $messages")
     }
 
     override fun tts(provider: String, request: TtsRequest): ByteArray {

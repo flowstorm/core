@@ -7,11 +7,14 @@ import com.promethistai.port.stt.SttServiceFactory
 import com.promethistai.port.stt.SttStream
 import com.promethistai.port.tts.TtsServiceFactory
 import org.eclipse.jetty.websocket.api.WebSocketAdapter
+import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.nio.ByteBuffer
 import javax.inject.Inject
 
 class BotWebSocket : WebSocketAdapter() {
+
+    private var logger = LoggerFactory.getLogger(BotWebSocket::class.java)
 
     @Inject
     lateinit var botService: BotService
@@ -34,6 +37,9 @@ class BotWebSocket : WebSocketAdapter() {
             val event = gson.fromJson<Any>(json, BotEvent::class.java) as BotEvent
             if (/*event == null || */event.type == null)
                 return
+
+            if (logger.isInfoEnabled)
+                logger.info("event = $event")
 
             when (event.type) {
 
