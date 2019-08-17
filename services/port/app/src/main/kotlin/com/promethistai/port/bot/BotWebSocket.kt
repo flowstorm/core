@@ -45,7 +45,7 @@ class BotWebSocket : WebSocketAdapter() {
 
                 BotEvent.Type.Capabilities -> {
                     clientCapabilities = event.capabilities!!
-                    val message = botService.message(event.key!!, Message()) // sending empty message - bot should introduce himself
+                    val message = botService.message(event.key!!, Message("\$intro")) // bot introduce
                     if (message != null)
                         sendMessage(message)
                 }

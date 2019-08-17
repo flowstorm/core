@@ -31,7 +31,7 @@ class IllusionistService : BotService {
             val remoteEndpoint = """https://illusionist.${appConfig["namespace"]}.promethist.ai/query"""
             val url = URL("""${remoteEndpoint}/${model}?key=${botKey}&query=${URLEncoder.encode(message.text, "utf-8")}""")
             if (logger.isInfoEnabled)
-                logger.info("remoteEndpoint = $remoteEndpoint, botKey = $botKey")
+                logger.info("remoteEndpoint = $remoteEndpoint, botKey = $botKey, model = $model")
             val responses = RestClient.call(url, Array<Response>::class.java, "POST")
             if (responses.isNotEmpty())
                 return Message(responses[0].answer, mapOf("confidence" to responses[0].confidence))
