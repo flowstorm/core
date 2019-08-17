@@ -18,7 +18,7 @@ class NettyServer(private val resourceConfig: ResourceConfig) {
             URI.create("http://localhost:" + AppConfig.instance.get("server.port", "8080") + "/"),
             resourceConfig.register(ContextResolver<ObjectMapper> {
                 ObjectMapper().registerModule(KotlinModule())
-            }).property(ServerProperties.TRACING, AppConfig.instance["app.tracing"]?:"OFF"),
+            }).property(ServerProperties.TRACING, AppConfig.instance.get("app.tracing", "OFF")),
             null
         )
 

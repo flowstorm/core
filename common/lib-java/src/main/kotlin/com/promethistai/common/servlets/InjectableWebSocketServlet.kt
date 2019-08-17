@@ -20,6 +20,7 @@ abstract class InjectableWebSocketServlet<T> : WebSocketServlet() {
         factory.register(adapterClass)
         val creator = factory.creator
         factory.creator = WebSocketCreator { servletUpgradeRequest, servletUpgradeResponse ->
+            @Suppress("UNCHECKED_CAST")
             val webSocket = creator.createWebSocket(servletUpgradeRequest, servletUpgradeResponse) as T
             injector.inject(webSocket)
             webSocket
