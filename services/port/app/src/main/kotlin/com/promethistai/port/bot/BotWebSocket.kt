@@ -39,13 +39,14 @@ class BotWebSocket : WebSocketAdapter() {
                 return
 
             if (logger.isInfoEnabled)
-                logger.info("event = $event")
+                logger.info("onWebSocketText event = $event")
 
             when (event.type) {
 
                 BotEvent.Type.Capabilities -> {
                     clientCapabilities = event.capabilities!!
                     val message = botService.message(event.key!!, Message("\$intro")) // bot introduce
+                    //val message = Message("Ahoj <a href=\"http://www.seznam.cz\">seznam</a>")
                     if (message != null)
                         sendMessage(message)
                 }
@@ -125,8 +126,11 @@ class BotWebSocket : WebSocketAdapter() {
 
     @Throws(IOException::class)
     internal fun sendAudio(text: String, voice: String, lang: String) {
+        val stext = text.replace(Regex("<.*?>"), "")
         TtsServiceFactory.create(speechProvider).use { service ->
-            val audio = service.speak(text, voice, lang)
+            if (logger.isInfoEnabled)
+                logger.info("sendAudio text = $stext, voice = $voice, lang = $lang")
+            val audio = service.speak(stext, voice, lang)
             remote.sendBytes(ByteBuffer.wrap(audio))
         }
     }
