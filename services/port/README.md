@@ -3,12 +3,13 @@
 ```
 mvn jetty:run-war
 
+# get config
+curl -i "localhost:8080/config?key=VeraTest.4"
 
-curl -i "localhost:8080/config?key=AIzaSyCeRbzdWf4qDOjkq2B-c84jl206IwSUV6o"
-curl -i -X POST -H "Content-Type: application/json" -d '{"text":"hello"}' "localhost:8080/message?key=AIzaSyCeRbzdWf4qDOjkq2B-c84jl206IwSUV6o"
+# send message
+curl -i -X PUT -H "Content-Type: application/json" -d '{"text":"hello"}' "localhost:8080/message?key=VeraTest.4"
+
+# read file
+curl -i "localhost:8080/file/5d5cd56ac87aa5439369e863"
 ```
 
-How to create port contract (develop)
-```
-curl -i -X POST -H "Content-Type: application/json" -d '{"name":"Client name","bot":"illusionist","key":"CLIENT_KEY","botKey":"BOT_API_KEY","model":"MODEL_ID","_prop":{"bot":{"type":"STRING","index":true},"key":{"type":"STRING","index":true}}}' "https://datastore.develop.promethist.ai/port/contract?key=AIzaSyDpYmTgXGmZY-vWO6ryOcSQ5YZhBsu6NWc"
-```

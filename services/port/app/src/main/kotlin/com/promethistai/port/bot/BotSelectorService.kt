@@ -21,7 +21,7 @@ class BotSelectorService : BotService {
     private var logger = LoggerFactory.getLogger(BotSelectorService::class.java)
 
     private fun getBotService(key: String): BotService {
-        val name = configService.getConfig(key).contract["bot"]
+        val name = configService.getConfig(key).contract.bot
         return if (name == "remote")
             remoteService
         else

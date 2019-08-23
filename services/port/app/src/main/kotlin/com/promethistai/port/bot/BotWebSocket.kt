@@ -45,8 +45,8 @@ class BotWebSocket : WebSocketAdapter() {
 
                 BotEvent.Type.Capabilities -> {
                     clientCapabilities = event.capabilities!!
-                    val message = botService.message(event.key!!, Message("\$intro")) // bot introduce
-                    //val message = Message("Ahoj <a href=\"http://www.seznam.cz\">seznam</a>")
+                    val message = botService.message(event.key!!, Message("\$intro", "port")) // bot introduce
+                    //val message = Message("Ahoj <a href=\"http://www.seznam.cz\">seznam</a>", "port")
                     if (message != null)
                         sendMessage(message)
                 }

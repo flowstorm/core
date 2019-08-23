@@ -14,9 +14,9 @@ class BotRemoteService : BotService {
 
     override fun message(key: String, message: Message): Message? {
         val contract = configService.getConfig(key).contract
-        val remoteEndpoint = contract["remoteEndpoint"] as String
+        val remoteEndpoint = contract.remoteEndpoint!!
         val botService = RestClient.instance<BotService>(BotService::class.java, remoteEndpoint)
-        val botKey = (contract["botKey"] as String)?:key
+        val botKey = contract.botKey?:key
         if (logger.isInfoEnabled)
             logger.info("remoteEndpoint = $remoteEndpoint, botKey = $botKey")
         return botService.message(botKey, message)

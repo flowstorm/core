@@ -9,8 +9,10 @@ import io.swagger.annotations.Api
 
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
+import io.swagger.annotations.Authorization
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
+import javax.ws.rs.core.Response
 
 @Api(description = "Port resource")
 interface PortResource : BotService {
@@ -32,8 +34,18 @@ interface PortResource : BotService {
     @Path("message/_queue")
     @ApiOperation(value = "Pop messages from queue")
     @Produces(MediaType.APPLICATION_JSON)
-    fun messageQueuePop(@ApiParam("Client key", required = true) @QueryParam("key") key: String,
+    fun messageQueuePop(@ApiParam("Customer key", required = true) @QueryParam("key") key: String,
                         @ApiParam(defaultValue = "1") @QueryParam("limit") limit: Int = 1): List<Message>
+
+    @GET
+    @Path("file/{id}")
+    @ApiOperation("Read resource file", authorizations = [
+        Authorization("key")
+    ])
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    fun readFile(
+            @ApiParam(required = true) @PathParam("id") id: String
+    ): Response
 
     @POST
     @Path("tts")

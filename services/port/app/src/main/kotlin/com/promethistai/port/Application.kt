@@ -1,12 +1,14 @@
 package com.promethistai.port
 
+import com.mongodb.ConnectionString
+import com.mongodb.client.MongoDatabase
 import com.promethistai.common.AppConfig
 import com.promethistai.common.JerseyApplication
 import com.promethistai.common.ResourceBinder
-import com.promethistai.datastore.resources.ObjectResource
 import com.promethistai.port.bot.*
 import com.promethistai.port.resources.PortResource
 import com.promethistai.port.resources.PortResourceImpl
+import org.litote.kmongo.KMongo
 
 class Application : JerseyApplication() {
 
@@ -16,7 +18,7 @@ class Application : JerseyApplication() {
                 bindTo(AppConfig::class.java, AppConfig.instance)
                 // resources
                 bindTo(PortResource::class.java, PortResourceImpl::class.java)
-                bindTo(ObjectResource::class.java, AppConfig.instance["datastore.endpoint"])
+                bindTo(MongoDatabase::class.java, KMongo.createClient(ConnectionString(AppConfig.instance["database.url"])).getDatabase(AppConfig.instance["database.name"]))
                 // services
                 bindTo(ConfigService::class.java, ConfigService::class.java)
                 bindTo(BotService::class.java, BotSelectorService::class.java)
