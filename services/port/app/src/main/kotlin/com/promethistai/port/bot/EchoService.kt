@@ -1,6 +1,6 @@
 package com.promethistai.port.bot
 
-import com.promethistai.port.bot.BotService
+import com.promethistai.port.model.Message
 
 /**
  * Simple bot service responding with request text.

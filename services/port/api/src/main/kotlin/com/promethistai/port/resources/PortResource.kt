@@ -1,8 +1,8 @@
 package com.promethistai.port.resources
 
-import com.promethistai.port.PortConfig
 import com.promethistai.port.bot.BotService
-import com.promethistai.port.bot.Message
+import com.promethistai.port.model.Contract
+import com.promethistai.port.model.Message
 import com.promethistai.port.tts.TtsRequest
 import com.promethistai.port.tts.TtsVoice
 import io.swagger.annotations.Api
@@ -18,16 +18,16 @@ import javax.ws.rs.core.Response
 interface PortResource : BotService {
 
     @GET
-    @Path("config")
-    @ApiOperation(value = "Get port configuration")
+    @Path("contract")
+    @ApiOperation(value = "Get port contract")
     @Produces(MediaType.APPLICATION_JSON)
-    fun getConfig(@ApiParam("Client key", required = true) @QueryParam("key") key: String): PortConfig
+    fun getContract(@ApiParam("Customer key", required = true) @QueryParam("key") key: String): Contract
 
     @PUT
     @Path("message/_queue")
     @ApiOperation(value = "Push message to queue")
     @Produces(MediaType.APPLICATION_JSON)
-    fun messageQueuePush(@ApiParam("Client key", required = true) @QueryParam("key") key: String,
+    fun messageQueuePush(@ApiParam("Customer key", required = true) @QueryParam("key") key: String,
                          @ApiParam("Message", required = true) message: Message): Boolean
 
     @GET
@@ -35,6 +35,7 @@ interface PortResource : BotService {
     @ApiOperation(value = "Pop messages from queue")
     @Produces(MediaType.APPLICATION_JSON)
     fun messageQueuePop(@ApiParam("Customer key", required = true) @QueryParam("key") key: String,
+                        @ApiParam("Recipient", required = true) @QueryParam("recipient") recipient: String,
                         @ApiParam(defaultValue = "1") @QueryParam("limit") limit: Int = 1): List<Message>
 
     @GET

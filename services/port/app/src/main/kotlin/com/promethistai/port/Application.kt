@@ -20,7 +20,7 @@ class Application : JerseyApplication() {
                 bindTo(PortResource::class.java, PortResourceImpl::class.java)
                 bindTo(MongoDatabase::class.java, KMongo.createClient(ConnectionString(AppConfig.instance["database.url"])).getDatabase(AppConfig.instance["database.name"]))
                 // services
-                bindTo(ConfigService::class.java, ConfigService::class.java)
+                bindTo(DataService::class.java, DataService::class.java)
                 bindTo(BotService::class.java, BotSelectorService::class.java)
                 bindTo(BotRemoteService::class.java, BotRemoteService::class.java)
                 bindTo(EchoService::class.java, EchoService::class.java)

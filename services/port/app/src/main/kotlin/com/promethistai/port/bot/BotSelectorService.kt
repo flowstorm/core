@@ -1,13 +1,14 @@
 package com.promethistai.port.bot
 
-import com.promethistai.port.ConfigService
+import com.promethistai.port.DataService
+import com.promethistai.port.model.Message
 import org.slf4j.LoggerFactory
 import javax.inject.Inject
 
 class BotSelectorService : BotService {
 
     @Inject
-    lateinit var configService: ConfigService
+    lateinit var dataService: DataService
 
     @Inject
     lateinit var remoteService: BotRemoteService
@@ -21,7 +22,7 @@ class BotSelectorService : BotService {
     private var logger = LoggerFactory.getLogger(BotSelectorService::class.java)
 
     private fun getBotService(key: String): BotService {
-        val name = configService.getConfig(key).contract.bot
+        val name = dataService.getContract(key).bot
         return if (name == "remote")
             remoteService
         else

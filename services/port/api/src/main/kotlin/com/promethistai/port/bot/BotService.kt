@@ -1,5 +1,6 @@
 package com.promethistai.port.bot
 
+import com.promethistai.port.model.Message
 import io.swagger.annotations.*
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType

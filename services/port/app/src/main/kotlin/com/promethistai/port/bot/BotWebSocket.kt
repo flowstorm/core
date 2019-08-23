@@ -1,6 +1,7 @@
 package com.promethistai.port.bot
 
 import com.google.gson.GsonBuilder
+import com.promethistai.port.model.Message
 import com.promethistai.port.stt.SttCallback
 import com.promethistai.port.stt.SttService
 import com.promethistai.port.stt.SttServiceFactory

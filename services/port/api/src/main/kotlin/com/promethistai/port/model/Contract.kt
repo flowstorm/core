@@ -1,3 +1,9 @@
 package com.promethistai.port.model
 
-data class Contract(val key: String, val bot: String, val botKey: String?, val model: String?, val remoteEndpoint: String?)
+data class Contract(
+    val key: String,
+    var bot: String,
+    var botKey: String?,
+    var model: String?,
+    var remoteEndpoint: String?
+)
