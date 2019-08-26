@@ -46,14 +46,14 @@ class BotWebSocket : WebSocketAdapter() {
 
                 BotEvent.Type.Capabilities -> {
                     clientCapabilities = event.capabilities!!
-                    val message = botService.message(event.key!!, Message("\$intro", "port")) // bot introduce
-                    //val message = Message("Ahoj <a href=\"http://www.seznam.cz\">seznam</a>", "port")
+                    val message = botService.message(event.key!!, Message(text = "\$intro", bot = "port")) // bot introduce
+                    //val message = Message(text = "Ahoj <a href=\"http://www.seznam.cz\">seznam</a>", "port")
                     if (message != null)
                         sendMessage(message)
                 }
 
                 BotEvent.Type.Text -> {
-                    val message = botService.message(event.key!!, Message(event.text!!)) //TODO client should send Message instead of text
+                    val message = botService.message(event.key!!, Message(text = event.text!!)) //TODO client should send Message instead of text
                     if (message != null)
                         sendMessage(message)
                 }
@@ -67,7 +67,7 @@ class BotWebSocket : WebSocketAdapter() {
                                 try {
                                     if (final) {
                                         sendEvent(BotEvent(BotEvent.Type.Recognized, transcript))
-                                        val message = botService.message(event.key!!, Message(transcript))
+                                        val message = botService.message(event.key!!, Message(text = transcript))
                                         if (message != null)
                                             sendMessage(message)
                                     }
