@@ -1,9 +1,10 @@
 package com.promethistai.port.model
 
 data class Contract(
-    val key: String,
-    var bot: String,
-    var botKey: String?,
-    var model: String?,
-    var remoteEndpoint: String?
+    var name: String? = null,
+    var key: String? = null,
+    var bot: String? = null,
+    var botKey: String? = null,
+    var model: String? = null,
+    var remoteEndpoint: String? = null
 )
