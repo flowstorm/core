@@ -3,11 +3,12 @@ package com.promethistai.common
 import org.glassfish.hk2.api.Factory
 import org.glassfish.hk2.utilities.binding.AbstractBinder
 import org.glassfish.hk2.utilities.binding.BindingBuilder
-import org.glassfish.jersey.client.proxy.WebResourceFactory
-import org.glassfish.jersey.jackson.JacksonFeature
-import javax.ws.rs.client.ClientBuilder
 
 abstract class ResourceBinder : AbstractBinder() {
+
+    fun <I>bindTo(type: Class<out I>): BindingBuilder<out I> {
+        return bind(type).to(type)
+    }
 
     fun <I>bindTo(iface: Class<I>, type: Class<out I>): BindingBuilder<out I> {
         return bind(type).to(iface)
