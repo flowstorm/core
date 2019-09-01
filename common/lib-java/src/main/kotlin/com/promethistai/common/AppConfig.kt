@@ -1,7 +1,6 @@
 package com.promethistai.common
 
 import java.io.FileInputStream
-import java.io.IOException
 import java.io.Serializable
 import java.lang.NullPointerException
 import java.util.*
@@ -23,7 +22,7 @@ class AppConfig: Serializable, Cloneable {
                 properties.load(stream)
             val file = (System.getProperty("app.config")?:".") + "/$FILENAME"
             properties.load(FileInputStream(file))
-        } catch (e: IOException) {
+        } catch (e: Throwable) {
             e.printStackTrace()
         }
     }
