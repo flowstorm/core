@@ -1,6 +1,7 @@
 package com.promethistai.port.model
 
-import java.io.Serializable
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import com.promethistai.common.DataObject
 import java.util.*
 
 data class Message(
@@ -68,8 +69,25 @@ data class Message(
     /**
      * Extension properties for message. Determined by bot service and/or client application.
      */
-    val extensions: Map<String, Serializable> = mutableMapOf()
+    val extensions: PropertyMap = PropertyMap(),
+
+
+    /**
+     * Resource links.
+     */
+    val links: List<ResourceLink> = mutableListOf<ResourceLink>()
 ) {
+
+    @JsonDeserialize(using = PropertyMap.Deserializer::class)
+    class PropertyMap : DataObject() {
+
+        class Deserializer : DataObject.Deserializer<PropertyMap>(PropertyMap::class.java) {
+            //TODO support for specific data types used in message properties (if needed)
+        }
+
+    }
+
+    data class ResourceLink(val type: String? = null, val ref: String? = null)
 
     fun response(text: String, confidence: Double): Message {
         val sender = this.recipient
