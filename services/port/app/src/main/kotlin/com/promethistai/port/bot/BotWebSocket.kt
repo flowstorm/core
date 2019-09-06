@@ -1,6 +1,7 @@
 package com.promethistai.port.bot
 
 import com.google.gson.GsonBuilder
+import com.promethistai.port.DataService
 import com.promethistai.port.model.Message
 import com.promethistai.port.stt.SttCallback
 import com.promethistai.port.stt.SttService
@@ -11,6 +12,7 @@ import org.eclipse.jetty.websocket.api.WebSocketAdapter
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.nio.ByteBuffer
+//import java.util.*
 import javax.inject.Inject
 
 class BotWebSocket : WebSocketAdapter() {
@@ -20,16 +22,50 @@ class BotWebSocket : WebSocketAdapter() {
     @Inject
     lateinit var botService: BotService
 
+//    @Inject
+//    lateinit var dataService: DataService
+
     private val gson = GsonBuilder().create()
     private var sttService: SttService? = null
     private var sttStream: SttStream? = null
     private var clientCapabilities: BotClientCapabilities = BotClientCapabilities()
+    private var clientRequirements: BotClientRequirements = BotClientRequirements()
     private var speechToText: Boolean = true
     private var speechProvider: String = "google"
+
+//    private val timer: Timer = Timer()
+//    private var messageFromQueue: Message? = null
+
+//    private fun task(key: String, recipient: String) = object: TimerTask() {
+//        override fun run() {
+//            messageFromQueue = dataService.popMessages(key, recipient, 0).getOrNull(0)
+//            if (messageFromQueue != null) {
+//                sendEvent(BotEvent(BotEvent.Type.SessionStarted))
+//                sendMessage(messageFromQueue!!)
+//            }
+//        }
+//    }
 
     override fun onWebSocketBinary(payload: ByteArray, offset: Int, len: Int) {
         super.onWebSocketBinary(payload, offset, len)
         sttStream?.write(payload, offset, len)
+    }
+
+    fun logic(event: BotEvent){
+        val message = botService.message(event.key!!, event.message!!)
+        if (message != null) {
+            if (message.extensions.getOrDefault("session_ended", false) as Boolean) {
+                sendEvent(BotEvent(BotEvent.Type.SessionEnded))
+                close()
+            }
+            else if (message.extensions.getOrDefault("dialog_ended", false) as Boolean) {
+                sendMessage(message)
+                logic(event)
+            }
+            else {
+                sendMessage(message)
+            }
+        }
     }
 
     override fun onWebSocketText(json: String?) {
@@ -46,16 +82,23 @@ class BotWebSocket : WebSocketAdapter() {
 
                 BotEvent.Type.Capabilities -> {
                     clientCapabilities = event.capabilities!!
-                    val message = botService.message(event.key!!, Message(text = "\$intro", bot = "port")) // bot introduce
-                    //val message = Message(text = "Ahoj <a href=\"http://www.seznam.cz\">seznam</a>", "port")
-                    if (message != null)
-                        sendMessage(message)
+                    clientRequirements = event.requirements!!
+
+                    sendEvent(BotEvent(BotEvent.Type.Capabilities))
+//                    timer.schedule(task(event.key!!, recipient = event.message!!.sender!!), 0, 5000)
                 }
 
                 BotEvent.Type.Text -> {
-                    val message = botService.message(event.key!!, Message(text = event.text!!)) //TODO client should send Message instead of text
-                    if (message != null)
+                    logic(event)
+                }
+
+                BotEvent.Type.SessionPush -> {
+                    val message = botService.message(event.key!!, event.message!!)
+                    if (message != null && message.extensions.getOrDefault("force_added", false) as Boolean){
+                        sendEvent(BotEvent(BotEvent.Type.SessionStarted))
                         sendMessage(message)
+                    }
+
                 }
 
                 BotEvent.Type.InputAudioStreamOpen -> {
@@ -66,10 +109,8 @@ class BotWebSocket : WebSocketAdapter() {
                             override fun onResponse(transcript: String, confidence: Float, final: Boolean) {
                                 try {
                                     if (final) {
-                                        sendEvent(BotEvent(BotEvent.Type.Recognized, transcript))
-                                        val message = botService.message(event.key!!, Message(text = transcript))
-                                        if (message != null)
-                                            sendMessage(message)
+                                        sendEvent(BotEvent(BotEvent.Type.Recognized, Message(text = transcript)))
+                                        logic(event.apply { this.message!!.text = transcript; this.message!!.confidence=confidence.toDouble() })
                                     }
                                 } catch (e: IOException) {
                                     e.printStackTrace()
@@ -79,7 +120,7 @@ class BotWebSocket : WebSocketAdapter() {
                             override fun onError(e: Throwable) {
                                 e.printStackTrace()
                                 if (isConnected)
-                                    sendEvent(BotEvent(BotEvent.Type.Error, e.message))
+                                    sendEvent(BotEvent(BotEvent.Type.Error, Message(text = e.message?:"")))
                             }
 
                             override fun onOpen() {
@@ -99,7 +140,7 @@ class BotWebSocket : WebSocketAdapter() {
 
         } catch (e: Exception) {
             e.printStackTrace()
-            sendEvent(BotEvent(BotEvent.Type.Error, e.message))
+            sendEvent(BotEvent(BotEvent.Type.Error, Message(text = e.message?:"")))
         }
     }
 
@@ -118,6 +159,7 @@ class BotWebSocket : WebSocketAdapter() {
         sttStream = null
         sttService?.close()
         sttService = null
+//        timer.cancel()
     }
 
     @Throws(IOException::class)
@@ -126,24 +168,21 @@ class BotWebSocket : WebSocketAdapter() {
     }
 
     @Throws(IOException::class)
-    internal fun sendAudio(text: String, voice: String, lang: String) {
-        val stext = text.replace(Regex("<.*?>"), "")
+    internal fun sendAudio(text: String, voice: String, lang: String, ssml: Boolean) {
+        val stext = if (ssml) text else text.replace(Regex("<.*?>"), "")
         TtsServiceFactory.create(speechProvider).use { service ->
             if (logger.isInfoEnabled)
                 logger.info("sendAudio text = $stext, voice = $voice, lang = $lang")
-            val audio = service.speak(stext, voice, lang)
+            val audio = service.speak(stext, voice, lang, ssml)
             remote.sendBytes(ByteBuffer.wrap(audio))
         }
     }
 
     @Throws(IOException::class)
     internal fun sendMessage(message: Message) {
-        val text = message.text.trim()
-        if (text.isNotEmpty()) {
-            sendEvent(BotEvent(BotEvent.Type.Text, text))
-            if (speechToText && !clientCapabilities.webSpeechSynthesis) {
-                sendAudio(text, "cs-CZ-Wavenet-A", "cs-CZ")    //FIXME
-            }
+        sendEvent(BotEvent(BotEvent.Type.Text, message))
+        if (speechToText && !clientCapabilities.webSpeechSynthesis) {
+            sendAudio(message.text, "cs-CZ-Wavenet-A", "cs-CZ", clientRequirements.ssml)    //FIXME
         }
     }
 
