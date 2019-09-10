@@ -18,8 +18,8 @@
         <swagger.version>1.5.22</swagger.version>
         <api.host>localhost:8080</api.host>
         <api.locations>com.promethistai.common.resources,com.promethistai.port.resources</api.locations>
-        <api.version>v1</api.version>
-        <api.description>PromethistAI Port API</api.description>
+        <api.version>${project.version}</api.version>
+        <api.description>PromethistAI Port API (${project.version})</api.description>
     </properties>
 
     <dependencies>
