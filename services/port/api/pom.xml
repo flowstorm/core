@@ -12,6 +12,7 @@
         <version>1.0.0-SNAPSHOT</version>
     </parent>
     <artifactId>port-api</artifactId>
+    <version>${project.parent.version}</version>
     <name>Port API</name>
 
     <properties>

@@ -39,9 +39,9 @@ data class Message(
     var bot: String? = null,
 
     /**
-     * Platform customer identification (key). Port will set it to client messages according to valid contract.
+     * Application key. Must identify valid app contract.
      */
-    var customer: String? = null,
+    var appKey: String? = null,
 
     /**
      * Sending client identification (determined by client application - e.g. device ID, user auth token etc.)
@@ -70,7 +70,6 @@ data class Message(
      * Extension properties for message. Determined by bot service and/or client application.
      */
     val extensions: PropertyMap = PropertyMap(),
-
 
     /**
      * Resource links.
