@@ -1,7 +1,6 @@
 package com.promethistai.port.bot
 
 import com.google.gson.GsonBuilder
-import com.promethistai.port.DataService
 import com.promethistai.port.model.Message
 import com.promethistai.port.stt.SttCallback
 import com.promethistai.port.stt.SttService
@@ -52,8 +51,14 @@ class BotWebSocket : WebSocketAdapter() {
         sttStream?.write(payload, offset, len)
     }
 
-    fun logic(event: BotEvent){
-        val message = botService.message(event.key!!, event.message!!. apply { this.extensions["ssml"] = this@BotWebSocket.clientRequirements.ssml; this.extensions["expected_phrases"] = !clientCapabilities.webSpeechToText })
+    /**
+     * Determine if the response from botService will be followed by waiting for user input or another message will be sent to botService
+     */
+    fun responseLogic(event: BotEvent) {
+        val message = botService.message(event.key!!, event.message!!. apply {
+            this.extensions["ssml"] = this@BotWebSocket.clientRequirements.ssml;
+            this.extensions["expected_phrases"] = !this@BotWebSocket.clientCapabilities.webSpeechToText
+        })
         if (message != null) {
             expectedPhrases = message.extensions.getOrDefault("expected_phrases", null) as? List<String>?
             if (message.extensions.getOrDefault("session_ended", false) as Boolean) {
@@ -62,10 +67,10 @@ class BotWebSocket : WebSocketAdapter() {
             }
             else if (message.extensions.getOrDefault("dialog_ended", false) as Boolean) {
                 sendMessage(message)
-                logic(event)
+                responseLogic(event) // client will be fed with next message
             }
             else {
-                sendMessage(message)
+                sendMessage(message) // client will wait for user input
             }
         }
     }
@@ -91,12 +96,14 @@ class BotWebSocket : WebSocketAdapter() {
                 }
 
                 BotEvent.Type.Text -> {
-                    logic(event)
+                    responseLogic(event)
                 }
 
-                // Todo Client start the conversation
                 BotEvent.Type.SessionPush -> {
-                    val message = botService.message(event.key!!, event.message!!. apply { this.extensions["ssml"] = this@BotWebSocket.clientRequirements.ssml; this.extensions["expected_phrases"] = !clientCapabilities.webSpeechToText })
+                    val message = botService.message(event.key!!, event.message!!.apply {
+                        this.extensions["ssml"] = this@BotWebSocket.clientRequirements.ssml
+                        this.extensions["expected_phrases"] = !clientCapabilities.webSpeechToText
+                    })
                     if (message != null && message.extensions.getOrDefault("force_added", false) as Boolean){
                         sendEvent(BotEvent(BotEvent.Type.SessionStarted))
                         sendMessage(message)
@@ -112,7 +119,10 @@ class BotWebSocket : WebSocketAdapter() {
                                 try {
                                     if (final) {
                                         sendEvent(BotEvent(BotEvent.Type.Recognized, Message(text = transcript)))
-                                        logic(event.apply { this.message!!.text = transcript; this.message!!.confidence=confidence.toDouble() })
+                                        responseLogic(event.apply {
+                                            this.message!!.text = transcript
+                                            this.message!!.confidence=confidence.toDouble()
+                                        })
                                     }
                                 } catch (e: IOException) {
                                     e.printStackTrace()

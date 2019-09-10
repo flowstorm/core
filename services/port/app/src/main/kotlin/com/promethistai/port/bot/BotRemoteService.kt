@@ -18,9 +18,10 @@ class BotRemoteService : BotService {
         val remoteEndpoint = contract.remoteEndpoint!!
         val botService = RestClient.instance<BotService>(BotService::class.java, remoteEndpoint)
         val botKey = contract.botKey?:key
+        val model: String? = message.recipient ?: contract.model
         if (logger.isInfoEnabled)
-            logger.info("remoteEndpoint = $remoteEndpoint, botKey = $botKey")
-        return botService.message(botKey, message)
+            logger.info("remoteEndpoint = $remoteEndpoint, botKey = $botKey, model = $model")
+        return botService.message(botKey, message.apply { this.recipient = model })
     }
 
 }
