@@ -92,7 +92,7 @@ data class Message(
     fun response(text: String, confidence: Double): Message {
         val sender = this.recipient
         val recipient = this.sender
-        return this.copy(_id = createId(), _ref = _id, sender = sender, recipient = recipient, text = text, confidence = confidence, datetime = Date())
+        return this.copy(_id = createId(), _ref = _id, sender = sender, recipient = recipient, text = text, confidence = confidence, datetime = Date(), session = this.session)
     }
 
     companion object {

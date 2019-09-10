@@ -20,9 +20,13 @@ class GoogleTtsService : TtsService {
             return voices
         }
 
-    override fun speak(text: String, voiceName: String, language: String): ByteArray {
+    override fun speak(text: String, voiceName: String, language: String, isSsml: Boolean): ByteArray {
         // Set the text input to be synthesized
-        val input = SynthesisInput.newBuilder().setText(text).build()
+        val input : SynthesisInput = if (isSsml){
+            SynthesisInput.newBuilder().setSsml(text).build()
+        } else {
+            SynthesisInput.newBuilder().setText(text).build()
+        }
 
         // Build the voice request, select the language code ("en-US") and the ssml voice gender ("neutral")
         val voice = VoiceSelectionParams.newBuilder()
