@@ -32,6 +32,7 @@ class BotWebSocket : WebSocketAdapter() {
     private var clientRequirements: BotClientRequirements = BotClientRequirements()
     private var speechToText: Boolean = true
     private var speechProvider: String = "google"
+    private var expectedPhrases: List<String>? = null
 
 //    private val timer: Timer = Timer()
 //    private var messageFromQueue: Message? = null
@@ -52,8 +53,9 @@ class BotWebSocket : WebSocketAdapter() {
     }
 
     fun logic(event: BotEvent){
-        val message = botService.message(event.key!!, event.message!!)
+        val message = botService.message(event.key!!, event.message!!. apply { this.extensions["ssml"] = this@BotWebSocket.clientRequirements.ssml; this.extensions["expected_phrases"] = !clientCapabilities.webSpeechToText })
         if (message != null) {
+            expectedPhrases = message.extensions.getOrDefault("expected_phrases", null) as? List<String>?
             if (message.extensions.getOrDefault("session_ended", false) as Boolean) {
                 sendEvent(BotEvent(BotEvent.Type.SessionEnded))
                 close()
@@ -92,18 +94,18 @@ class BotWebSocket : WebSocketAdapter() {
                     logic(event)
                 }
 
+                // Todo Client start the conversation
                 BotEvent.Type.SessionPush -> {
-                    val message = botService.message(event.key!!, event.message!!)
+                    val message = botService.message(event.key!!, event.message!!. apply { this.extensions["ssml"] = this@BotWebSocket.clientRequirements.ssml; this.extensions["expected_phrases"] = !clientCapabilities.webSpeechToText })
                     if (message != null && message.extensions.getOrDefault("force_added", false) as Boolean){
                         sendEvent(BotEvent(BotEvent.Type.SessionStarted))
                         sendMessage(message)
                     }
-
                 }
 
                 BotEvent.Type.InputAudioStreamOpen -> {
                     close()
-                    sttService = SttServiceFactory.create(speechProvider, event.sttConfig!!,
+                    sttService = SttServiceFactory.create(speechProvider, event.sttConfig!!.apply { this.expectedPhrases = this@BotWebSocket.expectedPhrases ?: listOf() },
                         object : SttCallback {
 
                             override fun onResponse(transcript: String, confidence: Float, final: Boolean) {
@@ -172,7 +174,7 @@ class BotWebSocket : WebSocketAdapter() {
         val stext = if (ssml) text else text.replace(Regex("<.*?>"), "")
         TtsServiceFactory.create(speechProvider).use { service ->
             if (logger.isInfoEnabled)
-                logger.info("sendAudio text = $stext, voice = $voice, lang = $lang")
+                logger.info("sendAudio text = $stext, voice = $voice, lang = $lang, ssml= $ssml")
             val audio = service.speak(stext, voice, lang, ssml)
             remote.sendBytes(ByteBuffer.wrap(audio))
         }
@@ -180,7 +182,7 @@ class BotWebSocket : WebSocketAdapter() {
 
     @Throws(IOException::class)
     internal fun sendMessage(message: Message) {
-        sendEvent(BotEvent(BotEvent.Type.Text, message))
+        sendEvent(BotEvent(BotEvent.Type.Text, Message(text = message.text)))
         if (speechToText && !clientCapabilities.webSpeechSynthesis) {
             sendAudio(message.text, "cs-CZ-Wavenet-A", "cs-CZ", clientRequirements.ssml)    //FIXME
         }
