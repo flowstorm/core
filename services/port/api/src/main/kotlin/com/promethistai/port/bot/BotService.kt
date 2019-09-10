@@ -22,7 +22,7 @@ interface BotService {
         Authorization("key")
     ])
     //@ApiResponse
-    fun message(@ApiParam("Client key", required = true) @QueryParam("key") key: String,
+    fun message(@ApiParam("App key", required = true) @QueryParam("key") appKey: String,
                 @ApiParam("Message", required = true) message: Message): Message?
 
 

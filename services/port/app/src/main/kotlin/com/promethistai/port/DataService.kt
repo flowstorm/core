@@ -36,15 +36,15 @@ class DataService {
     private var logger = LoggerFactory.getLogger(DataService::class.java)
 
     @Throws(WebApplicationException::class)
-    fun getContract(key: String): Contract {
+    fun getContract(appKey: String): Contract {
         if (logger.isDebugEnabled)
-            logger.debug("getConfig key=$key")
+            logger.debug("getContract(appKey=$appKey)")
 
         val col = database.getCollection("contract", Contract::class.java)
-        val contract = col.findOne { Contract::key eq key }
+        val contract = col.findOne { Contract::appKey eq appKey }
 
         return if (contract == null)
-            throw WebApplicationException("Port contract not found for key $key", Response.Status.NOT_FOUND)
+            throw WebApplicationException("Port contract not found for app key $appKey", Response.Status.NOT_FOUND)
         else
             contract
     }
@@ -69,25 +69,25 @@ class DataService {
         }
     }
 
-    fun pushMessage(key: String, message: Message): Boolean {
+    fun pushMessage(appKey: String, message: Message): Boolean {
         if (logger.isInfoEnabled)
-            logger.info("key = $key, message = $message")
+            logger.info("appKey = $appKey, message = $message")
 
         if (message._id == null)
             message._id = ObjectId.get().toHexString()
-        message.customer = key
+        message.appKey = appKey
 
         val col = database.getCollection("message", Message::class.java)
         col.insertOne(message)
         return true
     }
 
-    fun popMessages(key: String, recipient: String, limit: Int): List<Message> {
+    fun popMessages(appKey: String, recipient: String, limit: Int): List<Message> {
         val col = database.getCollection("message", Message::class.java)
-        val query = org.litote.kmongo.and(Message::customer eq key, Message::recipient eq recipient)
+        val query = org.litote.kmongo.and(Message::appKey eq appKey, Message::recipient eq recipient)
         val messages = col.find(query).toList()
         if (logger.isInfoEnabled)
-            logger.info("key = $key, limit = $limit, messages = $messages")
+            logger.info("appKey = $appKey, limit = $limit, messages = $messages")
 
         col.deleteMany(query)
         return messages

@@ -21,20 +21,20 @@ interface PortResource : BotService {
     @Path("contract")
     @ApiOperation(value = "Get port contract")
     @Produces(MediaType.APPLICATION_JSON)
-    fun getContract(@ApiParam("Customer key", required = true) @QueryParam("key") key: String): Contract
+    fun getContract(@ApiParam("App key", required = true) @QueryParam("key") appKey: String): Contract
 
     @PUT
     @Path("message/_queue")
     @ApiOperation(value = "Push message to queue")
     @Produces(MediaType.APPLICATION_JSON)
-    fun messageQueuePush(@ApiParam("Customer key", required = true) @QueryParam("key") key: String,
+    fun messageQueuePush(@ApiParam("App key", required = true) @QueryParam("key") appKey: String,
                          @ApiParam("Message", required = true) message: Message): Boolean
 
     @GET
     @Path("message/_queue")
     @ApiOperation(value = "Pop messages from queue")
     @Produces(MediaType.APPLICATION_JSON)
-    fun messageQueuePop(@ApiParam("Customer key", required = true) @QueryParam("key") key: String,
+    fun messageQueuePop(@ApiParam("App key", required = true) @QueryParam("key") appKey: String,
                         @ApiParam("Recipient", required = true) @QueryParam("recipient") recipient: String,
                         @ApiParam(defaultValue = "1") @QueryParam("limit") limit: Int = 1): List<Message>
 

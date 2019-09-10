@@ -29,27 +29,27 @@ class PortResourceImpl : PortResource {
     lateinit var dataService: DataService
 
 
-    override fun getContract(key: String): Contract {
-        val contract = dataService.getContract(key)
+    override fun getContract(appKey: String): Contract {
+        val contract = dataService.getContract(appKey)
         contract.botKey = "*****" // mask api key
         return contract
     }
 
-    override fun message(key: String, message: Message): Message? {
-        message.customer = key
+    override fun message(appKey: String, message: Message): Message? {
+        message.appKey = appKey
 
-        val response = botService.message(key, message)
+        val response = botService.message(appKey, message)
         if (response != null && response._ref == null)
             response._ref = message._id
         return response
     }
 
-    override fun messageQueuePush(key: String, message: Message): Boolean {
-        return dataService.pushMessage(key, message)
+    override fun messageQueuePush(appKey: String, message: Message): Boolean {
+        return dataService.pushMessage(appKey, message)
     }
 
-    override fun messageQueuePop(key: String, recipient: String, limit: Int): List<Message> {
-        return dataService.popMessages(key, recipient, limit)
+    override fun messageQueuePop(appKey: String, recipient: String, limit: Int): List<Message> {
+        return dataService.popMessages(appKey, recipient, limit)
     }
 
     override fun readFile(id: String): Response {
