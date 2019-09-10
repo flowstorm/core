@@ -64,6 +64,8 @@ deploy app non-production:
       --set git.commit=$CI_COMMIT_SHORT_SHA
       --set app.image.tag=$CI_COMMIT_REF_NAME
       --set imagePullPolicy=Always
+      --set database.url=$MONGODB_URL
+      --set database.name=common-$CI_COMMIT_REF_NAME
       $CI_PROJECT_NAME-$CI_COMMIT_REF_NAME
       deploy/app
 
@@ -88,5 +90,6 @@ deploy app production:
       --set git.ref=$CI_COMMIT_REF_NAME
       --set git.commit=$CI_COMMIT_SHORT_SHA
       --set app.image.tag=$CI_COMMIT_REF_NAME
+      --set database.url=$MONGODB_URL
       $CI_PROJECT_NAME
       deploy/app
