@@ -105,20 +105,11 @@ class BotWebSocket : WebSocketAdapter() {
                     responseLogic(event)
                 }
 
-                BotEvent.Type.SessionPush -> {
-                    val message = botService.message(event.appKey!!, event.message!!.apply {
-                        this.extensions["ssml"] = this@BotWebSocket.clientRequirements.ssml
-                        this.extensions["expected_phrases"] = !clientCapabilities.webSpeechToText
-                    })
-                    if (message != null && message.extensions.getOrDefault("force_added", false) as Boolean){
-                        sendEvent(BotEvent(BotEvent.Type.SessionStarted))
-                        sendMessage(message)
-                    }
-                }
 
                 BotEvent.Type.InputAudioStreamOpen -> {
                     close()
-                    sttService = SttServiceFactory.create(speechProvider, event.sttConfig!!.apply { this.expectedPhrases = this@BotWebSocket.expectedPhrases ?: listOf() },
+                    sttService = SttServiceFactory.create(speechProvider, event.sttConfig!!.apply {
+                        this.expectedPhrases = this@BotWebSocket.expectedPhrases ?: listOf() },
                         object : SttCallback {
 
                             override fun onResponse(transcript: String, confidence: Float, final: Boolean) {
