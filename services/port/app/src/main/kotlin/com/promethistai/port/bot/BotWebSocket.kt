@@ -1,6 +1,7 @@
 package com.promethistai.port.bot
 
 import com.google.gson.GsonBuilder
+import com.promethistai.port.DataService
 import com.promethistai.port.model.Message
 import com.promethistai.port.stt.SttCallback
 import com.promethistai.port.stt.SttService
@@ -11,7 +12,7 @@ import org.eclipse.jetty.websocket.api.WebSocketAdapter
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.nio.ByteBuffer
-//import java.util.*
+import java.util.*
 import javax.inject.Inject
 
 class BotWebSocket : WebSocketAdapter() {
@@ -21,8 +22,8 @@ class BotWebSocket : WebSocketAdapter() {
     @Inject
     lateinit var botService: BotService
 
-//    @Inject
-//    lateinit var dataService: DataService
+    @Inject
+    lateinit var dataService: DataService
 
     private val gson = GsonBuilder().create()
     private var sttService: SttService? = null
@@ -32,19 +33,8 @@ class BotWebSocket : WebSocketAdapter() {
     private var speechToText: Boolean = true
     private var speechProvider: String = "google"
     private var expectedPhrases: List<String>? = null
-
-//    private val timer: Timer = Timer()
-//    private var messageFromQueue: Message? = null
-
-//    private fun task(key: String, recipient: String) = object: TimerTask() {
-//        override fun run() {
-//            messageFromQueue = dataService.popMessages(key, recipient, 0).getOrNull(0)
-//            if (messageFromQueue != null) {
-//                sendEvent(BotEvent(BotEvent.Type.SessionStarted))
-//                sendMessage(messageFromQueue!!)
-//            }
-//        }
-//    }
+    private val timer: Timer = Timer()
+    private val timerTasks = mutableMapOf<String, TimerTask>()
 
     override fun onWebSocketBinary(payload: ByteArray, offset: Int, len: Int) {
         super.onWebSocketBinary(payload, offset, len)
@@ -55,7 +45,7 @@ class BotWebSocket : WebSocketAdapter() {
      * Determine if the response from botService will be followed by waiting for user input or another message will be sent to botService
      */
     fun responseLogic(event: BotEvent) {
-        val message = botService.message(event.key!!, event.message!!. apply {
+        val message = botService.message(event.appKey!!, event.message!!. apply {
             this.extensions["ssml"] = this@BotWebSocket.clientRequirements.ssml;
             this.extensions["expected_phrases"] = !this@BotWebSocket.clientCapabilities.webSpeechToText
         })
@@ -85,14 +75,30 @@ class BotWebSocket : WebSocketAdapter() {
             if (logger.isInfoEnabled)
                 logger.info("onWebSocketText event = $event")
 
+            if (event.message != null && event.appKey != null && event.message!!.sender != null) {
+
+                val timerTaskKey = "${event.appKey}/${event.message!!.sender}"
+                if (!timerTasks.containsKey(timerTaskKey)) {
+                    val timerTask = object : TimerTask() {
+                        override fun run() {
+                            val message = dataService.popMessages(event.appKey!!, event.message!!.sender!!, 1).getOrNull(0)
+                            if (message != null) {
+                                //sendEvent(BotEvent(BotEvent.Type.SessionStarted))
+                                sendMessage(message)
+                            }
+                        }
+                    }
+                    timer.schedule(timerTask, 2000, 2000)
+                    timerTasks.put(timerTaskKey, timerTask)
+                }
+            }
+
             when (event.type) {
 
                 BotEvent.Type.Capabilities -> {
                     clientCapabilities = event.capabilities!!
-                    clientRequirements = event.requirements!!
-
+                    clientRequirements = event.requirements?:BotClientRequirements(false)
                     sendEvent(BotEvent(BotEvent.Type.Capabilities))
-//                    timer.schedule(task(event.key!!, recipient = event.message!!.sender!!), 0, 5000)
                 }
 
                 BotEvent.Type.Text -> {
@@ -100,7 +106,7 @@ class BotWebSocket : WebSocketAdapter() {
                 }
 
                 BotEvent.Type.SessionPush -> {
-                    val message = botService.message(event.key!!, event.message!!.apply {
+                    val message = botService.message(event.appKey!!, event.message!!.apply {
                         this.extensions["ssml"] = this@BotWebSocket.clientRequirements.ssml
                         this.extensions["expected_phrases"] = !clientCapabilities.webSpeechToText
                     })
@@ -171,9 +177,10 @@ class BotWebSocket : WebSocketAdapter() {
         sttStream = null
         sttService?.close()
         sttService = null
-//        timer.cancel()
+        timer.cancel()
     }
 
+    @Synchronized
     @Throws(IOException::class)
     internal fun sendEvent(event: BotEvent) {
         remote.sendString(gson.toJson(event))

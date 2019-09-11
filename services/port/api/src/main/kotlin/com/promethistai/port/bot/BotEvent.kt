@@ -7,7 +7,7 @@ import java.io.Serializable
 data class BotEvent(
         var type: Type? = null,
         var message: Message? = null,
-        var key: String? = null,
+        var appKey: String? = null,
         var capabilities: BotClientCapabilities? = null,
         var requirements: BotClientRequirements? = null,
         var sttConfig: SttConfig? = null,
