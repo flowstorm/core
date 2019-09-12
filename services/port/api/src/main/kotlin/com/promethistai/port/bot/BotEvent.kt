@@ -18,12 +18,11 @@ data class BotEvent(
         Text,
         InputAudioStreamOpen,
         InputAudioStreamClose,
+        InputAudioStreamCancel,
         Recognized,
         Error,
         Capabilities,
         SpeechToText,
-        SessionPush,
-        SessionStarted,
         SessionEnded
 
     }

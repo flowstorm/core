@@ -31,6 +31,7 @@ class BotWebSocket : WebSocketAdapter() {
     private var clientCapabilities: BotClientCapabilities = BotClientCapabilities()
     private var clientRequirements: BotClientRequirements = BotClientRequirements()
     private var speechToText: Boolean = true
+    private var inputAudioStreamCancelled: Boolean = false
     private var speechProvider: String = "google"
     private var expectedPhrases: List<String>? = null
     private val timer: Timer = Timer()
@@ -53,7 +54,7 @@ class BotWebSocket : WebSocketAdapter() {
             expectedPhrases = message.extensions.getOrDefault("expected_phrases", null) as? List<String>?
             if (message.extensions.getOrDefault("session_ended", false) as Boolean) {
                 sendEvent(BotEvent(BotEvent.Type.SessionEnded))
-                close()
+                close(false)
             }
             else if (message.extensions.getOrDefault("dialog_ended", false) as Boolean) {
                 sendMessage(message)
@@ -74,6 +75,8 @@ class BotWebSocket : WebSocketAdapter() {
 
             if (logger.isInfoEnabled)
                 logger.info("onWebSocketText event = $event")
+
+            event.message!!.session = if (event.message!!.session.isNullOrBlank()) { Message.createId() } else { event.message!!.session }
 
             if (event.message != null && event.appKey != null && event.message!!.sender != null) {
 
@@ -105,25 +108,16 @@ class BotWebSocket : WebSocketAdapter() {
                     responseLogic(event)
                 }
 
-                BotEvent.Type.SessionPush -> {
-                    val message = botService.message(event.appKey!!, event.message!!.apply {
-                        this.extensions["ssml"] = this@BotWebSocket.clientRequirements.ssml
-                        this.extensions["expected_phrases"] = !clientCapabilities.webSpeechToText
-                    })
-                    if (message != null && message.extensions.getOrDefault("force_added", false) as Boolean){
-                        sendEvent(BotEvent(BotEvent.Type.SessionStarted))
-                        sendMessage(message)
-                    }
-                }
 
                 BotEvent.Type.InputAudioStreamOpen -> {
-                    close()
-                    sttService = SttServiceFactory.create(speechProvider, event.sttConfig!!.apply { this.expectedPhrases = this@BotWebSocket.expectedPhrases ?: listOf() },
+                    close(false)
+                    sttService = SttServiceFactory.create(speechProvider, event.sttConfig!!.apply {
+                        this.expectedPhrases = this@BotWebSocket.expectedPhrases ?: listOf() },
                         object : SttCallback {
 
                             override fun onResponse(transcript: String, confidence: Float, final: Boolean) {
                                 try {
-                                    if (final) {
+                                    if (final && !inputAudioStreamCancelled) {
                                         sendEvent(BotEvent(BotEvent.Type.Recognized, Message(text = transcript)))
                                         responseLogic(event.apply {
                                             this.message!!.text = transcript
@@ -149,7 +143,9 @@ class BotWebSocket : WebSocketAdapter() {
                     sttStream = sttService?.createStream()
                 }
 
-                BotEvent.Type.InputAudioStreamClose -> close()
+                BotEvent.Type.InputAudioStreamClose -> close(false)
+
+                BotEvent.Type.InputAudioStreamCancel -> close(true)
 
                 BotEvent.Type.SpeechToText -> speechToText = event.enabled?:false
 
@@ -164,15 +160,16 @@ class BotWebSocket : WebSocketAdapter() {
 
     override fun onWebSocketClose(statusCode: Int, reason: String?) {
         super.onWebSocketClose(statusCode, reason)
-        close()
+        close( false)
     }
 
     override fun onWebSocketError(cause: Throwable?) {
         super.onWebSocketError(cause)
-        close()
+        close(false)
     }
 
-    private fun close() {
+    private fun close(wasCancelled: Boolean) {
+        this.inputAudioStreamCancelled = wasCancelled
         sttStream?.close()
         sttStream = null
         sttService?.close()
@@ -199,7 +196,7 @@ class BotWebSocket : WebSocketAdapter() {
 
     @Throws(IOException::class)
     internal fun sendMessage(message: Message) {
-        sendEvent(BotEvent(BotEvent.Type.Text, Message(text = message.text)))
+        sendEvent(BotEvent(BotEvent.Type.Text, message))
         if (speechToText && !clientCapabilities.webSpeechSynthesis) {
             sendAudio(message.text, "cs-CZ-Wavenet-A", "cs-CZ", clientRequirements.ssml)    //FIXME
         }
