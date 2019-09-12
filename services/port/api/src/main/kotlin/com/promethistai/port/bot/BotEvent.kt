@@ -18,6 +18,7 @@ data class BotEvent(
         Text,
         InputAudioStreamOpen,
         InputAudioStreamClose,
+        InputAudioStreamCancel,
         Recognized,
         Error,
         Capabilities,
