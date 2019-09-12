@@ -76,6 +76,8 @@ class BotWebSocket : WebSocketAdapter() {
             if (logger.isInfoEnabled)
                 logger.info("onWebSocketText event = $event")
 
+            event.message!!.session = if (event.message!!.session.isNullOrBlank()) { Message.createId() } else { event.message!!.session }
+
             if (event.message != null && event.appKey != null && event.message!!.sender != null) {
 
                 val timerTaskKey = "${event.appKey}/${event.message!!.sender}"
@@ -194,7 +196,7 @@ class BotWebSocket : WebSocketAdapter() {
 
     @Throws(IOException::class)
     internal fun sendMessage(message: Message) {
-        sendEvent(BotEvent(BotEvent.Type.Text, Message(text = message.text)))
+        sendEvent(BotEvent(BotEvent.Type.Text, message))
         if (speechToText && !clientCapabilities.webSpeechSynthesis) {
             sendAudio(message.text, "cs-CZ-Wavenet-A", "cs-CZ", clientRequirements.ssml)    //FIXME
         }
