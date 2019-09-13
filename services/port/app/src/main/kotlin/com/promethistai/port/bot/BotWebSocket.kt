@@ -76,23 +76,28 @@ class BotWebSocket : WebSocketAdapter() {
             if (logger.isInfoEnabled)
                 logger.info("onWebSocketText event = $event")
 
-            event.message!!.session = if (event.message!!.session.isNullOrBlank()) { Message.createId() } else { event.message!!.session }
+            if (event.message != null) {
 
-            if (event.message != null && event.appKey != null && event.message!!.sender != null) {
+                // set session id
+                if (event.message!!.session.isNullOrBlank())
+                    event.message!!.session = Message.createId()
 
-                val timerTaskKey = "${event.appKey}/${event.message!!.sender}"
-                if (!timerTasks.containsKey(timerTaskKey)) {
-                    val timerTask = object : TimerTask() {
-                        override fun run() {
-                            val message = dataService.popMessages(event.appKey!!, event.message!!.sender!!, 1).getOrNull(0)
-                            if (message != null) {
-                                //sendEvent(BotEvent(BotEvent.Type.SessionStarted))
-                                sendMessage(message)
+                if (event.appKey != null && event.message!!.sender != null) {
+
+                    val timerTaskKey = "${event.appKey}/${event.message!!.sender}"
+                    if (!timerTasks.containsKey(timerTaskKey)) {
+                        val timerTask = object : TimerTask() {
+                            override fun run() {
+                                val message = dataService.popMessages(event.appKey!!, event.message!!.sender!!, 1).getOrNull(0)
+                                if (message != null) {
+                                    //sendEvent(BotEvent(BotEvent.Type.SessionStarted))
+                                    sendMessage(message)
+                                }
                             }
                         }
+                        timer.schedule(timerTask, 2000, 2000)
+                        timerTasks.put(timerTaskKey, timerTask)
                     }
-                    timer.schedule(timerTask, 2000, 2000)
-                    timerTasks.put(timerTaskKey, timerTask)
                 }
             }
 
