@@ -159,7 +159,7 @@ class BotWebSocket : WebSocketAdapter() {
 
         } catch (e: Exception) {
             e.printStackTrace()
-            sendEvent(BotEvent(BotEvent.Type.Error, Message(text = e.message?:"")))
+            sendEvent(BotEvent(BotEvent.Type.Error, Message(sender = "port", text = e.message?:"")))
         }
     }
 
