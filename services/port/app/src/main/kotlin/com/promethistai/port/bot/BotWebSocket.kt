@@ -166,11 +166,13 @@ class BotWebSocket : WebSocketAdapter() {
     override fun onWebSocketClose(statusCode: Int, reason: String?) {
         super.onWebSocketClose(statusCode, reason)
         close( false)
+        timer.cancel()
     }
 
     override fun onWebSocketError(cause: Throwable?) {
         super.onWebSocketError(cause)
         close(false)
+        timer.cancel()
     }
 
     private fun close(wasCancelled: Boolean) {
@@ -179,7 +181,6 @@ class BotWebSocket : WebSocketAdapter() {
         sttStream = null
         sttService?.close()
         sttService = null
-        timer.cancel()
     }
 
     @Synchronized
