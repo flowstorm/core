@@ -109,6 +109,14 @@ class BotWebSocket : WebSocketAdapter() {
                     sendEvent(BotEvent(BotEvent.Type.Capabilities))
                 }
 
+                BotEvent.Type.SessionStarted -> {
+                    sendEvent(BotEvent(BotEvent.Type.SessionStarted, Message(session = Message.createId())))
+                }
+
+                BotEvent.Type.SessionEnded -> {
+                    sendEvent(BotEvent(BotEvent.Type.SessionEnded))
+                }
+
                 BotEvent.Type.Text -> {
                     responseLogic(event)
                 }
@@ -137,7 +145,7 @@ class BotWebSocket : WebSocketAdapter() {
                             override fun onError(e: Throwable) {
                                 e.printStackTrace()
                                 if (isConnected)
-                                    sendEvent(BotEvent(BotEvent.Type.Error, Message(text = e.message?:"")))
+                                    sendEvent(BotEvent(BotEvent.Type.Error, Message(sender= "google stt",text = e.message?:"")))
                             }
 
                             override fun onOpen() {

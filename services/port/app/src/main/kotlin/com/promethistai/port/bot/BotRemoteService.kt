@@ -13,12 +13,12 @@ class BotRemoteService : BotService {
 
     private var logger = LoggerFactory.getLogger(BotRemoteService::class.java)
 
-    override fun message(key: String, message: Message): Message? {
-        val contract = dataService.getContract(key)
+    override fun message(appKey: String, message: Message): Message? {
+        val contract = dataService.getContract(appKey)
         val remoteEndpoint = contract.remoteEndpoint!!
         val botService = RestClient.instance<BotService>(BotService::class.java, remoteEndpoint)
-        val botKey = contract.botKey?:key
-        val model: String? = message.recipient ?: contract.model
+        val botKey = contract.botKey?:appKey
+        val model: String? = contract.model?:message.recipient
         if (logger.isInfoEnabled)
             logger.info("remoteEndpoint = $remoteEndpoint, botKey = $botKey, model = $model")
         return botService.message(botKey, message.apply { this.recipient = model })
