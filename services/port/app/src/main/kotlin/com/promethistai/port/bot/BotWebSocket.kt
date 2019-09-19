@@ -17,7 +17,7 @@ import javax.inject.Inject
 
 class BotWebSocket : WebSocketAdapter() {
 
-    private var logger = LoggerFactory.getLogger(BotWebSocket::class.java)
+    private var logger = LoggerFactory.getLogger(BotWebSocket::class.qualifiedName)
 
     @Inject
     lateinit var botService: BotService
