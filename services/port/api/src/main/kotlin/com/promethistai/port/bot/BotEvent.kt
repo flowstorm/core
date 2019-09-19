@@ -23,6 +23,7 @@ data class BotEvent(
         Error,
         Capabilities,
         SpeechToText,
+        SessionStarted,
         SessionEnded
 
     }
