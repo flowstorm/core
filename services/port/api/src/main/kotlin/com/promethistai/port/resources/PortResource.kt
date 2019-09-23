@@ -50,6 +50,7 @@ interface PortResource : BotService {
 
     @POST
     @Path("tts")
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     @ApiOperation(value = "Perform TTS")
     fun tts(@QueryParam("provider") @DefaultValue("google") provider: String, request: TtsRequest): ByteArray
