@@ -22,19 +22,19 @@ class IllusionistService : BotService {
 
     private var logger = LoggerFactory.getLogger(IllusionistService::class.java)
 
-    override fun message(key: String, message: Message): Message? {
+    override fun message(appKey: String, message: Message): Message? {
         try {
-            val contract = dataService.getContract(key)
-            val botKey = contract.botKey?:key
+            val contract = dataService.getContract(appKey)
+            val botKey = contract.botKey?:appKey
             val model = contract.model?:"GlobalRepeat1"
             val stage = if (appConfig["namespace"] != "default") ".${appConfig["namespace"]}" else ""
             val remoteEndpoint = "https://illusionist${stage}.promethist.ai/query"
-            val url = URL("""${remoteEndpoint}/${model}?key=${botKey}&query=${URLEncoder.encode(message.text, "utf-8")}""")
+            val url = URL("""${remoteEndpoint}/${model}?key=${botKey}&query=${URLEncoder.encode(message.items.getOrNull(0)?.text?:"", "utf-8")}""")
             if (logger.isInfoEnabled)
                 logger.info("remoteEndpoint = $remoteEndpoint, botKey = $botKey, model = $model")
             val responses = RestClient.call(url, Array<Response>::class.java, "POST")
             if (responses.isNotEmpty())
-                return message.response(responses[0].answer, responses[0].confidence)
+                return message.response(mutableListOf(Message.Item(text = responses[0].answer)), confidence = responses[0].confidence)
         } catch (e: IOException) {
             e.printStackTrace()
         }

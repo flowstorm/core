@@ -3,4 +3,13 @@ package com.promethistai.port.bot
 import java.io.Serializable
 
 data class BotClientRequirements(
-    var ssml: Boolean = false) : Serializable
+    var webSTT: Boolean = false,
+    var returnSSML: Boolean = false,
+    var webTTS: TtsType = TtsType.None) : Serializable {
+
+    enum class TtsType {
+        None,
+        RequiredStreaming,
+        RequiredLinks
+    }
+}
