@@ -122,7 +122,7 @@ data class Message(
         /**
          * Tts configuration to be able change speed/pitch/volume for each Item (priority: item > contract > default)
          */
-        val ttsConfig: TtsConfig? = null
+        var ttsConfig: TtsConfig? = null
     )
 
     fun response(items: MutableList<Item>, confidence: Double): Message {
