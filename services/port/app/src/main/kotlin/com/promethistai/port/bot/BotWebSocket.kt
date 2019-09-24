@@ -212,11 +212,11 @@ class BotWebSocket : WebSocketAdapter() {
         message.expectedPhrases = null
         for (item in message.items) {
             if (clientRequirements.tts == BotClientRequirements.TtsType.RequiredStreaming) {
-                sendAudio(text = item.ssml!!, ttsConfig = contract.ttsConfig?:TtsConfig.DEFAULT_EN)
+                sendAudio(text = item.ssml!!, ttsConfig = item.ttsConfig?:contract.ttsConfig?:TtsConfig.DEFAULT_EN)
             } else if (clientRequirements.tts == BotClientRequirements.TtsType.RequiredLinks) {
                 item.links.add(
                     Message.ResourceLink(type = "audio",
-                        ref = saveAudio(text = item.text?:"", ttsConfig = contract.ttsConfig?:TtsConfig.DEFAULT_EN)))
+                        ref = saveAudio(text = item.text?:"", ttsConfig = item.ttsConfig?:contract.ttsConfig?:TtsConfig.DEFAULT_EN)))
             }
         }
         sendEvent(BotEvent(BotEvent.Type.Text, message))

@@ -76,11 +76,11 @@ class PortResourceImpl : PortResource {
                 .build()
     }
 
-    override fun tts(appKey: String, provider: String, speechText: String): ByteArray {
+    override fun tts(appKey: String, provider: String, ttsConfig: TtsConfig?, speechText: String): ByteArray {
         val contract = getContract(appKey)
         if (logger.isInfoEnabled)
             logger.info("provider = $provider, speechText = $speechText")
-        return TtsServiceFactory.create(provider).speak(speechText, contract.ttsConfig?: TtsConfig.DEFAULT_EN)
+        return TtsServiceFactory.create(provider).speak(speechText, ttsConfig?:contract.ttsConfig?:TtsConfig.DEFAULT_EN)
     }
 
     override fun ttsVoices(provider: String): List<TtsVoice> {

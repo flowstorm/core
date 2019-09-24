@@ -37,7 +37,12 @@ class GoogleTtsService : TtsService {
                 .build()
 
         // Select the type of stream file you want returned
-        val audioConfig = AudioConfig.newBuilder().setAudioEncoding(AudioEncoding.MP3).build()
+        val audioConfig = AudioConfig.newBuilder()
+                .setAudioEncoding(AudioEncoding.MP3)
+                .setSpeakingRate(ttsConfig.speakingRate)
+                .setPitch(ttsConfig.pitch)
+                .setVolumeGainDb(ttsConfig.volumeGain)
+                .build()
 
         // Perform the text-to-speech request on the text input with the selected voice parameters and stream file type
         val response = client.synthesizeSpeech(input, voice, audioConfig)
