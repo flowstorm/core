@@ -1,6 +1,7 @@
 package com.promethistai.port.tts.impl
 
 import com.google.cloud.texttospeech.v1beta1.*
+import com.promethistai.port.tts.TtsConfig
 import com.promethistai.port.tts.TtsService
 import com.promethistai.port.tts.TtsVoice
 import java.util.concurrent.TimeUnit
@@ -20,7 +21,7 @@ class GoogleTtsService : TtsService {
             return voices
         }
 
-    override fun speak(text: String, voiceName: String, language: String, isSsml: Boolean): ByteArray {
+    override fun speak(text: String, ttsConfig: TtsConfig, isSsml: Boolean): ByteArray {
         // Set the text input to be synthesized
         val input : SynthesisInput = if (isSsml){
             SynthesisInput.newBuilder().setSsml(text).build()
@@ -30,8 +31,8 @@ class GoogleTtsService : TtsService {
 
         // Build the voice request, select the language code ("en-US") and the ssml voice gender ("neutral")
         val voice = VoiceSelectionParams.newBuilder()
-                .setName(voiceName)
-                .setLanguageCode(language)
+                .setName(ttsConfig.voice)
+                .setLanguageCode(ttsConfig.language)
                 //.setSsmlGender(SsmlVoiceGender.MALE)
                 .build()
 

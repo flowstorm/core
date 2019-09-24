@@ -4,7 +4,7 @@ import com.promethistai.port.DataService
 import com.promethistai.port.bot.BotService
 import com.promethistai.port.model.Contract
 import com.promethistai.port.model.Message
-import com.promethistai.port.tts.TtsRequest
+import com.promethistai.port.tts.TtsConfig
 import com.promethistai.port.tts.TtsServiceFactory
 import com.promethistai.port.tts.TtsVoice
 import org.slf4j.LoggerFactory
@@ -38,11 +38,19 @@ class PortResourceImpl : PortResource {
     override fun message(appKey: String, message: Message): Message? {
         message.appKey = appKey
 
+        // log incoming message
+        dataService.logMessage(message)
+
         val response = botService.message(appKey, message.apply {
-            session = if (session.isNullOrBlank()) { Message.createId() } else { session }
+            sessionId = if (sessionId.isNullOrBlank()) { Message.createId() } else { sessionId }
         })
         if (response != null && response._ref == null)
             response._ref = message._id
+
+        // log response message
+        if (response != null)
+            dataService.logMessage(response)
+
         return response
     }
 
@@ -51,7 +59,7 @@ class PortResourceImpl : PortResource {
     }
 
     override fun messageQueuePop(appKey: String, recipient: String, limit: Int): List<Message> {
-        return dataService.popMessages(appKey, recipient, limit)
+        return dataService.popMessages(appKey, recipient, limit).onEach { dataService.logMessage(it) }
     }
 
     override fun readFile(id: String): Response {
@@ -68,10 +76,11 @@ class PortResourceImpl : PortResource {
                 .build()
     }
 
-    override fun tts(provider: String, request: TtsRequest): ByteArray {
+    override fun tts(appKey: String, provider: String, speechText: String): ByteArray {
+        val contract = getContract(appKey)
         if (logger.isInfoEnabled)
-            logger.info("provider = $provider, request = $request")
-        return TtsServiceFactory.create(provider).speak(request.text!!, request.voice!!, request.language!!)
+            logger.info("provider = $provider, speechText = $speechText")
+        return TtsServiceFactory.create(provider).speak(speechText, contract.ttsConfig?: TtsConfig.DEFAULT_EN)
     }
 
     override fun ttsVoices(provider: String): List<TtsVoice> {
@@ -80,11 +89,4 @@ class PortResourceImpl : PortResource {
         return TtsServiceFactory.create(provider).voices
     }
 
-    override fun ttsBR(request: TtsRequest): ByteArray {
-        return tts("google", request)
-    }
-
-    override fun ttsVoicesBR(): List<TtsVoice> {
-        return ttsVoices("google")
-    }
 }

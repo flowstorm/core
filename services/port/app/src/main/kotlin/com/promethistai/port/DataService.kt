@@ -92,4 +92,10 @@ class DataService {
         col.deleteMany(query)
         return messages
     }
+
+    fun logMessage(message: Message): Boolean {
+        val col = database.getCollection("message-log", Message::class.java)
+        col.insertOne(message)
+        return true
+    }
 }

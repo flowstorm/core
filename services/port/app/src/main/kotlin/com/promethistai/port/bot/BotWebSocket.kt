@@ -7,6 +7,7 @@ import com.promethistai.port.stt.SttCallback
 import com.promethistai.port.stt.SttService
 import com.promethistai.port.stt.SttServiceFactory
 import com.promethistai.port.stt.SttStream
+import com.promethistai.port.tts.TtsConfig
 import com.promethistai.port.tts.TtsServiceFactory
 import org.eclipse.jetty.websocket.api.WebSocketAdapter
 import org.slf4j.LoggerFactory
@@ -53,7 +54,7 @@ class BotWebSocket : WebSocketAdapter() {
             }
             // todo will not work correctly before the subdialogs in helena will be implemented
             else {
-                sendMessage(messages) // client will wait for user input
+                sendMessage(event.appKey!!, messages) // client will wait for user input
             }
         }
     }
@@ -71,9 +72,9 @@ class BotWebSocket : WebSocketAdapter() {
             if (event.message != null) {
 
                 // set session id
-                if (event.message!!.session.isNullOrBlank()) {
-                    event.message!!.session = Message.createId()
-                    sendEvent(BotEvent(BotEvent.Type.SessionStarted, Message(session = event.message!!.session)))
+                if (event.message!!.sessionId.isNullOrBlank()) {
+                    event.message!!.sessionId = Message.createId()
+                    sendEvent(BotEvent(BotEvent.Type.SessionStarted, Message(sessionId = event.message!!.sessionId)))
                 }
 
                 if (event.appKey != null && event.message!!.sender != null) {
@@ -84,7 +85,7 @@ class BotWebSocket : WebSocketAdapter() {
                             override fun run() {
                                 val messages = dataService.popMessages(event.appKey!!, event.message!!.sender!!, 1)
                                 for (message in messages)
-                                    sendMessage(message)
+                                    sendMessage(event.appKey!!, message)
                             }
                         }
                         timer.schedule(timerTask, 2000, 2000)
@@ -101,7 +102,7 @@ class BotWebSocket : WebSocketAdapter() {
                 }
 
                 BotEvent.Type.SessionStarted -> {
-                    sendEvent(BotEvent(BotEvent.Type.SessionStarted, Message(session = event.message?.session?:Message.createId())))
+                    sendEvent(BotEvent(BotEvent.Type.SessionStarted, Message(sessionId = event.message?.sessionId?:Message.createId())))
                 }
 
                 BotEvent.Type.SessionEnded -> {
@@ -185,42 +186,37 @@ class BotWebSocket : WebSocketAdapter() {
     }
 
     @Throws(IOException::class)
-    internal fun sendAudio(text: String, voice: String, lang: String) {
+    internal fun sendAudio(text: String, ttsConfig: TtsConfig) {
         TtsServiceFactory.create(speechProvider).use { service ->
             if (logger.isInfoEnabled)
-                logger.info("sendAudio text = $text, voice = $voice, lang = $lang")
-            val audio = service.speak(text, voice, lang)
+                logger.info("sendAudio text = $text, ttsConfig = $ttsConfig")
+            val audio = service.speak(text, ttsConfig)
             remote.sendBytes(ByteBuffer.wrap(audio))
         }
     }
 
     @Throws(IOException::class)
-    internal fun saveAudio(text: String, voice: String, lang: String) : String {
+    internal fun saveAudio(text: String, ttsConfig: TtsConfig) : String {
         TtsServiceFactory.create(speechProvider).use { service ->
             if (logger.isInfoEnabled)
-                logger.info("sendAudio text = $text, voice = $voice, lang = $lang")
-            val audio = service.speak(text, voice, lang)
+                logger.info("sendAudio text = $text, ttsConfig = $ttsConfig")
+            val audio = service.speak(text, ttsConfig)
             // todo save bytes: ByteBuffer.wrap(audio), https://promethistai.atlassian.net/browse/AIP-8
             return "To be implemented"
         }
     }
 
     @Throws(IOException::class)
-    internal fun sendMessage(message: Message) {
+    internal fun sendMessage(appKey: String, message: Message) {
+        val contract = dataService.getContract(appKey)
         message.expectedPhrases = null
         for (item in message.items) {
             if (clientRequirements.tts == BotClientRequirements.TtsType.RequiredStreaming) {
-                sendAudio(text = item.ssml!!,
-                        voice = (item.extensions["voice"] as? String) ?: "cs-CZ-Wavenet-A", // todo from contract
-                        lang = (item.extensions["lang"] as? String) ?: "cs-CZ" // todo from contract
-                         )
+                sendAudio(text = item.ssml!!, ttsConfig = contract.ttsConfig?:TtsConfig.DEFAULT_EN)
             } else if (clientRequirements.tts == BotClientRequirements.TtsType.RequiredLinks) {
-                item.links.add(item.links.lastIndex,
-                                    Message.ResourceLink(type = "audio",
-                                                        ref =  saveAudio(text = item.text?:"",
-                                                                        voice = (item.extensions["voice"] as? String) ?: "cs-CZ-Wavenet-A", // todo from contract
-                                                                        lang = (item.extensions["lang"] as? String) ?: "cs-CZ" // todo from contract
-                                                                 )))
+                item.links.add(
+                    Message.ResourceLink(type = "audio",
+                        ref = saveAudio(text = item.text?:"", ttsConfig = contract.ttsConfig?:TtsConfig.DEFAULT_EN)))
             }
         }
         sendEvent(BotEvent(BotEvent.Type.Text, message))
