@@ -2,6 +2,7 @@ package com.promethistai.port.model
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.promethistai.common.DataObject
+import com.promethistai.port.tts.TtsConfig
 import java.util.*
 
 data class Message(
@@ -116,7 +117,12 @@ data class Message(
         /**
          * Extension properties for message. Determined by bot service and/or client application.
          */
-        val extensions: PropertyMap = PropertyMap()
+        val extensions: PropertyMap = PropertyMap(),
+
+        /**
+         * Tts configuration to be able change speed/pitch/volume for each Item (priority: item > contract > default)
+         */
+        val ttsConfig: TtsConfig? = null
     )
 
     fun response(items: MutableList<Item>, confidence: Double): Message {
