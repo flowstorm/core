@@ -30,11 +30,11 @@ class BotSelectorService : BotService {
             return javaClass.getDeclaredField("${name}Service").get(this) as BotService
     }
 
-    override fun message(key: String, message: Message): Message? {
-        val botService = getBotService(key)
-        val response = botService.message(key, message)
+    override fun message(appKey: String, message: Message): Message? {
+        val botService = getBotService(appKey)
+        val response = botService.message(appKey, message)
         if (logger.isInfoEnabled)
-            logger.info("botService = $botService, key = $key, message = $message, response = $response")
+            logger.info("botService = $botService, key = $appKey, message = $message, response = $response")
         return response
     }
 

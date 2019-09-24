@@ -28,12 +28,10 @@ class BotWebSocket : WebSocketAdapter() {
     private val gson = GsonBuilder().create()
     private var sttService: SttService? = null
     private var sttStream: SttStream? = null
-    private var clientCapabilities: BotClientCapabilities = BotClientCapabilities()
     private var clientRequirements: BotClientRequirements = BotClientRequirements()
-    private var speechToText: Boolean = true
     private var inputAudioStreamCancelled: Boolean = false
     private var speechProvider: String = "google"
-    private var expectedPhrases: List<String>? = null
+    private var expectedPhrases: List<Message.ExpectedPhrase> = listOf()
     private val timer: Timer = Timer()
     private val timerTasks = mutableMapOf<String, TimerTask>()
 
@@ -46,22 +44,16 @@ class BotWebSocket : WebSocketAdapter() {
      * Determine if the response from botService will be followed by waiting for user input or another message will be sent to botService
      */
     fun responseLogic(event: BotEvent) {
-        val message = botService.message(event.appKey!!, event.message!!. apply {
-            this.extensions["ssml"] = this@BotWebSocket.clientRequirements.ssml;
-            this.extensions["expected_phrases"] = !this@BotWebSocket.clientCapabilities.webSpeechToText
-        })
-        if (message != null) {
-            expectedPhrases = message.extensions.getOrDefault("expected_phrases", null) as? List<String>?
-            if (message.extensions.getOrDefault("session_ended", false) as Boolean) {
+        val messages = botService.message(event.appKey!!, event.message!!)
+        if (messages != null) {
+            expectedPhrases = messages.expectedPhrases?: listOf()
+            if (messages.sessionEnded) {
                 sendEvent(BotEvent(BotEvent.Type.SessionEnded))
                 close(false)
             }
-            else if (message.extensions.getOrDefault("dialog_ended", false) as Boolean) {
-                sendMessage(message)
-                responseLogic(event) // client will be fed with next message
-            }
+            // todo will not work correctly before the subdialogs in helena will be implemented
             else {
-                sendMessage(message) // client will wait for user input
+                sendMessage(messages) // client will wait for user input
             }
         }
     }
@@ -79,8 +71,10 @@ class BotWebSocket : WebSocketAdapter() {
             if (event.message != null) {
 
                 // set session id
-                if (event.message!!.session.isNullOrBlank())
+                if (event.message!!.session.isNullOrBlank()) {
                     event.message!!.session = Message.createId()
+                    sendEvent(BotEvent(BotEvent.Type.SessionStarted, Message(session = event.message!!.session)))
+                }
 
                 if (event.appKey != null && event.message!!.sender != null) {
 
@@ -88,11 +82,9 @@ class BotWebSocket : WebSocketAdapter() {
                     if (!timerTasks.containsKey(timerTaskKey)) {
                         val timerTask = object : TimerTask() {
                             override fun run() {
-                                val message = dataService.popMessages(event.appKey!!, event.message!!.sender!!, 1).getOrNull(0)
-                                if (message != null) {
-                                    //sendEvent(BotEvent(BotEvent.Type.SessionStarted))
+                                val messages = dataService.popMessages(event.appKey!!, event.message!!.sender!!, 1)
+                                for (message in messages)
                                     sendMessage(message)
-                                }
                             }
                         }
                         timer.schedule(timerTask, 2000, 2000)
@@ -103,14 +95,13 @@ class BotWebSocket : WebSocketAdapter() {
 
             when (event.type) {
 
-                BotEvent.Type.Capabilities -> {
-                    clientCapabilities = event.capabilities!!
-                    clientRequirements = event.requirements?:BotClientRequirements(false)
-                    sendEvent(BotEvent(BotEvent.Type.Capabilities))
+                BotEvent.Type.Requirements -> {
+                    clientRequirements = event.requirements?:BotClientRequirements()
+                    sendEvent(BotEvent(BotEvent.Type.Requirements))
                 }
 
                 BotEvent.Type.SessionStarted -> {
-                    sendEvent(BotEvent(BotEvent.Type.SessionStarted, Message(session = Message.createId())))
+                    sendEvent(BotEvent(BotEvent.Type.SessionStarted, Message(session = event.message?.session?:Message.createId())))
                 }
 
                 BotEvent.Type.SessionEnded -> {
@@ -124,17 +115,15 @@ class BotWebSocket : WebSocketAdapter() {
 
                 BotEvent.Type.InputAudioStreamOpen -> {
                     close(false)
-                    sttService = SttServiceFactory.create(speechProvider, event.sttConfig!!.apply {
-                        this.expectedPhrases = this@BotWebSocket.expectedPhrases ?: listOf() },
+                    sttService = SttServiceFactory.create(speechProvider, event.sttConfig!!, this.expectedPhrases,
                         object : SttCallback {
 
                             override fun onResponse(transcript: String, confidence: Float, final: Boolean) {
                                 try {
                                     if (final && !inputAudioStreamCancelled) {
-                                        sendEvent(BotEvent(BotEvent.Type.Recognized, Message(text = transcript)))
+                                        sendEvent(BotEvent(BotEvent.Type.Recognized, Message(items = mutableListOf(Message.Item(text = transcript)))))
                                         responseLogic(event.apply {
-                                            this.message!!.text = transcript
-                                            this.message!!.confidence=confidence.toDouble()
+                                            this.message!!.items = mutableListOf(Message.Item(text = transcript, confidence = confidence.toDouble()))
                                         })
                                     }
                                 } catch (e: IOException) {
@@ -145,7 +134,7 @@ class BotWebSocket : WebSocketAdapter() {
                             override fun onError(e: Throwable) {
                                 e.printStackTrace()
                                 if (isConnected)
-                                    sendEvent(BotEvent(BotEvent.Type.Error, Message(sender= "google stt",text = e.message?:"")))
+                                    sendEvent(BotEvent(BotEvent.Type.Error, Message(sender= "google stt",items = mutableListOf(Message.Item(text = e.message?:"")))))
                             }
 
                             override fun onOpen() {
@@ -160,14 +149,12 @@ class BotWebSocket : WebSocketAdapter() {
 
                 BotEvent.Type.InputAudioStreamCancel -> close(true)
 
-                BotEvent.Type.SpeechToText -> speechToText = event.enabled?:false
-
                 else -> {}
             }
 
         } catch (e: Exception) {
             e.printStackTrace()
-            sendEvent(BotEvent(BotEvent.Type.Error, Message(sender = "port", text = e.message?:"")))
+            sendEvent(BotEvent(BotEvent.Type.Error, Message(sender = "port", items = mutableListOf(Message.Item(text = e.message?:"")))))
         }
     }
 
@@ -198,22 +185,45 @@ class BotWebSocket : WebSocketAdapter() {
     }
 
     @Throws(IOException::class)
-    internal fun sendAudio(text: String, voice: String, lang: String, ssml: Boolean) {
-        val stext = if (ssml) text else text.replace(Regex("<.*?>"), "")
+    internal fun sendAudio(text: String, voice: String, lang: String) {
         TtsServiceFactory.create(speechProvider).use { service ->
             if (logger.isInfoEnabled)
-                logger.info("sendAudio text = $stext, voice = $voice, lang = $lang, ssml= $ssml")
-            val audio = service.speak(stext, voice, lang, ssml)
+                logger.info("sendAudio text = $text, voice = $voice, lang = $lang")
+            val audio = service.speak(text, voice, lang)
             remote.sendBytes(ByteBuffer.wrap(audio))
         }
     }
 
     @Throws(IOException::class)
-    internal fun sendMessage(message: Message) {
-        sendEvent(BotEvent(BotEvent.Type.Text, message))
-        if (speechToText && !clientCapabilities.webSpeechSynthesis) {
-            sendAudio(message.text, "cs-CZ-Wavenet-A", "cs-CZ", clientRequirements.ssml)    //FIXME
+    internal fun saveAudio(text: String, voice: String, lang: String) : String {
+        TtsServiceFactory.create(speechProvider).use { service ->
+            if (logger.isInfoEnabled)
+                logger.info("sendAudio text = $text, voice = $voice, lang = $lang")
+            val audio = service.speak(text, voice, lang)
+            // todo save bytes: ByteBuffer.wrap(audio), https://promethistai.atlassian.net/browse/AIP-8
+            return "To be implemented"
         }
+    }
+
+    @Throws(IOException::class)
+    internal fun sendMessage(message: Message) {
+        message.expectedPhrases = null
+        for (item in message.items) {
+            if (clientRequirements.tts == BotClientRequirements.TtsType.RequiredStreaming) {
+                sendAudio(text = item.ssml!!,
+                        voice = (item.extensions["voice"] as? String) ?: "cs-CZ-Wavenet-A", // todo from contract
+                        lang = (item.extensions["lang"] as? String) ?: "cs-CZ" // todo from contract
+                         )
+            } else if (clientRequirements.tts == BotClientRequirements.TtsType.RequiredLinks) {
+                item.links.add(item.links.lastIndex,
+                                    Message.ResourceLink(type = "audio",
+                                                        ref =  saveAudio(text = item.text?:"",
+                                                                        voice = (item.extensions["voice"] as? String) ?: "cs-CZ-Wavenet-A", // todo from contract
+                                                                        lang = (item.extensions["lang"] as? String) ?: "cs-CZ" // todo from contract
+                                                                 )))
+            }
+        }
+        sendEvent(BotEvent(BotEvent.Type.Text, message))
     }
 
 }

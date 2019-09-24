@@ -5,6 +5,7 @@ import com.google.gson.JsonSyntaxException
 import org.eclipse.jetty.websocket.api.WebSocketAdapter
 import java.io.IOException
 
+// todo still maintain this class?
 class SttWebSocket : WebSocketAdapter() {
 
     private val gson = GsonBuilder().create()
@@ -26,7 +27,7 @@ class SttWebSocket : WebSocketAdapter() {
                         return
                     val language = command.params?.get("language") as String
                     val sampleRate = command.params?.get("sampleRate") as Double
-                    client = SttServiceFactory.create("google", SttConfig(language, Math.round(sampleRate).toInt()),
+                    client = SttServiceFactory.create("google", SttConfig(language, Math.round(sampleRate).toInt()), listOf(),
                         object : SttCallback {
                             override fun onResponse(transcript: String, confidence: Float, final: Boolean) {
                                 val event = SttEvent()

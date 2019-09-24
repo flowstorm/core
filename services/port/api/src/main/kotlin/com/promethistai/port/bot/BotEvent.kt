@@ -8,7 +8,6 @@ data class BotEvent(
         var type: Type? = null,
         var message: Message? = null,
         var appKey: String? = null,
-        var capabilities: BotClientCapabilities? = null,
         var requirements: BotClientRequirements? = null,
         var sttConfig: SttConfig? = null,
         var enabled: Boolean? = null) : Serializable {
@@ -21,7 +20,7 @@ data class BotEvent(
         InputAudioStreamCancel,
         Recognized,
         Error,
-        Capabilities,
+        Requirements,
         SpeechToText,
         SessionStarted,
         SessionEnded
