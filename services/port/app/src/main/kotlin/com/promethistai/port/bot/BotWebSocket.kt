@@ -31,7 +31,7 @@ class BotWebSocket : WebSocketAdapter() {
     private var clientRequirements: BotClientRequirements = BotClientRequirements()
     private var inputAudioStreamCancelled: Boolean = false
     private var speechProvider: String = "google"
-    private var expectedPhrases: List<Message.ExpectedPhrase>? = null
+    private var expectedPhrases: List<Message.ExpectedPhrase> = listOf()
     private val timer: Timer = Timer()
     private val timerTasks = mutableMapOf<String, TimerTask>()
 
@@ -46,11 +46,12 @@ class BotWebSocket : WebSocketAdapter() {
     fun responseLogic(event: BotEvent) {
         val messages = botService.message(event.appKey!!, event.message!!)
         if (messages != null) {
-            expectedPhrases = messages.expectedPhrases
-            if (messages.sessionEnded == true) {
+            expectedPhrases = messages.expectedPhrases?: listOf()
+            if (messages.sessionEnded) {
                 sendEvent(BotEvent(BotEvent.Type.SessionEnded))
                 close(false)
             }
+            // todo will not work correctly before the subdialogs in helena will be implemented
             else {
                 sendMessage(messages) // client will wait for user input
             }
@@ -94,9 +95,9 @@ class BotWebSocket : WebSocketAdapter() {
 
             when (event.type) {
 
-                BotEvent.Type.Capabilities -> {
+                BotEvent.Type.Requirements -> {
                     clientRequirements = event.requirements?:BotClientRequirements()
-                    sendEvent(BotEvent(BotEvent.Type.Capabilities))
+                    sendEvent(BotEvent(BotEvent.Type.Requirements))
                 }
 
                 BotEvent.Type.SessionStarted -> {
@@ -114,8 +115,7 @@ class BotWebSocket : WebSocketAdapter() {
 
                 BotEvent.Type.InputAudioStreamOpen -> {
                     close(false)
-                    sttService = SttServiceFactory.create(speechProvider, event.sttConfig!!.apply {
-                        this.expectedPhrases = this@BotWebSocket.expectedPhrases ?: listOf() },
+                    sttService = SttServiceFactory.create(speechProvider, event.sttConfig!!, this.expectedPhrases,
                         object : SttCallback {
 
                             override fun onResponse(transcript: String, confidence: Float, final: Boolean) {
@@ -185,23 +185,21 @@ class BotWebSocket : WebSocketAdapter() {
     }
 
     @Throws(IOException::class)
-    internal fun sendAudio(text: String, voice: String, lang: String, ssml: Boolean) {
-        val stext = if (ssml) text else text.replace(Regex("<.*?>"), "")
+    internal fun sendAudio(text: String, voice: String, lang: String) {
         TtsServiceFactory.create(speechProvider).use { service ->
             if (logger.isInfoEnabled)
-                logger.info("sendAudio text = $stext, voice = $voice, lang = $lang, ssml= $ssml")
-            val audio = service.speak(stext, voice, lang, ssml)
+                logger.info("sendAudio text = $text, voice = $voice, lang = $lang")
+            val audio = service.speak(text, voice, lang)
             remote.sendBytes(ByteBuffer.wrap(audio))
         }
     }
 
     @Throws(IOException::class)
-    internal fun saveAudio(text: String, voice: String, lang: String, ssml: Boolean) : String {
-        val stext = if (ssml) text else text.replace(Regex("<.*?>"), "")
+    internal fun saveAudio(text: String, voice: String, lang: String) : String {
         TtsServiceFactory.create(speechProvider).use { service ->
             if (logger.isInfoEnabled)
-                logger.info("sendAudio text = $stext, voice = $voice, lang = $lang, ssml= $ssml")
-            val audio = service.speak(stext, voice, lang, ssml)
+                logger.info("sendAudio text = $text, voice = $voice, lang = $lang")
+            val audio = service.speak(text, voice, lang)
             // todo save bytes: ByteBuffer.wrap(audio), https://promethistai.atlassian.net/browse/AIP-8
             return "To be implemented"
         }
@@ -211,18 +209,18 @@ class BotWebSocket : WebSocketAdapter() {
     internal fun sendMessage(message: Message) {
         message.expectedPhrases = null
         for (item in message.items) {
-            if (clientRequirements.webTTS == BotClientRequirements.TtsType.RequiredStreaming) {
-                sendAudio(text = item.links.first { s -> s.type == "ssml" }.ref!!,
-                        voice = (item.extensions["voice"] as? String) ?: "cs-CZ-Wavenet-A",
-                        lang = (item.extensions["lang"] as? String) ?: "cs-CZ",
-                        ssml = true)
-            } else if (clientRequirements.webTTS == BotClientRequirements.TtsType.RequiredLinks) {
-                item.links.add(message.links.lastIndex,
+            if (clientRequirements.tts == BotClientRequirements.TtsType.RequiredStreaming) {
+                sendAudio(text = item.ssml!!,
+                        voice = (item.extensions["voice"] as? String) ?: "cs-CZ-Wavenet-A", // todo from contract
+                        lang = (item.extensions["lang"] as? String) ?: "cs-CZ" // todo from contract
+                         )
+            } else if (clientRequirements.tts == BotClientRequirements.TtsType.RequiredLinks) {
+                item.links.add(item.links.lastIndex,
                                     Message.ResourceLink(type = "audio",
                                                         ref =  saveAudio(text = item.text?:"",
-                                                                        voice = (item.extensions["voice"] as? String) ?: "cs-CZ-Wavenet-A",
-                                                                        lang = (item.extensions["lang"] as? String) ?: "cs-CZ",
-                                                                        ssml = true)))
+                                                                        voice = (item.extensions["voice"] as? String) ?: "cs-CZ-Wavenet-A", // todo from contract
+                                                                        lang = (item.extensions["lang"] as? String) ?: "cs-CZ" // todo from contract
+                                                                 )))
             }
         }
         sendEvent(BotEvent(BotEvent.Type.Text, message))

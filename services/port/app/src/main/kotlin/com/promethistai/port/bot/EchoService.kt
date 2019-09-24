@@ -7,6 +7,6 @@ import com.promethistai.port.model.Message
  */
 class EchoService : BotService {
 
-    override fun message(key: String, message: Message): Message = message
+    override fun message(appKey: String, message: Message): Message = message
 
 }

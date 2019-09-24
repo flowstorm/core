@@ -20,7 +20,7 @@ data class BotEvent(
         InputAudioStreamCancel,
         Recognized,
         Error,
-        Capabilities,
+        Requirements,
         SpeechToText,
         SessionStarted,
         SessionEnded

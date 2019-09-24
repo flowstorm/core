@@ -2,7 +2,6 @@ package com.promethistai.port.model
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.promethistai.common.DataObject
-import com.promethistai.port.bot.BotClientRequirements
 import java.util.*
 
 data class Message(
@@ -66,7 +65,7 @@ data class Message(
     /**
      * Identification of the end of session (graph in dialog editor)
      */
-    var sessionEnded: Boolean? = null,
+    var sessionEnded: Boolean = false,
 
     /**
      * Confidence score. Client usually does not set (if there is human behind ;-)
@@ -81,12 +80,8 @@ data class Message(
     /**
      * Extension properties for message. Determined by bot service and/or client application.
      */
-    val extensions: PropertyMap = PropertyMap(),
+    val extensions: PropertyMap = PropertyMap()
 
-    /**
-     * Resource links.
-     */
-    val links: MutableList<ResourceLink> = mutableListOf<ResourceLink>()
 ) {
 
     @JsonDeserialize(using = PropertyMap.Deserializer::class)
@@ -100,7 +95,7 @@ data class Message(
 
     data class ResourceLink(val type: String? = null, val ref: String? = null)
 
-    data class ExpectedPhrase (val text: String? = null, val boost: Int = 1) // boost can be used in google stt v1p1beta1
+    data class ExpectedPhrase(val text: String? = null, val boost: Float = 1.0F) // boost can be used in google stt v1p1beta1
 
 
     data class Item (
@@ -108,6 +103,11 @@ data class Message(
              * Message text. Can contain specific XML tags (which can be interpered or stripped by channel).
              */
             var text: String? = null,
+
+            /**
+             * Ssml text - Google based by default. Can contain specific XML tags
+             */
+            var ssml: String? = null,
 
             /**
              * Confidence score. Client usually does not set (if there is human behind ;-)

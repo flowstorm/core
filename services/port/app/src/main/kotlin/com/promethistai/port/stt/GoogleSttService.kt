@@ -7,7 +7,7 @@ import com.promethistai.port.model.Message
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class GoogleSttService(config: SttConfig, callback: SttCallback) : SttService {
+class GoogleSttService(config: SttConfig, callback: SttCallback, expectedPhrases: List<Message.ExpectedPhrase>) : SttService {
 
     private val client = SpeechClient.create()
     private val responseObserver = GoogleSttObserver(callback)
@@ -15,7 +15,9 @@ class GoogleSttService(config: SttConfig, callback: SttCallback) : SttService {
             .setEncoding(RecognitionConfig.AudioEncoding.LINEAR16)
             .setLanguageCode(config.language)
             .setSampleRateHertz(config.sampleRate)
-            .addSpeechContexts(SpeechContext.newBuilder().addAllPhrases(config.expectedPhrases.map { expectedPhrase: Message.ExpectedPhrase -> expectedPhrase.text }).build())
+            .addSpeechContexts(SpeechContext.newBuilder()
+                    .addAllPhrases(expectedPhrases.map { expectedPhrase: Message.ExpectedPhrase -> expectedPhrase.text })
+                    .build())
             .buildPartial()
     //		            .setModel("default")
     //		            .build();
