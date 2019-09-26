@@ -132,8 +132,9 @@ class DataService {
         val audio = TtsAudio(speechProvider, ttsRequest)
         var cacheItem = getCacheItem(audio.code)
         if (cacheItem == null) {
-            logger.info("getTtsAudio[cache MISS](ttsRequest = $ttsRequest)")
+            logger.info("getTtsAudio[cache MISS](speechProvider = $speechProvider, ttsRequest = $ttsRequest)")
             audio.speak() // perform speach synthesis
+            logger.info("getTtsAudio[speak DONE]")
             thread(start = true) {
                 callback(audio, addCacheItemWithFile(audio.code, "tts", audio.type, audio.data!!, ttsRequest))
             }
