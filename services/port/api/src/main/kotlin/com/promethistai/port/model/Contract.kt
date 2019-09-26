@@ -8,6 +8,7 @@ data class Contract(
     var bot: String? = null,
     var botKey: String? = null,
     var model: String? = null,
+    var subDialogueModels: List<String>? = null,
     var remoteEndpoint: String? = null,
     var ttsConfig: TtsConfig? = null
 )
