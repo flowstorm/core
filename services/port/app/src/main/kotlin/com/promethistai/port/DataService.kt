@@ -35,9 +35,9 @@ class DataService {
             bucket.uploadFromStream(name!!, input)
     }
 
-    data class CacheItem(val _id: String, var fileId: ObjectId, var lastModified: Date = Date(), var counter: Long = 0, var type: String = "default", var ttsRequest: TtsRequest? = null)
+    data class CacheItem(val _id: String, var fileId: ObjectId, var lastModified: Date = Date(), var fileSize: Int? = null, var counter: Long = 0, var type: String = "default", var ttsRequest: TtsRequest? = null)
 
-    data class TtsAudio(val speechProvider: String, val ttsRequest: TtsRequest) {
+    data class TtsAudio(val speechProvider: String, val ttsRequest: TtsRequest, var cacheItem: CacheItem? = null) {
 
         // zamerne v code zatim zanedbavam speech providera
         val code = ttsRequest.code()
@@ -121,7 +121,7 @@ class DataService {
         if (cacheItem == null) {
             logger.info("getTtsAudio cache MISS ttsRequest = $ttsRequest")
             val fileId = addResourceFile("audio/mp3", ".cache/tts/${audio.code}.mp3", ByteArrayInputStream(audio.data()))
-            cacheItem = CacheItem(audio.code, fileId, type = "tts", ttsRequest = ttsRequest)
+            cacheItem = CacheItem(audio.code, fileId, fileSize = audio.data().size, type = "tts", ttsRequest = ttsRequest)
         } else {
             logger.info("getTtsAudio cache HIT cacheItem = $cacheItem")
             val buf = ByteArrayOutputStream()
@@ -129,6 +129,7 @@ class DataService {
             audio.data = buf.toByteArray()
         }
         saveCacheItem(cacheItem)
+        audio.cacheItem = cacheItem
         return audio
     }
 

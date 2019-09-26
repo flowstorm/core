@@ -205,7 +205,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                     remote.sendBytes(ByteBuffer.wrap(audio.data()))
                 BotClientRequirements.TtsType.RequiredLinks ->
                     item.links.add(Message.ResourceLink(type = Message.ResourceLink.Type.audio,
-                            ref = "/file/${audio.code}")) // caller must know port URL therefore URI is enough
+                            ref = "/file/${audio.cacheItem!!.fileId}")) // caller must know port URL therefore URI is enough
             }
         }
         sendEvent(BotEvent(BotEvent.Type.Message, message))
