@@ -5,7 +5,11 @@ import java.io.Serializable
 open class TtsConfig(
         open var language: String? = null,
         open var gender: Gender? = null,
-        open var voice: String? = null) : Serializable {
+        open var voice: String? = null,
+        open var speakingRate: Double = 1.0, // in the range [0.25, 4.0], 1.0 is the normal native speed
+        open var pitch: Double = 0.0, // in the range [-20.0, 20.0]
+        open var volumeGain: Double = 0.0 // in the range [-96.0, 16.0]
+) : Serializable {
 
     enum class Gender {
         Neutral, Male, Female

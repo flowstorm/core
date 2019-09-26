@@ -188,7 +188,6 @@ class BotSocketAdapter : WebSocketAdapter() {
     @Throws(IOException::class)
     internal fun sendMessage(appKey: String, message: Message) {
         val contract = dataService.getContract(appKey)
-        val ttsConfig = contract.ttsConfig?:TtsConfig.DEFAULT_EN
         message.expectedPhrases = null
         for (item in message.items) {
             val ttsRequest = TtsRequest()
@@ -198,7 +197,7 @@ class BotSocketAdapter : WebSocketAdapter() {
             } else {
                 ttsRequest.text = item.text
             }
-            ttsRequest.set(ttsConfig)
+            ttsRequest.set(item.ttsConfig?:contract.ttsConfig?:TtsConfig.DEFAULT_EN)
             val audio = dataService.getTtsAudio(speechProvider, ttsRequest)
             when (clientRequirements.tts) {
                 BotClientRequirements.TtsType.RequiredStreaming ->
