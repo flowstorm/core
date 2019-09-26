@@ -16,7 +16,7 @@ import java.nio.ByteBuffer
 import java.util.*
 import javax.inject.Inject
 
-class BotSocketAdapter : WebSocketAdapter() {
+class BotSocketAdapter : BotSocket, WebSocketAdapter() {
 
     private var logger = LoggerFactory.getLogger(BotSocketAdapter::class.qualifiedName)
 
@@ -45,7 +45,7 @@ class BotSocketAdapter : WebSocketAdapter() {
     /**
      * Determine if the response from botService will be followed by waiting for user input or another message will be sent to botService
      */
-    fun responseLogic(event: BotEvent) {
+    fun onMessageEvent(event: BotEvent) {
         val messages = botService.message(event.appKey!!, event.message!!)
         if (messages != null) {
             expectedPhrases = messages.expectedPhrases?: listOf()
@@ -93,71 +93,72 @@ class BotSocketAdapter : WebSocketAdapter() {
                     }
                 }
             }
-
-            when (event.type) {
-
-                BotEvent.Type.Requirements -> {
-                    clientRequirements = event.requirements?:BotClientRequirements()
-                    sendEvent(BotEvent(BotEvent.Type.Requirements))
-                }
-
-                BotEvent.Type.SessionStarted -> {
-                    sendEvent(BotEvent(BotEvent.Type.SessionStarted, Message(sessionId = event.message?.sessionId?:Message.createId())))
-                }
-
-                BotEvent.Type.SessionEnded -> {
-                    sendEvent(BotEvent(BotEvent.Type.SessionEnded))
-                }
-
-                BotEvent.Type.Text -> {
-                    responseLogic(event)
-                }
-
-
-                BotEvent.Type.InputAudioStreamOpen -> {
-                    close(false)
-                    sttService = SttServiceFactory.create(speechProvider, event.sttConfig!!, this.expectedPhrases,
-                        object : SttCallback {
-
-                            override fun onResponse(transcript: String, confidence: Float, final: Boolean) {
-                                try {
-                                    if (final && !inputAudioStreamCancelled) {
-                                        sendEvent(BotEvent(BotEvent.Type.Recognized, Message(items = mutableListOf(Message.Item(text = transcript)))))
-                                        responseLogic(event.apply {
-                                            this.message!!.items = mutableListOf(Message.Item(text = transcript, confidence = confidence.toDouble()))
-                                        })
-                                    }
-                                } catch (e: IOException) {
-                                    e.printStackTrace()
-                                }
-                            }
-
-                            override fun onError(e: Throwable) {
-                                e.printStackTrace()
-                                if (isConnected)
-                                    sendEvent(BotEvent(BotEvent.Type.Error, Message(sender= "google stt",items = mutableListOf(Message.Item(text = e.message?:"")))))
-                            }
-
-                            override fun onOpen() {
-                                sendEvent(BotEvent(BotEvent.Type.InputAudioStreamOpen))
-                            }
-                        }
-                    )
-                    sttStream = sttService?.createStream()
-                }
-
-                BotEvent.Type.InputAudioStreamClose -> close(false)
-
-                BotEvent.Type.InputAudioStreamCancel -> close(true)
-
-                else -> {}
-            }
-
+            onEvent(event)
         } catch (e: Exception) {
             e.printStackTrace()
             sendEvent(BotEvent(BotEvent.Type.Error, Message(sender = "port", items = mutableListOf(Message.Item(text = e.message?:"")))))
         }
     }
+
+    override fun onEvent(event: BotEvent) =
+        when (event.type) {
+
+            BotEvent.Type.Requirements -> {
+                clientRequirements = event.requirements?:BotClientRequirements()
+                sendEvent(BotEvent(BotEvent.Type.Requirements))
+            }
+
+            BotEvent.Type.SessionStarted -> {
+                sendEvent(BotEvent(BotEvent.Type.SessionStarted, Message(sessionId = event.message?.sessionId?:Message.createId())))
+            }
+
+            BotEvent.Type.SessionEnded -> {
+                sendEvent(BotEvent(BotEvent.Type.SessionEnded))
+            }
+
+            BotEvent.Type.Message -> {
+                onMessageEvent(event)
+            }
+
+
+            BotEvent.Type.InputAudioStreamOpen -> {
+                close(false)
+                sttService = SttServiceFactory.create(speechProvider, event.sttConfig!!, this.expectedPhrases,
+                    object : SttCallback {
+
+                        override fun onResponse(transcript: String, confidence: Float, final: Boolean) {
+                            try {
+                                if (final && !inputAudioStreamCancelled) {
+                                    sendEvent(BotEvent(BotEvent.Type.Recognized, Message(items = mutableListOf(Message.Item(text = transcript)))))
+                                    onMessageEvent(event.apply {
+                                        this.message!!.items = mutableListOf(Message.Item(text = transcript, confidence = confidence.toDouble()))
+                                    })
+                                }
+                            } catch (e: IOException) {
+                                e.printStackTrace() }
+                        }
+
+                        override fun onError(e: Throwable) {
+                            e.printStackTrace()
+                            if (isConnected)
+                                sendEvent(BotEvent(BotEvent.Type.Error, Message(sender= "google stt",items = mutableListOf(Message.Item(text = e.message?:"")))))
+                        }
+
+                        override fun onOpen() {
+                            sendEvent(BotEvent(BotEvent.Type.InputAudioStreamOpen))
+                        }
+                    }
+                )
+                sttStream = sttService?.createStream()
+            }
+
+            BotEvent.Type.InputAudioStreamClose -> close(false)
+
+            BotEvent.Type.InputAudioStreamCancel -> close(true)
+
+            else -> {}
+        }
+
 
     override fun onWebSocketClose(statusCode: Int, reason: String?) {
         super.onWebSocketClose(statusCode, reason)
@@ -181,7 +182,7 @@ class BotSocketAdapter : WebSocketAdapter() {
 
     @Synchronized
     @Throws(IOException::class)
-    internal fun sendEvent(event: BotEvent) {
+    override fun sendEvent(event: BotEvent) {
         remote.sendString(gson.toJson(event))
     }
 
@@ -207,7 +208,7 @@ class BotSocketAdapter : WebSocketAdapter() {
                             ref = "/file/${audio.code}")) // caller must know port URL therefore URI is enough
             }
         }
-        sendEvent(BotEvent(BotEvent.Type.Text, message))
+        sendEvent(BotEvent(BotEvent.Type.Message, message))
     }
 
 }

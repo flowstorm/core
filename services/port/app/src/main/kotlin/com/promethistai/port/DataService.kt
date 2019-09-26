@@ -148,7 +148,7 @@ class DataService {
         val col = database.getCollection("message-queue", Message::class.java)
         val query = org.litote.kmongo.and(Message::appKey eq appKey, Message::recipient eq recipient)
         val messages = col.find(query).toList()
-        logger.info("popMessages(appKey = $appKey, limit = $limit, messages = $messages)")
+        logger.debug("popMessages(appKey = $appKey, limit = $limit, messages = $messages)")
         col.deleteMany(query)
         return messages
     }

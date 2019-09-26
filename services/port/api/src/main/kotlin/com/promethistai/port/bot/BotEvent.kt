@@ -14,7 +14,7 @@ data class BotEvent(
 
     enum class Type {
 
-        Text,
+        Message,
         InputAudioStreamOpen,
         InputAudioStreamClose,
         InputAudioStreamCancel,
