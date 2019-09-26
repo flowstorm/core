@@ -15,6 +15,7 @@ import java.io.IOException
 import java.nio.ByteBuffer
 import java.util.*
 import javax.inject.Inject
+import kotlin.concurrent.thread
 
 class BotSocketAdapter : BotSocket, WebSocketAdapter() {
 
@@ -35,10 +36,12 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
     private var expectedPhrases: List<Message.ExpectedPhrase> = listOf()
     private val timer: Timer = Timer()
     private val timerTasks = mutableMapOf<String, TimerTask>()
+    private val sttBuffer = ByteBuffer.allocate(1024 * 1024 * 32) // 32M limit (cca 5min @ 44.1kHz/16bit/stereo?)
 
     override fun onWebSocketBinary(payload: ByteArray, offset: Int, len: Int) {
         logger.info("onWebSocketBinary(payload = ByteArray(${payload.size}), offset = $offset, len = $len)")
         super.onWebSocketBinary(payload, offset, len)
+        sttBuffer.put(payload)
         sttStream?.write(payload, offset, len)
     }
 
@@ -129,6 +132,11 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                         override fun onResponse(transcript: String, confidence: Float, final: Boolean) {
                             try {
                                 if (final && !inputAudioStreamCancelled) {
+                                    val audioData = ByteArray(sttBuffer.position())
+                                    sttBuffer.get(audioData, 0, audioData.size)
+                                    thread(start = true) {
+                                        dataService.addCacheItemWithFile(event.message!!._id!!, "stt", "", audioData)
+                                    }
                                     sendEvent(BotEvent(BotEvent.Type.Recognized, Message(items = mutableListOf(Message.Item(text = transcript)))))
                                     onMessageEvent(event.apply {
                                         this.message!!.items = mutableListOf(Message.Item(text = transcript, confidence = confidence.toDouble()))
@@ -149,6 +157,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                         }
                     }
                 )
+                sttBuffer.rewind()
                 sttStream = sttService?.createStream()
             }
 
@@ -183,7 +192,13 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
     @Synchronized
     @Throws(IOException::class)
     override fun sendEvent(event: BotEvent) {
+        logger.info("sendEvent(event = $event)")
         remote.sendString(gson.toJson(event))
+    }
+
+    fun sendBinaryData(data: ByteArray) {
+        logger.info("sendBinaryData(data = ByteArray(${data.size}))")
+        remote.sendBytes(ByteBuffer.wrap(data))
     }
 
     @Throws(IOException::class)
@@ -199,14 +214,13 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                 ttsRequest.text = item.text
             }
             ttsRequest.set(item.ttsConfig?:contract.ttsConfig?:TtsConfig.DEFAULT_EN)
-            val audio = dataService.getTtsAudio(speechProvider, ttsRequest)
-            when (clientRequirements.tts) {
-                BotClientRequirements.TtsType.RequiredStreaming ->
-                    remote.sendBytes(ByteBuffer.wrap(audio.data()))
-                BotClientRequirements.TtsType.RequiredLinks ->
+            val audio = dataService.getTtsAudio(speechProvider, ttsRequest) { audio, cacheItem ->
+                if (clientRequirements.tts == BotClientRequirements.TtsType.RequiredLinks) // link waits for audio store
                     item.links.add(Message.ResourceLink(type = Message.ResourceLink.Type.audio,
-                            ref = "/file/${audio.cacheItem!!.fileId}")) // caller must know port URL therefore URI is enough
+                        ref = "/file/${cacheItem!!.fileId}")) // caller must know port URL therefore URI is enough
             }
+            if (clientRequirements.tts == BotClientRequirements.TtsType.RequiredStreaming) // streaming does not need to wait
+                sendBinaryData(audio.speak().data!!)
         }
         sendEvent(BotEvent(BotEvent.Type.Message, message))
     }

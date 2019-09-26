@@ -20,6 +20,7 @@ import javax.inject.Inject
 import javax.ws.rs.WebApplicationException
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
+import kotlin.concurrent.thread
 
 class DataService {
 
@@ -37,19 +38,20 @@ class DataService {
 
     data class CacheItem(val _id: String, var fileId: ObjectId, var lastModified: Date = Date(), var fileSize: Int? = null, var counter: Long = 0, var type: String = "default", var ttsRequest: TtsRequest? = null)
 
-    data class TtsAudio(val speechProvider: String, val ttsRequest: TtsRequest, var cacheItem: CacheItem? = null) {
+    data class TtsAudio(val speechProvider: String, val ttsRequest: TtsRequest) {
 
         // zamerne v code zatim zanedbavam speech providera
         val code = ttsRequest.code()
+        var type = "audio/mp3"
         var data: ByteArray? = null
 
         /**
          * Returns or generates audio data if not already set.
          */
-        fun data(): ByteArray {
+        fun speak(): TtsAudio {
             if (data == null)
                 data = TtsServiceFactory.create(speechProvider).use { it.speak(ttsRequest) }
-            return data!!
+            return this
         }
     }
 
@@ -112,24 +114,39 @@ class DataService {
             )
 
     /**
-     * This creates and stores or loads existing audio from database for the specified TTS request.
+     * Saves file to database cache (e.g. STT audio) for future usage.
+     */
+    fun addCacheItemWithFile(id: String, itemType: String, fileType: String, data: ByteArray, ttsRequest: TtsRequest? = null): CacheItem {
+        logger.info("addFileToCache(id = $id, itemType = $itemType, fileType = $fileType, data = ByteArray(${data.size}))")
+        val fileId = addResourceFile(fileType, ".cache/${itemType}/${id}.mp3", ByteArrayInputStream(data)) //TODO fileType > .ext
+        val cacheItem = CacheItem(id, fileId, fileSize = data.size, type = itemType, ttsRequest = ttsRequest)
+        saveCacheItem(cacheItem)
+        return cacheItem
+    }
+
+    /**
+     * This creates and stores or loads existing audio from database cache for the specified TTS request.
      */
     @Throws(IOException::class)
-    internal fun getTtsAudio(speechProvider: String, ttsRequest: TtsRequest): TtsAudio {
+    internal fun getTtsAudio(speechProvider: String, ttsRequest: TtsRequest, callback: (TtsAudio, CacheItem) -> Unit): TtsAudio {
         val audio = TtsAudio(speechProvider, ttsRequest)
         var cacheItem = getCacheItem(audio.code)
         if (cacheItem == null) {
-            logger.info("getTtsAudio cache MISS ttsRequest = $ttsRequest")
-            val fileId = addResourceFile("audio/mp3", ".cache/tts/${audio.code}.mp3", ByteArrayInputStream(audio.data()))
-            cacheItem = CacheItem(audio.code, fileId, fileSize = audio.data().size, type = "tts", ttsRequest = ttsRequest)
+            logger.info("getTtsAudio[cache MISS](ttsRequest = $ttsRequest)")
+            audio.speak() // perform speach synthesis
+            thread(start = true) {
+                callback(audio, addCacheItemWithFile(audio.code, "tts", audio.type, audio.data!!, ttsRequest))
+            }
         } else {
-            logger.info("getTtsAudio cache HIT cacheItem = $cacheItem")
+            logger.info("getTtsAudio[cache HIT](cacheItem = $cacheItem)")
+            saveCacheItem(cacheItem) // update cache item in database
             val buf = ByteArrayOutputStream()
             getResourceFile(cacheItem.fileId).download(buf)
             audio.data = buf.toByteArray()
+            thread(start = true) {
+                callback(audio, cacheItem)
+            }
         }
-        saveCacheItem(cacheItem)
-        audio.cacheItem = cacheItem
         return audio
     }
 

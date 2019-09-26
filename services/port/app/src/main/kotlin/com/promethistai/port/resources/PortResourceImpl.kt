@@ -83,8 +83,7 @@ class PortResourceImpl : PortResource {
         val ttsRequest = TtsRequest(text = speechText)
         ttsRequest.set(contract.ttsConfig?:TtsConfig.DEFAULT_EN)
         logger.info("tts(provider = $provider, ttsRequest = $ttsRequest)")
-        val audio = dataService.getTtsAudio(provider, ttsRequest)
-        return audio.data()
+        return dataService.getTtsAudio(provider, ttsRequest) { audio, cacheItem -> {}}.speak().data!!
     }
 
     override fun ttsVoices(provider: String): List<TtsVoice> {
