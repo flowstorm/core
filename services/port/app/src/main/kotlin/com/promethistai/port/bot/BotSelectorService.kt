@@ -19,7 +19,7 @@ class BotSelectorService : BotService {
     @Inject
     lateinit var illusionistService: IllusionistService
 
-    private var logger = LoggerFactory.getLogger(BotSelectorService::class.java)
+    private var logger = LoggerFactory.getLogger(BotSelectorService::class.qualifiedName)
 
     private fun getBotService(key: String): BotService {
         val name = dataService.getContract(key).bot
@@ -34,7 +34,7 @@ class BotSelectorService : BotService {
         val botService = getBotService(appKey)
         val response = botService.message(appKey, message)
         if (logger.isInfoEnabled)
-            logger.info("botService = $botService, key = $appKey, message = $message, response = $response")
+            logger.info("message(botService = $botService, key = $appKey, message = $message, response = $response)")
         return response
     }
 

@@ -5,8 +5,10 @@ import com.promethistai.port.bot.BotService
 import com.promethistai.port.model.Contract
 import com.promethistai.port.model.Message
 import com.promethistai.port.tts.TtsConfig
+import com.promethistai.port.tts.TtsRequest
 import com.promethistai.port.tts.TtsServiceFactory
 import com.promethistai.port.tts.TtsVoice
+import org.bson.types.ObjectId
 import org.slf4j.LoggerFactory
 import javax.inject.Inject
 import javax.ws.rs.*
@@ -63,7 +65,7 @@ class PortResourceImpl : PortResource {
     }
 
     override fun readFile(id: String): Response {
-        val file = dataService.getResourceFile(id)
+        val file = dataService.getResourceFile(ObjectId(id))
         return Response.ok(
                     StreamingOutput { output ->
                         try {
@@ -79,13 +81,16 @@ class PortResourceImpl : PortResource {
     override fun tts(appKey: String, provider: String, speechText: String): ByteArray {
         val contract = getContract(appKey)
         if (logger.isInfoEnabled)
-            logger.info("provider = $provider, speechText = $speechText")
-        return TtsServiceFactory.create(provider).speak(speechText, contract.ttsConfig?: TtsConfig.DEFAULT_EN)
+            logger.info("tts(provider = $provider, speechText = $speechText)")
+        val ttsRequest = TtsRequest(text = speechText)
+        ttsRequest.set(contract.ttsConfig?:TtsConfig.DEFAULT_EN)
+        val audio = dataService.getTtsAudio(provider, ttsRequest)
+        return audio.data()
     }
 
     override fun ttsVoices(provider: String): List<TtsVoice> {
         if (logger.isInfoEnabled)
-            logger.info("provider = $provider")
+            logger.info("ttsVoices(provider = $provider)")
         return TtsServiceFactory.create(provider).voices
     }
 

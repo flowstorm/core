@@ -87,7 +87,9 @@ data class Message(
 
     }
 
-    data class ResourceLink(val type: String? = null, val ref: String? = null)
+    data class ResourceLink(val type: Type? = null, val ref: String? = null) {
+        enum class Type { image, video, audio }
+    }
 
     data class ExpectedPhrase(val text: String? = null, val boost: Float = 1.0F) // boost can be used in google stt v1p1beta1
 
@@ -119,7 +121,7 @@ data class Message(
         val extensions: PropertyMap = PropertyMap()
     )
 
-    fun response(items: MutableList<Item>, confidence: Double): Message {
+    fun response(items: MutableList<Item>): Message {
         val sender = this.recipient
         val recipient = this.sender
         return this.copy(_id = createId(), _ref = _id, sender = sender, recipient = recipient, items = items, datetime = Date(), sessionId = this.sessionId)

@@ -8,7 +8,7 @@ import com.promethistai.port.stt.SttService
 import com.promethistai.port.stt.SttServiceFactory
 import com.promethistai.port.stt.SttStream
 import com.promethistai.port.tts.TtsConfig
-import com.promethistai.port.tts.TtsServiceFactory
+import com.promethistai.port.tts.TtsRequest
 import org.eclipse.jetty.websocket.api.WebSocketAdapter
 import org.slf4j.LoggerFactory
 import java.io.IOException
@@ -16,9 +16,9 @@ import java.nio.ByteBuffer
 import java.util.*
 import javax.inject.Inject
 
-class BotWebSocket : WebSocketAdapter() {
+class BotSocketAdapter : WebSocketAdapter() {
 
-    private var logger = LoggerFactory.getLogger(BotWebSocket::class.qualifiedName)
+    private var logger = LoggerFactory.getLogger(BotSocketAdapter::class.qualifiedName)
 
     @Inject
     lateinit var botService: BotService
@@ -37,6 +37,7 @@ class BotWebSocket : WebSocketAdapter() {
     private val timerTasks = mutableMapOf<String, TimerTask>()
 
     override fun onWebSocketBinary(payload: ByteArray, offset: Int, len: Int) {
+        logger.info("onWebSocketBinary(payload = ByteArray(${payload.size}), offset = $offset, len = $len)")
         super.onWebSocketBinary(payload, offset, len)
         sttStream?.write(payload, offset, len)
     }
@@ -66,8 +67,7 @@ class BotWebSocket : WebSocketAdapter() {
             if (/*event == null || */event.type == null)
                 return
 
-            if (logger.isInfoEnabled)
-                logger.info("onWebSocketText event = $event")
+            logger.info("onWebSocketText(event = $event)")
 
             if (event.message != null) {
 
@@ -186,37 +186,26 @@ class BotWebSocket : WebSocketAdapter() {
     }
 
     @Throws(IOException::class)
-    internal fun sendAudio(text: String, ttsConfig: TtsConfig) {
-        TtsServiceFactory.create(speechProvider).use { service ->
-            if (logger.isInfoEnabled)
-                logger.info("sendAudio text = $text, ttsConfig = $ttsConfig")
-            val audio = service.speak(text, ttsConfig)
-            remote.sendBytes(ByteBuffer.wrap(audio))
-        }
-    }
-
-    @Throws(IOException::class)
-    internal fun saveAudio(text: String, ttsConfig: TtsConfig) : String {
-        TtsServiceFactory.create(speechProvider).use { service ->
-            if (logger.isInfoEnabled)
-                logger.info("sendAudio text = $text, ttsConfig = $ttsConfig")
-            val audio = service.speak(text, ttsConfig)
-            // todo save bytes: ByteBuffer.wrap(audio), https://promethistai.atlassian.net/browse/AIP-8
-            return "To be implemented"
-        }
-    }
-
-    @Throws(IOException::class)
     internal fun sendMessage(appKey: String, message: Message) {
         val contract = dataService.getContract(appKey)
+        val ttsConfig = contract.ttsConfig?:TtsConfig.DEFAULT_EN
         message.expectedPhrases = null
         for (item in message.items) {
-            if (clientRequirements.tts == BotClientRequirements.TtsType.RequiredStreaming) {
-                sendAudio(text = item.ssml!!, ttsConfig = contract.ttsConfig?:TtsConfig.DEFAULT_EN)
-            } else if (clientRequirements.tts == BotClientRequirements.TtsType.RequiredLinks) {
-                item.links.add(
-                    Message.ResourceLink(type = "audio",
-                        ref = saveAudio(text = item.text?:"", ttsConfig = contract.ttsConfig?:TtsConfig.DEFAULT_EN)))
+            val ttsRequest = TtsRequest()
+            if (item.ssml != null) {
+                ttsRequest.text = item.ssml
+                ttsRequest.isSsml = true
+            } else {
+                ttsRequest.text = item.text
+            }
+            ttsRequest.set(ttsConfig)
+            val audio = dataService.getTtsAudio(speechProvider, ttsRequest)
+            when (clientRequirements.tts) {
+                BotClientRequirements.TtsType.RequiredStreaming ->
+                    remote.sendBytes(ByteBuffer.wrap(audio.data()))
+                BotClientRequirements.TtsType.RequiredLinks ->
+                    item.links.add(Message.ResourceLink(type = Message.ResourceLink.Type.audio,
+                            ref = "/file/${audio.code}")) // caller must know port URL therefore URI is enough
             }
         }
         sendEvent(BotEvent(BotEvent.Type.Text, message))
