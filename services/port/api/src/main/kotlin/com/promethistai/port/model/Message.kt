@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.promethistai.common.DataObject
 import com.promethistai.port.tts.TtsConfig
 import java.util.*
+import kotlin.collections.HashSet
 
 data class Message(
 
@@ -88,9 +89,6 @@ data class Message(
 
     }
 
-    data class ResourceLink(val type: Type? = null, val ref: String? = null) {
-        enum class Type { image, video, audio }
-    }
 
     data class ExpectedPhrase(val text: String? = null, val boost: Float = 1.0F) // boost can be used in google stt v1p1beta1
 
@@ -114,7 +112,9 @@ data class Message(
         /**
          * Resource links.
          */
-        val links: MutableList<ResourceLink> = mutableListOf(),
+        var image: String? = null,
+        var video: String? = null,
+        var audio: String? = null,
 
         /**
          * Extension properties for message. Determined by bot service and/or client application.

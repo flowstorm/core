@@ -216,8 +216,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
             ttsRequest.set(item.ttsConfig?:contract.ttsConfig?:TtsConfig.DEFAULT_EN)
             val audio = dataService.getTtsAudio(speechProvider, ttsRequest) { audio, cacheItem ->
                 if (clientRequirements.tts == BotClientRequirements.TtsType.RequiredLinks) // link waits for audio store
-                    item.links.add(Message.ResourceLink(type = Message.ResourceLink.Type.audio,
-                        ref = "/file/${cacheItem!!.fileId}")) // caller must know port URL therefore URI is enough
+                    item.audio = "/file/${cacheItem!!.fileId}" // caller must know port URL therefore URI is enough
             }
             if (clientRequirements.tts == BotClientRequirements.TtsType.RequiredStreaming) // streaming does not need to wait
                 sendBinaryData(audio.speak().data!!)
