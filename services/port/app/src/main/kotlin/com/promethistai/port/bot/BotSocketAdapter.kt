@@ -206,7 +206,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
         val contract = dataService.getContract(appKey)
         message.expectedPhrases = null
         for (item in message.items) {
-            if (item.text.isNullOrEmpty()) {
+            if (!item.text.isNullOrEmpty()) {
                 val ttsRequest = TtsRequest()
                 if (item.ssml != null) {
                     ttsRequest.text = item.ssml
