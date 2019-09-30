@@ -206,20 +206,23 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
         val contract = dataService.getContract(appKey)
         message.expectedPhrases = null
         for (item in message.items) {
-            val ttsRequest = TtsRequest()
-            if (item.ssml != null) {
-                ttsRequest.text = item.ssml
-                ttsRequest.isSsml = true
-            } else {
-                ttsRequest.text = item.text
+            if (item.text.isNullOrEmpty()) {
+                val ttsRequest = TtsRequest()
+                if (item.ssml != null) {
+                    ttsRequest.text = item.ssml
+                    ttsRequest.isSsml = true
+                } else {
+                    ttsRequest.text = item.text
+                }
+                ttsRequest.set(item.ttsConfig ?: contract.ttsConfig ?: TtsConfig.DEFAULT_EN)
+                val audio = dataService.getTtsAudio(speechProvider, ttsRequest) { audio, cacheItem ->
+//                    if (clientRequirements.tts == BotClientRequirements.TtsType.RequiredLinks) // link waits for audio store
+//                        item.audio = "/file/${cacheItem!!.fileId}" // caller must know port URL therefore URI is enough
+                    logger.info("item.audio:{}".format(item.audio))
+                }
+                if (clientRequirements.tts == BotClientRequirements.TtsType.RequiredStreaming) // streaming does not need to wait
+                    sendBinaryData(audio.speak().data!!)
             }
-            ttsRequest.set(item.ttsConfig?:contract.ttsConfig?:TtsConfig.DEFAULT_EN)
-            val audio = dataService.getTtsAudio(speechProvider, ttsRequest) { audio, cacheItem ->
-                if (clientRequirements.tts == BotClientRequirements.TtsType.RequiredLinks) // link waits for audio store
-                    item.audio = "/file/${cacheItem!!.fileId}" // caller must know port URL therefore URI is enough
-            }
-            if (clientRequirements.tts == BotClientRequirements.TtsType.RequiredStreaming) // streaming does not need to wait
-                sendBinaryData(audio.speak().data!!)
         }
         sendEvent(BotEvent(BotEvent.Type.Message, message))
     }
