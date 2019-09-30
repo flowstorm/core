@@ -3,9 +3,12 @@ package com.promethistai.port
 import com.mongodb.client.MongoDatabase
 import com.mongodb.client.gridfs.GridFSBuckets
 import com.promethistai.common.AppConfig
+import com.promethistai.port.bot.BotClientRequirements
 import com.promethistai.port.model.Contract
 import com.promethistai.port.model.Message
+import com.promethistai.port.tts.TtsConfig
 import com.promethistai.port.tts.TtsRequest
+import com.promethistai.port.tts.TtsService
 import com.promethistai.port.tts.TtsServiceFactory
 import org.bson.types.ObjectId
 import org.litote.kmongo.eq
@@ -38,12 +41,13 @@ class DataService {
 
     data class CacheItem(val _id: String, var fileId: ObjectId, var lastModified: Date = Date(), var fileSize: Int? = null, var counter: Long = 0, var type: String = "default", var ttsRequest: TtsRequest? = null)
 
-    data class TtsAudio(val speechProvider: String, val ttsRequest: TtsRequest) {
+    inner class TtsAudio(val speechProvider: String, val ttsRequest: TtsRequest) {
 
         // zamerne v code zatim zanedbavam speech providera
         val code = ttsRequest.code()
         var type = "audio/mp3"
         var data: ByteArray? = null
+        var fileId: ObjectId? = null
 
         /**
          * Returns or generates audio data if not already set.
@@ -128,24 +132,28 @@ class DataService {
      * This creates and stores or loads existing audio from database cache for the specified TTS request.
      */
     @Throws(IOException::class)
-    internal fun getTtsAudio(speechProvider: String, ttsRequest: TtsRequest, callback: (TtsAudio, CacheItem) -> Unit): TtsAudio {
+    internal fun getTtsAudio(speechProvider: String, ttsRequest: TtsRequest, asyncSave: Boolean, cacheDownload: Boolean): TtsAudio {
         val audio = TtsAudio(speechProvider, ttsRequest)
         var cacheItem = getCacheItem(audio.code)
         if (cacheItem == null) {
             logger.info("getTtsAudio[cache MISS](speechProvider = $speechProvider, ttsRequest = $ttsRequest)")
             audio.speak() // perform speach synthesis
             logger.info("getTtsAudio[speak DONE]")
-            thread(start = true) {
-                callback(audio, addCacheItemWithFile(audio.code, "tts", audio.type, audio.data!!, ttsRequest))
+            if (asyncSave) {
+                thread(start = true) {
+                    addCacheItemWithFile(audio.code, "tts", audio.type, audio.data!!, ttsRequest)
+                }
+            } else {
+                cacheItem = addCacheItemWithFile(audio.code, "tts", audio.type, audio.data!!, ttsRequest)
             }
         } else {
             logger.info("getTtsAudio[cache HIT](cacheItem = $cacheItem)")
             saveCacheItem(cacheItem) // update cache item in database
-            val buf = ByteArrayOutputStream()
-            getResourceFile(cacheItem.fileId).download(buf)
-            audio.data = buf.toByteArray()
-            thread(start = true) {
-                callback(audio, cacheItem)
+            if (cacheDownload) {
+                val buf = ByteArrayOutputStream()
+                getResourceFile(cacheItem.fileId).download(buf)
+                audio.data = buf.toByteArray()
+                audio.fileId = cacheItem.fileId
             }
         }
         return audio

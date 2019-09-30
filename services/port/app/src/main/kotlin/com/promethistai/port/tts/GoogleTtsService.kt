@@ -5,6 +5,7 @@ import com.promethistai.port.tts.TtsConfig
 import com.promethistai.port.tts.TtsRequest
 import com.promethistai.port.tts.TtsService
 import com.promethistai.port.tts.TtsVoice
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 class GoogleTtsService : TtsService {
@@ -56,7 +57,7 @@ class GoogleTtsService : TtsService {
 
     override fun close() {
         try {
-            client.awaitTermination(5, TimeUnit.SECONDS)
+            client.close()
         } catch (e: Exception) {
             e.printStackTrace()
         }
