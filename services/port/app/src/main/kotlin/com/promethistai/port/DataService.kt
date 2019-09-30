@@ -145,6 +145,7 @@ class DataService {
                 }
             } else {
                 cacheItem = addCacheItemWithFile(audio.code, "tts", audio.type, audio.data!!, ttsRequest)
+                audio.fileId = cacheItem.fileId
             }
         } else {
             logger.info("getTtsAudio[cache HIT](cacheItem = $cacheItem)")
