@@ -154,8 +154,8 @@ class DataService {
                 val buf = ByteArrayOutputStream()
                 getResourceFile(cacheItem.fileId).download(buf)
                 audio.data = buf.toByteArray()
-                audio.fileId = cacheItem.fileId
             }
+            audio.fileId = cacheItem.fileId
         }
         return audio
     }

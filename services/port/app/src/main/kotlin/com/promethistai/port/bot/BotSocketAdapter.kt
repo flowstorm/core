@@ -206,26 +206,30 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
         val contract = dataService.getContract(appKey)
         message.expectedPhrases = null
         for (item in message.items) {
-            val ttsRequest = TtsRequest()
-            if (item.ssml != null) {
-                ttsRequest.text = item.ssml
-                ttsRequest.isSsml = true
+            if (item.text.isNullOrBlank()) {
+                logger.debug("item.text.isNullOrBlank() == true")
             } else {
-                ttsRequest.text = item.text
-            }
-            ttsRequest.set(item.ttsConfig?:contract.ttsConfig?:TtsConfig.DEFAULT_EN)
-            val audio = dataService.getTtsAudio(
-                speechProvider,
-                ttsRequest,
-                clientRequirements.tts != BotClientRequirements.TtsType.RequiredLinks,
-                clientRequirements.tts == BotClientRequirements.TtsType.RequiredStreaming
-            )
-            when (clientRequirements.tts) {
-                BotClientRequirements.TtsType.RequiredLinks ->
-                    item.audio = "/file/${audio.fileId}" // caller must know port URL therefore URI is enough
+                val ttsRequest = TtsRequest()
+                if (item.ssml != null) {
+                    ttsRequest.text = item.ssml
+                    ttsRequest.isSsml = true
+                } else {
+                    ttsRequest.text = item.text
+                }
+                ttsRequest.set(item.ttsConfig ?: contract.ttsConfig ?: TtsConfig.DEFAULT_EN)
+                val audio = dataService.getTtsAudio(
+                        speechProvider,
+                        ttsRequest,
+                        clientRequirements.tts != BotClientRequirements.TtsType.RequiredLinks,
+                        clientRequirements.tts == BotClientRequirements.TtsType.RequiredStreaming
+                )
+                when (clientRequirements.tts) {
+                    BotClientRequirements.TtsType.RequiredLinks ->
+                        item.audio = "/file/${audio.fileId}" // caller must know port URL therefore URI is enough
 
-                BotClientRequirements.TtsType.RequiredStreaming ->
-                    sendBinaryData(audio.speak().data!!)
+                    BotClientRequirements.TtsType.RequiredStreaming ->
+                        sendBinaryData(audio.speak().data!!)
+                }
             }
         }
         sendEvent(BotEvent(BotEvent.Type.Message, message))
