@@ -12,7 +12,7 @@ service:
 app:
   port: 8080
   image:
-    name: registry.promethist.ai/platform/port
+    name: registry.promethist.ai/channel/port
     tag: latest
   resources:
     requests:
