@@ -15,7 +15,7 @@ class NettyServer(private val resourceConfig: ResourceConfig) {
 
     private val channel =
         NettyHttpContainerProvider.createHttp2Server(
-            URI.create("http://localhost:" + AppConfig.instance.get("server.port", "8080") + "/"),
+            URI.create("http://localhost:" + AppConfig.instance.get("server.port", System.getProperty("com.promethistai.common.server.port", "8080")) + "/"),
             resourceConfig.register(ContextResolver<ObjectMapper> {
                 ObjectMapper().registerModule(KotlinModule())
             }).property(ServerProperties.TRACING, AppConfig.instance.get("app.tracing", "OFF")),
