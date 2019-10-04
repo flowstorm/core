@@ -12,7 +12,7 @@
         <version>1.0.0-SNAPSHOT</version>
     </parent>
     <artifactId>port-app</artifactId>
-    <name>Port App</name>
+    <name>Promethist Port App</name>
 
     <properties>
         <jetty.version>9.4.18.v20190429</jetty.version>

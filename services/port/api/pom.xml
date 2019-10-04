@@ -13,7 +13,7 @@
     </parent>
     <artifactId>port-api</artifactId>
     <version>${project.parent.version}</version>
-    <name>Port API</name>
+    <name>Promethist Port API</name>
 
     <properties>
         <swagger.version>1.5.22</swagger.version>
