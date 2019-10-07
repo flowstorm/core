@@ -32,9 +32,18 @@ class BotSelectorService : BotService {
 
     override fun message(appKey: String, message: Message): Message? {
         val botService = getBotService(appKey)
+
+        // log incoming message
+        dataService.logMessage(message)
+
         val response = botService.message(appKey, message)
-        if (logger.isInfoEnabled)
-            logger.info("message(botService = $botService, key = $appKey, message = $message, response = $response)")
+
+        logger.info("message(botService = $botService, key = $appKey, message = $message, response = $response)")
+
+        // log response message
+        if (response != null)
+            dataService.logMessage(response)
+
         return response
     }
 

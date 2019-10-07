@@ -16,15 +16,14 @@ class Application : JerseyApplication() {
         register(object : ResourceBinder() {
             override fun configure() {
                 bindTo(AppConfig::class.java, AppConfig.instance)
-                // resources
                 bindTo(PortResource::class.java, PortResourceImpl::class.java)
                 bindTo(MongoDatabase::class.java, KMongo.createClient(ConnectionString(AppConfig.instance["database.url"])).getDatabase(AppConfig.instance["database.name"]))
                 // services
-                bindTo(DataService::class.java, DataService::class.java)
+                bindTo(DataService::class.java)
                 bindTo(BotService::class.java, BotSelectorService::class.java)
-                bindTo(BotRemoteService::class.java, BotRemoteService::class.java)
-                bindTo(EchoService::class.java, EchoService::class.java)
-                bindTo(IllusionistService::class.java, IllusionistService::class.java)
+                bindTo(BotRemoteService::class.java)
+                bindTo(EchoService::class.java)
+                bindTo(IllusionistService::class.java)
             }
         })
     }

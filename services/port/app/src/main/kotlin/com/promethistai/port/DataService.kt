@@ -3,14 +3,12 @@ package com.promethistai.port
 import com.mongodb.client.MongoDatabase
 import com.mongodb.client.gridfs.GridFSBuckets
 import com.promethistai.common.AppConfig
-import com.promethistai.port.bot.BotClientRequirements
 import com.promethistai.port.model.Contract
 import com.promethistai.port.model.Message
-import com.promethistai.port.tts.TtsConfig
 import com.promethistai.port.tts.TtsRequest
-import com.promethistai.port.tts.TtsService
 import com.promethistai.port.tts.TtsServiceFactory
 import org.bson.types.ObjectId
+import org.litote.kmongo.and
 import org.litote.kmongo.eq
 import org.litote.kmongo.findOne
 import org.litote.kmongo.findOneById
@@ -65,7 +63,7 @@ class DataService {
     @Inject
     lateinit var appConfig: AppConfig
 
-    private var logger = LoggerFactory.getLogger(DataService::class.java)
+    private var logger = LoggerFactory.getLogger(DataService::class.qualifiedName)
 
     private var mediaTypeMap = MimetypesFileTypeMap()
 
@@ -174,7 +172,7 @@ class DataService {
 
     fun popMessages(appKey: String, recipient: String, limit: Int): List<Message> {
         val col = database.getCollection("message-queue", Message::class.java)
-        val query = org.litote.kmongo.and(Message::appKey eq appKey, Message::recipient eq recipient)
+        val query = and(Message::appKey eq appKey, Message::recipient eq recipient)
         val messages = col.find(query).toList()
         logger.debug("popMessages(appKey = $appKey, limit = $limit, messages = $messages)")
         col.deleteMany(query)
@@ -185,5 +183,17 @@ class DataService {
         val col = database.getCollection("message-log", Message::class.java)
         col.insertOne(message)
         return true
+    }
+
+    fun getSessionMessages(sessionId: String): List<Message> {
+        val logCollection = database.getCollection("message-log", Message::class.java)
+        val cacheCollection = database.getCollection("cache", CacheItem::class.java)
+        val messages = logCollection.find(Message::sessionId eq sessionId).toList()
+        // try to find audio resource files
+        for (message in messages) {
+            val sttQuery = and(CacheItem::_id eq message._id, CacheItem::type eq "stt")
+            val sttItem = cacheCollection.findOne { sttQuery }
+        }
+        return messages
     }
 }

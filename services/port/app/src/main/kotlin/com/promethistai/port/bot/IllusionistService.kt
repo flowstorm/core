@@ -34,7 +34,7 @@ class IllusionistService : BotService {
                 logger.info("remoteEndpoint = $remoteEndpoint, botKey = $botKey, model = $model")
             val responses = RestClient.call(url, Array<Response>::class.java, "POST")
             if (responses.isNotEmpty())
-                return message.response(mutableListOf(Message.Item(text = responses[0].answer)))
+                return message.response(mutableListOf(Message.Item(text = responses[0].answer, confidence = responses[0].confidence)))
         } catch (e: IOException) {
             e.printStackTrace()
         }

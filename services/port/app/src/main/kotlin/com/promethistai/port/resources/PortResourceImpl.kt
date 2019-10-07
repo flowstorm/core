@@ -40,18 +40,11 @@ class PortResourceImpl : PortResource {
     override fun message(appKey: String, message: Message): Message? {
         message.appKey = appKey
 
-        // log incoming message
-        dataService.logMessage(message)
-
         val response = botService.message(appKey, message.apply {
             sessionId = if (sessionId.isNullOrBlank()) { Message.createId() } else { sessionId }
         })
         if (response != null && response._ref == null)
             response._ref = message._id
-
-        // log response message
-        if (response != null)
-            dataService.logMessage(response)
 
         return response
     }

@@ -9,6 +9,7 @@ import com.promethistai.port.stt.SttServiceFactory
 import com.promethistai.port.stt.SttStream
 import com.promethistai.port.tts.TtsConfig
 import com.promethistai.port.tts.TtsRequest
+import com.promethistai.util.Converter
 import org.eclipse.jetty.websocket.api.WebSocketAdapter
 import org.slf4j.LoggerFactory
 import java.io.IOException
@@ -49,16 +50,16 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
      * Determine if the response from botService will be followed by waiting for user input or another message will be sent to botService
      */
     fun onMessageEvent(event: BotEvent) {
-        val messages = botService.message(event.appKey!!, event.message!!)
-        if (messages != null) {
-            expectedPhrases = messages.expectedPhrases?: listOf()
-            if (messages.sessionEnded) {
+        val response = botService.message(event.appKey!!, event.message!!)
+        if (response != null) {
+            expectedPhrases = response.expectedPhrases?: listOf()
+            if (response.sessionEnded) {
                 sendEvent(BotEvent(BotEvent.Type.SessionEnded))
                 close(false)
             }
             // todo will not work correctly before the subdialogs in helena will be implemented
             else {
-                sendMessage(event.appKey!!, messages) // client will wait for user input
+                sendMessage(event.appKey!!, response) // client will wait for user input
             }
         }
     }
@@ -132,10 +133,12 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                         override fun onResponse(transcript: String, confidence: Float, final: Boolean) {
                             try {
                                 if (final && !inputAudioStreamCancelled) {
-                                    val audioData = ByteArray(sttBuffer.position())
-                                    sttBuffer.get(audioData, 0, audioData.size)
+                                    val pcmData = ByteArray(sttBuffer.position())
+                                    sttBuffer.get(pcmData, 0, pcmData.size)
                                     thread(start = true) {
-                                        dataService.addCacheItemWithFile(event.message!!._id!!, "stt", "", audioData)
+                                        //conversion of PCM to WAV
+                                        val wavData = Converter.pcmToWav(pcmData)
+                                        dataService.addCacheItemWithFile(event.message!!._id!!, "stt", "", wavData)
                                     }
                                     sendEvent(BotEvent(BotEvent.Type.Recognized, Message(items = mutableListOf(Message.Item(text = transcript)))))
                                     onMessageEvent(event.apply {

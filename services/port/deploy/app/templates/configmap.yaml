@@ -7,6 +7,7 @@ data:
   app.properties: |
     name={{ .Values.name }}
     namespace={{ .Values.namespace }}
+    runmode=dist
     service.host={{ .Values.service.host }}
     git.ref={{ .Values.git.ref }}
     git.commit={{ .Values.git.commit }}
