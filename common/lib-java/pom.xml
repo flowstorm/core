@@ -9,7 +9,7 @@
     <groupId>com.promethistai.common</groupId>
     <artifactId>common-lib</artifactId>
     <version>1.0.5-SNAPSHOT</version>
-    <name>Common Lib</name>
+    <name>Promethist Common Lib</name>
 
     <properties>
         <kotlin.version>1.3.41</kotlin.version>
