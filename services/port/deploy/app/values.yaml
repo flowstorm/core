@@ -1,6 +1,6 @@
 namespace: default
 name: port
-replicas: 1
+replicas: 2
 imagePullSecrets: promethistai-registry
 imagePullPolicy: IfNotPresent
 apiKey: AIzaSyDpYmTgXGmZY-vWO6ryOcSQ5YZhBsu6NWc
