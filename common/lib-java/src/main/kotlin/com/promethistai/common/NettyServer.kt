@@ -1,7 +1,6 @@
 package com.promethistai.common
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.KotlinModule
 import org.glassfish.jersey.netty.httpserver.NettyHttpContainerProvider
 import org.glassfish.jersey.server.ResourceConfig
 import org.glassfish.jersey.server.ServerProperties
@@ -17,7 +16,7 @@ class NettyServer(private val resourceConfig: ResourceConfig) {
         NettyHttpContainerProvider.createHttp2Server(
             URI.create("http://localhost:" + AppConfig.instance.get("server.port", System.getProperty("com.promethistai.common.server.port", "8080")) + "/"),
             resourceConfig.register(ContextResolver<ObjectMapper> {
-                ObjectMapper().registerModule(KotlinModule())
+                ObjectUtil.defaultMapper
             }).property(ServerProperties.TRACING, AppConfig.instance.get("app.tracing", "OFF")),
             null
         )

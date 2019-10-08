@@ -16,7 +16,7 @@ open class DataObject: Hashtable<String, Serializable> {
         open val skipFields = setOf<String>()
 
         override fun deserialize(parser: JsonParser?, ctx: DeserializationContext?): O {
-            val mapper = ObjectMapper()
+            val mapper = ObjectUtil.defaultMapper
             val codec = parser!!.codec
             val tree = codec.readTree<JsonNode>(parser)
             val obj = objectClass.newInstance()
