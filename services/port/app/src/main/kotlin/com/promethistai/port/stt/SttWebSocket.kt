@@ -1,14 +1,13 @@
 package com.promethistai.port.stt
 
-import com.google.gson.GsonBuilder
-import com.google.gson.JsonSyntaxException
+import com.promethistai.common.ObjectUtil
 import org.eclipse.jetty.websocket.api.WebSocketAdapter
 import java.io.IOException
 
 // todo still maintain this class?
 class SttWebSocket : WebSocketAdapter() {
 
-    private val gson = GsonBuilder().create()
+    private val mapper = ObjectUtil.defaultMapper
     private var client: SttService? = null
     private var stream: SttStream? = null
 
@@ -20,7 +19,7 @@ class SttWebSocket : WebSocketAdapter() {
     override fun onWebSocketText(message: String) {
         super.onWebSocketText(message)
         try {
-            val command = gson.fromJson<Any>(message, SttCommand::class.java) as SttCommand
+            val command = mapper.readValue(message, SttCommand::class.java)
             when (command.type) {
                 SttCommand.Type.Init -> {
                     if (command.params == null || command.params!!.isEmpty())
@@ -67,8 +66,6 @@ class SttWebSocket : WebSocketAdapter() {
                     stream = client?.createStream()
                 }
             }
-        } catch (e: JsonSyntaxException) {
-            e.printStackTrace()
         } catch (e: IOException) {
             e.printStackTrace()
         }
@@ -85,7 +82,7 @@ class SttWebSocket : WebSocketAdapter() {
     }
 
     internal fun sendEvent(event: SttEvent) = try {
-        remote.sendString(gson.toJson(event))
+        remote.sendString(mapper.writeValueAsString(event))
     } catch (e: IOException) {
         e.printStackTrace()
     }

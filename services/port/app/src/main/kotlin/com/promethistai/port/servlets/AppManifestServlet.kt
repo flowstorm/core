@@ -1,6 +1,6 @@
 package com.promethistai.port.servlets
 
-import com.google.gson.Gson
+import com.promethistai.common.ObjectUtil
 import com.promethistai.port.AppClientManifest
 import com.promethistai.port.Endpoints
 import java.io.IOException
@@ -12,6 +12,8 @@ import javax.servlet.http.HttpServletResponse
 
 @WebServlet(name = "Audio Stream Client Bootstrap", urlPatterns = ["/client/bootstrap"])
 class AppManifestServlet : HttpServlet() {
+
+    private val mapper = ObjectUtil.defaultMapper
 
     @Throws(ServletException::class)
     override fun doGet(httpRequest: HttpServletRequest, httpResponse: HttpServletResponse) {
@@ -32,7 +34,7 @@ class AppManifestServlet : HttpServlet() {
         httpResponse.contentType = "application/json"
         httpResponse.setHeader("Access-Control-Allow-Origin", "*")
         try {
-            httpResponse.writer.use { writer -> writer.write(Gson().toJson(manifest)) }
+            httpResponse.writer.use { writer -> writer.write(mapper.writeValueAsString(manifest)) }
         } catch (e: IOException) {
             throw ServletException(e)
         }

@@ -1,6 +1,6 @@
 package com.promethistai.port.bot
 
-import com.google.gson.GsonBuilder
+import com.promethistai.common.ObjectUtil
 import com.promethistai.port.DataService
 import com.promethistai.port.model.Message
 import com.promethistai.port.stt.SttCallback
@@ -28,7 +28,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
     @Inject
     lateinit var dataService: DataService
 
-    private val gson = GsonBuilder().create()
+    private val objectMapper = ObjectUtil.defaultMapper
     private var sttService: SttService? = null
     private var sttStream: SttStream? = null
     private var clientRequirements: BotClientRequirements = BotClientRequirements()
@@ -67,7 +67,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
     override fun onWebSocketText(json: String?) {
         super.onWebSocketText(json)
         try {
-            val event = gson.fromJson<Any>(json, BotEvent::class.java) as BotEvent
+            val event = objectMapper.readValue(json, BotEvent::class.java)
             if (/*event == null || */event.type == null)
                 return
 
@@ -196,7 +196,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
     @Throws(IOException::class)
     override fun sendEvent(event: BotEvent) {
         logger.info("sendEvent(event = $event)")
-        remote.sendString(gson.toJson(event))
+        remote.sendString(objectMapper.writeValueAsString(event))
     }
 
     fun sendBinaryData(data: ByteArray) {
