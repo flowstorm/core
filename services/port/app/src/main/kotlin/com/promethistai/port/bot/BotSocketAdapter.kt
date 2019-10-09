@@ -20,6 +20,40 @@ import kotlin.concurrent.thread
 
 class BotSocketAdapter : BotSocket, WebSocketAdapter() {
 
+    inner class BotSttCallback(private val event: BotEvent) : SttCallback {
+
+        override fun onResponse(transcript: String, confidence: Float, final: Boolean) {
+            try {
+                if (final && !inputAudioStreamCancelled) {
+                    if ((event.appKey != null) && dataService.getContract(event.appKey!!).sttAudioSave) {
+                        val pcmData = ByteArray(sttBuffer.position())
+                        sttBuffer.get(pcmData, 0, pcmData.size)
+                        thread(start = true) {
+                            //conversion of PCM to WAV
+                            val wavData = Converter.pcmToWav(pcmData)
+                            dataService.addCacheItemWithFile(event.message!!._id!!, "stt", "", wavData)
+                        }
+                    }
+                    sendEvent(BotEvent(BotEvent.Type.Recognized, Message(items = mutableListOf(Message.Item(text = transcript)))))
+                    onMessageEvent(event.apply {
+                        this.message!!.items = mutableListOf(Message.Item(text = transcript, confidence = confidence.toDouble()))
+                    })
+                }
+            } catch (e: IOException) {
+                e.printStackTrace() }
+        }
+
+        override fun onError(e: Throwable) {
+            e.printStackTrace()
+            if (isConnected)
+                sendEvent(BotEvent(BotEvent.Type.Error, Message(sender= "google stt",items = mutableListOf(Message.Item(text = e.message?:"")))))
+        }
+
+        override fun onOpen() {
+            sendEvent(BotEvent(BotEvent.Type.InputAudioStreamOpen))
+        }
+    }
+
     private var logger = LoggerFactory.getLogger(BotSocketAdapter::class.qualifiedName)
 
     @Inject
@@ -109,57 +143,21 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
 
             BotEvent.Type.Requirements -> {
                 clientRequirements = event.requirements?:BotClientRequirements()
-                sendEvent(BotEvent(BotEvent.Type.Requirements))
+                sendEvent(BotEvent(BotEvent.Type.Requirements, requirements = clientRequirements))
             }
 
-            BotEvent.Type.SessionStarted -> {
-                sendEvent(BotEvent(BotEvent.Type.SessionStarted, Message(sessionId = event.message?.sessionId?:Message.createId())))
-            }
+            BotEvent.Type.SessionStarted ->
+                sendEvent(BotEvent(BotEvent.Type.SessionStarted,
+                        Message(sessionId = event.message?.sessionId?:Message.createId())))
 
-            BotEvent.Type.SessionEnded -> {
-                sendEvent(BotEvent(BotEvent.Type.SessionEnded))
-            }
+            BotEvent.Type.SessionEnded -> sendEvent(BotEvent(BotEvent.Type.SessionEnded))
 
-            BotEvent.Type.Message -> {
-                onMessageEvent(event)
-            }
-
+            BotEvent.Type.Message -> onMessageEvent(event)
 
             BotEvent.Type.InputAudioStreamOpen -> {
                 close(false)
-                sttService = SttServiceFactory.create(speechProvider, event.sttConfig!!, this.expectedPhrases,
-                    object : SttCallback {
-
-                        override fun onResponse(transcript: String, confidence: Float, final: Boolean) {
-                            try {
-                                if (final && !inputAudioStreamCancelled) {
-                                    val pcmData = ByteArray(sttBuffer.position())
-                                    sttBuffer.get(pcmData, 0, pcmData.size)
-                                    thread(start = true) {
-                                        //conversion of PCM to WAV
-                                        val wavData = Converter.pcmToWav(pcmData)
-                                        dataService.addCacheItemWithFile(event.message!!._id!!, "stt", "", wavData)
-                                    }
-                                    sendEvent(BotEvent(BotEvent.Type.Recognized, Message(items = mutableListOf(Message.Item(text = transcript)))))
-                                    onMessageEvent(event.apply {
-                                        this.message!!.items = mutableListOf(Message.Item(text = transcript, confidence = confidence.toDouble()))
-                                    })
-                                }
-                            } catch (e: IOException) {
-                                e.printStackTrace() }
-                        }
-
-                        override fun onError(e: Throwable) {
-                            e.printStackTrace()
-                            if (isConnected)
-                                sendEvent(BotEvent(BotEvent.Type.Error, Message(sender= "google stt",items = mutableListOf(Message.Item(text = e.message?:"")))))
-                        }
-
-                        override fun onOpen() {
-                            sendEvent(BotEvent(BotEvent.Type.InputAudioStreamOpen))
-                        }
-                    }
-                )
+                sttService = SttServiceFactory.create(speechProvider,
+                        event.sttConfig!!, this.expectedPhrases, BotSttCallback(event))
                 sttBuffer.rewind()
                 sttStream = sttService?.createStream()
             }

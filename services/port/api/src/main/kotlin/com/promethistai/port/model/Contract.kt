@@ -10,5 +10,6 @@ data class Contract(
     var model: String? = null,
     var subDialogueModels: List<String>? = null,
     var remoteEndpoint: String? = null,
-    var ttsConfig: TtsConfig? = null
+    var ttsConfig: TtsConfig? = null,
+    var sttAudioSave: Boolean = false
 )
