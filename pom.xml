@@ -15,7 +15,7 @@
         <module>common/lib-java</module>
         <module>channel/port</module>
         <module>channel/bot</module>
-        <module>brainquist/server</module>
+        <module>promethist/app</module>
     </modules>
 
 </project>
