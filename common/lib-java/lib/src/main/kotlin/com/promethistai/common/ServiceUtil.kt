@@ -23,8 +23,8 @@ object ServiceUtil {
                     else
                         "") + ".promethist.ai"
             RunMode.detect ->
-                getEndpointUrl(serviceName,RunMode.valueOf(
-                    System.getenv("RUN_MODE")?:AppConfig.instance.get("runmode", "local")))
+                getEndpointUrl(serviceName, RunMode.valueOf(
+                        System.getenv("RUN_MODE") ?: AppConfig.instance.get("runmode", "local")))
         }
 
 }
