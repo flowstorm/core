@@ -10,6 +10,6 @@ object ObjectUtil {
     @JvmStatic
     val defaultMapper = ObjectMapper()
             .registerModule(KotlinModule())
-            .setDateFormat(SimpleDateFormat("MMM d, YYYY H:mm:ss a"))
+            .setDateFormat(SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ"))
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 }
