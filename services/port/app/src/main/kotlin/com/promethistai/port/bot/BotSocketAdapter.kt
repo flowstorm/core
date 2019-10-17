@@ -3,10 +3,7 @@ package com.promethistai.port.bot
 import com.promethistai.common.ObjectUtil
 import com.promethistai.port.DataService
 import com.promethistai.port.model.Message
-import com.promethistai.port.stt.SttCallback
-import com.promethistai.port.stt.SttService
-import com.promethistai.port.stt.SttServiceFactory
-import com.promethistai.port.stt.SttStream
+import com.promethistai.port.stt.*
 import com.promethistai.port.tts.TtsConfig
 import com.promethistai.port.tts.TtsRequest
 import com.promethistai.util.Converter
@@ -156,8 +153,10 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
 
             BotEvent.Type.InputAudioStreamOpen -> {
                 close(false)
-                sttService = SttServiceFactory.create(speechProvider,
-                        event.sttConfig!!, this.expectedPhrases, BotSttCallback(event))
+                val contract = dataService.getContract(event.appKey!!)
+                val language = event.message?.language?.language?:contract.language
+                val sttConfig = SttConfig(language, clientRequirements.sttSampleRate)
+                sttService = SttServiceFactory.create(speechProvider, sttConfig, this.expectedPhrases, BotSttCallback(event))
                 sttBuffer.rewind()
                 sttStream = sttService?.createStream()
             }

@@ -25,7 +25,7 @@ data class Message(
     /**
      * Message language.
      */
-    var language: Locale = Locale.ENGLISH,
+    var language: Locale? = null,
 
     /**
      * When message was created.

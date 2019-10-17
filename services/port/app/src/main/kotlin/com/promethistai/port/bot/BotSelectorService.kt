@@ -3,6 +3,7 @@ package com.promethistai.port.bot
 import com.promethistai.port.DataService
 import com.promethistai.port.model.Message
 import org.slf4j.LoggerFactory
+import java.util.*
 import javax.inject.Inject
 
 class BotSelectorService : BotService {
@@ -21,24 +22,25 @@ class BotSelectorService : BotService {
 
     private var logger = LoggerFactory.getLogger(BotSelectorService::class.qualifiedName)
 
-    private fun getBotService(key: String): BotService {
-        val name = dataService.getContract(key).bot
-        return if (name == "remote")
+    override fun message(appKey: String, message: Message): Message? {
+        val contract = dataService.getContract(appKey)
+        val botService = if (contract.bot == "remote")
             remoteService
         else
             //TODO catch reflection exception
-            return javaClass.getDeclaredField("${name}Service").get(this) as BotService
-    }
+            javaClass.getDeclaredField("${contract.bot}Service").get(this) as BotService
 
-    override fun message(appKey: String, message: Message): Message? {
-        val botService = getBotService(appKey)
+        if (message.language == null)
+            message.language = Locale(contract.language)
 
         // log incoming message
         dataService.logMessage(message)
 
+        logger.info("message > (botService = $botService, key = $appKey) $message")
+
         val response = botService.message(appKey, message)
 
-        logger.info("message(botService = $botService, key = $appKey, message = $message, response = $response)")
+        logger.info("message < $response")
 
         // log response message
         if (response != null)

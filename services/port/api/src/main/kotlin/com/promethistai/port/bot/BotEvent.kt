@@ -9,7 +9,6 @@ data class BotEvent(
         var message: Message? = null,
         var appKey: String? = null,
         var requirements: BotClientRequirements? = null,
-        var sttConfig: SttConfig? = null,
         var enabled: Boolean? = null) : Serializable {
 
     enum class Type {
