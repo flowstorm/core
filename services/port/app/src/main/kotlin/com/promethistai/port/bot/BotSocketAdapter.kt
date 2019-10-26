@@ -91,6 +91,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
         if (response != null) {
             expectedPhrases = response.expectedPhrases?: listOf()
             if (response.sessionEnded) {
+                sendMessage(event.appKey!!, response)
                 sendEvent(BotEvent(BotEvent.Type.SessionEnded))
                 close(false)
             }
