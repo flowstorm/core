@@ -75,7 +75,12 @@ data class Message(
     /**
      * Extension properties for message. Determined by bot service and/or client application.
      */
-    val extensions: PropertyMap = PropertyMap()
+    val extensions: PropertyMap = PropertyMap(),
+
+    /**
+     * AI platform message processing time in millis (set by port)
+     */
+    var processTime: Long = 0
 
 ) {
 

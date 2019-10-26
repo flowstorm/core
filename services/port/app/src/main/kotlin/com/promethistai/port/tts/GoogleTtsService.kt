@@ -15,7 +15,7 @@ class GoogleTtsService : TtsService {
     override val voices: List<TtsVoice>
         get() {
             val request = ListVoicesRequest.getDefaultInstance()
-            val voices = mutableListOf<com.promethistai.port.tts.TtsVoice>()
+            val voices = mutableListOf<TtsVoice>()
             for (voice in client.listVoices(request).voicesList)
                 voices.add(
                     TtsVoice(voice.name, voice.ssmlGender.name,

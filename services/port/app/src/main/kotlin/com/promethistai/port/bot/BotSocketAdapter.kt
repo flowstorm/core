@@ -1,5 +1,8 @@
 package com.promethistai.port.bot
 
+import ai.promethist.bot.BotClientRequirements
+import ai.promethist.bot.BotEvent
+import ai.promethist.bot.BotSocket
 import com.promethistai.common.ObjectUtil
 import com.promethistai.port.DataService
 import com.promethistai.port.model.Message
@@ -51,6 +54,9 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
         }
     }
 
+    override var state = BotSocket.State.Open
+    override var listener: BotSocket.Listener? = null
+
     private var logger = LoggerFactory.getLogger(BotSocketAdapter::class.qualifiedName)
 
     @Inject
@@ -71,7 +77,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
     private val sttBuffer = ByteBuffer.allocate(1024 * 1024 * 32) // 32M limit (cca 5min @ 44.1kHz/16bit/stereo?)
 
     override fun onWebSocketBinary(payload: ByteArray, offset: Int, len: Int) {
-        logger.info("onWebSocketBinary(payload = ByteArray(${payload.size}), offset = $offset, len = $len)")
+        logger.info("onWebSocketBinary(payload[${payload.size}], offset = $offset, len = $len)")
         super.onWebSocketBinary(payload, offset, len)
         sttBuffer.put(payload)
         sttStream?.write(payload, offset, len)
@@ -90,7 +96,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
             }
             // todo will not work correctly before the subdialogs in helena will be implemented
             else {
-                sendMessage(event.appKey!!, response) // client will wait for user input
+                sendResponse(event.appKey!!, response) // client will wait for user input
             }
         }
     }
@@ -120,7 +126,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                             override fun run() {
                                 val messages = dataService.popMessages(event.appKey!!, event.message!!.sender!!, 1)
                                 for (message in messages)
-                                    sendMessage(event.appKey!!, message)
+                                    sendResponse(event.appKey!!, message)
                             }
                         }
                         timer.schedule(timerTask, 2000, 2000)
@@ -135,7 +141,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
         }
     }
 
-    override fun onEvent(event: BotEvent) =
+    fun onEvent(event: BotEvent) =
         when (event.type) {
 
             BotEvent.Type.Requirements -> {
@@ -150,6 +156,8 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
             BotEvent.Type.SessionEnded -> sendEvent(BotEvent(BotEvent.Type.SessionEnded))
 
             BotEvent.Type.Message -> onMessageEvent(event)
+
+            BotEvent.Type.TextToSpeech -> sendResponse(event.appKey!!, event.message!!.response(event.message!!.items), true)
 
             BotEvent.Type.InputAudioStreamOpen -> {
                 close(false)
@@ -181,8 +189,16 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
         timer.cancel()
     }
 
+    override fun open() {
+        // nothing to do (already open)
+    }
+
     private fun close(wasCancelled: Boolean) {
         this.inputAudioStreamCancelled = wasCancelled
+        close()
+    }
+
+    override fun close() {
         sttStream?.close()
         sttStream = null
         sttService?.close()
@@ -196,16 +212,16 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
         remote.sendString(objectMapper.writeValueAsString(event))
     }
 
-    fun sendBinaryData(data: ByteArray) {
-        logger.info("sendBinaryData(data = ByteArray(${data.size}))")
+    override fun sendBinaryData(data: ByteArray, count: Int?) {
+        logger.info("sendBinaryData(data[${data.size}])")
         remote.sendBytes(ByteBuffer.wrap(data))
     }
 
     @Throws(IOException::class)
-    internal fun sendMessage(appKey: String, message: Message) {
+    internal fun sendResponse(appKey: String, response: Message, ttsOnly: Boolean = false) {
         val contract = dataService.getContract(appKey)
-        message.expectedPhrases = null
-        for (item in message.items) {
+        response.expectedPhrases = null
+        for (item in response.items) {
             if (item.text.isNullOrBlank()) {
                 logger.debug("item.text.isNullOrBlank() == true")
             } else {
@@ -232,7 +248,8 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                 }
             }
         }
-        sendEvent(BotEvent(BotEvent.Type.Message, message))
+        if (!ttsOnly)
+            sendEvent(BotEvent(BotEvent.Type.Message, response))
     }
 
 }

@@ -119,7 +119,7 @@ class DataService {
      * Saves file to database cache (e.g. STT audio) for future usage.
      */
     fun addCacheItemWithFile(id: String, itemType: String, fileType: String, data: ByteArray, ttsRequest: TtsRequest? = null): CacheItem {
-        logger.info("addFileToCache(id = $id, itemType = $itemType, fileType = $fileType, data = ByteArray(${data.size}))")
+        logger.info("addFileToCache(id = $id, itemType = $itemType, fileType = $fileType, data[${data.size}])")
         val fileId = addResourceFile(fileType, ".cache/${itemType}/${id}.mp3", ByteArrayInputStream(data)) //TODO fileType > .ext
         val cacheItem = CacheItem(id, fileId, fileSize = data.size, type = itemType, ttsRequest = ttsRequest)
         saveCacheItem(cacheItem)
