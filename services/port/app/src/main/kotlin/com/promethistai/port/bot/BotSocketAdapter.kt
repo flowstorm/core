@@ -36,6 +36,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                     }
                     sendEvent(BotEvent(BotEvent.Type.Recognized, Message(items = mutableListOf(Message.Item(text = transcript)))))
                     onMessageEvent(event.apply {
+                        this.message!!.extensions["portResponseTime"] = System.currentTimeMillis()
                         this.message!!.items = mutableListOf(Message.Item(text = transcript, confidence = confidence.toDouble()))
                     })
                 }
@@ -77,7 +78,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
     private val sttBuffer = ByteBuffer.allocate(1024 * 1024 * 32) // 32M limit (cca 5min @ 44.1kHz/16bit/stereo?)
 
     override fun onWebSocketBinary(payload: ByteArray, offset: Int, len: Int) {
-        logger.info("onWebSocketBinary(payload[${payload.size}], offset = $offset, len = $len)")
+        logger.debug("onWebSocketBinary(payload[${payload.size}], offset = $offset, len = $len)")
         super.onWebSocketBinary(payload, offset, len)
         sttBuffer.put(payload)
         sttStream?.write(payload, offset, len)
@@ -87,11 +88,12 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
      * Determine if the response from botService will be followed by waiting for user input or another message will be sent to botService
      */
     fun onMessageEvent(event: BotEvent) {
+        event.message!!.extensions["portResponseTime"] = System.currentTimeMillis()
         val response = botService.message(event.appKey!!, event.message!!)
         if (response != null) {
             expectedPhrases = response.expectedPhrases?: listOf()
             if (response.sessionEnded) {
-                sendMessage(event.appKey!!, response)
+                sendResponse(event.appKey!!, response)
                 sendEvent(BotEvent(BotEvent.Type.SessionEnded))
                 close(false)
             }
@@ -249,8 +251,12 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                 }
             }
         }
-        if (!ttsOnly)
+        if (!ttsOnly) {
+            if (response.extensions.containsKey("portResponseTime"))
+                response.extensions["portResponseTime"] =
+                    System.currentTimeMillis() - response.extensions["portResponseTime"] as Long
             sendEvent(BotEvent(BotEvent.Type.Message, response))
+        }
     }
 
 }

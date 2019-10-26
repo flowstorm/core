@@ -41,7 +41,7 @@ class BotSelectorService : BotService {
         val currentTime = System.currentTimeMillis()
         val response = botService.message(appKey, message)
         if (response != null)
-            response!!.processTime = System.currentTimeMillis() - currentTime
+            response!!.extensions["serviceResponseTime"] = System.currentTimeMillis() - currentTime
 
         logger.info("message < $response")
 
