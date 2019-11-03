@@ -11,54 +11,26 @@
         <artifactId>common-java</artifactId>
         <version>1.0.5-SNAPSHOT</version>
     </parent>
-    <artifactId>common-app</artifactId>
+    <artifactId>common-client</artifactId>
     <version>${project.parent.version}</version>
-    <name>Promethist Common App</name>
-
-    <properties>
-        <jetty.version>9.4.18.v20190429</jetty.version>
-    </properties>
+    <name>Promethist Common Client</name>
 
     <dependencies>
         <dependency>
             <groupId>com.promethistai.common</groupId>
-            <artifactId>common-client</artifactId>
+            <artifactId>common-lib</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.glassfish.jersey.core</groupId>
-            <artifactId>jersey-server</artifactId>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-json-jackson</artifactId>
             <version>${jersey.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.glassfish.jersey.containers</groupId>
-            <artifactId>jersey-container-netty-http</artifactId>
+            <groupId>org.glassfish.jersey.ext</groupId>
+            <artifactId>jersey-proxy-client</artifactId>
             <version>${jersey.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.jersey.containers</groupId>
-            <artifactId>jersey-container-servlet-core</artifactId>
-            <version>${jersey.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty.websocket</groupId>
-            <artifactId>websocket-servlet</artifactId>
-            <version>${jetty.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-server</artifactId>
-            <version>${jetty.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-servlet</artifactId>
-            <version>${jetty.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.jersey.inject</groupId>
-            <artifactId>jersey-hk2</artifactId>
-            <version>${jersey.version}</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 

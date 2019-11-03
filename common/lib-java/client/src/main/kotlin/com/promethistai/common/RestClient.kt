@@ -3,7 +3,6 @@ package com.promethistai.common
 import org.glassfish.jersey.client.proxy.WebResourceFactory
 import org.glassfish.jersey.jackson.JacksonFeature
 import java.io.OutputStreamWriter
-import java.io.Serializable
 import java.net.URL
 import javax.net.ssl.HttpsURLConnection
 import javax.ws.rs.client.ClientBuilder
@@ -35,15 +34,5 @@ object RestClient {
         conn.inputStream.use {
             return mapper.readValue(it, responseType)
         }
-    }
-
-    @JvmStatic
-    fun main(args: Array<String>) {
-        val res = call(
-                URL("https://datastore.develop.promethist.ai/port/contract?key=AIzaSyDpYmTgXGmZY-vWO6ryOcSQ5YZhBsu6NWc"),
-                List::class.java,
-                "PUT",
-                mapOf<String, Serializable>("key" to "AIzaSyDgHsjHyK4cS11nEUJuRGeVUEDITi6OtZA"))
-        println(res)
     }
 }

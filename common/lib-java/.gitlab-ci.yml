@@ -5,7 +5,7 @@ build release:
     - tags
   script:
     - mvn versions:set -DnewVersion=$CI_COMMIT_REF_NAME
-    - mvn deploy
+    - mvn -B deploy
 
 build snapshot:
   stage: deploy
@@ -13,4 +13,4 @@ build snapshot:
   only:
     - develop
   script:
-    - mvn deploy
+    - mvn -B deploy
