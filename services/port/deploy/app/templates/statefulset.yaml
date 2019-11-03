@@ -18,6 +18,9 @@ spec:
         - name: app
           image: {{ .Values.app.image.name }}:{{ .Values.app.image.tag }}
           imagePullPolicy: {{ .Values.imagePullPolicy }}
+          env:
+            - name: JAVA_OPTIONS
+              value: "-Xmx{{ .Values.app.mem }}m"
           ports:
             - containerPort: {{ .Values.app.port }}
               name: http-app
