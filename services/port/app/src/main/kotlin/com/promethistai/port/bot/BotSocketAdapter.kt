@@ -9,7 +9,7 @@ import com.promethistai.port.model.Message
 import com.promethistai.port.stt.*
 import com.promethistai.port.tts.TtsConfig
 import com.promethistai.port.tts.TtsRequest
-import com.promethistai.util.Converter
+import com.promethistai.util.DataConverter
 import org.eclipse.jetty.websocket.api.WebSocketAdapter
 import org.slf4j.LoggerFactory
 import java.io.IOException
@@ -30,7 +30,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                         sttBuffer.get(pcmData, 0, pcmData.size)
                         thread(start = true) {
                             //conversion of PCM to WAV
-                            val wavData = Converter.pcmToWav(pcmData)
+                            val wavData = DataConverter.pcmToWav(pcmData)
                             dataService.addCacheItemWithFile(event.message!!._id!!, "stt", "", wavData)
                         }
                     }
