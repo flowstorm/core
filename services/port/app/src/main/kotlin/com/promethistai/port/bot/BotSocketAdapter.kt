@@ -5,7 +5,6 @@ import ai.promethist.bot.BotEvent
 import ai.promethist.bot.BotSocket
 import com.promethistai.common.ObjectUtil
 import com.promethistai.port.DataService
-import com.promethistai.port.SlackService
 import com.promethistai.port.model.Message
 import com.promethistai.port.stt.*
 import com.promethistai.port.tts.TtsConfig
@@ -56,21 +55,6 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
         }
     }
 
-    inner class Context(val event: BotEvent) {
-
-        val timerTask = object : TimerTask() {
-            override fun run() {
-                val messages = dataService.popMessages(event.appKey!!, event.message!!.sender!!, 1)
-                for (message in messages)
-                    sendResponse(event.appKey!!, message)
-            }
-        }
-
-        init {
-            timer.schedule(timerTask, 2000, 2000)
-        }
-    }
-
     override var state = BotSocket.State.Open
     override var listener: BotSocket.Listener? = null
 
@@ -82,9 +66,6 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
     @Inject
     lateinit var dataService: DataService
 
-    @Inject
-    lateinit var slackService: SlackService
-
     private val objectMapper = ObjectUtil.defaultMapper
     private var sttService: SttService? = null
     private var sttStream: SttStream? = null
@@ -93,17 +74,8 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
     private var speechProvider: String = "google"
     private var expectedPhrases: List<Message.ExpectedPhrase> = listOf()
     private val timer: Timer = Timer()
-    private val contexts = mutableMapOf<String, Context>()
+    private val timerTasks = mutableMapOf<String, TimerTask>()
     private val sttBuffer = ByteBuffer.allocate(1024 * 1024 * 32) // 32M limit (cca 5min @ 44.1kHz/16bit/stereo?)
-
-    fun getContext(event: BotEvent) {
-        //TODO persist in mongo
-        val contextKey = "${event.appKey}/${event.message!!.sender}"
-        if (!contexts.containsKey(contextKey)) {
-            val context = Context(event)
-            contexts.put(contextKey, context)
-        }
-    }
 
     override fun onWebSocketBinary(payload: ByteArray, offset: Int, len: Int) {
         logger.debug("onWebSocketBinary(payload[${payload.size}], offset = $offset, len = $len)")
@@ -116,7 +88,6 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
      * Determine if the response from botService will be followed by waiting for user input or another message will be sent to botService
      */
     fun onMessageEvent(event: BotEvent) {
-        slackService.sendMessage(event.message!!)
         event.message!!.extensions["portResponseTime"] = System.currentTimeMillis()
         val response = botService.message(event.appKey!!, event.message!!)
         if (response != null) {
@@ -151,7 +122,19 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                 }
 
                 if (event.appKey != null && event.message!!.sender != null) {
-                    getContext(event)
+
+                    val timerTaskKey = "${event.appKey}/${event.message!!.sender}"
+                    if (!timerTasks.containsKey(timerTaskKey)) {
+                        val timerTask = object : TimerTask() {
+                            override fun run() {
+                                val messages = dataService.popMessages(event.appKey!!, event.message!!.sender!!, 1)
+                                for (message in messages)
+                                    sendResponse(event.appKey!!, message)
+                            }
+                        }
+                        timer.schedule(timerTask, 2000, 2000)
+                        timerTasks.put(timerTaskKey, timerTask)
+                    }
                 }
             }
             onEvent(event)
@@ -239,7 +222,6 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
 
     @Throws(IOException::class)
     internal fun sendResponse(appKey: String, response: Message, ttsOnly: Boolean = false) {
-        slackService.sendMessage(response)
         val contract = dataService.getContract(appKey)
         response.expectedPhrases = null
         for (item in response.items) {
