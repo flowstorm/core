@@ -26,9 +26,9 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
         override fun onResponse(transcript: String, confidence: Float, final: Boolean) {
             try {
                 if (final && !inputAudioStreamCancelled) {
-                    if ((event.appKey != null) && dataService.getContract(event.appKey!!).sttAudioSave) {
-                        val pcmData = ByteArray(sttBuffer.position())
-                        sttBuffer.get(pcmData, 0, pcmData.size)
+                    if (sttBuffer != null) {
+                        val pcmData = ByteArray(sttBuffer!!.position())
+                        sttBuffer!!.get(pcmData, 0, pcmData.size)
                         thread(start = true) {
                             //conversion of PCM to WAV
                             val wavData = DataConverter.pcmToWav(pcmData)
@@ -94,7 +94,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
     private var expectedPhrases: List<Message.ExpectedPhrase> = listOf()
     private val timer: Timer = Timer()
     private val contexts = mutableMapOf<String, Context>()
-    private val sttBuffer = ByteBuffer.allocate(1024 * 1024 * 32) // 32M limit (cca 5min @ 44.1kHz/16bit/stereo?)
+    private var sttBuffer: ByteBuffer? = null
 
     fun getContext(event: BotEvent) {
         //TODO persist in mongo
@@ -108,7 +108,8 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
     override fun onWebSocketBinary(payload: ByteArray, offset: Int, len: Int) {
         logger.debug("onWebSocketBinary(payload[${payload.size}], offset = $offset, len = $len)")
         super.onWebSocketBinary(payload, offset, len)
-        sttBuffer.put(payload)
+        if (sttBuffer != null)
+            sttBuffer!!.put(payload)
         sttStream?.write(payload, offset, len)
     }
 
@@ -166,6 +167,8 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
 
             BotEvent.Type.Requirements -> {
                 clientRequirements = event.requirements?:BotClientRequirements()
+                if (dataService.getContract(event.appKey!!).sttAudioSave)
+                    sttBuffer = ByteBuffer.allocate(32000 * 300)
                 sendEvent(BotEvent(BotEvent.Type.Requirements, requirements = clientRequirements))
             }
 
@@ -185,7 +188,8 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                 val language = event.message?.language?.language?:contract.language
                 val sttConfig = SttConfig(language, clientRequirements.sttSampleRate)
                 sttService = SttServiceFactory.create(speechProvider, sttConfig, this.expectedPhrases, BotSttCallback(event))
-                sttBuffer.rewind()
+                if (sttBuffer != null)
+                    sttBuffer!!.rewind()
                 sttStream = sttService?.createStream()
             }
 

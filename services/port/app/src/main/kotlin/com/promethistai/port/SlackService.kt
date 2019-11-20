@@ -3,16 +3,11 @@ package com.promethistai.port
 import com.promethistai.common.AppConfig
 import com.promethistai.common.ObjectUtil
 import com.promethistai.port.model.Message
-import java.io.DataOutputStream
 import java.net.HttpURLConnection
 import java.net.URL
 import javax.inject.Inject
-import java.io.IOException
-import jdk.nashorn.internal.runtime.ScriptingFunctions.readLine
 import java.io.InputStreamReader
 import java.io.BufferedReader
-
-
 
 class SlackService {
 
