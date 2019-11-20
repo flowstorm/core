@@ -223,6 +223,8 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
     }
 
     override fun close() {
+        logger.info("close()")
+        sttBuffer = null
         sttStream?.close()
         sttStream = null
         sttService?.close()
