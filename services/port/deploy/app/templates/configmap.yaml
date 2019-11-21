@@ -14,6 +14,7 @@ data:
     app.image={{ .Values.app.image.name }}:{{ .Values.app.image.tag }}
     app.logging={{ .Values.app.logging }}
     app.tracing={{ .Values.app.tracing }}
+    slack.enable={{ .Values.slack.enable }}
     apiKey={{ .Values.apiKey }}
     database.url={{ .Values.database.url }}
     database.name={{ .Values.database.name }}
