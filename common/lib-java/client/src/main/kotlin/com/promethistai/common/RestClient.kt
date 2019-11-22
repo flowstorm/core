@@ -3,8 +3,8 @@ package com.promethistai.common
 import org.glassfish.jersey.client.proxy.WebResourceFactory
 import org.glassfish.jersey.jackson.JacksonFeature
 import java.io.OutputStreamWriter
+import java.net.HttpURLConnection
 import java.net.URL
-import javax.net.ssl.HttpsURLConnection
 import javax.ws.rs.client.ClientBuilder
 
 object RestClient {
@@ -20,7 +20,7 @@ object RestClient {
     }
 
     fun <T>call(url: URL, responseType: Class<T>, method: String = "GET", output: Any? = null): T {
-        val conn = url.openConnection() as HttpsURLConnection
+        val conn = url.openConnection() as HttpURLConnection
         conn.readTimeout = 10000
         conn.connectTimeout = 15000
         conn.requestMethod = method
