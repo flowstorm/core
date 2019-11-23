@@ -32,7 +32,7 @@ spec:
               subPath: app.properties
             - name: google-sa
               mountPath: /app/sa.key
-              subPath: json.key
+              subPath: key.json
           resources:
           {{- toYaml .Values.app.resources | nindent 12 }}
       imagePullSecrets:
