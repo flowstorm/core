@@ -21,6 +21,8 @@ app:
       memory: 512Mi
   logging: "FALSE"
   tracing: "OFF"
+slack:
+  enable: false
 database:
   url: "mongodb://localhost"
   name: "common"

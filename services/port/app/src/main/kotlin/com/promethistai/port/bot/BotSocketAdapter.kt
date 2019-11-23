@@ -5,6 +5,7 @@ import ai.promethist.bot.BotEvent
 import ai.promethist.bot.BotSocket
 import com.promethistai.common.ObjectUtil
 import com.promethistai.port.DataService
+import com.promethistai.port.SlackService
 import com.promethistai.port.model.Message
 import com.promethistai.port.stt.*
 import com.promethistai.port.tts.TtsConfig
@@ -25,9 +26,9 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
         override fun onResponse(transcript: String, confidence: Float, final: Boolean) {
             try {
                 if (final && !inputAudioStreamCancelled) {
-                    if ((event.appKey != null) && dataService.getContract(event.appKey!!).sttAudioSave) {
-                        val pcmData = ByteArray(sttBuffer.position())
-                        sttBuffer.get(pcmData, 0, pcmData.size)
+                    if (sttBuffer != null) {
+                        val pcmData = ByteArray(sttBuffer!!.position())
+                        sttBuffer!!.get(pcmData, 0, pcmData.size)
                         thread(start = true) {
                             //conversion of PCM to WAV
                             val wavData = DataConverter.pcmToWav(pcmData)
@@ -55,6 +56,21 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
         }
     }
 
+    inner class Context(val event: BotEvent) {
+
+        val timerTask = object : TimerTask() {
+            override fun run() {
+                val messages = dataService.popMessages(event.appKey!!, event.message!!.sender!!, 1)
+                for (message in messages)
+                    sendResponse(event.appKey!!, message)
+            }
+        }
+
+        init {
+            timer.schedule(timerTask, 2000, 2000)
+        }
+    }
+
     override var state = BotSocket.State.Open
     override var listener: BotSocket.Listener? = null
 
@@ -66,6 +82,9 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
     @Inject
     lateinit var dataService: DataService
 
+    @Inject
+    lateinit var slackService: SlackService
+
     private val objectMapper = ObjectUtil.defaultMapper
     private var sttService: SttService? = null
     private var sttStream: SttStream? = null
@@ -74,13 +93,23 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
     private var speechProvider: String = "google"
     private var expectedPhrases: List<Message.ExpectedPhrase> = listOf()
     private val timer: Timer = Timer()
-    private val timerTasks = mutableMapOf<String, TimerTask>()
-    private val sttBuffer = ByteBuffer.allocate(1024 * 1024 * 32) // 32M limit (cca 5min @ 44.1kHz/16bit/stereo?)
+    private val contexts = mutableMapOf<String, Context>()
+    private var sttBuffer: ByteBuffer? = null
+
+    fun getContext(event: BotEvent) {
+        //TODO persist in mongo
+        val contextKey = "${event.appKey}/${event.message!!.sender}"
+        if (!contexts.containsKey(contextKey)) {
+            val context = Context(event)
+            contexts.put(contextKey, context)
+        }
+    }
 
     override fun onWebSocketBinary(payload: ByteArray, offset: Int, len: Int) {
         logger.debug("onWebSocketBinary(payload[${payload.size}], offset = $offset, len = $len)")
         super.onWebSocketBinary(payload, offset, len)
-        sttBuffer.put(payload)
+        if (sttBuffer != null)
+            sttBuffer!!.put(payload)
         sttStream?.write(payload, offset, len)
     }
 
@@ -88,6 +117,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
      * Determine if the response from botService will be followed by waiting for user input or another message will be sent to botService
      */
     fun onMessageEvent(event: BotEvent) {
+        slackService.sendMessage(event.message!!)
         event.message!!.extensions["portResponseTime"] = System.currentTimeMillis()
         val response = botService.message(event.appKey!!, event.message!!)
         if (response != null) {
@@ -122,19 +152,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                 }
 
                 if (event.appKey != null && event.message!!.sender != null) {
-
-                    val timerTaskKey = "${event.appKey}/${event.message!!.sender}"
-                    if (!timerTasks.containsKey(timerTaskKey)) {
-                        val timerTask = object : TimerTask() {
-                            override fun run() {
-                                val messages = dataService.popMessages(event.appKey!!, event.message!!.sender!!, 1)
-                                for (message in messages)
-                                    sendResponse(event.appKey!!, message)
-                            }
-                        }
-                        timer.schedule(timerTask, 2000, 2000)
-                        timerTasks.put(timerTaskKey, timerTask)
-                    }
+                    getContext(event)
                 }
             }
             onEvent(event)
@@ -149,6 +167,8 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
 
             BotEvent.Type.Requirements -> {
                 clientRequirements = event.requirements?:BotClientRequirements()
+                if (dataService.getContract(event.appKey!!).sttAudioSave)
+                    sttBuffer = ByteBuffer.allocate(32000 * 300)
                 sendEvent(BotEvent(BotEvent.Type.Requirements, requirements = clientRequirements))
             }
 
@@ -168,7 +188,8 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                 val language = event.message?.language?.language?:contract.language
                 val sttConfig = SttConfig(language, clientRequirements.sttSampleRate)
                 sttService = SttServiceFactory.create(speechProvider, sttConfig, this.expectedPhrases, BotSttCallback(event))
-                sttBuffer.rewind()
+                if (sttBuffer != null)
+                    sttBuffer!!.rewind()
                 sttStream = sttService?.createStream()
             }
 
@@ -202,6 +223,8 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
     }
 
     override fun close() {
+        logger.info("close()")
+        sttBuffer = null
         sttStream?.close()
         sttStream = null
         sttService?.close()
@@ -222,6 +245,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
 
     @Throws(IOException::class)
     internal fun sendResponse(appKey: String, response: Message, ttsOnly: Boolean = false) {
+        slackService.sendMessage(response)
         val contract = dataService.getContract(appKey)
         response.expectedPhrases = null
         for (item in response.items) {
