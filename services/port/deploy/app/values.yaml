@@ -22,7 +22,7 @@ app:
   logging: "FALSE"
   tracing: "OFF"
 slack:
-  enable: false
+  enable: true
 database:
   url: "mongodb://localhost"
   name: "common"
