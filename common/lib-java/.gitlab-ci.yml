@@ -1,6 +1,6 @@
 build release:
   stage: deploy
-  image: registry.promethist.ai/common/common/builder
+  image: registry.promethist.ai/common/system/builder
   only:
     - tags
   script:
@@ -9,7 +9,7 @@ build release:
 
 build snapshot:
   stage: deploy
-  image: registry.promethist.ai/common/common/builder
+  image: registry.promethist.ai/common/system/builder
   only:
     - develop
   script:
