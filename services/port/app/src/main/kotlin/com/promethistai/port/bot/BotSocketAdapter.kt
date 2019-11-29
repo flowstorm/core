@@ -1,8 +1,8 @@
 package com.promethistai.port.bot
 
-import ai.promethist.bot.BotClientRequirements
-import ai.promethist.bot.BotEvent
-import ai.promethist.bot.BotSocket
+import ai.promethist.client.BotClientRequirements
+import ai.promethist.client.BotEvent
+import ai.promethist.client.BotSocket
 import com.promethistai.common.ObjectUtil
 import com.promethistai.port.DataService
 import com.promethistai.port.SlackService

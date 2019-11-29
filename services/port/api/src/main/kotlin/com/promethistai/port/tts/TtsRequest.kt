@@ -10,7 +10,8 @@ data class TtsRequest(
         override var voice: String? = null,
         override var speakingRate: Double = 1.0,
         override var pitch: Double = 0.0,
-        override var volumeGain: Double = 0.0) : TtsConfig() {
+        override var volumeGain: Double = 0.0,
+        override var sampleRate: Int = 16000) : TtsConfig() {
 
     fun set(config: TtsConfig): TtsRequest {
         language = config.language
