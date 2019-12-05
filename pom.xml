@@ -17,6 +17,7 @@
         <module>clients/common</module>
         <module>services/port</module>
         <module>services/admin</module>
+        <module>services/helena</module>
     </modules>
 
 </project>
