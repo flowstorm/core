@@ -72,7 +72,10 @@ class DataService {
         logger.debug("getContract(appKey = $appKey)")
 
         val col = database.getCollection("contract", Contract::class.java)
-        val contract = col.findOne { Contract::appKey eq appKey }
+        val contract = col.findOne {
+            Contract::appKey eq
+                if (appKey.contains(':')) appKey.substring(0, appKey.indexOf(':')) else appKey
+        }
 
         return if (contract == null)
             throw WebApplicationException("Port contract not found for app key $appKey", Response.Status.NOT_FOUND)

@@ -40,7 +40,7 @@ data class Message(
     var bot: String? = null,
 
     /**
-     * Application key. Must identify valid app contract.
+     * Application key. Must contain valid contractKey(:applicationId).
      */
     var appKey: String? = null,
 
