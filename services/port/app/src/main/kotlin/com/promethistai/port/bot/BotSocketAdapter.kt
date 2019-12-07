@@ -95,6 +95,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
     private val timer: Timer = Timer()
     private val contexts = mutableMapOf<String, Context>()
     private var sttBuffer: ByteBuffer? = null
+    private var language: Locale? = null
 
     fun getContext(event: BotEvent) {
         //TODO persist in mongo
@@ -162,7 +163,8 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
         }
     }
 
-    fun onEvent(event: BotEvent) =
+    fun onEvent(event: BotEvent) {
+        language = event.message?.language?:language
         when (event.type) {
 
             BotEvent.Type.Requirements -> {
@@ -185,7 +187,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
             BotEvent.Type.InputAudioStreamOpen -> {
                 close(false)
                 val contract = dataService.getContract(event.appKey!!)
-                val language = event.message?.language?.language?:contract.language
+                val language = language?.language?:contract.language
                 val sttConfig = SttConfig(language, clientRequirements.sttSampleRate)
                 sttService = SttServiceFactory.create(speechProvider, sttConfig, this.expectedPhrases, BotSttCallback(event))
                 if (sttBuffer != null)
@@ -199,7 +201,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
 
             else -> {}
         }
-
+    }
 
     override fun onWebSocketClose(statusCode: Int, reason: String?) {
         super.onWebSocketClose(statusCode, reason)
@@ -282,5 +284,4 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
             sendEvent(BotEvent(BotEvent.Type.Message, response))
         }
     }
-
 }
