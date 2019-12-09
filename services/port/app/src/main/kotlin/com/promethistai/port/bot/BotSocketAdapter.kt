@@ -261,7 +261,12 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                 } else {
                     ttsRequest.text = item.text
                 }
-                ttsRequest.set(item.ttsConfig ?: contract.ttsConfig ?: TtsConfig.DEFAULT_EN)
+                ttsRequest.set(item.ttsConfig ?: contract.ttsConfig ?: (
+                    if (contract.language != null)
+                        TtsConfig.defaults[contract.language]!!
+                    else
+                        TtsConfig.DEFAULT_EN)
+                )
                 val audio = dataService.getTtsAudio(
                         speechProvider,
                         ttsRequest,
