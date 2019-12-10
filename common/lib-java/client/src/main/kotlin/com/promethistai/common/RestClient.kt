@@ -19,7 +19,7 @@ object RestClient {
         return WebResourceFactory.newResource(iface, target)
     }
 
-    fun <T>call(url: URL, responseType: Class<T>, method: String = "GET", output: Any? = null): T {
+    fun <T>call(url: URL, responseType: Class<T>, method: String = "GET", headers: Map<String, String>?, output: Any? = null): T {
         val conn = url.openConnection() as HttpURLConnection
         conn.readTimeout = 10000
         conn.connectTimeout = 15000
@@ -27,6 +27,9 @@ object RestClient {
         conn.doInput = true
         conn.doOutput = (output != null)
         conn.setRequestProperty("Content-Type", "application/json")
+        if (headers != null)
+            for (header in headers.entries)
+                conn.setRequestProperty(header.key, header.value)
         conn.connect()
         if (output != null) OutputStreamWriter(conn.outputStream).use {
             mapper.writeValue(it, output)
