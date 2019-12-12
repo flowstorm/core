@@ -19,7 +19,7 @@ object RestClient {
         return WebResourceFactory.newResource(iface, target)
     }
 
-    fun <T>call(url: URL, responseType: Class<T>, method: String = "GET", headers: Map<String, String>?, output: Any? = null): T {
+    fun <T>call(url: URL, responseType: Class<T>, method: String = "GET", headers: Map<String, String>? = null, output: Any? = null): T {
         val conn = url.openConnection() as HttpURLConnection
         conn.readTimeout = 10000
         conn.connectTimeout = 15000
