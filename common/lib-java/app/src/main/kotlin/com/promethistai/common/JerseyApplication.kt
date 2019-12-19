@@ -8,10 +8,8 @@ import org.glassfish.jersey.server.spi.Container
 import org.glassfish.jersey.server.spi.ContainerLifecycleListener
 import java.util.logging.Level
 import java.util.logging.Logger
-import javax.ws.rs.ApplicationPath
 import javax.ws.rs.ext.ContextResolver
 
-@ApplicationPath("/")
 open class JerseyApplication : ResourceConfig() {
 
     lateinit var injectionManager: InjectionManager
