@@ -19,6 +19,13 @@
         <jetty.version>9.4.18.v20190429</jetty.version>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>com.promethistai.common</groupId>
@@ -59,6 +66,11 @@
             <groupId>org.glassfish.jersey.inject</groupId>
             <artifactId>jersey-hk2</artifactId>
             <version>${jersey.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.Commit451</groupId>
+            <artifactId>mailgun</artifactId>
+            <version>1.2.0</version>
         </dependency>
     </dependencies>
 
