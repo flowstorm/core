@@ -3,7 +3,7 @@ package com.promethistai.util
 import com.auth0.jwt.JWT
 import com.auth0.jwt.interfaces.DecodedJWT
 
-class JwtToken(private val decodedJWT: DecodedJWT) {
+class JwtToken(val decodedJWT: DecodedJWT) {
     companion object {
         fun createFromHeaderString(header: String): JwtToken {
             return JwtToken(JWT.decode(header.substring(7)))
