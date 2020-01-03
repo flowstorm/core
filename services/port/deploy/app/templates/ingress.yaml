@@ -16,9 +16,21 @@ spec:
   tls:
     - hosts:
         - {{ .Values.name }}{{ if ne .Values.namespace "default" }}.{{ .Values.namespace }}{{ end }}.promethist.ai
+        - {{ .Values.name }}{{ if ne .Values.namespace "default" }}.{{ .Values.namespace }}{{ end }}.promethistai.com
       secretName: {{ .Values.name }}-tls
   rules:
     - host: {{ .Values.name }}{{ if ne .Values.namespace "default" }}.{{ .Values.namespace }}{{ end }}.promethist.ai
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: {{ .Values.name }}
+              servicePort: {{ .Values.service.app.port }}
+          - path: /apidoc
+            backend:
+              serviceName: apidoc
+              servicePort: 80
+    - host: {{ .Values.name }}{{ if ne .Values.namespace "default" }}.{{ .Values.namespace }}{{ end }}.promethistai.com
       http:
         paths:
           - path: /
