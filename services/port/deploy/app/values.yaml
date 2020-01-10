@@ -12,7 +12,7 @@ service:
 app:
   port: 8080
   image:
-    name: registry.promethist.ai/channel/port
+    name: registry.promethist.ai/services/port
     tag: latest
   mem: 512
   resources:

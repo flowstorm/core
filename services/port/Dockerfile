@@ -9,11 +9,11 @@ WORKDIR /project
 COPY pom.xml .
 COPY api/pom.xml api/
 COPY app/pom.xml app/
-RUN mvn verify --fail-never
+RUN mvn -B verify --fail-never
 
 # build and package app
 COPY . .
-RUN mvn -Dapi.host=${API_HOST} -B clean package
+RUN mvn -B -Dapi.host=${API_HOST} clean package
 
 # second stage - build app runtime
 FROM jetty:9.4.18-jre8-alpine
