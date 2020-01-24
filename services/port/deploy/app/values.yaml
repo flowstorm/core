@@ -25,7 +25,7 @@ slack:
   enable: true
 database:
   url: "mongodb://localhost"
-  name: "common"
+  name: "port"
 git:
   ref: branch_or_tag
   commit: short_sha
