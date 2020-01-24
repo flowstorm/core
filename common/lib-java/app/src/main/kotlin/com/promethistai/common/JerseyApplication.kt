@@ -1,5 +1,6 @@
 package com.promethistai.common
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.glassfish.jersey.internal.inject.InjectionManager
 import org.glassfish.jersey.logging.LoggingFeature
 import org.glassfish.jersey.server.ResourceConfig
@@ -7,9 +8,8 @@ import org.glassfish.jersey.server.spi.Container
 import org.glassfish.jersey.server.spi.ContainerLifecycleListener
 import java.util.logging.Level
 import java.util.logging.Logger
-import javax.ws.rs.ApplicationPath
+import javax.ws.rs.ext.ContextResolver
 
-@ApplicationPath("/")
 open class JerseyApplication : ResourceConfig() {
 
     lateinit var injectionManager: InjectionManager
@@ -32,6 +32,9 @@ open class JerseyApplication : ResourceConfig() {
             override fun onShutdown(container: Container) {
             }
         })
+
+        register(ContextResolver<ObjectMapper> { ObjectUtil.defaultMapper })
+
         if ("TRUE" == AppConfig.instance["app.logging"])
             register(LoggingFeature(Logger.getLogger(LoggingFeature.DEFAULT_LOGGER_NAME), Level.INFO, LoggingFeature.Verbosity.PAYLOAD_ANY, 10000))
 
@@ -48,13 +51,7 @@ open class JerseyApplication : ResourceConfig() {
 
         @JvmStatic
         fun main(args: Array<String>) {
-            val appClassName = if (args.isEmpty() || "default" == args[0]) JerseyApplication::class.java.name else args[0]
-            val serverType = if (args.size > 1) args[1] else "jetty"
-            val resourceConfig = Class.forName(appClassName).newInstance() as ResourceConfig
-            when (serverType) {
-                "netty" -> NettyServer(resourceConfig)
-                else -> JettyServer(resourceConfig)
-            }
+            JerseyMain.main(args)
         }
     }
 }

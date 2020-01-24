@@ -1,7 +1,7 @@
 package com.promethistai.common
 
+import org.slf4j.LoggerFactory
 import java.io.FileInputStream
-import java.io.IOException
 import java.io.Serializable
 import java.lang.NullPointerException
 import java.util.*
@@ -15,6 +15,7 @@ import java.util.*
 class AppConfig: Serializable, Cloneable {
 
     private val properties: Properties = Properties()
+    private var logger = LoggerFactory.getLogger(AppConfig::class.qualifiedName)
 
     init {
         try {
@@ -23,8 +24,8 @@ class AppConfig: Serializable, Cloneable {
                 properties.load(stream)
             val file = (System.getProperty("app.config")?:".") + "/$FILENAME"
             properties.load(FileInputStream(file))
-        } catch (e: IOException) {
-            e.printStackTrace()
+        } catch (e: Throwable) {
+            logger.warn(e.message)
         }
     }
 
@@ -49,6 +50,8 @@ class AppConfig: Serializable, Cloneable {
 
     companion object {
         const val FILENAME = "app.properties"
+
+        @JvmStatic
         val instance = AppConfig()
 
         @JvmStatic
