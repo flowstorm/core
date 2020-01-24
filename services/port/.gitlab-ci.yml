@@ -111,6 +111,6 @@ deploy app production:
       --set git.commit=$CI_COMMIT_SHORT_SHA
       --set app.image.tag=$CI_COMMIT_REF_NAME
       --set database.url=$MONGODB_URL
-      --set database.name=port-default
+      --set database.name=$CI_PROJECT_NAME-default
       $CI_PROJECT_NAME
       deploy/app
