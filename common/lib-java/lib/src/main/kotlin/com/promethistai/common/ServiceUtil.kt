@@ -2,10 +2,9 @@ package com.promethistai.common
 
 object ServiceUtil {
 
-    val servicePorts = mapOf<String, Int>(
+    val servicePorts = mapOf(
             "port" to 8080,
-            "brainquist" to 8089,
-            "brainquist-server" to 8089, //TODO remove - just for backward compatibility
+            "admin" to 8089,
             "illusionist" to 8090,
             "helena" to 8091,
             "editor" to 8092
@@ -21,10 +20,10 @@ object ServiceUtil {
                     (if (AppConfig.instance["namespace"] != "default")
                         "." + AppConfig.instance["namespace"]
                     else
-                        "") + ".promethist.ai"
+                        "") + ".promethistai.com"
             RunMode.detect ->
                 getEndpointUrl(serviceName, RunMode.valueOf(
-                        System.getenv("RUN_MODE") ?: AppConfig.instance.get("runmode", "local")))
+                        System.getenv("RUN_MODE") ?: AppConfig.instance.get("runmode", "dist")))
         }
 
 }
