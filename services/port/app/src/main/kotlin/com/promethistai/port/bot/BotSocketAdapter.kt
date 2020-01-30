@@ -35,8 +35,9 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                             dataService.addCacheItemWithFile(event.message!!._id!!, "stt", "", wavData)
                         }
                     }
-                    sendEvent(BotEvent(BotEvent.Type.Recognized, Message(items = mutableListOf(Message.Item(text = transcript)))))
+                    sendEvent(BotEvent(BotEvent.Type.Recognized, Message(language = language, items = mutableListOf(Message.Item(text = transcript)))))
                     onMessageEvent(event.apply {
+                        this.message!!.language = language
                         this.message!!.extensions["portResponseTime"] = System.currentTimeMillis()
                         this.message!!.items = mutableListOf(Message.Item(text = transcript, confidence = confidence.toDouble()))
                     })
