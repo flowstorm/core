@@ -120,9 +120,9 @@ data class Message(
         val extensions: PropertyMap = PropertyMap(),
 
         /**
-         * Tts configuration to be able change speed/pitch/volume for each Item (priority: item > contract > default)
+         * TTS voice
          */
-        var ttsConfig: TtsConfig? = null
+        var ttsVoice: TtsConfig.Voice? = null
     )
 
     fun response(items: MutableList<Item>): Message {

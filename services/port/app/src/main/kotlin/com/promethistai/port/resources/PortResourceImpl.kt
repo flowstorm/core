@@ -4,10 +4,7 @@ import com.promethistai.port.DataService
 import com.promethistai.port.bot.BotService
 import com.promethistai.port.model.Contract
 import com.promethistai.port.model.Message
-import com.promethistai.port.tts.TtsConfig
 import com.promethistai.port.tts.TtsRequest
-import com.promethistai.port.tts.TtsServiceFactory
-import com.promethistai.port.tts.TtsVoice
 import org.bson.types.ObjectId
 import org.slf4j.LoggerFactory
 import javax.inject.Inject
@@ -71,18 +68,8 @@ class PortResourceImpl : PortResource {
                 .build()
     }
 
-    override fun tts(appKey: String, provider: String, ttsConfig: TtsConfig?, speechText: String): ByteArray {
+    override fun tts(appKey: String, ttsRequest: TtsRequest): ByteArray {
         val contract = getContract(appKey)
-        val ttsRequest = TtsRequest(text = speechText)
-        ttsRequest.set(ttsConfig?:contract.ttsConfig?:TtsConfig.DEFAULT_EN)
-        logger.info("tts(provider = $provider, ttsRequest = $ttsRequest)")
-        return dataService.getTtsAudio(provider, ttsRequest, true, true).speak().data!!
+        return dataService.getTtsAudio(ttsRequest, true, true).speak().data!!
     }
-
-    override fun ttsVoices(provider: String): List<TtsVoice> {
-        if (logger.isInfoEnabled)
-            logger.info("ttsVoices(provider = $provider)")
-        return TtsServiceFactory.create(provider).voices
-    }
-
 }

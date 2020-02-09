@@ -3,10 +3,8 @@ package com.promethistai.port.resources
 import com.promethistai.port.bot.BotService
 import com.promethistai.port.model.Contract
 import com.promethistai.port.model.Message
-import com.promethistai.port.tts.TtsConfig
-import com.promethistai.port.tts.TtsVoice
+import com.promethistai.port.tts.TtsRequest
 import io.swagger.annotations.Api
-
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
 import io.swagger.annotations.Authorization
@@ -54,15 +52,5 @@ interface PortResource : BotService {
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     @ApiOperation(value = "Perform TTS")
     fun tts(@ApiParam("App key", required = true) @QueryParam("key") appKey: String,
-            @QueryParam("provider") @DefaultValue("google") provider: String,
-            @ApiParam("TTS config") ttsConfig: TtsConfig?,
-            @QueryParam("speechText") speechText: String): ByteArray
-
-    @GET
-    @Path("tts/voices")
-    @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "Get list of available voices for TTS")
-    fun ttsVoices(@QueryParam("provider") @DefaultValue("google") provider: String): List<TtsVoice>
-
-
+            @ApiParam("TTS request") ttsRequest: TtsRequest): ByteArray
 }
