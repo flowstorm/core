@@ -1,7 +1,8 @@
 package com.promethistai.port.tts
 
 import com.amazonaws.ClientConfiguration
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain
+import com.amazonaws.auth.AWSStaticCredentialsProvider
+import com.amazonaws.auth.BasicAWSCredentials
 import com.amazonaws.services.polly.AmazonPollyClient
 import com.amazonaws.services.polly.model.OutputFormat
 import com.amazonaws.services.polly.model.SynthesizeSpeechRequest
@@ -11,7 +12,11 @@ import java.io.ByteArrayOutputStream
 object AmazonTtsService: TtsService {
 
     //val region = Region.getRegion(Regions.EU_WEST_1)
-    private val client = AmazonPollyClient(DefaultAWSCredentialsProviderChain(), ClientConfiguration())
+    private val client = AmazonPollyClient(
+            /*DefaultAWSCredentialsProviderChain()*/
+            //TODO set access + secret key from from environment
+            AWSStaticCredentialsProvider(BasicAWSCredentials("AKIAJF7AJY2YPGYWPRCQ", "oHb3U5ikYoZDsFgAUAbF1L1oAa8t/5XDWNr7KXDN")),
+            ClientConfiguration())
 
     override fun speak(ttsRequest: TtsRequest): ByteArray {
         val ttsConfig = TtsConfig.forVoice(ttsRequest.voice)

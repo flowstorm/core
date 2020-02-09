@@ -31,6 +31,7 @@ object MicrosoftTtsService: TtsService {
     }
 
     fun createSynthesizer(voiceName: String): SpeechSynthesizer {
+        //TODO set subcription key + region from environment
         val config: SpeechConfig = SpeechConfig.fromSubscription("3e54aecb6d564750bce2c5536c86727e", "westeurope")
         config.setSpeechSynthesisOutputFormat(SpeechSynthesisOutputFormat.Audio16Khz64KBitRateMonoMp3)
         config.speechSynthesisVoiceName = voiceName
