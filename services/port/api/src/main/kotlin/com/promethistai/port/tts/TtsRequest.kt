@@ -2,7 +2,7 @@ package com.promethistai.port.tts
 
 import java.security.MessageDigest
 
-data class TtsRequest(val voice: TtsConfig.Voice, var text: String, var isSsml: Boolean = false, val sampleRate: Int = 16000) {
+data class TtsRequest(val voice: String, var text: String, var isSsml: Boolean = false, val sampleRate: Int = 16000) {
 
     fun code(): String {
         val input = text + isSsml + voice

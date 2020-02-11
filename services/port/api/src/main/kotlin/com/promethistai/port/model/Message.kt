@@ -122,7 +122,7 @@ data class Message(
         /**
          * TTS voice
          */
-        var ttsVoice: TtsConfig.Voice? = null
+        var ttsVoice: String? = null
     )
 
     fun response(items: MutableList<Item>): Message {

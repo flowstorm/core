@@ -18,7 +18,7 @@ object TtsServiceFactory {
 
     @JvmStatic
     fun main(args: Array<String>) {
-        val speech = speak(TtsRequest(TtsConfig.Voice.Gabriela,"Třistatřicetři stříbrných stříkaček stříkalo přes třistatřicetři stříbrných střech."))
+        val speech = speak(TtsRequest("Gabriela","Třistatřicetři stříbrných stříkaček stříkalo přes třistatřicetři stříbrných střech."))
         File("local/speech.mp3").writeBytes(speech)
     }
 
