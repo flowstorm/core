@@ -1,10 +1,6 @@
 package com.promethistai.port.tts
 
-import java.io.Closeable
-
-interface TtsService: Closeable {
-
-    val voices: List<TtsVoice>
+interface TtsService {
 
     fun speak(ttsRequest: TtsRequest): ByteArray
 }

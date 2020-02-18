@@ -5,7 +5,7 @@ import com.promethistai.port.stt.SttWebSocket
 import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory
 import javax.servlet.annotation.WebServlet
 
-@WebServlet(name = "STT WebSocket Servlet", urlPatterns = ["/stream/stt","/audio/input/stream/"/*bronzerabbit compatibility*/])
+@WebServlet(name = "STT WebSocket Servlet", urlPatterns = ["/stream/stt","/input/stream/"/*bronzerabbit compatibility*/])
 class SttServlet : InjectableWebSocketServlet<SttWebSocket>() {
 
     override fun configure(factory: WebSocketServletFactory) {

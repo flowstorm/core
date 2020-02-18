@@ -25,6 +25,9 @@ import kotlin.concurrent.thread
 
 class DataService {
 
+    @Inject
+    lateinit var config: AppConfig
+
     inner class ResourceFile(val objectId: ObjectId?, val type: String, val name: String?) {
 
         val bucket = GridFSBuckets.create(database)
@@ -39,11 +42,11 @@ class DataService {
 
     data class CacheItem(val _id: String, var fileId: ObjectId, var lastModified: Date = Date(), var fileSize: Int? = null, var counter: Long = 0, var type: String = "default", var ttsRequest: TtsRequest? = null)
 
-    inner class TtsAudio(val speechProvider: String, val ttsRequest: TtsRequest) {
+    inner class TtsAudio(val ttsRequest: TtsRequest) {
 
         // zamerne v code zatim zanedbavam speech providera
         val code = ttsRequest.code()
-        var type = "audio/mp3"
+        var type = "/mp3"
         var data: ByteArray? = null
         var fileId: ObjectId? = null
 
@@ -52,7 +55,7 @@ class DataService {
          */
         fun speak(): TtsAudio {
             if (data == null)
-                data = TtsServiceFactory.create(speechProvider).use { it.speak(ttsRequest) }
+                data = TtsServiceFactory.speak(ttsRequest)
             return this
         }
     }
@@ -102,21 +105,28 @@ class DataService {
         ResourceFile(null, type, name).upload(input)
 
     fun getCacheItem(id: String): CacheItem? {
-        try {
-            return database.getCollection("cache", CacheItem::class.java).findOneById(id)
-        } catch (e: Throwable) {
-            e.printStackTrace()
+        if (config.get("data.caching", "false") != "false") {
+            try {
+                return database.getCollection("cache", CacheItem::class.java).findOneById(id)
+            } catch (e: Throwable) {
+                e.printStackTrace()
+                return null
+            }
+        } else {
             return null
         }
     }
 
-    fun saveCacheItem(item: CacheItem) =
+    fun saveCacheItem(item: CacheItem) {
+        if (config.get("data.caching", "false") != "false") {
             database.getCollection("cache", CacheItem::class.java).save(
-                item.apply {
-                    counter++
-                    lastModified = Date()
-                }
+                    item.apply {
+                        counter++
+                        lastModified = Date()
+                    }
             )
+        }
+    }
 
     /**
      * Saves file to database cache (e.g. STT audio) for future usage.
@@ -133,11 +143,11 @@ class DataService {
      * This creates and stores or loads existing audio from database cache for the specified TTS request.
      */
     @Throws(IOException::class)
-    internal fun getTtsAudio(speechProvider: String, ttsRequest: TtsRequest, asyncSave: Boolean, cacheDownload: Boolean): TtsAudio {
-        val audio = TtsAudio(speechProvider, ttsRequest)
+    internal fun getTtsAudio(ttsRequest: TtsRequest, asyncSave: Boolean, cacheDownload: Boolean): TtsAudio {
+        val audio = TtsAudio(ttsRequest)
         var cacheItem = getCacheItem(audio.code)
         if (cacheItem == null) {
-            logger.info("getTtsAudio[cache MISS](speechProvider = $speechProvider, ttsRequest = $ttsRequest)")
+            logger.info("getTtsAudio[cache MISS](ttsRequest = $ttsRequest)")
             audio.speak() // perform speach synthesis
             logger.info("getTtsAudio[speak DONE]")
             if (asyncSave) {

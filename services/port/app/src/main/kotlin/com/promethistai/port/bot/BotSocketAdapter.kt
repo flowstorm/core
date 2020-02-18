@@ -35,8 +35,9 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                             dataService.addCacheItemWithFile(event.message!!._id!!, "stt", "", wavData)
                         }
                     }
-                    sendEvent(BotEvent(BotEvent.Type.Recognized, Message(items = mutableListOf(Message.Item(text = transcript)))))
+                    sendEvent(BotEvent(BotEvent.Type.Recognized, Message(language = language, items = mutableListOf(Message.Item(text = transcript)))))
                     onMessageEvent(event.apply {
+                        this.message!!.language = language
                         this.message!!.extensions["portResponseTime"] = System.currentTimeMillis()
                         this.message!!.items = mutableListOf(Message.Item(text = transcript, confidence = confidence.toDouble()))
                     })
@@ -254,21 +255,13 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
             if (item.text.isNullOrBlank()) {
                 logger.debug("item.text.isNullOrBlank() == true")
             } else {
-                val ttsRequest = TtsRequest()
-                if (item.ssml != null) {
-                    ttsRequest.text = item.ssml
-                    ttsRequest.isSsml = true
-                } else {
-                    ttsRequest.text = item.text
-                }
-                ttsRequest.set(item.ttsConfig ?: contract.ttsConfig ?: (
-                    if (contract.language != null)
-                        TtsConfig.defaults[contract.language]!!
-                    else
-                        TtsConfig.DEFAULT_EN)
+                val ttsRequest = TtsRequest(
+                        clientRequirements.ttsVoice?:item.ttsVoice?:TtsConfig.defaultVoice(contract.language),
+                        (if (item.ssml != null) item.ssml else item.text)?:"",
+                        item.ssml != null
                 )
+
                 val audio = dataService.getTtsAudio(
-                        speechProvider,
                         ttsRequest,
                         clientRequirements.tts != BotClientRequirements.TtsType.RequiredLinks,
                         clientRequirements.tts == BotClientRequirements.TtsType.RequiredStreaming
