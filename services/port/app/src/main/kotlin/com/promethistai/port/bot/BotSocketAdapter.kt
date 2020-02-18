@@ -256,7 +256,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                 logger.debug("item.text.isNullOrBlank() == true")
             } else {
                 val ttsRequest = TtsRequest(
-                        item.ttsVoice?:TtsConfig.defaultVoice(contract.language),
+                        clientRequirements.ttsVoice?:item.ttsVoice?:TtsConfig.defaultVoice(contract.language),
                         (if (item.ssml != null) item.ssml else item.text)?:"",
                         item.ssml != null
                 )
