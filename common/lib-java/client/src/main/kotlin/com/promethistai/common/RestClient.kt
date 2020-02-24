@@ -5,6 +5,7 @@ import org.glassfish.jersey.jackson.JacksonFeature
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
+import javax.ws.rs.WebApplicationException
 import javax.ws.rs.client.ClientBuilder
 
 object RestClient {
@@ -34,6 +35,8 @@ object RestClient {
         if (output != null) OutputStreamWriter(conn.outputStream).use {
             mapper.writeValue(it, output)
         }
+        if (conn.responseCode > 399)
+            throw WebApplicationException(conn.responseMessage, conn.responseCode)
         conn.inputStream.use {
             return mapper.readValue(it, responseType)
         }
