@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.promethistai.common</groupId>
         <artifactId>common-java</artifactId>
-        <version>1.0.5-SNAPSHOT</version>
+        <version>1.0.6-SNAPSHOT</version>
     </parent>
     <artifactId>common-app</artifactId>
     <version>${project.parent.version}</version>

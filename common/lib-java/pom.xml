@@ -8,7 +8,7 @@
 
     <groupId>com.promethistai.common</groupId>
     <artifactId>common-java</artifactId>
-    <version>1.0.5-SNAPSHOT</version>
+    <version>1.0.6-SNAPSHOT</version>
     <name>Promethist Common</name>
 
     <properties>
