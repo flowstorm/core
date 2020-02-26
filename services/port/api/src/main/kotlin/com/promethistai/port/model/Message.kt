@@ -2,7 +2,6 @@ package com.promethistai.port.model
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.promethistai.common.DataObject
-import com.promethistai.port.tts.TtsConfig
 import java.util.*
 
 data class Message(

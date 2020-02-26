@@ -127,7 +127,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
             if (response.sessionEnded) {
                 sendResponse(event.appKey!!, response)
                 sendEvent(BotEvent(BotEvent.Type.SessionEnded))
-                close(false)
+                inputAudioClose(false)
             }
             // todo will not work correctly before the subdialogs in helena will be implemented
             else {
@@ -186,7 +186,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
             BotEvent.Type.TextToSpeech -> sendResponse(event.appKey!!, event.message!!.response(event.message!!.items), true)
 
             BotEvent.Type.InputAudioStreamOpen -> {
-                close(false)
+                inputAudioClose(false)
                 val contract = dataService.getContract(event.appKey!!)
                 val language = language?.language?:contract.language
                 val sttConfig = SttConfig(language, clientRequirements.sttSampleRate)
@@ -196,9 +196,9 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                 sttStream = sttService?.createStream()
             }
 
-            BotEvent.Type.InputAudioStreamClose -> close(false)
+            BotEvent.Type.InputAudioStreamClose -> inputAudioClose(false)
 
-            BotEvent.Type.InputAudioStreamCancel -> close(true)
+            BotEvent.Type.InputAudioStreamCancel -> inputAudioClose(true)
 
             else -> {}
         }
@@ -206,27 +206,27 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
 
     override fun onWebSocketClose(statusCode: Int, reason: String?) {
         super.onWebSocketClose(statusCode, reason)
-        close( false)
+        inputAudioClose(false)
         timer.cancel()
     }
 
     override fun onWebSocketError(cause: Throwable?) {
         super.onWebSocketError(cause)
-        close(false)
+        inputAudioClose(false)
         timer.cancel()
     }
 
-    override fun open() {
-        // nothing to do (already open)
-    }
+    override fun open() = logger.info("open()")
 
-    private fun close(wasCancelled: Boolean) {
+    override fun close() = logger.info("close()")
+
+    private fun inputAudioClose(wasCancelled: Boolean) {
         this.inputAudioStreamCancelled = wasCancelled
-        close()
+        inputAudioClose()
     }
 
-    override fun close() {
-        logger.info("close()")
+    fun inputAudioClose() {
+        logger.info("inputAudioClose()")
         sttBuffer = null
         sttStream?.close()
         sttStream = null
