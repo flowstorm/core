@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <packaging>jar</packaging>
+
+    <parent>
+        <groupId>com.promethistai.core</groupId>
+        <artifactId>core</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+    <artifactId>core-api</artifactId>
+    <name>Promethist Core API</name>
+
+    <properties>
+        <swagger.version>1.5.22</swagger.version>
+        <api.ref>develop</api.ref>
+        <api.host>localhost:8081</api.host>
+        <api.locations>com.promethistai.common.resources,com.promethistai.core.resources</api.locations>
+        <api.version>v1</api.version>
+        <api.description>Promethist API</api.description>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.promethistai.port</groupId>
+            <artifactId>port-api</artifactId>
+            <version>${promethistai.port.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.promethistai.admin</groupId>
+            <artifactId>admin-api</artifactId>
+            <version>${promethistai.admin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.litote.kmongo</groupId>
+            <artifactId>kmongo</artifactId>
+            <version>3.11.1</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+            <version>2.0</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
+        <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
+        <plugins>
+            <plugin>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-maven-plugin</artifactId>
+                <version>${kotlin.version}</version>
+                <executions>
+                    <execution>
+                        <id>compile</id>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <configuration>
+                            <sourceDirs>
+                                <sourceDir>${project.basedir}/src/main/kotlin</sourceDir>
+                            </sourceDirs>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>test-compile</id>
+                        <goals>
+                            <goal>test-compile</goal>
+                        </goals>
+                        <configuration>
+                            <sourceDirs>
+                                <sourceDir>${project.basedir}/src/test/kotlin</sourceDir>
+                            </sourceDirs>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.github.kongchen</groupId>
+                <artifactId>swagger-maven-plugin</artifactId>
+                <version>3.1.7</version>
+                <configuration>
+                    <apiSources>
+                        <apiSource>
+                            <springmvc>false</springmvc>
+                            <locations>${api.locations}</locations>
+                            <schemes>https,http</schemes>
+                            <host>${api.host}</host>
+                            <basePath>/</basePath>
+                            <outputFormats>json,yaml</outputFormats>
+                            <swaggerDirectory>${project.build.outputDirectory}/META-INF/core-api</swaggerDirectory>
+                            <info>
+                                <title>${project.name} (${api.ref})</title>
+                                <version>${api.version}</version>
+                                <description>${api.description}</description>
+                                <termsOfService>https://promethist.ai/terms</termsOfService>
+                                <contact>
+                                    <email>support@promethist.ai</email>
+                                    <name>PromethistAI Support</name>
+                                    <url>https://promethist.ai</url>
+                                </contact>
+                            </info>
+                            <securityDefinitions>
+                                <securityDefinition>
+                                    <name>key</name>
+                                    <type>apiKey</type>
+                                    <in>query</in>
+                                </securityDefinition>
+                                <securityDefinition>
+                                    <name>Authorization</name>
+                                    <type>apiKey</type>
+                                    <in>header</in>
+                                </securityDefinition>
+                            </securityDefinitions>
+                        </apiSource>
+                    </apiSources>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

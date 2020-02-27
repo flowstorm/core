@@ -1,0 +1,27 @@
+namespace: default
+name: core
+replicas: 1
+imagePullSecrets: promethistai-registry
+imagePullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  host: core.promethist.ai
+  app:
+    port: 80
+    targetPort: 8080
+app:
+  image:
+    name: registry.promethist.ai/services/core
+    tag: latest
+  resources:
+    requests:
+      cpu: 0.01
+  logging: "FALSE"
+  tracing: "OFF"
+database:
+  url: "mongodb+srv://developer:Devel135$@promethistai-default-vxs3n.gcp.mongodb.net"
+  name: "core-develop"
+git:
+  ref: branch_or_tag
+  commit: short_sha
