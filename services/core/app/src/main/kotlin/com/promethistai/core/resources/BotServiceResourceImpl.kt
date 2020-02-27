@@ -55,7 +55,7 @@ class BotServiceResourceImpl : BotService {
                         app = apps[Random.nextInt(apps.size)]
                 }
                 if (app != null) {
-                    session = Session(sessionId = message.sessionId!!, applicationId = app._id, user_id = assigned.first.§)
+                    session = Session(sessionId = message.sessionId!!, applicationId = app._id, user_id = assigned.first._id)
                     sessionResource.create(session)
                 }
             } else {

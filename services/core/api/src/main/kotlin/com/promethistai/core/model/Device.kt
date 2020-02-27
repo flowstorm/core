@@ -1,3 +1,6 @@
 package com.promethistai.core.model
 
-open class Device(open var deviceId: String, open var description: String)
+import org.litote.kmongo.Id
+import org.litote.kmongo.newId
+
+open class Device(open var _id: Id<Device> = newId(),  open var deviceId: String, open var description: String)
