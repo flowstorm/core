@@ -1,3 +1,6 @@
 package com.promethistai.core.model
 
-open class Application(open var name: String, open var dialogueName: String/*, properties: <Map, Any>*/)
+import org.litote.kmongo.Id
+import org.litote.kmongo.newId
+
+open class Application(var _id: Id<Application> = newId(), open var name: String, open var dialogueName: String, open var ttsVoice: String/*, properties: <Map, Any>*/)

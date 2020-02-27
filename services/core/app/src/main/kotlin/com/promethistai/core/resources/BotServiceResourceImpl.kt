@@ -1,14 +1,13 @@
 package com.promethistai.core.resources
 
-import com.promethistai.admin.AdminException
-import com.promethistai.admin.model.Application
-import com.promethistai.admin.model.Session
-import com.promethistai.admin.model.User
+import com.promethistai.core.BotException
+import com.promethistai.core.model.Application
+import com.promethistai.core.model.Session
+import com.promethistai.core.model.User
 import com.promethistai.port.bot.BotService
 import com.promethistai.port.model.Message
 import com.promethistai.port.tts.TtsConfig
 import org.slf4j.LoggerFactory
-import java.io.Serializable
 import javax.inject.Inject
 import javax.ws.rs.*
 import java.util.*
@@ -41,22 +40,22 @@ class BotServiceResourceImpl : BotService {
                         // select dialogue model by name
                         message.recipient = spec.substring(1)
                     } else {
-                        // select application by id
-                        app = assigned.second.find { application: Application -> spec == application._id.toString() }
+                        // select application by name
+                        app = assigned.second.find { application: Application -> spec == application.name }
                     }
                 } else {
                     // find application by action condition and language
                     val apps = assigned.second.filter { application: Application ->
                         val config = TtsConfig.forVoice(application.ttsVoice?:"Grace")
-                        (application.startCondition == Application.StartCondition(Application.StartCondition.Type.OnAction, message.items[0].text
-                                ?: "")) &&
+                        /*(application.startCondition == Application.StartCondition(Application.StartCondition.Type.OnAction, message.items[0].text
+                                ?: "")) &&*/
                                 ((application.ttsVoice == null) || (message.language == null) || (config?.language?.substring(0, 2) == message.language?.language))
                     }
                     if (!apps.isEmpty())
                         app = apps[Random.nextInt(apps.size)]
                 }
                 if (app != null) {
-                    session = Session(sessionId = message.sessionId!!, applicationId = app._id, user_id = assigned.first._id)
+                    session = Session(sessionId = message.sessionId!!, applicationId = app._id, user_id = assigned.first.§)
                     sessionResource.create(session)
                 }
             } else {
@@ -78,10 +77,10 @@ class BotServiceResourceImpl : BotService {
                     val ttsVoice = TtsConfig.defaultVoice(message.language?.language?:"en")
                     return response.apply { this.items.forEach { it.ttsVoice = it.ttsVoice ?: ttsVoice } }
                 } else {
-                    throw AdminException(AdminException.Type.NO_APPLICATIONS, message.sender!!)
+                    throw BotException(BotException.Type.NO_APPLICATIONS, message.sender!!)
                 }
             } else {
-
+                /* TO BE REMOVED
                 val subDialogs = app.subDialogs
                 val appVariables = mutableMapOf<String, Serializable>()
                 appVariables[app.mainDialog.name] = app.mainDialog.modifiableVariables
@@ -93,7 +92,7 @@ class BotServiceResourceImpl : BotService {
                 message.extensions["modelOrder"] = subDialogs.map { model -> model.name }.toList() as Serializable
                 message.extensions["variables"] = appVariables as Serializable
                 message.recipient = app.name
-
+                */
                 val ttsVoice = app.ttsVoice?:TtsConfig.defaultVoice("en")
 
                 logger.info(message.toString())
@@ -126,7 +125,7 @@ class BotServiceResourceImpl : BotService {
                 code = e.response.status
                 text = e.response.readEntity(String::class.java)
             }
-            is AdminException ->
+            is BotException ->
                 type = e.type.toString()
             else ->
                 text = e.message

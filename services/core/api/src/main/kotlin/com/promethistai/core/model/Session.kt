@@ -1,6 +1,5 @@
 package com.promethistai.core.model
 
-import com.promethistai.admin.model.Application
 import com.promethistai.port.model.Message.Item
 import org.litote.kmongo.Id
 import org.litote.kmongo.newId
