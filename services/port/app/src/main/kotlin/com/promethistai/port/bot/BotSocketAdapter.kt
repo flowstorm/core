@@ -260,18 +260,19 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                         (if (item.ssml != null) item.ssml else item.text)?:"",
                         item.ssml != null
                 )
+                if (clientRequirements.tts != BotClientRequirements.TtsType.None) {
+                    val audio = dataService.getTtsAudio(
+                            ttsRequest,
+                            clientRequirements.tts != BotClientRequirements.TtsType.RequiredLinks,
+                            clientRequirements.tts == BotClientRequirements.TtsType.RequiredStreaming
+                    )
+                    when (clientRequirements.tts) {
+                        BotClientRequirements.TtsType.RequiredLinks ->
+                            item.audio = "/file/${audio.fileId}" // caller must know port URL therefore URI is enough
 
-                val audio = dataService.getTtsAudio(
-                        ttsRequest,
-                        clientRequirements.tts != BotClientRequirements.TtsType.RequiredLinks,
-                        clientRequirements.tts == BotClientRequirements.TtsType.RequiredStreaming
-                )
-                when (clientRequirements.tts) {
-                    BotClientRequirements.TtsType.RequiredLinks ->
-                        item.audio = "/file/${audio.fileId}" // caller must know port URL therefore URI is enough
-
-                    BotClientRequirements.TtsType.RequiredStreaming ->
-                        sendBinaryData(audio.speak().data!!)
+                        BotClientRequirements.TtsType.RequiredStreaming ->
+                            sendBinaryData(audio.speak().data!!)
+                    }
                 }
             }
         }

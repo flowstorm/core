@@ -54,8 +54,13 @@ class DataService {
          * Returns or generates audio data if not already set.
          */
         fun speak(): TtsAudio {
-            if (data == null)
-                data = TtsServiceFactory.speak(ttsRequest)
+            if (data == null) {
+                try {
+                    data = TtsServiceFactory.speak(ttsRequest)
+                } catch (e: Throwable) {
+                    throw IOException(e.message, e)
+                }
+            }
             return this
         }
     }
