@@ -25,7 +25,7 @@ class AppConfig: Serializable, Cloneable {
             val file = (System.getProperty("app.config")?:".") + "/$FILENAME"
             properties.load(FileInputStream(file))
         } catch (e: Throwable) {
-            logger.warn(e.message)
+            logger.info(e.message)
         }
     }
 
