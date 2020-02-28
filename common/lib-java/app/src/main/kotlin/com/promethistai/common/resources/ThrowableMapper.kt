@@ -14,7 +14,7 @@ class ThrowableMapper : ExceptionMapper<Throwable> {
         else ServerErrorException(t.message, Response.Status.INTERNAL_SERVER_ERROR, t)
 
         return Response.fromResponse(e.response)
-                .entity(e.message)
+                .entity(e.message?:e::class.java.simpleName)
                 .type("text/plain")
                 .build()
     }
