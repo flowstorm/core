@@ -4,10 +4,13 @@ object ServiceUtil {
 
     val servicePorts = mapOf(
             "port" to 8080,
+            "filestore" to 8082,
+            "core" to 8088,
             "admin" to 8089,
             "illusionist" to 8090,
             "helena" to 8091,
-            "editor" to 8092
+            "editor" to 8092,
+            "cassandra" to 8093
     )
 
     enum class RunMode { local, docker, dist, detect }
