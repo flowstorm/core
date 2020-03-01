@@ -1,10 +1,9 @@
 package com.promethistai.core.model
 
-import com.promethistai.port.model.Message.Item
+import com.promethistai.core.model.Message.Item as MessageItem
 import org.litote.kmongo.Id
 import org.litote.kmongo.newId
 import java.util.*
-import com.promethistai.port.model.Message as PortMessage
 
 data class Session(
         val _id: Id<Session> = newId(),
@@ -23,10 +22,10 @@ data class Session(
             val datetime: Date?,
             val sender: String?,
             val recipient: String?,
-            val items: MutableList<Item>
+            val items: MutableList<MessageItem>
     ) {
-        constructor(message: PortMessage) : this(message.datetime, message.sender, message.recipient, message.items)
+        constructor(message: Message) : this(message.datetime, message.sender, message.recipient, message.items)
     }
 
-    fun addMessage(message: PortMessage) = messages.add(Message(message))
+    fun addMessage(message: Message) = messages.add(Message(message))
 }

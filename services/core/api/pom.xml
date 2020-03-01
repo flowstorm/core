@@ -25,14 +25,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.promethistai.port</groupId>
-            <artifactId>port-api</artifactId>
-            <version>${promethistai.port.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.promethistai.admin</groupId>
-            <artifactId>admin-api</artifactId>
-            <version>${promethistai.admin.version}</version>
+            <groupId>com.promethistai.common</groupId>
+            <artifactId>common-lib</artifactId>
+            <version>${promethistai.common.version}</version>
         </dependency>
         <dependency>
             <groupId>org.litote.kmongo</groupId>
