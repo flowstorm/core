@@ -20,11 +20,11 @@ spec:
           - path: /
             backend:
               serviceName: {{ .Values.name }}
-              servicePort: {{ .Values.service.esp.port }}
+              servicePort: {{ .Values.service.app.targetPort }}
           - path: /swagger.json
             backend:
               serviceName: {{ .Values.name }}
-              servicePort: {{ .Values.service.app.port }}
+              servicePort: {{ .Values.service.app.targetPort }}
           - path: /apidoc
             backend:
               serviceName: apidoc
