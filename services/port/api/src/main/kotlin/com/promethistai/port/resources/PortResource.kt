@@ -1,8 +1,8 @@
 package com.promethistai.port.resources
 
-import com.promethistai.port.bot.BotService
+import com.promethistai.core.model.Message
+import com.promethistai.core.resources.BotService
 import com.promethistai.port.model.Contract
-import com.promethistai.port.model.Message
 import com.promethistai.port.tts.TtsRequest
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation

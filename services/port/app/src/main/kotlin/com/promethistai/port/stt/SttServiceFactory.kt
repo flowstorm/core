@@ -1,6 +1,6 @@
 package com.promethistai.port.stt
 
-import com.promethistai.port.model.Message
+import com.promethistai.core.model.Message
 import java.io.File
 
 object SttServiceFactory {

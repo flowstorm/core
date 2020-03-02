@@ -25,9 +25,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.promethistai.common</groupId>
-            <artifactId>common-lib</artifactId>
-            <version>${promethistai.common.version}</version>
+            <groupId>com.promethistai.core</groupId>
+            <artifactId>core-api</artifactId>
+            <version>${promethistai.core.version}</version>
         </dependency>
         <!-- jax-rs -->
         <dependency>

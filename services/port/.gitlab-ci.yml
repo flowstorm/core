@@ -79,7 +79,6 @@ deploy app non-production:
       --recreate-pods
       --namespace $CI_COMMIT_REF_NAME
       --set namespace=$CI_COMMIT_REF_NAME
-      --set service.host=$CI_PROJECT_NAME.$CI_COMMIT_REF_NAME.promethist.ai
       --set git.ref=$CI_COMMIT_REF_NAME
       --set git.commit=$CI_COMMIT_SHORT_SHA
       --set app.image.tag=$CI_COMMIT_REF_NAME
@@ -106,7 +105,6 @@ deploy app production:
     - gcloud container clusters get-credentials ${GCP_CLUSTER} --region ${GCP_REGION}
     - helm upgrade
       --install
-      --set service.host=$CI_PROJECT_NAME.promethist.ai
       --set git.ref=$CI_COMMIT_REF_NAME
       --set git.commit=$CI_COMMIT_SHORT_SHA
       --set app.image.tag=$CI_COMMIT_REF_NAME

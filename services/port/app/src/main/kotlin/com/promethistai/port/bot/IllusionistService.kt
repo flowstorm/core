@@ -2,8 +2,9 @@ package com.promethistai.port.bot
 
 import com.promethistai.common.AppConfig
 import com.promethistai.common.RestClient
+import com.promethistai.core.model.Message
+import com.promethistai.core.resources.BotService
 import com.promethistai.port.DataService
-import com.promethistai.port.model.Message
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.net.URL

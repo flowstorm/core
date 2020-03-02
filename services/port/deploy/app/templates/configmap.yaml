@@ -8,7 +8,6 @@ data:
     name={{ .Values.name }}
     namespace={{ .Values.namespace }}
     runmode=dist
-    service.host={{ .Values.service.host }}
     git.ref={{ .Values.git.ref }}
     git.commit={{ .Values.git.commit }}
     app.image={{ .Values.app.image.name }}:{{ .Values.app.image.tag }}
@@ -16,6 +15,6 @@ data:
     app.tracing={{ .Values.app.tracing }}
     slack.enable={{ .Values.slack.enable }}
     apiKey={{ .Values.apiKey }}
-    data.caching=true
+    tts.store=true
     database.url={{ .Values.database.url }}
     database.name={{ .Values.database.name }}

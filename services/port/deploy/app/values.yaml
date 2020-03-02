@@ -6,7 +6,6 @@ imagePullPolicy: IfNotPresent
 apiKey: AIzaSyDpYmTgXGmZY-vWO6ryOcSQ5YZhBsu6NWc
 service:
   type: ClusterIP
-  host: port.promethist.ai
   app:
     port: 80
 app:

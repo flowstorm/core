@@ -3,21 +3,21 @@ package com.promethistai.port
 import com.mongodb.client.MongoDatabase
 import com.mongodb.client.gridfs.GridFSBuckets
 import com.promethistai.common.AppConfig
+import com.promethistai.core.model.Message
 import com.promethistai.port.model.Contract
-import com.promethistai.port.model.Message
 import com.promethistai.port.tts.TtsRequest
 import com.promethistai.port.tts.TtsServiceFactory
+import com.promethistai.filestore.resources.FileResource
 import org.bson.types.ObjectId
 import org.litote.kmongo.and
 import org.litote.kmongo.eq
 import org.litote.kmongo.findOne
 import org.litote.kmongo.findOneById
-import org.litote.kmongo.save
 import org.slf4j.LoggerFactory
 import java.io.*
-import java.util.*
 import javax.activation.MimetypesFileTypeMap
 import javax.inject.Inject
+import javax.ws.rs.NotFoundException
 import javax.ws.rs.WebApplicationException
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
@@ -32,23 +32,17 @@ class DataService {
 
         val bucket = GridFSBuckets.create(database)
 
-        fun download(output: OutputStream) =
-            bucket.downloadToStream(objectId, output)
+        fun download(output: OutputStream) = bucket.downloadToStream(objectId, output)
 
-
-        fun upload(input: InputStream) =
-            bucket.uploadFromStream(name!!, input)
+        //fun upload(input: InputStream) = bucket.uploadFromStream(name!!, input)
     }
-
-    data class CacheItem(val _id: String, var fileId: ObjectId, var lastModified: Date = Date(), var fileSize: Int? = null, var counter: Long = 0, var type: String = "default", var ttsRequest: TtsRequest? = null)
 
     inner class TtsAudio(val ttsRequest: TtsRequest) {
 
-        // zamerne v code zatim zanedbavam speech providera
         val code = ttsRequest.code()
-        var type = "/mp3"
+        var type = "audio/mpeg"
         var data: ByteArray? = null
-        var fileId: ObjectId? = null
+        var path: String? = null
 
         /**
          * Returns or generates audio data if not already set.
@@ -69,6 +63,9 @@ class DataService {
     lateinit var database: MongoDatabase
 
     @Inject
+    lateinit var filestore: FileResource
+
+    @Inject
     lateinit var appConfig: AppConfig
 
     private var logger = LoggerFactory.getLogger(DataService::class.qualifiedName)
@@ -86,7 +83,7 @@ class DataService {
         }
 
         return if (contract == null)
-            throw WebApplicationException("Port contract not found for app key $appKey", Response.Status.NOT_FOUND)
+            throw NotFoundException("Port contract not found for app key $appKey")
         else
             contract
     }
@@ -106,72 +103,42 @@ class DataService {
         }
     }
 
-    fun addResourceFile(type: String, name: String, input: InputStream) =
-        ResourceFile(null, type, name).upload(input)
-
-    fun getCacheItem(id: String): CacheItem? {
-        if (config.get("data.caching", "false") != "false") {
-            try {
-                return database.getCollection("cache", CacheItem::class.java).findOneById(id)
-            } catch (e: Throwable) {
-                e.printStackTrace()
-                return null
-            }
-        } else {
-            return null
-        }
-    }
-
-    fun saveCacheItem(item: CacheItem) {
-        if (config.get("data.caching", "false") != "false") {
-            database.getCollection("cache", CacheItem::class.java).save(
-                    item.apply {
-                        counter++
-                        lastModified = Date()
-                    }
-            )
-        }
-    }
+    //fun addResourceFile(type: String, name: String, input: InputStream) =
+    //    ResourceFile(null, type, name).upload(input)
 
     /**
-     * Saves file to database cache (e.g. STT audio) for future usage.
+     * Saves TTS audio to filestorefor future usage.
      */
-    fun addCacheItemWithFile(id: String, itemType: String, fileType: String, data: ByteArray, ttsRequest: TtsRequest? = null): CacheItem {
-        logger.info("addFileToCache(id = $id, itemType = $itemType, fileType = $fileType, data[${data.size}])")
-        val fileId = addResourceFile(fileType, ".cache/${itemType}/${id}.mp3", ByteArrayInputStream(data)) //TODO fileType > .ext
-        val cacheItem = CacheItem(id, fileId, fileSize = data.size, type = itemType, ttsRequest = ttsRequest)
-        saveCacheItem(cacheItem)
-        return cacheItem
+    fun saveTtsAudio(code: String, type: String, data: ByteArray, ttsRequest: TtsRequest) {
+        logger.info("saveTtsAudio(code = $code, fileType = $type, data[${data.size}])")
+        filestore.writeFile("tts/${ttsRequest.voice}/$code", type, listOf("text:${ttsRequest.text}"), data.inputStream())
     }
 
     /**
      * This creates and stores or loads existing audio from database cache for the specified TTS request.
      */
     @Throws(IOException::class)
-    internal fun getTtsAudio(ttsRequest: TtsRequest, asyncSave: Boolean, cacheDownload: Boolean): TtsAudio {
+    internal fun getTtsAudio(ttsRequest: TtsRequest, asyncSave: Boolean, download: Boolean): TtsAudio {
         val audio = TtsAudio(ttsRequest)
-        var cacheItem = getCacheItem(audio.code)
-        if (cacheItem == null) {
-            logger.info("getTtsAudio[cache MISS](ttsRequest = $ttsRequest)")
+        val path = "tts/${ttsRequest.voice}/${audio.code}"
+        try {
+            val ttsFile = filestore.getFile(path)
+            logger.info("getTtsAudio[HIT](ttsRequest = $ttsRequest)")
+            if (download)
+                audio.data = filestore.readFile(path).readEntity(ByteArray::class.java)
+            audio.path = path
+        } catch (e: NotFoundException) {
+            logger.info("getTtsAudio[MISS](ttsRequest = $ttsRequest)")
             audio.speak() // perform speach synthesis
-            logger.info("getTtsAudio[speak DONE]")
+            logger.info("getTtsAudio[DONE]")
             if (asyncSave) {
                 thread(start = true) {
-                    addCacheItemWithFile(audio.code, "tts", audio.type, audio.data!!, ttsRequest)
+                    saveTtsAudio(audio.code,  audio.type, audio.data!!, ttsRequest)
                 }
             } else {
-                cacheItem = addCacheItemWithFile(audio.code, "tts", audio.type, audio.data!!, ttsRequest)
-                audio.fileId = cacheItem.fileId
+                saveTtsAudio(audio.code, audio.type, audio.data!!, ttsRequest)
+                audio.path = path
             }
-        } else {
-            logger.info("getTtsAudio[cache HIT](cacheItem = $cacheItem)")
-            saveCacheItem(cacheItem) // update cache item in database
-            if (cacheDownload) {
-                val buf = ByteArrayOutputStream()
-                getResourceFile(cacheItem.fileId).download(buf)
-                audio.data = buf.toByteArray()
-            }
-            audio.fileId = cacheItem.fileId
         }
         return audio
     }
@@ -194,24 +161,6 @@ class DataService {
         val messages = col.find(query).toList()
         logger.debug("popMessages(appKey = $appKey, limit = $limit, messages = $messages)")
         col.deleteMany(query)
-        return messages
-    }
-
-    fun logMessage(message: Message): Boolean {
-        val col = database.getCollection("message-log", Message::class.java)
-        col.insertOne(message)
-        return true
-    }
-
-    fun getSessionMessages(sessionId: String): List<Message> {
-        val logCollection = database.getCollection("message-log", Message::class.java)
-        val cacheCollection = database.getCollection("cache", CacheItem::class.java)
-        val messages = logCollection.find(Message::sessionId eq sessionId).toList()
-        // try to find audio resource files
-        for (message in messages) {
-            val sttQuery = and(CacheItem::_id eq message._id, CacheItem::type eq "stt")
-            val sttItem = cacheCollection.findOne { sttQuery }
-        }
         return messages
     }
 }

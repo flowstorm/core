@@ -1,6 +1,7 @@
 package com.promethistai.port.tts
 
 import com.microsoft.cognitiveservices.speech.*
+import com.promethistai.core.model.TtsConfig
 import org.w3c.dom.Document
 import java.io.ByteArrayInputStream
 import java.io.File

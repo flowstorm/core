@@ -1,6 +1,7 @@
 package com.promethistai.port.tts
 
 import com.google.cloud.texttospeech.v1beta1.*
+import com.promethistai.core.model.TtsConfig
 
 object GoogleTtsService: TtsService {
 

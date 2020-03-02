@@ -1,5 +1,6 @@
 package com.promethistai.port.tts
 
+import com.promethistai.core.model.TtsConfig
 import org.slf4j.LoggerFactory
 import java.io.File
 

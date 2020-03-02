@@ -3,21 +3,21 @@ package com.promethistai.port.bot
 import ai.promethist.client.BotClientRequirements
 import ai.promethist.client.BotEvent
 import ai.promethist.client.BotSocket
+import com.promethistai.common.AppConfig
 import com.promethistai.common.ObjectUtil
+import com.promethistai.core.model.Message
+import com.promethistai.core.model.TtsConfig
+import com.promethistai.core.resources.BotService
+import com.promethistai.port.Application
 import com.promethistai.port.DataService
-import com.promethistai.port.SlackService
-import com.promethistai.port.model.Message
 import com.promethistai.port.stt.*
-import com.promethistai.port.tts.TtsConfig
 import com.promethistai.port.tts.TtsRequest
-import com.promethistai.util.DataConverter
 import org.eclipse.jetty.websocket.api.WebSocketAdapter
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.nio.ByteBuffer
 import java.util.*
 import javax.inject.Inject
-import kotlin.concurrent.thread
 
 class BotSocketAdapter : BotSocket, WebSocketAdapter() {
 
@@ -26,15 +26,6 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
         override fun onResponse(transcript: String, confidence: Float, final: Boolean) {
             try {
                 if (final && !inputAudioStreamCancelled) {
-                    if (sttBuffer != null) {
-                        val pcmData = ByteArray(sttBuffer!!.position())
-                        sttBuffer!!.get(pcmData, 0, pcmData.size)
-                        thread(start = true) {
-                            //conversion of PCM to WAV
-                            val wavData = DataConverter.pcmToWav(pcmData)
-                            dataService.addCacheItemWithFile(event.message!!._id!!, "stt", "", wavData)
-                        }
-                    }
                     sendEvent(BotEvent(BotEvent.Type.Recognized, Message(language = language, items = mutableListOf(Message.Item(text = transcript)))))
                     onMessageEvent(event.apply {
                         this.message!!.language = language
@@ -83,9 +74,6 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
     @Inject
     lateinit var dataService: DataService
 
-    @Inject
-    lateinit var slackService: SlackService
-
     private val objectMapper = ObjectUtil.defaultMapper
     private var sttService: SttService? = null
     private var sttStream: SttStream? = null
@@ -95,7 +83,6 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
     private var expectedPhrases: List<Message.ExpectedPhrase> = listOf()
     private val timer: Timer = Timer()
     private val contexts = mutableMapOf<String, Context>()
-    private var sttBuffer: ByteBuffer? = null
     private var language: Locale? = null
 
     fun getContext(event: BotEvent) {
@@ -110,8 +97,6 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
     override fun onWebSocketBinary(payload: ByteArray, offset: Int, len: Int) {
         logger.debug("onWebSocketBinary(payload[${payload.size}], offset = $offset, len = $len)")
         super.onWebSocketBinary(payload, offset, len)
-        if (sttBuffer != null)
-            sttBuffer!!.put(payload)
         sttStream?.write(payload, offset, len)
     }
 
@@ -119,7 +104,6 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
      * Determine if the response from botService will be followed by waiting for user input or another message will be sent to botService
      */
     fun onMessageEvent(event: BotEvent) {
-        slackService.sendMessage(event.message!!)
         event.message!!.extensions["portResponseTime"] = System.currentTimeMillis()
         val response = botService.message(event.appKey!!, event.message!!)
         if (response != null) {
@@ -170,8 +154,6 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
 
             BotEvent.Type.Requirements -> {
                 clientRequirements = event.requirements?:BotClientRequirements()
-                if (dataService.getContract(event.appKey!!).sttAudioSave)
-                    sttBuffer = ByteBuffer.allocate(32000 * 300)
                 sendEvent(BotEvent(BotEvent.Type.Requirements, requirements = clientRequirements))
             }
 
@@ -191,8 +173,6 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                 val language = language?.language?:contract.language
                 val sttConfig = SttConfig(language, clientRequirements.sttSampleRate)
                 sttService = SttServiceFactory.create(speechProvider, sttConfig, this.expectedPhrases, BotSttCallback(event))
-                if (sttBuffer != null)
-                    sttBuffer!!.rewind()
                 sttStream = sttService?.createStream()
             }
 
@@ -227,7 +207,6 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
 
     fun inputAudioClose() {
         logger.info("inputAudioClose()")
-        sttBuffer = null
         sttStream?.close()
         sttStream = null
         sttService?.close()
@@ -248,7 +227,6 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
 
     @Throws(IOException::class)
     internal fun sendResponse(appKey: String, response: Message, ttsOnly: Boolean = false) {
-        slackService.sendMessage(response)
         val contract = dataService.getContract(appKey)
         response.expectedPhrases = null
         for (item in response.items) {
@@ -268,7 +246,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                     )
                     when (clientRequirements.tts) {
                         BotClientRequirements.TtsType.RequiredLinks ->
-                            item.audio = "/file/${audio.fileId}" // caller must know port URL therefore URI is enough
+                            item.audio = Application.filestoreUrl + '/' + audio.path // caller must know port URL therefore URI is enough
 
                         BotClientRequirements.TtsType.RequiredStreaming ->
                             sendBinaryData(audio.speak().data!!)

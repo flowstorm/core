@@ -1,6 +1,6 @@
 package com.promethistai.port.model
 
-import com.promethistai.port.tts.TtsConfig
+import com.promethistai.core.model.TtsConfig
 
 data class Contract(
     var name: String? = null,

@@ -1,7 +1,8 @@
 package com.promethistai.port.bot
 
+import com.promethistai.core.model.Message
+import com.promethistai.core.resources.BotService
 import com.promethistai.port.DataService
-import com.promethistai.port.model.Message
 import org.slf4j.LoggerFactory
 import java.util.*
 import javax.inject.Inject
@@ -33,9 +34,6 @@ class BotSelectorService : BotService {
         if (message.language == null)
             message.language = Locale(contract.language)
 
-        // log incoming message
-        dataService.logMessage(message)
-
         logger.info("message > (botService = $botService, key = $appKey) $message")
 
         val currentTime = System.currentTimeMillis()
@@ -44,10 +42,6 @@ class BotSelectorService : BotService {
             response!!.extensions["serviceResponseTime"] = System.currentTimeMillis() - currentTime
 
         logger.info("message < $response")
-
-        // log response message
-        if (response != null)
-            dataService.logMessage(response)
 
         return response
     }

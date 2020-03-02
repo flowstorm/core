@@ -1,9 +1,9 @@
 package com.promethistai.port.resources
 
+import com.promethistai.core.model.Message
+import com.promethistai.core.resources.BotService
 import com.promethistai.port.DataService
-import com.promethistai.port.bot.BotService
 import com.promethistai.port.model.Contract
-import com.promethistai.port.model.Message
 import com.promethistai.port.tts.TtsRequest
 import org.bson.types.ObjectId
 import org.slf4j.LoggerFactory
@@ -51,7 +51,7 @@ class PortResourceImpl : PortResource {
     }
 
     override fun messageQueuePop(appKey: String, recipient: String, limit: Int): List<Message> {
-        return dataService.popMessages(appKey, recipient, limit).onEach { dataService.logMessage(it) }
+        return dataService.popMessages(appKey, recipient, limit)
     }
 
     override fun readFile(id: String): Response {

@@ -7,6 +7,7 @@ import com.amazonaws.services.polly.AmazonPollyClient
 import com.amazonaws.services.polly.model.OutputFormat
 import com.amazonaws.services.polly.model.SynthesizeSpeechRequest
 import com.amazonaws.services.polly.model.TextType
+import com.promethistai.core.model.TtsConfig
 import java.io.ByteArrayOutputStream
 
 object AmazonTtsService: TtsService {
