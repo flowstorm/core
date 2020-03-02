@@ -1,7 +1,8 @@
 package com.promethistai.util
 
-import java.io.ByteArrayOutputStream
 import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
 
 object DataConverter {
 
@@ -15,11 +16,11 @@ object DataConverter {
      * @throws IOException
      */
     @Throws(IOException::class)
-    fun pcmToWav(data: ByteArray, sampleRate: Int = 16000, channels: Int = 1, sampleSizeInBits: Int = 16): ByteArray {
+    fun pcmToWav(input: InputStream, output: OutputStream, size: Long, sampleRate: Int = 16000, channels: Int = 1, sampleSizeInBits: Int = 16) {
         val header = ByteArray(44)
         //val data = get16BitPcm(pcmdata)
 
-        val totalDataLen = (data.size + 36).toLong()
+        val totalDataLen = (size + 36)
         val bitrate = (sampleRate * channels * sampleSizeInBits).toLong()
 
         header[0] = 'R'.toByte()
@@ -62,27 +63,12 @@ object DataConverter {
         header[37] = 'a'.toByte()
         header[38] = 't'.toByte()
         header[39] = 'a'.toByte()
-        header[40] = (data.size and 0xff).toByte()
-        header[41] = (data.size shr 8 and 0xff).toByte()
-        header[42] = (data.size shr 16 and 0xff).toByte()
-        header[43] = (data.size shr 24 and 0xff).toByte()
+        header[40] = (size and 0xff).toByte()
+        header[41] = (size shr 8 and 0xff).toByte()
+        header[42] = (size shr 16 and 0xff).toByte()
+        header[43] = (size shr 24 and 0xff).toByte()
 
-        val os = ByteArrayOutputStream()
-        os.write(header, 0, 44)
-        os.write(data)
-        os.close()
-        return os.toByteArray()
+        output.write(header, 0, 44)
+        input.copyTo(output)
     }
-    /*
-    fun get16BitPcm(data: ShortArray): ByteArray {
-        val resultData = ByteArray(2 * data.size)
-        var iter = 0
-        for (sample in data) {
-            val maxSample = (sample * java.lang.Short.MAX_VALUE).toShort()
-            resultData[iter++] = (maxSample and 0x00ff).toByte()
-            resultData[iter++] = (maxSample and 0xff00).ushr(8).toByte()
-        }
-        return resultData
-    }
-    */
 }
