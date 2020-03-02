@@ -111,7 +111,7 @@ class DataService {
      */
     fun saveTtsAudio(code: String, type: String, data: ByteArray, ttsRequest: TtsRequest) {
         logger.info("saveTtsAudio(code = $code, fileType = $type, data[${data.size}])")
-        filestore.writeFile("tts/${ttsRequest.voice}/$code", type, listOf("text:${ttsRequest.text}"), data.inputStream())
+        filestore.writeFile("tts/${ttsRequest.voice}/$code.mp3", type, listOf("text:${ttsRequest.text}"), data.inputStream())
     }
 
     /**
@@ -120,7 +120,7 @@ class DataService {
     @Throws(IOException::class)
     internal fun getTtsAudio(ttsRequest: TtsRequest, asyncSave: Boolean, download: Boolean): TtsAudio {
         val audio = TtsAudio(ttsRequest)
-        val path = "tts/${ttsRequest.voice}/${audio.code}"
+        val path = "tts/${ttsRequest.voice}/${audio.code}.mp3"
         try {
             val ttsFile = filestore.getFile(path)
             logger.info("getTtsAudio[HIT](ttsRequest = $ttsRequest)")

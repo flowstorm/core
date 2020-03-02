@@ -14,6 +14,6 @@ data class TtsRequest(val voice: String, var text: String, var isSsml: Boolean =
             result.append(hexChars[i shr 4 and 0x0f])
             result.append(hexChars[i and 0x0f])
         }
-        return result.toString()
+        return result.toString().toLowerCase()
     }
 }
