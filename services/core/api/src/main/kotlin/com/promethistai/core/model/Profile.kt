@@ -1,5 +1,6 @@
 package com.promethistai.core.model
 
-import org.bson.types.ObjectId
+import org.litote.kmongo.Id
+import org.litote.kmongo.newId
 
-data class Profile(var _id: ObjectId? = null, var name: String? = null, var properties: MutableMap<String, Any> = mutableMapOf())
+data class Profile(var _id: Id<Application> = newId(), var name: String? = null, var properties: MutableMap<String, Any> = mutableMapOf())
