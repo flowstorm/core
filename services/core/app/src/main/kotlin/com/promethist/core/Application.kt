@@ -1,12 +1,12 @@
-package com.promethistai.core
+package com.promethist.core
 
 import com.mongodb.ConnectionString
 import com.mongodb.client.MongoDatabase
-import com.promethistai.common.AppConfig
-import com.promethistai.common.JerseyApplication
-import com.promethistai.common.ResourceBinder
-import com.promethistai.core.resources.SessionResource
-import com.promethistai.core.resources.SessionResourceImpl
+import com.promethist.common.AppConfig
+import com.promethist.common.JerseyApplication
+import com.promethist.common.ResourceBinder
+import com.promethist.core.resources.SessionResource
+import com.promethist.core.resources.SessionResourceImpl
 import org.litote.kmongo.KMongo
 
 class Application : JerseyApplication() {

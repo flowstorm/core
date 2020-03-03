@@ -1,4 +1,4 @@
-package com.promethistai.core.model
+package com.promethist.core.model
 
 import org.litote.kmongo.Id
 import org.litote.kmongo.newId

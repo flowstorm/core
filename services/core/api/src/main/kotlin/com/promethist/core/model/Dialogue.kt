@@ -1,4 +1,4 @@
-package com.promethistai.core.model
+package com.promethist.core.model
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo

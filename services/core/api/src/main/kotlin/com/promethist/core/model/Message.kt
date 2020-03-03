@@ -1,7 +1,7 @@
-package com.promethistai.core.model
+package com.promethist.core.model
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
-import com.promethistai.common.DataObject
+import com.promethist.common.DataObject
 import java.util.*
 
 data class Message(
@@ -19,7 +19,7 @@ data class Message(
         /**
          * Each message has none or more items
          */
-        var items: MutableList<Item> = mutableListOf(),
+        var items: MutableList<MessageItem> = mutableListOf(),
 
         /**
          * Message language.
@@ -74,7 +74,7 @@ data class Message(
         /**
          * Extension properties for message. Determined by bot service and/or client application.
          */
-        val extensions: PropertyMap = PropertyMap()
+        val attributes: PropertyMap = PropertyMap()
 ) {
 
     @JsonDeserialize(using = PropertyMap.Deserializer::class)
@@ -90,41 +90,7 @@ data class Message(
     data class ExpectedPhrase(val text: String? = null, val boost: Float = 1.0F) // boost can be used in google stt v1p1beta1
 
 
-    data class Item (
-            /**
-             * Message text. Can contain specific XML tags (which can be interpered or stripped by channel).
-             */
-            var text: String? = null,
-
-            /**
-             * Ssml text - Google based by default. Can contain specific XML tags
-             */
-            var ssml: String? = null,
-
-            /**
-             * Confidence score. Client usually does not set (if there is human behind ;-)
-             */
-            var confidence: Double? = 1.0,
-
-            /**
-             * Resource links.
-             */
-            var image: String? = null,
-            var video: String? = null,
-            var audio: String? = null,
-
-            /**
-             * Extension properties for message. Determined by bot service and/or client application.
-             */
-            val extensions: PropertyMap = PropertyMap(),
-
-            /**
-             * TTS voice
-             */
-            var ttsVoice: String? = null
-    )
-
-    fun response(items: MutableList<Item>): Message {
+    fun response(items: MutableList<MessageItem>): Message {
         val sender = this.recipient
         val recipient = this.sender
         return this.copy(_id = createId(), _ref = _id, sender = sender, recipient = recipient, items = items, datetime = Date(), sessionId = this.sessionId)

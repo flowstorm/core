@@ -1,4 +1,4 @@
-package com.promethistai.core.model
+package com.promethist.core.model
 
 data class TtsConfig(
         val voice: String,

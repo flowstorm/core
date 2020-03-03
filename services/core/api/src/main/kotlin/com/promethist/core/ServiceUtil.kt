@@ -1,6 +1,6 @@
-package com.promethistai.core
+package com.promethist.core
 
-import com.promethistai.common.AppConfig
+import com.promethist.common.AppConfig
 
 object ServiceUtil {
 
@@ -25,7 +25,7 @@ object ServiceUtil {
                         (if (AppConfig.instance["namespace"] != "default")
                             "." + AppConfig.instance["namespace"]
                         else
-                            "") + ".promethistai.com"
+                            "") + ".promethist.com"
                 RunMode.detect ->
                     getEndpointUrl(serviceName, RunMode.valueOf(
                             System.getenv("RUN_MODE") ?: AppConfig.instance.get("runmode", "dist")))

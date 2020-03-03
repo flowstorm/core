@@ -1,4 +1,4 @@
-package com.promethistai.core
+package com.promethist.core
 
 class BotException(var type: Type, var id: String, override var message: String? = null) : Exception(message) {
     enum class Type {

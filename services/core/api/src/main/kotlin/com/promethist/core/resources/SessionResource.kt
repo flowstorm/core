@@ -1,7 +1,7 @@
-package com.promethistai.core.resources
+package com.promethist.core.resources
 
-import com.promethistai.core.model.Session
-import com.promethistai.core.model.User
+import com.promethist.core.model.Session
+import com.promethist.core.model.User
 import org.litote.kmongo.Id
 
 interface SessionResource {

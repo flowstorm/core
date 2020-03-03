@@ -1,8 +1,9 @@
-package com.promethistai.core.resources
+package com.promethist.core.resources
 
 import com.mongodb.client.MongoDatabase
-import com.promethistai.core.model.Session
-import com.promethistai.core.model.User
+import com.promethist.core.model.Session
+import com.promethist.core.model.User
+import com.promethist.core.resources.SessionResource
 import org.litote.kmongo.Id
 import org.litote.kmongo.eq
 import org.litote.kmongo.getCollection

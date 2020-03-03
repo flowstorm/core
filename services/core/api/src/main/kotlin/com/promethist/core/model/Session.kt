@@ -1,8 +1,8 @@
-package com.promethistai.core.model
+package com.promethist.core.model
 
-import com.promethistai.core.model.Message.Item as MessageItem
 import org.litote.kmongo.Id
 import org.litote.kmongo.newId
+import com.promethist.core.model.Message as CoreMessage
 import java.util.*
 
 data class Session(
@@ -24,8 +24,8 @@ data class Session(
             val recipient: String?,
             val items: MutableList<MessageItem>
     ) {
-        constructor(message: Message) : this(message.datetime, message.sender, message.recipient, message.items)
+        constructor(message: CoreMessage) : this(message.datetime, message.sender, message.recipient, message.items)
     }
 
-    fun addMessage(message: Message) = messages.add(Message(message))
+    fun addMessage(message: CoreMessage) = messages.add(Message(message))
 }

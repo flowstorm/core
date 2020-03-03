@@ -1,6 +1,6 @@
-package com.promethistai.core.resources
+package com.promethist.core.resources
 
-import com.promethistai.core.model.Message
+import com.promethist.core.model.Message
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
