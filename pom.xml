@@ -16,8 +16,10 @@
         <module>common/stressor</module>
         <module>clients/common</module>
         <module>services/port</module>
+        <module>services/core</module>
         <module>services/admin</module>
         <module>services/helena</module>
+        <module>services/filestore</module>
     </modules>
 
 </project>
