@@ -10,7 +10,6 @@ import com.promethist.filestore.resources.FileResource
 import org.bson.types.ObjectId
 import org.litote.kmongo.and
 import org.litote.kmongo.eq
-import org.litote.kmongo.findOne
 import org.litote.kmongo.findOneById
 import org.slf4j.LoggerFactory
 import java.io.*
@@ -22,7 +21,7 @@ import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
 import kotlin.concurrent.thread
 
-class DataService {
+class PortService {
 
     @Inject
     lateinit var config: AppConfig
@@ -67,7 +66,7 @@ class DataService {
     @Inject
     lateinit var appConfig: AppConfig
 
-    private var logger = LoggerFactory.getLogger(DataService::class.qualifiedName)
+    private var logger = LoggerFactory.getLogger(PortService::class.qualifiedName)
 
     private var mediaTypeMap = MimetypesFileTypeMap()
 

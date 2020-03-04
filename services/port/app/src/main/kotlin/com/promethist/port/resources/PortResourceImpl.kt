@@ -2,9 +2,7 @@ package com.promethist.port.resources
 
 import com.promethist.core.model.Message
 import com.promethist.core.resources.BotService
-import com.promethist.port.DataService
-import com.promethist.port.model.Contract
-import com.promethist.port.tts.TtsRequest
+import com.promethist.port.PortService
 import org.bson.types.ObjectId
 import org.slf4j.LoggerFactory
 import javax.inject.Inject
@@ -25,7 +23,7 @@ class PortResourceImpl : PortResource {
     lateinit var botService: BotService
 
     @Inject
-    lateinit var dataService: DataService
+    lateinit var dataService: PortService
 
     override fun message(appKey: String, message: Message): Message? {
         message.appKey = appKey

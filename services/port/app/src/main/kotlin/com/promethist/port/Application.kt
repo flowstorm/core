@@ -35,9 +35,10 @@ class Application : JerseyApplication() {
                 bindTo(MongoDatabase::class.java, KMongo
                         .createClient(ConnectionString(AppConfig.instance["database.url"]))
                         .getDatabase(AppConfig.instance["database.name"]))
-                // services
-                bindTo(DataService::class.java)
-                bindTo(BotService::class.java, BotRemoteService::class.java)
+                bindTo(PortService::class.java)
+                bindTo(BotService::class.java, ServiceUtil.getEndpointUrl(
+                        AppConfig.instance.get("service.name", "admin"),
+                        ServiceUtil.RunMode.valueOf(AppConfig.instance.get("service.mode", "dist"))))
             }
         })
     }

@@ -70,7 +70,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
     lateinit var botService: BotService
 
     @Inject
-    lateinit var dataService: DataService
+    lateinit var dataService: PortService
 
     private val objectMapper = ObjectUtil.defaultMapper
     private var sttService: SttService? = null
