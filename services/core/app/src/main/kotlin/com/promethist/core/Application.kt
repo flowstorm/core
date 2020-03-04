@@ -5,9 +5,9 @@ import com.mongodb.client.MongoDatabase
 import com.promethist.common.AppConfig
 import com.promethist.common.JerseyApplication
 import com.promethist.common.ResourceBinder
-import com.promethist.core.resources.BotService
-import com.promethist.core.resources.SessionResource
-import com.promethist.core.resources.SessionResourceImpl
+import com.promethist.core.model.TtsConfig
+import com.promethist.core.model.User
+import com.promethist.core.resources.*
 import org.litote.kmongo.KMongo
 
 class Application : JerseyApplication() {
@@ -28,6 +28,7 @@ class Application : JerseyApplication() {
                 println("dialogueManagerUrl = $dialogueManagerUrl")
                 bindTo(BotService::class.java, dialogueManagerUrl)
 
+                bindTo(BotServiceResourceImpl::class.java)
 
             }
         })

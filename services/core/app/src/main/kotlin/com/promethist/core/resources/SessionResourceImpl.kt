@@ -3,11 +3,7 @@ package com.promethist.core.resources
 import com.mongodb.client.MongoDatabase
 import com.promethist.core.model.Session
 import com.promethist.core.model.User
-import com.promethist.core.resources.SessionResource
-import org.litote.kmongo.Id
-import org.litote.kmongo.eq
-import org.litote.kmongo.getCollection
-import org.litote.kmongo.updateOneById
+import org.litote.kmongo.*
 import javax.inject.Inject
 
 class SessionResourceImpl: SessionResource {
@@ -28,6 +24,6 @@ class SessionResourceImpl: SessionResource {
     }
 
     override fun getForUser(userId: Id<User>): List<Session> {
-        return database.getCollection<Session>().find(Session::user_id eq userId).toMutableList()
+        return database.getCollection<Session>().find(Session::user / User::_id eq userId).toMutableList()
     }
 }
