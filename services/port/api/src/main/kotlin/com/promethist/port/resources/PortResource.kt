@@ -2,8 +2,6 @@ package com.promethist.port.resources
 
 import com.promethist.core.model.Message
 import com.promethist.core.resources.BotService
-import com.promethist.port.model.Contract
-import com.promethist.port.tts.TtsRequest
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
@@ -14,12 +12,6 @@ import javax.ws.rs.core.Response
 
 @Api(description = "Port resource")
 interface PortResource : BotService {
-
-    @GET
-    @Path("contract")
-    @ApiOperation(value = "Get port contract")
-    @Produces(MediaType.APPLICATION_JSON)
-    fun getContract(@ApiParam("App key", required = true) @QueryParam("key") appKey: String): Contract
 
     @PUT
     @Path("message/_queue")
@@ -45,12 +37,4 @@ interface PortResource : BotService {
     fun readFile(
             @ApiParam(required = true) @PathParam("id") id: String
     ): Response
-
-    @POST
-    @Path("tts")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    @ApiOperation(value = "Perform TTS")
-    fun tts(@ApiParam("App key", required = true) @QueryParam("key") appKey: String,
-            @ApiParam("TTS request") ttsRequest: TtsRequest): ByteArray
 }

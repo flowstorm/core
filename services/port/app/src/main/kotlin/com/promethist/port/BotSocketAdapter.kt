@@ -1,4 +1,4 @@
-package com.promethist.port.bot
+package com.promethist.port
 
 import ai.promethist.client.BotClientRequirements
 import ai.promethist.client.BotEvent
@@ -8,8 +8,6 @@ import com.promethist.core.model.Message
 import com.promethist.core.model.MessageItem
 import com.promethist.core.model.TtsConfig
 import com.promethist.core.resources.BotService
-import com.promethist.port.Application
-import com.promethist.port.DataService
 import com.promethist.port.stt.*
 import com.promethist.port.tts.TtsRequest
 import org.eclipse.jetty.websocket.api.WebSocketAdapter
@@ -169,8 +167,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
 
             BotEvent.Type.InputAudioStreamOpen -> {
                 inputAudioClose(false)
-                val contract = dataService.getContract(event.appKey!!)
-                val language = language?.language?:contract.language
+                val language = language?.language?:"en"
                 val sttConfig = SttConfig(language, clientRequirements.sttSampleRate)
                 sttService = SttServiceFactory.create(speechProvider, sttConfig, this.expectedPhrases, BotSttCallback(event))
                 sttStream = sttService?.createStream()
@@ -227,14 +224,13 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
 
     @Throws(IOException::class)
     internal fun sendResponse(appKey: String, response: Message, ttsOnly: Boolean = false) {
-        val contract = dataService.getContract(appKey)
         response.expectedPhrases = null
         for (item in response.items) {
             if (item.text.isNullOrBlank()) {
                 logger.debug("item.text.isNullOrBlank() == true")
             } else {
                 val ttsRequest = TtsRequest(
-                        clientRequirements.ttsVoice?:item.ttsVoice?:TtsConfig.defaultVoice(contract.language),
+                        clientRequirements.ttsVoice?:item.ttsVoice?:TtsConfig.defaultVoice("en"),
                         (if (item.ssml != null) item.ssml else item.text)?:"",
                         item.ssml != null
                 )

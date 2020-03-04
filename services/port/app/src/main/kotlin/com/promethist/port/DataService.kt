@@ -4,7 +4,6 @@ import com.mongodb.client.MongoDatabase
 import com.mongodb.client.gridfs.GridFSBuckets
 import com.promethist.common.AppConfig
 import com.promethist.core.model.Message
-import com.promethist.port.model.Contract
 import com.promethist.port.tts.TtsRequest
 import com.promethist.port.tts.TtsServiceFactory
 import com.promethist.filestore.resources.FileResource
@@ -71,22 +70,6 @@ class DataService {
     private var logger = LoggerFactory.getLogger(DataService::class.qualifiedName)
 
     private var mediaTypeMap = MimetypesFileTypeMap()
-
-    @Throws(WebApplicationException::class)
-    fun getContract(appKey: String): Contract {
-        logger.debug("getContract(appKey = $appKey)")
-
-        val col = database.getCollection("contract", Contract::class.java)
-        val contract = col.findOne {
-            Contract::appKey eq
-                if (appKey.contains(':')) appKey.substring(0, appKey.indexOf(':')) else appKey
-        }
-
-        return if (contract == null)
-            throw NotFoundException("Port contract not found for app key $appKey")
-        else
-            contract
-    }
 
     fun getResourceFile(objectId: ObjectId): ResourceFile {
         val fileDocument = database.getCollection("fs.files").findOneById(objectId)

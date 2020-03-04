@@ -27,13 +27,6 @@ class PortResourceImpl : PortResource {
     @Inject
     lateinit var dataService: DataService
 
-
-    override fun getContract(appKey: String): Contract {
-        val contract = dataService.getContract(appKey)
-        contract.botKey = "*****" // mask api key
-        return contract
-    }
-
     override fun message(appKey: String, message: Message): Message? {
         message.appKey = appKey
 
@@ -66,10 +59,5 @@ class PortResourceImpl : PortResource {
                     }, file.type)
                 .header("Content-Disposition", "inline" + if (file.name == null) "" else "; filename=\"${file.name}\"")
                 .build()
-    }
-
-    override fun tts(appKey: String, ttsRequest: TtsRequest): ByteArray {
-        val contract = getContract(appKey)
-        return dataService.getTtsAudio(ttsRequest, true, true).speak().data!!
     }
 }

@@ -1,7 +1,7 @@
 package com.promethist.port.servlets
 
 import com.promethist.common.servlets.InjectableWebSocketServlet
-import com.promethist.port.bot.BotSocketAdapter
+import com.promethist.port.BotSocketAdapter
 import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory
 import javax.servlet.annotation.WebServlet
 
