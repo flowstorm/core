@@ -24,11 +24,6 @@ data class MessageItem (
         var audio: String? = null,
 
         /**
-         * Extension properties for message. Determined by bot service and/or client application.
-         */
-        val extensions: Message.PropertyMap = Message.PropertyMap(),
-
-        /**
          * TTS voice
          */
         var ttsVoice: String? = null
