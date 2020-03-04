@@ -1,7 +1,7 @@
 package com.promethist.common
 
 import org.glassfish.jersey.client.proxy.WebResourceFactory
-import org.glassfish.jersey.jackson.JacksonFeature
+import org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJaxbJsonProvider
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
@@ -13,9 +13,12 @@ object RestClient {
     val mapper = ObjectUtil.defaultMapper
 
     fun <I>instance(iface: Class<I>, targetUrl: String): I {
+        val provider = JacksonJaxbJsonProvider()
+        provider.setMapper(mapper)
+
         val target = ClientBuilder.newClient()
+                .register(provider)
                 .target(targetUrl)
-                .register(JacksonFeature::class)
 
         return WebResourceFactory.newResource(iface, target)
     }
