@@ -9,8 +9,8 @@ data class Session(
         val _id: Id<Session> = newId(),
         val datetime: Date = Date(),
         val sessionId: String,
-        val user_id: Id<User>,
-        val applicationId: Id<Application>,
+        var user: User? = null,
+        var application: Application? = null,
         val messages: MutableList<Message> = mutableListOf(),
         val metrics: MutableList<Metric> = mutableListOf(Metric("session", "Count", 1))
 ) {
