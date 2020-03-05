@@ -13,7 +13,7 @@ RUN mvn -B verify --fail-never
 
 # build and package app
 COPY . .
-RUN mvn -B -Dapi.host=${API_HOST} clean package
+RUN mvn -B -Dapi.host=${API_HOST} -U clean package
 
 # second stage - build app runtime
 FROM jetty:9.4.18-jre8-alpine
