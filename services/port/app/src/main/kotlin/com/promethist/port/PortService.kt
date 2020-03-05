@@ -130,7 +130,6 @@ class PortService {
 
         if (message._id == null)
             message._id = ObjectId.get().toHexString()
-        message.appKey = appKey
 
         val col = database.getCollection("message-queue", Message::class.java)
         col.insertOne(message)
@@ -139,7 +138,7 @@ class PortService {
 
     fun popMessages(appKey: String, recipient: String, limit: Int): List<Message> {
         val col = database.getCollection("message-queue", Message::class.java)
-        val query = and(Message::appKey eq appKey, Message::recipient eq recipient)
+        val query = and(Message::recipient eq recipient)
         val messages = col.find(query).toList()
         logger.debug("popMessages(appKey = $appKey, limit = $limit, messages = $messages)")
         col.deleteMany(query)

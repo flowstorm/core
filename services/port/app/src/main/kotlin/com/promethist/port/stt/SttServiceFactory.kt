@@ -7,7 +7,7 @@ object SttServiceFactory {
 
     fun create(provider: String, config: SttConfig, expectedPhrases: List<Message.ExpectedPhrase>, callback: SttCallback): SttService {
         when (provider) {
-            "google" -> return GoogleSttService(config, callback, expectedPhrases)
+            "Google" -> return GoogleSttService(config, callback, expectedPhrases)
             else -> throw NotImplementedError()
         }
     }

@@ -26,8 +26,6 @@ class PortResourceImpl : PortResource {
     lateinit var dataService: PortService
 
     override fun message(appKey: String, message: Message): Message? {
-        message.appKey = appKey
-
         val response = botService.message(appKey, message.apply {
             sessionId = if (sessionId.isNullOrBlank()) { Message.createId() } else { sessionId }
         })

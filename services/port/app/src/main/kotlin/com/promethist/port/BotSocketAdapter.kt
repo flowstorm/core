@@ -14,57 +14,33 @@ import org.eclipse.jetty.websocket.api.WebSocketAdapter
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.nio.ByteBuffer
-import java.util.*
 import javax.inject.Inject
 
 class BotSocketAdapter : BotSocket, WebSocketAdapter() {
 
-    inner class BotSttCallback(private val event: BotEvent) : SttCallback {
+    inner class BotSttCallback() : SttCallback {
 
         override fun onResponse(transcript: String, confidence: Float, final: Boolean) {
             try {
                 if (final && !inputAudioStreamCancelled) {
-                    sendEvent(BotEvent(BotEvent.Type.Recognized, Message(language = language, items = mutableListOf(MessageItem(text = transcript)))))
-                    onMessageEvent(event.apply {
-                        this.message!!.language = language
-                        this.message!!.attributes["portResponseTime"] = System.currentTimeMillis()
-                        this.message!!.items = mutableListOf(MessageItem(text = transcript, confidence = confidence.toDouble()))
-                    })
+                    sendEvent(BotEvent.Recognized(transcript))
+                    onText(text = transcript, confidence = confidence.toDouble())
                 }
             } catch (e: IOException) {
-                e.printStackTrace() }
+                onError(e)
+            }
         }
 
         override fun onError(e: Throwable) {
             e.printStackTrace()
             if (isConnected)
-                sendEvent(BotEvent(BotEvent.Type.Error, Message(sender= "google stt",items = mutableListOf(MessageItem(text = e.message?:"")))))
+                sendEvent(BotEvent.Error(e.message?:""))
         }
 
         override fun onOpen() {
-            sendEvent(BotEvent(BotEvent.Type.InputAudioStreamOpen))
+            sendEvent(BotEvent.InputAudioStreamOpen(null))
         }
     }
-
-    inner class Context(val event: BotEvent) {
-
-        val timerTask = object : TimerTask() {
-            override fun run() {
-                val messages = dataService.popMessages(event.appKey!!, event.message!!.sender!!, 1)
-                for (message in messages)
-                    sendResponse(event.appKey!!, message)
-            }
-        }
-
-        init {
-            timer.schedule(timerTask, 2000, 2000)
-        }
-    }
-
-    override var state = BotSocket.State.Open
-    override var listener: BotSocket.Listener? = null
-
-    private var logger = LoggerFactory.getLogger(BotSocketAdapter::class.qualifiedName)
 
     @Inject
     lateinit var botService: BotService
@@ -72,48 +48,69 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
     @Inject
     lateinit var dataService: PortService
 
+    override var state = BotSocket.State.Open
+    override var listener: BotSocket.Listener? = null
+    private lateinit var appKey: String
+    private lateinit var clientRequirements: BotClientRequirements
     private val objectMapper = ObjectUtil.defaultMapper
     private var sttService: SttService? = null
     private var sttStream: SttStream? = null
-    private var clientRequirements: BotClientRequirements = BotClientRequirements()
+    private var lastMessage: Message? = null
+    private var lastMessageTime: Long? = null
+    private var inputAudioTime: Long = 0
     private var inputAudioStreamCancelled: Boolean = false
-    private var speechProvider: String = "google"
     private var expectedPhrases: List<Message.ExpectedPhrase> = listOf()
-    private val timer: Timer = Timer()
-    private val contexts = mutableMapOf<String, Context>()
-    private var language: Locale? = null
+    private var logger = LoggerFactory.getLogger(BotSocketAdapter::class.qualifiedName)
 
-    fun getContext(event: BotEvent) {
-        //TODO persist in mongo
-        val contextKey = "${event.appKey}/${event.message!!.sender}"
-        if (!contexts.containsKey(contextKey)) {
-            val context = Context(event)
-            contexts.put(contextKey, context)
-        }
+    fun onText(text: String, confidence: Double) = lastMessage?.apply {
+        val message = Message(
+                sender = sender,
+                language = language,
+                sessionId = sessionId,
+                items = mutableListOf(MessageItem(text = text, confidence = confidence))
+        )
+        onMessageEvent(BotEvent.Message(appKey, message))
     }
 
     override fun onWebSocketBinary(payload: ByteArray, offset: Int, len: Int) {
         logger.debug("onWebSocketBinary(payload[${payload.size}], offset = $offset, len = $len)")
-        super.onWebSocketBinary(payload, offset, len)
-        sttStream?.write(payload, offset, len)
+        if (!inputAudioStreamCancelled) {
+            if (inputAudioTime + 10000 < System.currentTimeMillis()) {
+                val text = "\$noaudio"
+                inputAudioClose(true)
+                sendEvent(BotEvent.Recognized(text))
+                onText(text, 1.0)
+            } else {
+                super.onWebSocketBinary(payload, offset, len)
+                sttStream?.write(payload, offset, len)
+            }
+        }
     }
 
     /**
      * Determine if the response from botService will be followed by waiting for user input or another message will be sent to botService
      */
-    fun onMessageEvent(event: BotEvent) {
-        event.message!!.attributes["portResponseTime"] = System.currentTimeMillis()
-        val response = botService.message(event.appKey!!, event.message!!)
+    private fun onMessageEvent(event: BotEvent.Message) = event.apply {
+        lastMessageTime = System.currentTimeMillis()
+        lastMessage = message
+        if (message.sessionId == null) {
+            message.sessionId = Message.createId()
+            sendEvent(BotEvent.SessionStarted(message.sessionId!!))
+        }
+        val currentTime = System.currentTimeMillis()
+        val response = botService.message(event.appKey, message)
         if (response != null) {
+            response.attributes["serviceResponseTime"] = System.currentTimeMillis() - currentTime
             expectedPhrases = response.expectedPhrases?: listOf()
+            response.expectedPhrases = null
             if (response.sessionEnded) {
-                sendResponse(event.appKey!!, response)
-                sendEvent(BotEvent(BotEvent.Type.SessionEnded))
+                sendResponse(event.appKey, response)
+                sendEvent(BotEvent.SessionEnded())
                 inputAudioClose(false)
             }
             // todo will not work correctly before the subdialogs in helena will be implemented
             else {
-                sendResponse(event.appKey!!, response) // client will wait for user input
+                sendResponse(event.appKey, response) // client will wait for user input
             }
         }
     }
@@ -122,75 +119,45 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
         super.onWebSocketText(json)
         try {
             val event = objectMapper.readValue(json, BotEvent::class.java)
-            if (/*event == null || */event.type == null)
-                return
-
             logger.info("onWebSocketText(event = $event)")
-
-            if (event.message != null) {
-
-                // set session id
-                if (event.message!!.sessionId.isNullOrBlank()) {
-                    event.message!!.sessionId = Message.createId()
-                    sendEvent(BotEvent(BotEvent.Type.SessionStarted, Message(sessionId = event.message!!.sessionId)))
-                }
-
-                if (event.appKey != null && event.message!!.sender != null) {
-                    getContext(event)
-                }
-            }
             onEvent(event)
         } catch (e: Exception) {
             e.printStackTrace()
-            sendEvent(BotEvent(BotEvent.Type.Error, Message(sender = "port", items = mutableListOf(MessageItem(text = e.message?:"")))))
+            sendEvent(BotEvent.Error(e.message?:e::class.simpleName?:"unknown"))
         }
     }
 
-    fun onEvent(event: BotEvent) {
-        language = event.message?.language?:language
-        when (event.type) {
-
-            BotEvent.Type.Requirements -> {
-                clientRequirements = event.requirements?:BotClientRequirements()
-                sendEvent(BotEvent(BotEvent.Type.Requirements, requirements = clientRequirements))
+    private fun onEvent(event: BotEvent) {
+        when (event) {
+            is BotEvent.Requirements -> {
+                appKey = event.appKey
+                clientRequirements = event.requirements
+                sendEvent(event)
             }
-
-            BotEvent.Type.SessionStarted ->
-                sendEvent(BotEvent(BotEvent.Type.SessionStarted,
-                        Message(sessionId = event.message?.sessionId?:Message.createId())))
-
-            BotEvent.Type.SessionEnded -> sendEvent(BotEvent(BotEvent.Type.SessionEnded))
-
-            BotEvent.Type.Message -> onMessageEvent(event)
-
-            BotEvent.Type.TextToSpeech -> sendResponse(event.appKey!!, event.message!!.response(event.message!!.items), true)
-
-            BotEvent.Type.InputAudioStreamOpen -> {
+            is BotEvent.SessionEnded -> sendEvent(BotEvent.SessionEnded())
+            is BotEvent.Message -> onMessageEvent(event)
+            is BotEvent.InputAudioStreamOpen -> {
                 inputAudioClose(false)
-                val language = language?.language?:"en"
+                val language = lastMessage?.language?.language?:"en"
                 val sttConfig = SttConfig(language, clientRequirements.sttSampleRate)
-                sttService = SttServiceFactory.create(speechProvider, sttConfig, this.expectedPhrases, BotSttCallback(event))
+                sttService = SttServiceFactory.create("Google", sttConfig, this.expectedPhrases, BotSttCallback())
                 sttStream = sttService?.createStream()
+                inputAudioTime = System.currentTimeMillis()
             }
-
-            BotEvent.Type.InputAudioStreamClose -> inputAudioClose(false)
-
-            BotEvent.Type.InputAudioStreamCancel -> inputAudioClose(true)
-
-            else -> {}
+            is BotEvent.InputAudioStreamClose -> inputAudioClose(false)
+            is BotEvent.InputAudioStreamCancel -> inputAudioClose(true)
+            else -> sendEvent(BotEvent.Error("Unexpected event of type ${event::class.simpleName}"))
         }
     }
 
     override fun onWebSocketClose(statusCode: Int, reason: String?) {
         super.onWebSocketClose(statusCode, reason)
         inputAudioClose(false)
-        timer.cancel()
     }
 
     override fun onWebSocketError(cause: Throwable?) {
         super.onWebSocketError(cause)
         inputAudioClose(false)
-        timer.cancel()
     }
 
     override fun open() = logger.info("open()")
@@ -202,7 +169,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
         inputAudioClose()
     }
 
-    fun inputAudioClose() {
+    private fun inputAudioClose() {
         logger.info("inputAudioClose()")
         sttStream?.close()
         sttStream = null
@@ -251,10 +218,9 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
             }
         }
         if (!ttsOnly) {
-            if (response.attributes.containsKey("portResponseTime"))
-                response.attributes["portResponseTime"] =
-                    System.currentTimeMillis() - response.attributes["portResponseTime"] as Long
-            sendEvent(BotEvent(BotEvent.Type.Message, response))
+            if (lastMessageTime != null)
+                response.attributes["portResponseTime"] = (System.currentTimeMillis() - lastMessageTime!!)
+            sendEvent(BotEvent.Message(appKey, response))
         }
     }
 }
