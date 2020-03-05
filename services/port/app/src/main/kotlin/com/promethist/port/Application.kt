@@ -37,7 +37,7 @@ class Application : JerseyApplication() {
                         .getDatabase(AppConfig.instance["database.name"]))
                 bindTo(PortService::class.java)
                 bindTo(BotService::class.java, ServiceUtil.getEndpointUrl(
-                        AppConfig.instance.get("service.name", "admin"),
+                        AppConfig.instance.get("service.name", "core"),
                         ServiceUtil.RunMode.valueOf(AppConfig.instance.get("service.mode", "dist"))))
             }
         })
