@@ -30,6 +30,13 @@ class Application : JerseyApplication() {
 
                 bindTo(BotServiceResourceImpl::class.java)
 
+                // admin
+                val adminUrl =
+                        AppConfig.instance.get("admin.url",
+                                ServiceUtil.getEndpointUrl("helena",
+                                        ServiceUtil.RunMode.valueOf(AppConfig.instance.get("runmode", "dist"))))
+                bindTo(ContentDistributionResource::class.java, adminUrl)
+
             }
         })
     }

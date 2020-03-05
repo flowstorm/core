@@ -24,18 +24,7 @@ class BotServiceResourceImpl : BotService {
 
     override fun message(appKey: String, message: Message): Message? {
         try {
-
-            val sessionId = message.sessionId ?: error("No session id")
-            val storedSession = sessionResource.get(sessionId)
-            val session = if (storedSession != null) {
-                logger.info("Restoring the existing session.")
-                storedSession
-            } else {
-                val userContent = contentDistributionResource.resolve(message.sender!!)
-                logger.info("Starting a new session.")
-                Session(sessionId = sessionId, user = userContent.user, application = selectApplication(message, appKey, userContent.applications))
-                }
-
+            val session = initSession(message, appKey)
 
             val appVariables = mutableMapOf<String, Serializable>()
             addUserToExtensions(message, session.user)
@@ -62,6 +51,20 @@ class BotServiceResourceImpl : BotService {
         }
     }
 
+    private fun initSession(message: Message, appKey: String): Session {
+        val sessionId = message.sessionId ?: error("No session id.")
+        val storedSession = sessionResource.get(sessionId)
+        if (storedSession != null) {
+            logger.info("Restoring the existing session.")
+            return storedSession
+        } else {
+            logger.info("Starting a new session.")
+            val userContent = contentDistributionResource.resolve(message.sender)
+            return Session(sessionId = sessionId, user = userContent.user, application = selectApplication(message, appKey, userContent.applications))
+                    .apply { sessionResource.create(this) }
+        }
+    }
+
     private fun addUserToExtensions(message: Message, user: User) {
         message.sender = user.username
         message.attributes["user"] = Hashtable<String, String>(mapOf(
@@ -75,6 +78,7 @@ class BotServiceResourceImpl : BotService {
 
     private fun selectApplication(message: Message, appKey: String, availableApplications: List<Application>): Application {
         if (appKey.contains("::")) {
+            logger.info("Selecting dialog using appKey $appKey")
             return Application(
                     name = "Dialog specified in appKey",
                     dialogueName = appKey.substringAfter("::"),
@@ -85,7 +89,7 @@ class BotServiceResourceImpl : BotService {
         if (availableApplications.isEmpty()) throw NoApplicationException("There are no assigned application for the user.")
 
         if (appKey.contains(':')) {
-            logger.info("Loading application using appKey $appKey")
+            logger.info("Selecting application using appKey $appKey")
             val spec = appKey.substringAfter(":")
             // select application by id
             return availableApplications.find { application: Application -> spec == application._id.toString() }
@@ -110,7 +114,7 @@ class BotServiceResourceImpl : BotService {
     private fun getErrorMessageResponse(message: Message, e: Exception): Message {
         val type = e::class.simpleName
         var code = 1
-        var text: String? = null
+        val text: String?
         e.printStackTrace()
         when (e) {
             is WebApplicationException -> {
