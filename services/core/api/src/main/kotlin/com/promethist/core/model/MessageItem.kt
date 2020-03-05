@@ -14,7 +14,7 @@ data class MessageItem (
         /**
          * Confidence score. Client usually does not set (if there is human behind ;-)
          */
-        var confidence: Double? = 1.0,
+        var confidence: Double = 1.0,
 
         /**
          * Resource links.
