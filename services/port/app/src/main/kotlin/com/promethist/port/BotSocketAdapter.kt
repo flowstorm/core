@@ -3,6 +3,7 @@ package com.promethist.port
 import ai.promethist.client.BotClientRequirements
 import ai.promethist.client.BotEvent
 import ai.promethist.client.BotSocket
+import com.promethist.common.AppConfig
 import com.promethist.common.ObjectUtil
 import com.promethist.core.model.Message
 import com.promethist.core.model.MessageItem
@@ -14,6 +15,7 @@ import org.eclipse.jetty.websocket.api.WebSocketAdapter
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.nio.ByteBuffer
+import java.util.*
 import javax.inject.Inject
 
 class BotSocketAdapter : BotSocket, WebSocketAdapter() {
@@ -196,10 +198,22 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
             if (item.text.isNullOrBlank()) {
                 logger.debug("item.text.isNullOrBlank() == true")
             } else {
-                val ttsRequest = TtsRequest(
+                val ttsRequest =
+                    TtsRequest(
                         clientRequirements.ttsVoice?:item.ttsVoice?:TtsConfig.defaultVoice("en"),
-                        (if (item.ssml != null) item.ssml else item.text)?:"",
-                        item.ssml != null
+                        ((if (item.ssml != null) item.ssml else item.text)?:"").replace(Regex("\\$(\\w+)")) {
+                            // command processing
+                            when (it.groupValues[1]) {
+                                "version" -> {
+                                    response.language = Locale.ENGLISH
+                                    item.text = "Client version ${clientRequirements.clientVersion}, port version ${AppConfig.version}, environment ${AppConfig.instance.get("namespace", "unknown")}."
+                                    item.text!!
+                                }
+                                else -> ""
+                            }
+                        },
+                        item.ssml != null,
+                        speakingRate = response.attributes["speakingRate"]?.toString()?.toDoubleOrNull()?:1.0
                 )
                 if (clientRequirements.tts != BotClientRequirements.TtsType.None) {
                     val audio = dataService.getTtsAudio(

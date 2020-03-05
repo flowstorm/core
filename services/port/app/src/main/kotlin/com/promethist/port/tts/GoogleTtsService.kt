@@ -27,7 +27,7 @@ object GoogleTtsService: TtsService {
         val audioConfig = AudioConfig.newBuilder()
                 .setAudioEncoding(AudioEncoding.MP3)
                 .setSampleRateHertz(ttsRequest.sampleRate)
-                //.setSpeakingRate(request.speakingRate)
+                .setSpeakingRate(ttsRequest.speakingRate)
                 //.setPitch(request.pitch)
                 //.setVolumeGainDb(request.volumeGain)
                 .build()
