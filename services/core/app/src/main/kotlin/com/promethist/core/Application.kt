@@ -33,7 +33,7 @@ class Application : JerseyApplication() {
                 // admin
                 val adminUrl =
                         AppConfig.instance.get("admin.url",
-                                ServiceUtil.getEndpointUrl("helena",
+                                ServiceUtil.getEndpointUrl("admin",
                                         ServiceUtil.RunMode.valueOf(AppConfig.instance.get("runmode", "dist"))))
                 bindTo(ContentDistributionResource::class.java, adminUrl)
 
