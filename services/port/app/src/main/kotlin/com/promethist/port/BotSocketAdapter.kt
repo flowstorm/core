@@ -95,10 +95,6 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
     private fun onMessageEvent(event: BotEvent.Message) = event.apply {
         lastMessageTime = System.currentTimeMillis()
         lastMessage = message
-        if (message.sessionId == null) {
-            message.sessionId = Message.createId()
-            sendEvent(BotEvent.SessionStarted(message.sessionId!!))
-        }
         val currentTime = System.currentTimeMillis()
         val response = botService.message(event.appKey, message)
         if (response != null) {
@@ -135,6 +131,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                 appKey = event.appKey
                 clientRequirements = event.requirements
                 sendEvent(event)
+                sendEvent(BotEvent.SessionStarted(Message.createId()))
             }
             is BotEvent.SessionEnded -> sendEvent(BotEvent.SessionEnded())
             is BotEvent.Message -> onMessageEvent(event)
