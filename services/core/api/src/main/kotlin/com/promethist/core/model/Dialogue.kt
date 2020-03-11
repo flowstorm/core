@@ -1,33 +1,20 @@
 package com.promethist.core.model
 
-import com.fasterxml.jackson.annotation.JsonSubTypes
-import com.fasterxml.jackson.annotation.JsonTypeInfo
 import org.litote.kmongo.Id
-import org.litote.kmongo.newId
 import java.io.Serializable
 import java.util.*
 
-data class Dialogue(
-        var _id: Id<Dialogue>,
-        var name: String,
-        var versions: List<Revision>
-) {
+open class Dialogue(
+        var lastModified: Date = Date(),
+        var modifiedBy: User? = null,
+        var properties: MutableList<Property> = mutableListOf(),
+        var state: State = State.Draft,
+        var nodes: MutableSet<Node> = mutableSetOf()
+    )
+{
+    private var nextNodeId: Int = 1
 
-    // dialogue manager persists and runs just versions (while editor manages whole dialog models with all versions)
-    data class Revision(
-            var name: String, // helena stores "${dialogue.name}:$revision_index"
-            var lastModified: Date,
-            var modifiedBy: User,
-            var properties: List<Property>,
-            var state: State,
-            var nodes: HashSet<Node>
-    ) {
-        enum class State { Draft, Public }
-
-        fun getProperty(name: String) = properties.find { it.name == name }
-        fun getSubdialogueNodes(): List<SubdialogueNode> = nodes.filterIsInstance<SubdialogueNode>()
-        fun getFunctions(): List<*> { TODO() }
-    }
+    enum class State { Draft, Public }
 
     data class Property(
             var name: String,
@@ -37,59 +24,78 @@ data class Dialogue(
         enum class Type { Number, Text, ListOfNumbers, ListOfTexts, Boolean }
     }
 
-    @JsonTypeInfo(
-            use = JsonTypeInfo.Id.NAME,
-            include = JsonTypeInfo.As.PROPERTY,
-            property = "type")
-    @JsonSubTypes(
-            JsonSubTypes.Type(value = IntentNode::class, name = "Intent"),
-            JsonSubTypes.Type(value = ResponseNode::class, name = "Response"),
-            JsonSubTypes.Type(value = ResourceResponseNode::class, name = "ResourceResponse"),
-            JsonSubTypes.Type(value = FunctionNode::class, name = "Function"),
-            JsonSubTypes.Type(value = ExternalFunctionNode::class, name = "ExternalFunction"),
-            JsonSubTypes.Type(value = SubdialogueNode::class, name = "Subdialogue")
-    )
-    abstract class Node(
-            var _id: Id<Node> = newId(),
-            open var name: String,
-            var nextNodes: List<Id<Node>> = mutableListOf()
-    ) {
-        override fun hashCode(): Int = _id.hashCode()
+    /* no need for JSON - KTS is the format
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.PROPERTY,
+    property = "type")
+@JsonSubTypes(
+    JsonSubTypes.Type(value = IntentNode::class, name = "Intent"),
+    JsonSubTypes.Type(value = ResponseNode::class, name = "Response"),
+    JsonSubTypes.Type(value = ResourceResponseNode::class, name = "ResourceResponse"),
+    JsonSubTypes.Type(value = FunctionNode::class, name = "Function"),
+    JsonSubTypes.Type(value = ExternalFunctionNode::class, name = "ExternalFunction"),
+    JsonSubTypes.Type(value = SubdialogueNode::class, name = "Subdialogue")
+)
+*/
+    abstract inner class Node(open val id: Int) {
+        lateinit var nextNode: Node
+        val attributes: MutableMap<String, Any> = mutableMapOf()
+
+        override fun hashCode(): Int = id
+        fun node(id: Int): Node = nodes.find { it.id == id }?:error("Node $id not found in $this@Revision")
     }
 
-    data class IntentNode(
-        override var name: String,
-        var utterances: List<String>
-    ): Node(name = name)
+    inner class Intent(
+            override val id: Int,
+            val utterances: List<String>
+    ): Node(id)
 
-    abstract class ResponseNode(
-            override var name: String,
+    open inner class Response(
+            override val id: Int,
             open var texts: List<String>,
             open var isSsml: Boolean
-    ): Node(name = name)
+    ): Node(id)
 
-    data class ResourceResponseNode(
-            override var name: String,
+    inner class ResourceResponse(
+            override val id: Int,
             override var texts: List<String>,
             override var isSsml: Boolean = false,
-            var resource_id: Id<*>
-    ): ResponseNode(name = name, texts = texts, isSsml = isSsml)
+            val resource_id: Id<*>
+    ): Response(id, texts, isSsml)
 
-    data class FunctionNode(
-            override var name: String,
-            var type: Function.Type,
-            override var source: String
-    ): Node(name = name), Function
+    inner class Function(
+            override val id: Int,
+            val function: (Function.(Context) -> Node)
+    ): Node(id)
 
     // externals functions should be converted into functions during build
-    data class ExternalFunctionNode(
-            override var name: String,
-            var function_id: Id<*>
-    ): Node(name = name)
+    inner class ExternalFunction(
+            override val id: Int,
+            var name: String
+    ): Node(id)
 
-    data class SubdialogueNode(
-            override var name: String,
-            var dialogue_id: Id<Dialogue>
-    ): Node(name = name)
+    inner class Subdialogue(
+            override val id: Int,
+            var name: String
+    ): Node(id)
 
+    inner class StopDialogue(override val id: Int = nextNodeId++) : Node(id)
+
+    inner class StopSession(override val id: Int = nextNodeId++) : Node(id)
+
+    fun intent(id: Int = nextNodeId++, utterances: List<String>): Intent =
+            Intent(id, utterances).apply { nodes.add(this) }
+
+    fun response(id: Int = nextNodeId++, texts: List<String>, isSsml: Boolean = false): Response =
+            Response(id, texts, isSsml).apply { nodes.add(this) }
+
+    fun function(id: Int = nextNodeId++, function: (Function.(Context) -> Node)): Function =
+            Function(id, function).apply { nodes.add(this) }
+}
+
+fun dialogue(init: (Dialogue.() -> Dialogue.Node)): Dialogue {
+    val dialogue = Dialogue()
+    init.invoke(dialogue)
+    return dialogue
 }
