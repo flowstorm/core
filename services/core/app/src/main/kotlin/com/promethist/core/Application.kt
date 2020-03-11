@@ -5,10 +5,18 @@ import com.mongodb.client.MongoDatabase
 import com.promethist.common.AppConfig
 import com.promethist.common.JerseyApplication
 import com.promethist.common.ResourceBinder
+import com.promethist.common.query.Query
+import com.promethist.common.query.QueryInjectionResolver
+import com.promethist.common.query.QueryParams
+import com.promethist.common.query.QueryValueFactory
 import com.promethist.core.model.TtsConfig
 import com.promethist.core.model.User
 import com.promethist.core.resources.*
+import org.glassfish.hk2.api.InjectionResolver
+import org.glassfish.hk2.api.TypeLiteral
+import org.glassfish.jersey.process.internal.RequestScoped
 import org.litote.kmongo.KMongo
+import javax.inject.Singleton
 
 class Application : JerseyApplication() {
 
@@ -36,6 +44,13 @@ class Application : JerseyApplication() {
                                 ServiceUtil.getEndpointUrl("admin",
                                         ServiceUtil.RunMode.valueOf(AppConfig.instance.get("runmode", "dist"))))
                 bindTo(ContentDistributionResource::class.java, adminUrl)
+
+
+                bindFactory(QueryValueFactory::class.java).to(Query::class.java).`in`(RequestScoped::class.java)
+
+                bind(QueryInjectionResolver::class.java)
+                        .to(object: TypeLiteral<InjectionResolver<QueryParams>>() {})
+                        .`in`(Singleton::class.java)
 
             }
         })
