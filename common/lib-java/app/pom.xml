@@ -72,6 +72,16 @@
             <artifactId>mailgun</artifactId>
             <version>1.2.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.litote.kmongo</groupId>
+            <artifactId>kmongo</artifactId>
+            <version>3.11.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.litote.kmongo</groupId>
+            <artifactId>kmongo-id</artifactId>
+            <version>3.11.1</version>
+        </dependency>
     </dependencies>
 
     <build>
