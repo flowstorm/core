@@ -3,10 +3,16 @@ package com.promethist.common
 import org.glassfish.jersey.client.proxy.WebResourceFactory
 import org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJaxbJsonProvider
 import java.io.OutputStreamWriter
+import java.lang.reflect.AnnotatedElement
 import java.net.HttpURLConnection
 import java.net.URL
+import javax.inject.Named
+import javax.ws.rs.Path
 import javax.ws.rs.WebApplicationException
 import javax.ws.rs.client.ClientBuilder
+import javax.ws.rs.client.WebTarget
+import kotlin.reflect.KFunction
+import kotlin.reflect.jvm.javaMethod
 
 object RestClient {
 
@@ -43,5 +49,36 @@ object RestClient {
         conn.inputStream.use {
             return mapper.readValue(it, responseType)
         }
+    }
+
+    @Named
+    fun webTarget(targetUrl: String): WebTarget {
+        val provider = JacksonJaxbJsonProvider()
+        provider.setMapper(mapper)
+
+        return ClientBuilder.newClient()
+                .register(provider)
+                .target(targetUrl)
+    }
+}
+
+fun WebTarget.resourceMethod(method: KFunction<*>): WebTarget {
+    val resourceMethod = method.javaMethod!!
+    val resourceClass = resourceMethod.declaringClass
+
+    var wt = this
+    wt = addPathFromAnnotation(resourceClass, wt)
+    wt = addPathFromAnnotation(resourceMethod, wt)
+
+    return wt
+}
+
+private fun addPathFromAnnotation(ae: AnnotatedElement, target: WebTarget): WebTarget {
+    val p = ae.getAnnotation(Path::class.java)
+
+    return if (p != null) {
+        target.path(p.value)
+    } else {
+        target
     }
 }
