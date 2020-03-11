@@ -1,5 +1,6 @@
 package com.promethist.common.resources
 
+import com.promethist.common.AppConfig
 import javax.ws.rs.ServerErrorException
 import javax.ws.rs.WebApplicationException
 import javax.ws.rs.core.Response
@@ -14,7 +15,7 @@ class ThrowableMapper : ExceptionMapper<Throwable> {
         else ServerErrorException(t.message, Response.Status.INTERNAL_SERVER_ERROR, t)
 
         return Response.fromResponse(e.response)
-                .entity(e.message?:e::class.java.simpleName)
+                .entity("${AppConfig.instance["name"]}:${e::class.java.simpleName}: ${e.message?:""}")
                 .type("text/plain")
                 .build()
     }
