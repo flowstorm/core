@@ -15,8 +15,8 @@ val d = dialogue {
     }
 
     // node references
-    intent1.nextNode = response1
-    response1.nextNode = function1
+    intent1.next = response1
+    response1.next = function1
 
     intent1 // start node
 }

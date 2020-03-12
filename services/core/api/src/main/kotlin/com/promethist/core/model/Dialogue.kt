@@ -13,16 +13,17 @@ open class Dialogue(
         val nodes: MutableSet<Node> = mutableSetOf()
     )
 {
+    val start = StartDialogue()
     private var nextNodeId: Int = 1
-
-    interface Function {
-        fun exec(context: Context): Dialogue.Node
-    }
 
     enum class State { Draft, Public }
 
+    interface Function {
+        fun exec(context: Context): Node
+    }
+
     abstract inner class Node(open val id: Int) {
-        lateinit var nextNode: Node
+        lateinit var next: Node
         val attributes: MutableMap<String, Any> = mutableMapOf()
 
         init {
@@ -52,6 +53,14 @@ open class Dialogue(
             val resource_id: Id<*>
     ): Response(id, texts, isSsml)
 
+    inner class FileResponse(
+            override val id: Int = nextNodeId++,
+            override var texts: List<String>,
+            override var isSsml: Boolean = false,
+            val type: String,
+            val name: String
+    ): Response(id, texts, isSsml)
+
     abstract inner class ObjectFunction(
             override val id: Int = nextNodeId++
     ): Node(id), Function {
@@ -65,7 +74,9 @@ open class Dialogue(
         override fun exec(context: Context): Node = lambda(context)
     }
 
-    inner class SubDialogue(override val id: Int, val name: String): Node(id)
+    inner class SubDialogue(override val id: Int = nextNodeId++, val name: String): Node(id)
+
+    inner class StartDialogue(override val id: Int = nextNodeId++) : Node(id)
 
     inner class StopDialogue(override val id: Int = nextNodeId++) : Node(id)
 
@@ -83,7 +94,7 @@ open class Dialogue(
 
     val properties: List<KMutableProperty<*>>
         get() = javaClass.kotlin.members.filter {
-            it is KMutableProperty && !it.returnType.isSubtypeOf(Dialogue.Node::class.createType())
+            it is KMutableProperty && !it.returnType.isSubtypeOf(Node::class.createType())
         }.map { it as KMutableProperty<*>}
 
     fun intent(id: Int = nextNodeId++, utterances: List<String>): Intent = Intent(id, utterances)

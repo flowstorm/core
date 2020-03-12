@@ -10,7 +10,7 @@ class Dialogue2 : Dialogue() {// we can inherit from existing dialogues
     // dialogue functions
     fun someUsefulFunction(intent: Intent): Intent = intent
 
-    // dialogue nodes (always val)
+    // dialogue nodes (always val named by editor elements)
     val intent1 = Intent(id = -1/* custom id from editor*/, utterances = listOf("hi", "hello"))
     val response1 = Response(texts = listOf("welcome", "nice to meet you"))
     val function1 = object : ObjectFunction() { // descendants of ObjectFunction can be librarized
@@ -19,13 +19,13 @@ class Dialogue2 : Dialogue() {// we can inherit from existing dialogues
             return if (context.message.startsWithVowel())
                 someUsefulFunction(intent1)
             else
-                StopDialogue()
+                function2
             // end of editable script
         }
     }
-    val function2 = function { // simple lambda function (always one purpose, embedded)
+    val function2 = LambdaFunction { context -> // simple lambda function (always one purpose, embedded)
         // start of editable script
-        if (do_math)
+        if (do_math && !context.message.isBlank())
             intent1
         else
             StopDialogue()
@@ -34,8 +34,9 @@ class Dialogue2 : Dialogue() {// we can inherit from existing dialogues
 
     // dialogue node references
     init {
-        intent1.nextNode = response1
-        response1.nextNode = function1
+        start.next = intent1
+        intent1.next = response1
+        response1.next = function1
     }
 }
 
