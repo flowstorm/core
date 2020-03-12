@@ -59,8 +59,15 @@ class BotServiceResourceImpl : BotService {
             return storedSession
         } else {
             logger.info("Starting a new session.")
-            val userContent = contentDistributionResource.resolve(message.sender)
-            return Session(sessionId = sessionId, user = userContent.user, application = selectApplication(message, appKey, userContent.applications))
+            val userContent = contentDistributionResource.resolve(
+                    ContentDistributionResource.ContentRequest(
+                            message.sender,
+                            appKey,
+                            message.language?.language,
+                            Application.StartCondition(Application.StartCondition.Type.OnAction, message.items[0].text?: "")
+                    ))
+
+            return Session(sessionId = sessionId, user = userContent.user, application = userContent.application)
                     .apply { sessionResource.create(this) }
         }
     }
@@ -75,41 +82,6 @@ class BotServiceResourceImpl : BotService {
         ))
         message.attributes["username"] = user.nickname
     }
-
-    private fun selectApplication(message: Message, appKey: String, availableApplications: List<Application>): Application {
-        if (appKey.contains("::")) {
-            logger.info("Selecting dialog using appKey $appKey")
-            return Application(
-                    name = "Dialog specified in appKey",
-                    dialogueName = appKey.substringAfter("::"),
-                    ttsVoice = TtsConfig.defaultVoice(message.language?.language ?: "en")
-            )
-        }
-
-        if (availableApplications.isEmpty()) throw NoApplicationException("There are no assigned application for the user.")
-
-        if (appKey.contains(':')) {
-            logger.info("Selecting application using appKey $appKey")
-            val spec = appKey.substringAfter(":")
-            // select application by id
-            return availableApplications.find { application: Application -> spec == application._id.toString() }
-                    ?: throw NoApplicationException("Requested application is not in the list of assigned applications. Requested appKey=$appKey.")
-        }
-
-        logger.info("Selecting application using given conditions $appKey")
-        // select application by action condition and language
-        val apps = availableApplications.filter { application: Application ->
-            val config = TtsConfig.forVoice(application.ttsVoice ?: "Grace")
-            (application.startCondition == Application.StartCondition(Application.StartCondition.Type.OnAction, message.items[0].text
-                    ?: "")) &&
-                    ((message.language == null) || (config.language.substring(0, 2) == message.language?.language))
-        }
-        if (apps.isEmpty()) throw NoApplicationException("There is no assigned application fulfilling required conditions.(language, voice, start condition)")
-
-        return apps.random()
-    }
-
-    class NoApplicationException(message: String?) : NotFoundException(message)
 
     private fun getErrorMessageResponse(message: Message, e: Exception): Message {
         val type = e::class.simpleName
