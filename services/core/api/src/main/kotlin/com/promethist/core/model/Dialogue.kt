@@ -1,97 +1,98 @@
 package com.promethist.core.model
 
 import org.litote.kmongo.Id
-import java.io.Serializable
 import java.util.*
+import kotlin.reflect.KMutableProperty
+import kotlin.reflect.full.createType
+import kotlin.reflect.full.isSubtypeOf
 
 open class Dialogue(
-        var lastModified: Date = Date(),
-        var modifiedBy: User? = null,
-        var properties: MutableList<Property> = mutableListOf(),
-        var state: State = State.Draft,
-        var nodes: MutableSet<Node> = mutableSetOf()
+        val created: Date = Date(),
+        val author: User? = null,
+        val state: State = State.Draft,
+        val nodes: MutableSet<Node> = mutableSetOf()
     )
 {
     private var nextNodeId: Int = 1
 
-    enum class State { Draft, Public }
-
-    data class Property(
-            var name: String,
-            var type: Type,
-            var defaultValue: Serializable
-    ) {
-        enum class Type { Number, Text, ListOfNumbers, ListOfTexts, Boolean }
+    interface Function {
+        fun exec(context: Context): Dialogue.Node
     }
 
-    /* no need for JSON - KTS is the format
-@JsonTypeInfo(
-    use = JsonTypeInfo.Id.NAME,
-    include = JsonTypeInfo.As.PROPERTY,
-    property = "type")
-@JsonSubTypes(
-    JsonSubTypes.Type(value = IntentNode::class, name = "Intent"),
-    JsonSubTypes.Type(value = ResponseNode::class, name = "Response"),
-    JsonSubTypes.Type(value = ResourceResponseNode::class, name = "ResourceResponse"),
-    JsonSubTypes.Type(value = FunctionNode::class, name = "Function"),
-    JsonSubTypes.Type(value = ExternalFunctionNode::class, name = "ExternalFunction"),
-    JsonSubTypes.Type(value = SubdialogueNode::class, name = "Subdialogue")
-)
-*/
+    enum class State { Draft, Public }
+
     abstract inner class Node(open val id: Int) {
         lateinit var nextNode: Node
         val attributes: MutableMap<String, Any> = mutableMapOf()
 
+        init {
+            nodes.add(this)
+        }
+
         override fun hashCode(): Int = id
-        fun node(id: Int): Node = nodes.find { it.id == id }?:error("Node $id not found in $this@Revision")
+
+        override fun toString(): String = "${javaClass.simpleName}(id=$id)"
     }
 
     inner class Intent(
-            override val id: Int,
+            override val id: Int = nextNodeId++,
             val utterances: List<String>
     ): Node(id)
 
     open inner class Response(
-            override val id: Int,
+            override val id: Int = nextNodeId++,
             open var texts: List<String>,
-            open var isSsml: Boolean
+            open var isSsml: Boolean = false
     ): Node(id)
 
     inner class ResourceResponse(
-            override val id: Int,
+            override val id: Int = nextNodeId++,
             override var texts: List<String>,
             override var isSsml: Boolean = false,
             val resource_id: Id<*>
     ): Response(id, texts, isSsml)
 
-    inner class Function(
-            override val id: Int,
-            val function: (Function.(Context) -> Node)
-    ): Node(id)
+    abstract inner class ObjectFunction(
+            override val id: Int = nextNodeId++
+    ): Node(id), Function {
+        abstract override fun exec(context: Context): Node
+    }
 
-    // externals functions should be converted into functions during build
-    inner class ExternalFunction(
-            override val id: Int,
-            var name: String
-    ): Node(id)
+    inner class LambdaFunction(
+            override val id: Int = nextNodeId++,
+            val lambda: (Function.(Context) -> Node)
+    ): Node(id), Function {
+        override fun exec(context: Context): Node = lambda(context)
+    }
 
-    inner class Subdialogue(
-            override val id: Int,
-            var name: String
-    ): Node(id)
+    inner class SubDialogue(override val id: Int, val name: String): Node(id)
 
     inner class StopDialogue(override val id: Int = nextNodeId++) : Node(id)
 
     inner class StopSession(override val id: Int = nextNodeId++) : Node(id)
 
-    fun intent(id: Int = nextNodeId++, utterances: List<String>): Intent =
-            Intent(id, utterances).apply { nodes.add(this) }
+    val intents: List<Intent> get() = nodes.filter { it is Intent }.map { it as Intent }
 
-    fun response(id: Int = nextNodeId++, texts: List<String>, isSsml: Boolean = false): Response =
-            Response(id, texts, isSsml).apply { nodes.add(this) }
+    val responses: List<Response> get() = nodes.filter { it is Response }.map { it as Response }
 
-    fun function(id: Int = nextNodeId++, function: (Function.(Context) -> Node)): Function =
-            Function(id, function).apply { nodes.add(this) }
+    val functions: List<Function> get() = nodes.filter { it is Function }.map { it as Function }
+
+    val subDialogues: List<SubDialogue> get() = nodes.filter { it is SubDialogue }.map { it as SubDialogue }
+
+    fun node(id: Int): Node = nodes.find { it.id == id }?:error("Node $id not found in $this@Revision")
+
+    val properties: List<KMutableProperty<*>>
+        get() = javaClass.kotlin.members.filter {
+            it is KMutableProperty && !it.returnType.isSubtypeOf(Dialogue.Node::class.createType())
+        }.map { it as KMutableProperty<*>}
+
+    fun intent(id: Int = nextNodeId++, utterances: List<String>): Intent = Intent(id, utterances)
+
+    fun response(id: Int = nextNodeId++, texts: List<String>, isSsml: Boolean = false): Response = Response(id, texts, isSsml)
+
+    fun function(id: Int = nextNodeId++, function: (Function.(Context) -> Node)): Node = LambdaFunction(id, function)
+
+    override fun toString(): String = "${javaClass.simpleName}(state=$state, nodes=$nodes)"
 }
 
 fun dialogue(init: (Dialogue.() -> Dialogue.Node)): Dialogue {

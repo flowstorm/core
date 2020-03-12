@@ -1,6 +1,8 @@
+//-- start of build output - instance based version (nodes are just dialogue instance variables)
 import com.promethist.core.model.*
 
-dialogue {
+val d = dialogue {
+
     val intent1 = intent(id = -1/* custom id from editor*/, utterances = listOf("hi", "hello"))
     val response1 = response(texts = listOf("welcome", "nice to meet you"))
     val function1 = function { context ->
@@ -18,3 +20,8 @@ dialogue {
 
     intent1 // start node
 }
+//-- end of build output
+
+println(d)
+println(d.intents)
+println((d.node(2) as Dialogue.Function).exec(Context(message = "hello")))
