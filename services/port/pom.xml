@@ -16,6 +16,8 @@
         <promethist.common.version>1.1</promethist.common.version>
         <promethist.core.version>1.1</promethist.core.version>
         <promethist.filestore.version>1.1</promethist.filestore.version>
+        <promethist.client-app-common.version>1.1</promethist.client-app-common.version>
+
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     
