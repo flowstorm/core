@@ -47,7 +47,7 @@ class SessionResourceImpl: SessionResource {
     }
 
     override fun update(session: Session) {
-        database.getCollection<Session>().updateOneById(session._id,  session)
+        database.getCollection<Session>().updateOneById(session._id, session, upsert())
     }
 
     override fun get(sessionId: String): Session? {

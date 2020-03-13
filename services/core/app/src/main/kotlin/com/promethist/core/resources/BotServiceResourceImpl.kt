@@ -1,6 +1,7 @@
 package com.promethist.core.resources
 
 import com.promethist.core.model.*
+import com.promethist.core.resources.ContentDistributionResource.ContentRequest
 import org.slf4j.LoggerFactory
 import java.io.Serializable
 import javax.inject.Inject
@@ -23,9 +24,14 @@ class BotServiceResourceImpl : BotService {
     private var logger = LoggerFactory.getLogger(BotServiceResourceImpl::class.java)
 
     override fun message(appKey: String, message: Message): Message? {
-        try {
-            val session = initSession(message, appKey)
 
+        val session = try {
+            initSession(message, appKey)
+        } catch (e: Exception) {
+            return getErrorMessageResponse(message, e)
+        }
+
+        val response = try {
             val appVariables = mutableMapOf<String, Serializable>()
             addUserToExtensions(message, session.user)
             message.attributes["variables"] = appVariables as Serializable
@@ -34,42 +40,50 @@ class BotServiceResourceImpl : BotService {
             logger.info(message.toString())
             val response = dialogueResouce.message(appKey, message)!!
             logger.info(response.toString())
+            response.apply { this.items.forEach { it.ttsVoice = it.ttsVoice ?: session.application.ttsVoice } }
 
             val metrics = if (response.attributes.containsKey("metrics"))
                 response.attributes["metrics"] as Map<String, Any>
             else mapOf()
-
-            session.addMessage(message)
-            session.addMessage(response)
             updateMetrics(session, metrics)
-            sessionResource.update(session)
 
-            response.apply { this.items.forEach { it.ttsVoice = it.ttsVoice ?: session.application.ttsVoice } }
-            return response
+            response
         } catch (e: Exception) {
-            return getErrorMessageResponse(message, e)
+            getErrorMessageResponse(message, e)
+        }
+
+        return try {
+            session.addMessage(response)
+            sessionResource.update(session)
+            response
+        } catch (e: Exception) {
+            getErrorMessageResponse(message, e)
         }
     }
 
     private fun initSession(message: Message, appKey: String): Session {
         val sessionId = message.sessionId ?: error("No session id.")
         val storedSession = sessionResource.get(sessionId)
-        if (storedSession != null) {
+        val session = if (storedSession != null) {
             logger.info("Restoring the existing session.")
-            return storedSession
+            storedSession
         } else {
             logger.info("Starting a new session.")
-            val userContent = contentDistributionResource.resolve(
-                    ContentDistributionResource.ContentRequest(
+            val contentResponse = contentDistributionResource.resolve(
+                    ContentRequest(
                             message.sender,
                             appKey,
                             message.language?.language,
                             Application.StartCondition(Application.StartCondition.Type.OnAction, message.items[0].text?: "")
                     ))
 
-            return Session(sessionId = sessionId, user = userContent.user, application = userContent.application)
-                    .apply { sessionResource.create(this) }
+            Session(sessionId = sessionId, user = contentResponse.user, application = contentResponse.application, attributes = contentResponse.sessionAttributes)
         }
+
+        session.addMessage(message)
+        sessionResource.update(session)
+
+        return session
     }
 
     private fun addUserToExtensions(message: Message, user: User) {
