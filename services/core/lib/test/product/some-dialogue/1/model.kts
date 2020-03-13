@@ -35,7 +35,7 @@ data class Model1(
             { context: Context -> """nice to meet you ${context.session.user.name}""" }
     )
 
-    val function1 = Function(nextId++) { context -> // simple lambda function (always one purpose, embedded)
+    val function1 = Function(nextId++) { context, logger -> // simple lambda function (always one purpose, embedded)
 
         val trans1 = Transition(fork1)
         val trans2 = Transition(stop)

@@ -2,6 +2,7 @@ package com.promethist.core
 
 import com.promethist.core.model.Context
 import com.promethist.core.model.Dialogue
+import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.FileInputStream
 
@@ -11,6 +12,8 @@ object DialogueLoadTest {
         override fun getFileStream(name: String) = FileInputStream(File(base, name))
         override fun toString(): String = "${javaClass.simpleName}(base=$base)"
     }
+
+    private var logger = LoggerFactory.getLogger(this::class.qualifiedName)
 
     @JvmStatic
     fun main(args: Array<String>) {
@@ -24,7 +27,7 @@ object DialogueLoadTest {
         dialogue.nodes.forEach { println(it) }
         val func = dialogue.functions.first()
         println("calling $func:")
-        println(func.exec(Context(message = "xx")))
+        println(func.exec(Context(message = "xx"), logger))
         println("sub-dialogue: ${dialogue.subDialogues.first().dialogue}")
 
         //println(ObjectUtil.defaultMapper.writeValueAsString(dialogue))
