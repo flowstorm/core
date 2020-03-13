@@ -19,6 +19,7 @@
 
     <modules>
         <module>api</module>
+        <module>lib</module>
         <module>app</module>
     </modules>
 

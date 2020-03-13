@@ -1,30 +1,17 @@
 package com.promethist.core.model
 
+import com.promethist.core.ResourceLoader
 import org.litote.kmongo.Id
-import java.util.*
-import kotlin.reflect.KMutableProperty
-import kotlin.reflect.full.createType
-import kotlin.reflect.full.isSubtypeOf
+import org.slf4j.Logger
 
-open class Dialogue(
-        val created: Date = Date(),
-        val author: User? = null,
-        val state: State = State.Draft,
-        val nodes: MutableSet<Node> = mutableSetOf()
-    )
-{
-    val start = StartDialogue()
-    private var nextNodeId: Int = 1
+open class Dialogue(open val resourceLoader: ResourceLoader, open val name: String) {
 
-    enum class State { Draft, Public }
-
-    interface Function {
-        fun exec(context: Context): Node
-    }
+    val nodes: MutableSet<Node> = mutableSetOf()
+    var nextId: Int = 0
+    var start = StartDialogue(nextId++)
+    var stop = StopDialogue(Int.MAX_VALUE)
 
     abstract inner class Node(open val id: Int) {
-        lateinit var next: Node
-        val attributes: MutableMap<String, Any> = mutableMapOf()
 
         init {
             nodes.add(this)
@@ -35,79 +22,93 @@ open class Dialogue(
         override fun toString(): String = "${javaClass.simpleName}(id=$id)"
     }
 
-    inner class Intent(
-            override val id: Int = nextNodeId++,
-            val utterances: List<String>
-    ): Node(id)
+    abstract inner class TransitNode(override val id: Int): Node(id) {
+        lateinit var next: Node
+    }
+
+    data class Transition(val node: Node)
+
+    inner class Fork(
+            override val id: Int,
+            vararg intent: Intent
+    ): Node(id) {
+        val intents = intent
+    }
+
+    open inner class Intent(
+            override val id: Int,
+            vararg utterance: String
+    ): TransitNode(id) {
+        val utterances = utterance
+    }
+
+    inner class GlobalIntent(
+             override val id: Int,
+             vararg utterance: String
+    ): Intent(id, *utterance)
 
     open inner class Response(
-            override val id: Int = nextNodeId++,
-            open var texts: List<String>,
-            open var isSsml: Boolean = false
-    ): Node(id)
-
-    inner class ResourceResponse(
-            override val id: Int = nextNodeId++,
-            override var texts: List<String>,
-            override var isSsml: Boolean = false,
-            val resource_id: Id<*>
-    ): Response(id, texts, isSsml)
-
-    inner class FileResponse(
-            override val id: Int = nextNodeId++,
-            override var texts: List<String>,
-            override var isSsml: Boolean = false,
-            val type: String,
-            val name: String
-    ): Response(id, texts, isSsml)
-
-    abstract inner class ObjectFunction(
-            override val id: Int = nextNodeId++
-    ): Node(id), Function {
-        abstract override fun exec(context: Context): Node
+            override val id: Int,
+            vararg text: ((Context) -> String)
+    ): TransitNode(id) {
+        val texts = text
     }
 
-    inner class LambdaFunction(
-            override val id: Int = nextNodeId++,
-            val lambda: (Function.(Context) -> Node)
-    ): Node(id), Function {
-        override fun exec(context: Context): Node = lambda(context)
+    inner class ImageResponse(
+            override val id: Int,
+            val image: String,
+            vararg text: ((Context) -> String)
+    ): Response(id, *text)
+
+    inner class Function(
+            override val id: Int,
+            val lambda: (Function.(Context, Logger) -> Transition)
+    ): Node(id) {
+        fun exec(context: Context, logger: Logger): Transition = lambda(context, logger)
     }
 
-    inner class SubDialogue(override val id: Int = nextNodeId++, val name: String): Node(id)
+    inner class SubDialogue(
+            override val id: Int,
+            val name: String,
+            val lambda: (SubDialogue.() -> Dialogue)): TransitNode(id) {
 
-    inner class StartDialogue(override val id: Int = nextNodeId++) : Node(id)
+        val dialogue: Dialogue get() = lambda(this)
 
-    inner class StopDialogue(override val id: Int = nextNodeId++) : Node(id)
+        fun create(vararg arg: Any) = resourceLoader.newObject<Dialogue>("$name/model", *arg)
+    }
 
-    inner class StopSession(override val id: Int = nextNodeId++) : Node(id)
+    inner class StartDialogue(override val id: Int) : TransitNode(id)
 
-    val intents: List<Intent> get() = nodes.filter { it is Intent }.map { it as Intent }
+    inner class StopDialogue(override val id: Int) : Node(id)
 
-    val responses: List<Response> get() = nodes.filter { it is Response }.map { it as Response }
+    inner class StopSession(override val id: Int) : Node(id)
 
-    val functions: List<Function> get() = nodes.filter { it is Function }.map { it as Function }
+    val intents: List<Intent> get() = nodes.filterIsInstance<Intent>()
 
-    val subDialogues: List<SubDialogue> get() = nodes.filter { it is SubDialogue }.map { it as SubDialogue }
+    val globalIntents: List<GlobalIntent> get() = nodes.filterIsInstance<GlobalIntent>()
 
-    fun node(id: Int): Node = nodes.find { it.id == id }?:error("Node $id not found in $this@Revision")
+    val responses: List<Response> get() = nodes.filterIsInstance<Response>()
 
+    val functions: List<Function> get() = nodes.filterIsInstance<Function>()
+
+    val subDialogues: List<SubDialogue> get() = nodes.filterIsInstance<SubDialogue>()
+
+    fun node(id: Int): Node = nodes.find { it.id == id }?:error("Node $id not found in $this")
+    /*
     val properties: List<KMutableProperty<*>>
         get() = javaClass.kotlin.members.filter {
             it is KMutableProperty && !it.returnType.isSubtypeOf(Node::class.createType())
         }.map { it as KMutableProperty<*>}
+    */
 
-    fun intent(id: Int = nextNodeId++, utterances: List<String>): Intent = Intent(id, utterances)
-
-    fun response(id: Int = nextNodeId++, texts: List<String>, isSsml: Boolean = false): Response = Response(id, texts, isSsml)
-
-    fun function(id: Int = nextNodeId++, function: (Function.(Context) -> Node)): Node = LambdaFunction(id, function)
-
-    override fun toString(): String = "${javaClass.simpleName}(state=$state, nodes=$nodes)"
+    fun validate() {
+        for (node in nodes) {
+            try {
+                node is TransitNode && node.next == null
+            } catch (e: UninitializedPropertyAccessException) {
+                error("${this::class.qualifiedName}.${node} missing next node reference")
+            }
+        }
+    }
 }
 
-fun dialogue(init: (Dialogue.() -> Dialogue.Node)): Dialogue {
-    val dialogue = Dialogue()
-    init.invoke(dialogue)
-    return dialogue
-}
