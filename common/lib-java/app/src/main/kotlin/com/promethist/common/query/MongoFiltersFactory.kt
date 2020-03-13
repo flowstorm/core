@@ -27,7 +27,7 @@ class MongoFiltersFactory {
             val filters = mutableListOf<Bson>()
 
             if (query.seek_id != null && includeSeek) {
-                filters.add(seekProperty!! gt ObjectIdGenerator.create(query.seek_id!!))
+                filters.add(seekProperty!! gt ObjectIdGenerator.create(query.seek_id))
             }
 
             for (filter in query.filters) {

@@ -17,6 +17,6 @@ class MailgunSender(val mailgun: Mailgun, val from: Contact) : EmailSender {
                 .templateVariables(templateVariables)
                 .text("") //we send empty text body when using a template
 
-        val response = mailgun.sendMessage(requestBuilder.build()).blockingGet()
+        mailgun.sendMessage(requestBuilder.build()).blockingGet()
     }
 }
