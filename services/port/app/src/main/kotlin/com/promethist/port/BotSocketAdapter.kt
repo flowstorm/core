@@ -93,13 +93,13 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
      * Determine if the response from botService will be followed by waiting for user input or another message will be sent to botService
      */
     private fun onMessageEvent(event: BotEvent.Message) = event.apply {
-        lastMessageTime = System.currentTimeMillis()
+        val currentTime = System.currentTimeMillis()
+        lastMessageTime = currentTime
         lastMessage = message
         if (message.sessionId == null) {
             message.sessionId = Message.createId()
             sendEvent(BotEvent.SessionStarted(message.sessionId!!))
         }
-        val currentTime = System.currentTimeMillis()
         val response = botService.message(event.appKey, message)
         if (response != null) {
             response.attributes["serviceResponseTime"] = System.currentTimeMillis() - currentTime
@@ -136,6 +136,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                 clientRequirements = event.requirements
                 sendEvent(event)
             }
+            is BotEvent.SessionEnded -> sendEvent(BotEvent.SessionEnded())
             is BotEvent.Message -> onMessageEvent(event)
             is BotEvent.InputAudioStreamOpen -> {
                 inputAudioClose(false)
