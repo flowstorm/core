@@ -16,23 +16,23 @@ class QueryValueFactory : Factory<Query> {
     }
 
     override fun provide(): Query {
-        val options = Query(
+        val query = Query(
                 limit = context.uriInfo.queryParameters.getFirst(LIMIT)?.toInt() ?: 50,
                 seek_id = context.uriInfo.queryParameters.getFirst(SEEK_ID)
         )
 
-        val r ="(?<field>\\w*)\\[(?<operator>\\w*)]".toRegex()
+        val r ="(?<field>[A-Za-z0-9_.]*)\\[(?<operator>\\w*)]".toRegex()
 
         for (param in context.uriInfo.queryParameters.filter { !reservedParams.contains(it.key) }) {
 
                 if (r.matches(param.key)) {
                     val field = r.matchEntire(param.key)!!.groups[1]!!.value
                     val operator = r.matchEntire(param.key)!!.groups[2]!!.value
-                    options.filters.add(Query.Filter(field, Query.Operator.valueOf(operator), param.value.first()))
+                    query.filters.add(Query.Filter(field, Query.Operator.valueOf(operator), param.value.first()))
                 }
             }
 
-        return options
+        return query
     }
 
     override fun dispose(instance: Query) {}

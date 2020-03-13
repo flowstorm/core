@@ -19,7 +19,7 @@ fun WebTarget.query(query: Query): WebTarget {
     wt = wt.queryParam(query::seek_id.name, query.seek_id)
 
     for (f in query.filters) {
-        wt = wt.queryParam("{$f.name}[{${f.operator.name}}]", f.value)
+        wt = wt.queryParam("${f.name}[${f.operator.name}]", f.value)
     }
 
     return wt
