@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.FileInputStream
 
-object DialogueLoadTest {
+object DialogueModelLoadTest {
 
     class FileResourceLoader(private val base: File) : AbstractResourceLoader() {
         override fun getFileStream(name: String) = FileInputStream(File(base, name))
