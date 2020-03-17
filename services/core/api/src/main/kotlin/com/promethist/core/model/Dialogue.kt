@@ -1,21 +1,22 @@
 package com.promethist.core.model
 
-import com.promethist.core.ResourceLoader
-import org.litote.kmongo.Id
+import com.promethist.core.runtime.Loader
 import org.slf4j.Logger
+import kotlin.random.Random
+import kotlin.reflect.KProperty
+import kotlin.reflect.full.createType
+import kotlin.reflect.full.isSubtypeOf
 
-open class Dialogue(open val resourceLoader: ResourceLoader, open val name: String) {
+open class Dialogue(open val loader: Loader, open val name: String) {
 
     val nodes: MutableSet<Node> = mutableSetOf()
     var nextId: Int = 0
-    var start = StartDialogue(nextId++)
-    var stop = StopDialogue(Int.MAX_VALUE)
+    var start = StartDialogue(nextId--)
+    var stop = StopDialogue(Int.MIN_VALUE)
 
     abstract inner class Node(open val id: Int) {
 
-        init {
-            nodes.add(this)
-        }
+        init { nodes.add(this) }
 
         override fun hashCode(): Int = id
 
@@ -24,11 +25,15 @@ open class Dialogue(open val resourceLoader: ResourceLoader, open val name: Stri
 
     abstract inner class TransitNode(override val id: Int): Node(id) {
         lateinit var next: Node
+
+        override fun toString(): String = "${javaClass.simpleName}(id=$id, next=$next)"
     }
 
     data class Transition(val node: Node)
 
-    inner class Fork(
+    data class Scope(val session: Session, val context: Context, val logger: Logger)
+
+    inner class UserInput(
             override val id: Int,
             vararg intent: Intent
     ): Node(id) {
@@ -49,32 +54,39 @@ open class Dialogue(open val resourceLoader: ResourceLoader, open val name: Stri
 
     open inner class Response(
             override val id: Int,
-            vararg text: ((Context) -> String)
+            vararg text: (Scope.(Response) -> String)
     ): TransitNode(id) {
         val texts = text
+        fun getText(scope: Scope, index: Int = -1): String = texts[if (index < 0) Random.nextInt(texts.size) else index](scope, this)
     }
+
+    inner class AudioResponse(
+            override val id: Int,
+            val audio: String,
+            vararg text: (Scope.(Response) -> String)
+    ): Response(id, *text)
 
     inner class ImageResponse(
             override val id: Int,
             val image: String,
-            vararg text: ((Context) -> String)
+            vararg text: (Scope.(Response) -> String)
     ): Response(id, *text)
 
     inner class Function(
             override val id: Int,
-            val lambda: (Function.(Context, Logger) -> Transition)
+            val lambda: (Scope.(Function) -> Transition)
     ): Node(id) {
-        fun exec(context: Context, logger: Logger): Transition = lambda(context, logger)
+        fun exec(scope: Scope): Transition = lambda(scope, this)
     }
 
     inner class SubDialogue(
             override val id: Int,
             val name: String,
-            val lambda: (SubDialogue.() -> Dialogue)): TransitNode(id) {
+            val lambda: (Scope.(SubDialogue) -> Dialogue)): TransitNode(id) {
 
-        val dialogue: Dialogue get() = lambda(this)
+        fun createDialogue(scope: Scope): Dialogue = lambda(scope, this)
 
-        fun create(vararg arg: Any) = resourceLoader.newObject<Dialogue>("$name/model", *arg)
+        fun create(vararg arg: Any) = loader.newObject<Dialogue>("$name/model", *arg)
     }
 
     inner class StartDialogue(override val id: Int) : TransitNode(id)
@@ -94,12 +106,14 @@ open class Dialogue(open val resourceLoader: ResourceLoader, open val name: Stri
     val subDialogues: List<SubDialogue> get() = nodes.filterIsInstance<SubDialogue>()
 
     fun node(id: Int): Node = nodes.find { it.id == id }?:error("Node $id not found in $this")
-    /*
-    val properties: List<KMutableProperty<*>>
-        get() = javaClass.kotlin.members.filter {
-            it is KMutableProperty && !it.returnType.isSubtypeOf(Node::class.createType())
-        }.map { it as KMutableProperty<*>}
-    */
+
+    val nodeMap: Map<String, Node> by lazy {
+        javaClass.kotlin.members.filter {
+            it is KProperty && it.returnType.isSubtypeOf(Node::class.createType())
+        }.map { it.name to it.call(this) as Node }.toMap()
+    }
+
+    //val nodes = nodeMap.values
 
     fun validate() {
         for (node in nodes) {
@@ -109,6 +123,14 @@ open class Dialogue(open val resourceLoader: ResourceLoader, open val name: Stri
                 error("${this::class.qualifiedName}.${node} missing next node reference")
             }
         }
+    }
+
+    fun describe(): String {
+        val sb = StringBuilder()
+        nodeMap.forEach {
+            sb.append(it.key).append(" = ").appendln(it.value)
+        }
+        return sb.toString()
     }
 }
 

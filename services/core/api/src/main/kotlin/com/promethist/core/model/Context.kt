@@ -1,11 +1,15 @@
 package com.promethist.core.model
 
+import com.promethist.core.type.Dynamic
+import java.util.*
+
 data class Context(
-        var userId: String? = null,
-        var sessionId: String? = null,
-        var message: String
-       // @Transient var session: Session
-        //TODO move from helena
+        var input: String,
+        var attributes: Dynamic = Dynamic(),
+        val dialogueStack: LinkedList<DialogueStackFrame> = LinkedList(),
+        val responseItems: MutableList<MessageItem> = mutableListOf()
 ) {
-    lateinit var session: Session
+    //lateinit var session: Session
+
+    data class DialogueStackFrame(val name: String, var nodeId: Int = 0)
 }

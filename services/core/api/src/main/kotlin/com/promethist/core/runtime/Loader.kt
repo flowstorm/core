@@ -1,8 +1,8 @@
-package com.promethist.core
+package com.promethist.core.runtime
 
 import kotlin.reflect.KClass
 
-interface ResourceLoader {
+interface Loader {
 
     fun loadClass(name: String): KClass<*>
     fun loadObject(name: String): Map<String, Any>

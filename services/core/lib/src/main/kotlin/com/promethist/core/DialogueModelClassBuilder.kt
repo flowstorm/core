@@ -10,14 +10,14 @@ class DialogueModelClassBuilder(val name: String, parentClass: String = "Dialogu
         className = "Model" + names.removeAt(names.size - 1)
         val version = "undefined"//AppConfig.instance.get("git.ref", "unknown")
         source
-                .appendln("//--dialoguemodel;version:$version;name:$name")
+                .appendln("//--dialogue-model;version:$version;name:$name")
                 .appendln("package " + names.joinToString(".") { "`$it`" })
                 .appendln("import com.promethist.core.*")
                 .appendln("import com.promethist.core.model.*")
                 .appendln("data class $className(")
                 .appendln("\toverride val resourceLoader: ResourceLoader,")
                 .appendln("\toverride val name: String)")
-                .appendln(") : Dialogue(resourceLoader, name) {")
+                .appendln(") : $parentClass(resourceLoader, name) {")
     }
 
     fun addIntent(nodeId: Int, nodeName: String, utterances: List<String>) {
