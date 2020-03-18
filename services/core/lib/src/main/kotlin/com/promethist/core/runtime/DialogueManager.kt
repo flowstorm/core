@@ -1,9 +1,9 @@
 package com.promethist.core.runtime
 
-import com.promethist.core.model.Context
+import com.promethist.core.Context
+import com.promethist.core.model.Turn
 import com.promethist.core.model.Dialogue
 import com.promethist.core.model.MessageItem
-import com.promethist.core.model.Session
 import org.slf4j.LoggerFactory
 
 class DialogueManager(private val loader: Loader) {
@@ -11,8 +11,8 @@ class DialogueManager(private val loader: Loader) {
     private var logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private val dialogues: MutableMap<String, Dialogue> = mutableMapOf()
 
-    private fun get(name: String, session: Session, args: Array<Any>? = null): Dialogue {
-        val key = "$name:${session.sessionId}"
+    private fun get(name: String, context: Context, args: Array<Any>? = null): Dialogue {
+        val key = "$name:${context.session.sessionId}"
         return if (!dialogues.containsKey(key)) {
             logger.info("loading $name")
             if (args == null)
@@ -25,38 +25,38 @@ class DialogueManager(private val loader: Loader) {
         }
     }
 
-    private fun set(name: String, session: Session, dialogue: Dialogue): Dialogue {
-        val key = "$name:${session.sessionId}"
+    private fun set(name: String, context: Context, dialogue: Dialogue): Dialogue {
+        val key = "$name:${context.session.sessionId}"
         dialogues[key] = dialogue
         return dialogue
     }
 
-    fun start(dialogueName: String, session: Session, context: Context, args: Array<Any>) =
-        start(get(dialogueName, session, args), Dialogue.Scope(session, context, logger))
+    fun start(dialogueName: String, context: Context, args: Array<Any>) =
+        start(get(dialogueName, context, args), context)
 
-    fun proceed(session: Session, context: Context): Boolean {
-        val frame = context.dialogueStack.first
+    fun proceed(context: Context): Boolean = with (context) {
+        val frame = turn.dialogueStack.first
         //FIXME do intent reco instead of temporarily using context.input as nodeId
         //TODO call intent reco model with key equal to frame.hashCode
-        context.dialogueStack.first.nodeId = context.input.toInt()
-        val dialogue = get(context.dialogueStack.first().name, session)
-        return process(Dialogue.Scope(session, context, logger))
+        turn.dialogueStack.first.nodeId = turn.input.toInt()
+        val dialogue = get(turn.dialogueStack.first().name, context)
+        return process(context)
     }
 
-    private fun start(dialogue: Dialogue, scope: Dialogue.Scope): Boolean = with (scope) {
+    private fun start(dialogue: Dialogue, context: Context): Boolean = with (context) {
         logger.info("starting ${dialogue.name}\n" + dialogue.describe())
         dialogue.validate()
-        set(dialogue.name, session, dialogue)
-        context.dialogueStack.push(Context.DialogueStackFrame(dialogue.name))
-        return process(scope)
+        set(dialogue.name, context, dialogue)
+        turn.dialogueStack.push(Turn.DialogueStackFrame(dialogue.name))
+        return process(context)
     }
 
     /**
      * @return true if next user input requested, false if session ended
      */
-    private fun process(scope: Dialogue.Scope): Boolean = with (scope) {
-        var frame = context.dialogueStack.first()
-        val dialogue = get(frame.name, session)
+    private fun process(context: Context): Boolean = with (context) {
+        var frame = turn.dialogueStack.first()
+        val dialogue = get(frame.name, context)
         var node = dialogue.node(frame.nodeId)
         var step = 0
         while (step++ < 20) {
@@ -66,31 +66,31 @@ class DialogueManager(private val loader: Loader) {
                 is Dialogue.UserInput ->
                     return true
                 is Dialogue.Function -> {
-                    val transition = node.exec(scope)
+                    val transition = node.exec(context)
                     node = transition.node
                 }
                 is Dialogue.StopSession -> {
-                    context.dialogueStack.clear()
+                    turn.dialogueStack.clear()
                     return false
                 }
                 is Dialogue.StopDialogue -> {
-                    context.dialogueStack.pop()
-                    return if (context.dialogueStack.isEmpty()) false else process(scope)
+                    turn.dialogueStack.pop()
+                    return if (turn.dialogueStack.isEmpty()) false else process(context)
                 }
                 is Dialogue.SubDialogue -> {
-                    val subDialogue = node.createDialogue(scope)
+                    val subDialogue = node.createDialogue(context)
                     frame.nodeId = node.next.id
-                    return start(subDialogue, scope)
+                    return start(subDialogue, context)
                 }
                 is Dialogue.TransitNode -> {
                     if (node is Dialogue.Response) {
-                        val text = node.getText(scope)
+                        val text = node.getText(context)
                         val item = MessageItem(text)
                         if (node is Dialogue.AudioResponse)
                             item.audio = node.audio
                         if (node is Dialogue.ImageResponse)
                             item.image = node.image
-                        context.responseItems.add(item)
+                        turn.responseItems.add(item)
                     }
                     node = node.next
                 }

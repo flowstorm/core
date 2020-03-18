@@ -1,7 +1,7 @@
 package com.promethist.core.model
 
+import com.promethist.core.Context
 import com.promethist.core.runtime.Loader
-import org.slf4j.Logger
 import kotlin.random.Random
 import kotlin.reflect.KProperty
 import kotlin.reflect.full.createType
@@ -31,8 +31,6 @@ open class Dialogue(open val loader: Loader, open val name: String) {
 
     data class Transition(val node: Node)
 
-    data class Scope(val session: Session, val context: Context, val logger: Logger)
-
     inner class UserInput(
             override val id: Int,
             vararg intent: Intent
@@ -54,37 +52,37 @@ open class Dialogue(open val loader: Loader, open val name: String) {
 
     open inner class Response(
             override val id: Int,
-            vararg text: (Scope.(Response) -> String)
+            vararg text: (Context.(Response) -> String)
     ): TransitNode(id) {
         val texts = text
-        fun getText(scope: Scope, index: Int = -1): String = texts[if (index < 0) Random.nextInt(texts.size) else index](scope, this)
+        fun getText(context: Context, index: Int = -1): String = texts[if (index < 0) Random.nextInt(texts.size) else index](context, this)
     }
 
     inner class AudioResponse(
             override val id: Int,
             val audio: String,
-            vararg text: (Scope.(Response) -> String)
+            vararg text: (Context.(Response) -> String)
     ): Response(id, *text)
 
     inner class ImageResponse(
             override val id: Int,
             val image: String,
-            vararg text: (Scope.(Response) -> String)
+            vararg text: (Context.(Response) -> String)
     ): Response(id, *text)
 
     inner class Function(
             override val id: Int,
-            val lambda: (Scope.(Function) -> Transition)
+            val lambda: (Context.(Function) -> Transition)
     ): Node(id) {
-        fun exec(scope: Scope): Transition = lambda(scope, this)
+        fun exec(context: Context): Transition = lambda(context, this)
     }
 
     inner class SubDialogue(
             override val id: Int,
             val name: String,
-            val lambda: (Scope.(SubDialogue) -> Dialogue)): TransitNode(id) {
+            val lambda: (Context.(SubDialogue) -> Dialogue)): TransitNode(id) {
 
-        fun createDialogue(scope: Scope): Dialogue = lambda(scope, this)
+        fun createDialogue(context: Context): Dialogue = lambda(context, this)
 
         fun create(vararg arg: Any) = loader.newObject<Dialogue>("$name/model", *arg)
     }

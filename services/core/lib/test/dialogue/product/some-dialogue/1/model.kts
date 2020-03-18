@@ -42,7 +42,7 @@ data class Model1(
         val trans2 = Transition(stop)
 
         //-- start of dialogue script
-        println("context = $context")
+        println("turn = $turn")
         println("data = $data")
         it.let {
             println("function.id = ${it.id}, dialogue.name = $name")
@@ -55,7 +55,7 @@ data class Model1(
     }
 
     val subDialogue1 = SubDialogue(nextId--,  "product/some-subdialogue/1") {
-        //-- start of dialogue script (if text in editor is empty, then just create() will be inserted
+        //-- start of dialogue script (if text in editor is empty, then just it.create() will be inserted
         it.create(math_max)
         //-- end of dialogue script
     }

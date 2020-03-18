@@ -1,5 +1,6 @@
 package com.promethist.core.runtime
 
+import com.promethist.core.Context
 import com.promethist.core.model.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -16,21 +17,22 @@ object DialogueLoadTest {
         val dialogue = loader.newObject<Dialogue>("$dialogueName/model", "ble", 1, false)
         dialogue.validate()
         println(dialogue.describe())
-        val scope = Dialogue.Scope(
+        val context = Context(
+                Profile(name = "tester@promethist.ai"),
                 Session(
                         datetime = Date(),
                         sessionId = "T-E-S-T",
                         user = User(username = "tester@promethist.ai", name = "Tester", surname = "Tester", nickname = "Tester"),
                         application = Application(name = "test", dialogueName = "product/some-dialogue/1", ttsVoice = "Grace")
                 ),
-                Context("some message"),
+                Turn("some message"),
                 logger
         )
         val func = dialogue.functions.first()
         println("calling $func:")
-        println(func.exec(scope))
+        println(func.exec(context))
 
-        val subDialogue = dialogue.subDialogues.first().createDialogue(scope)
+        val subDialogue = dialogue.subDialogues.first().createDialogue(context)
         println("sub-dialogue: $subDialogue")
         println(subDialogue.describe())
     }
