@@ -197,6 +197,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
         for (item in response.items) {
             if (item.text.isNullOrBlank()) {
                 logger.debug("item.text.isNullOrBlank() == true")
+                item.text = ""
             } else {
                 val ttsRequest =
                     TtsRequest(
