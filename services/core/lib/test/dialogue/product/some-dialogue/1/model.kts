@@ -36,7 +36,7 @@ data class Model1(
             { """just be nicer ${session.user.name}""" }
     )
 
-    val function1 = Function(nextId--) { self -> // simple lambda function (always one purpose, embedded)
+    val function1 = Function(nextId--) { // simple lambda function (always one purpose, embedded)
 
         val trans1 = Transition(input1)
         val trans2 = Transition(stop)
@@ -44,7 +44,7 @@ data class Model1(
         //-- start of dialogue script
         println("context = $context")
         println("data = $data")
-        self.let {
+        it.let {
             println("function.id = ${it.id}, dialogue.name = $name")
         }
         if (do_math)
@@ -54,9 +54,9 @@ data class Model1(
         //-- end of dialogue script
     }
 
-    val subDialogue1 = SubDialogue(nextId--,  "product/some-subdialogue/1") { self ->
+    val subDialogue1 = SubDialogue(nextId--,  "product/some-subdialogue/1") {
         //-- start of dialogue script (if text in editor is empty, then just create() will be inserted
-        self.create(math_max)
+        it.create(math_max)
         //-- end of dialogue script
     }
 

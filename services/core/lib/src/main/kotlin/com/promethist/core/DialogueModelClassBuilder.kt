@@ -21,11 +21,11 @@ class DialogueModelClassBuilder(val name: String, parentClass: String = "Dialogu
     }
 
     fun addIntent(nodeId: Int, nodeName: String, utterances: List<String>) {
-
+        TODO()
     }
 
     fun addResponse(nodeId: Int, nodeName: String, texts: List<String>) {
-
+        TODO()
     }
 
     fun addFunction(nodeId: Int, nodeName: String, transitions: Map<String, String>, functionSource: CharSequence) {
@@ -43,7 +43,7 @@ class DialogueModelClassBuilder(val name: String, parentClass: String = "Dialogu
         source.appendln("//--function-end:$nodeName\n")
     }
 
-    fun finish(transitions: Map<String, String>, extensionSource: CharSequence? = null): StringBuilder {
+    fun finalize(transitions: Map<String, String>, extensionSource: CharSequence? = null): StringBuilder {
         source.appendln("\tinit {")
         transitions.forEach { source.appendln("\t\t${it.key}.next = ${it.value}") }
         source.appendln("\t}")

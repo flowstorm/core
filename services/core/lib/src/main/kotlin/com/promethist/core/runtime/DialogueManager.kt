@@ -11,7 +11,7 @@ class DialogueManager(private val loader: Loader) {
     private var logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private val dialogues: MutableMap<String, Dialogue> = mutableMapOf()
 
-    private fun load(name: String, session: Session, args: Array<Any>? = null): Dialogue {
+    private fun get(name: String, session: Session, args: Array<Any>? = null): Dialogue {
         val key = "$name:${session.sessionId}"
         return if (!dialogues.containsKey(key)) {
             logger.info("loading $name")
@@ -25,26 +25,28 @@ class DialogueManager(private val loader: Loader) {
         }
     }
 
-    private fun save(name: String, session: Session, dialogue: Dialogue): Dialogue {
+    private fun set(name: String, session: Session, dialogue: Dialogue): Dialogue {
         val key = "$name:${session.sessionId}"
         dialogues[key] = dialogue
         return dialogue
     }
 
     fun start(dialogueName: String, session: Session, context: Context, args: Array<Any>) =
-        start(load(dialogueName, session, args), Dialogue.Scope(session, context, logger))
+        start(get(dialogueName, session, args), Dialogue.Scope(session, context, logger))
 
     fun proceed(session: Session, context: Context): Boolean {
+        val frame = context.dialogueStack.first
         //FIXME do intent reco instead of temporarily using context.input as nodeId
+        //TODO call intent reco model with key equal to frame.hashCode
         context.dialogueStack.first.nodeId = context.input.toInt()
-        val dialogue = load(context.dialogueStack.first().name, session)
+        val dialogue = get(context.dialogueStack.first().name, session)
         return process(Dialogue.Scope(session, context, logger))
     }
 
     private fun start(dialogue: Dialogue, scope: Dialogue.Scope): Boolean = with (scope) {
         logger.info("starting ${dialogue.name}\n" + dialogue.describe())
         dialogue.validate()
-        save(dialogue.name, session, dialogue)
+        set(dialogue.name, session, dialogue)
         context.dialogueStack.push(Context.DialogueStackFrame(dialogue.name))
         return process(scope)
     }
@@ -54,7 +56,7 @@ class DialogueManager(private val loader: Loader) {
      */
     private fun process(scope: Dialogue.Scope): Boolean = with (scope) {
         var frame = context.dialogueStack.first()
-        val dialogue = load(frame.name, session)
+        val dialogue = get(frame.name, session)
         var node = dialogue.node(frame.nodeId)
         var step = 0
         while (step++ < 20) {
@@ -73,11 +75,7 @@ class DialogueManager(private val loader: Loader) {
                 }
                 is Dialogue.StopDialogue -> {
                     context.dialogueStack.pop()
-                    if (context.dialogueStack.isEmpty())
-                        return false
-                    else
-                        //frame = context.dialogueStack.first()
-                        return process(scope)
+                    return if (context.dialogueStack.isEmpty()) false else process(scope)
                 }
                 is Dialogue.SubDialogue -> {
                     val subDialogue = node.createDialogue(scope)
