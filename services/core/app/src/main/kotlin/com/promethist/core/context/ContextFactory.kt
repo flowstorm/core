@@ -18,8 +18,8 @@ class ContextFactory {
         val profile = profileRepository.find(session.user._id)
                 ?: Profile(user_id = session.user._id, name = session.user.username)
 
-        //TODO what to do when we have more then one message?? Helena process them like individual turns
-        val turn = Turn(Turn.Input(message.items.first().text!!))
+        val input = Turn.Input(message.items.first().text!!)
+        val turn = session.turns.lastOrNull()?.copy(input = input, responseItems = mutableListOf()) ?: Turn(input)
 
         return Context(
                 profile,
