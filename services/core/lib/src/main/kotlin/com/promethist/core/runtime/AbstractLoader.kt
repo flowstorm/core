@@ -11,8 +11,6 @@ abstract class AbstractLoader : Loader {
 
     data class CacheItem(val item: Any, val lastModified: Long)
 
-    private val engine = ScriptEngineManager().getEngineByExtension("kts")
-            ?: error("Kotlin script engine not available (check program resources)")
     private val cache: MutableMap<String, CacheItem> = mutableMapOf()
 
     private fun <T: Any> cache(name: String, load: () -> T): T {
@@ -27,14 +25,13 @@ abstract class AbstractLoader : Loader {
 
     abstract fun getLastModified(name: String): Long
 
-    override fun loadClass(name: String): KClass<*> = cache(name) {
+    override fun <T : Any> loadClass(name: String): KClass<T> = cache(name) {
         //TODO check if $name.class exists > load via Java class loader
-        (engine.eval(InputStreamReader(getInputStream("$name.kts")))
-            ?: error("Cannot load class from resource $name (probably missing export expression)")) as KClass<*>
+        Kotlin.loadClass(InputStreamReader(getInputStream("$name.kts")))
     }
 
-    override fun loadObject(name: String): Map<String, Any> = cache(name) {
-        ObjectUtil.defaultMapper.readValue<Map<*, *>>(getInputStream("$name.json"), Map::class.java) as Map<String, Any>
+    override fun <T : Any> loadObject(name: String): T = cache(name) {
+        ObjectUtil.defaultMapper.readValue(getInputStream("$name.json"), Map::class.java) as T
     }
 
     override fun loadText(name: String): String = cache(name) {
@@ -45,8 +42,5 @@ abstract class AbstractLoader : Loader {
         ObjectUtil.defaultMapper.readValue<T>(getInputStream("$name.json"), type.java) as T
     }
 
-    override fun <T : Any> newObject(name: String, vararg args: Any?): T {
-        val clazz = loadClass(name) as KClass<T>
-        return clazz.primaryConstructor?.call(this, name, *args)?:error("Missing primary constructor for $clazz")
-    }
+    override fun <T : Any> newObject(name: String, vararg args: Any?): T = Kotlin.newObject(loadClass(name), this, name, *args)
 }

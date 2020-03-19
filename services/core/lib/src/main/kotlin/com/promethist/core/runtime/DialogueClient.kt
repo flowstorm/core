@@ -19,26 +19,22 @@ object DialogueClient {
 
         val user = User(username = "tester@promethist.ai", name = "Tester", surname = "Tester", nickname = "Tester")
         val profile = Profile(user_id = user._id,  name = user.username)
-        val application = Application(name = "test", dialogueName = "product/some-dialogue/1", ttsVoice = "Grace")
+        val application = Application(name = "test", dialogueName = "product/some-dialogue/1", ttsVoice = "Grace",
+                properties = mutableMapOf("some_string" to "bla", "math_max" to 5, "do_math" to true))
         val session = Session(sessionId = "T-E-S-T", user = user, application = application)
-        val turn = Turn(Turn.Input("\$intro"))
+        val turn = Turn(Input(""))
         val context = Context(profile, session, turn, logger)
-// start or proceed
-        dm.start("${session.application.dialogueName}/model", context, arrayOf("ble", 5, true))
-        println(context)
 
         val reader = BufferedReader(InputStreamReader(System.`in`))
         while (true) {
-            turn.input = Turn.Input(reader.readLine()!!.trim())
+            dm.proceed(context)
+            logger.info(context.toString())
+            println("> ${context.turn.responseItems}")
+            turn.input.text = reader.readLine()!!.trim()
             if (turn.input.text == "exit")
                 break
             turn.attributes.clear()
             turn.responseItems.clear()
-            val proceed = dm.proceed(context)
-            logger.info(context.toString())
-            println("> ${context.turn.responseItems}")
-            if (!proceed)
-                break
         }
     }
 }

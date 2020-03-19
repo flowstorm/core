@@ -31,16 +31,14 @@ class DialogueManager(private val loader: Loader) {
         return dialogue
     }
 
-    fun start(dialogueName: String, context: Context, args: Array<Any>) =
-        start(get(dialogueName, context, args), context)
-
     fun proceed(context: Context): Boolean = with (context) {
-        val frame = turn.dialogueStack.first
-        //FIXME do intent reco instead of temporarily using context.input as nodeId
-        //TODO call intent reco model with key equal to frame.hashCode
-        turn.dialogueStack.first.nodeId = turn.input.text.toInt()
-        val dialogue = get(turn.dialogueStack.first().name, context)
-        return process(context)
+        return if (turn.dialogueStack.isEmpty()) {
+            start(get("${context.session.application.dialogueName}/model", context,
+                    context.session.application.properties.values.toTypedArray()), context)
+        } else {
+            turn.dialogueStack.first.nodeId = turn.input.text.toInt()
+            process(context)
+        }
     }
 
     private fun start(dialogue: Dialogue, context: Context): Boolean = with (context) {
@@ -85,11 +83,7 @@ class DialogueManager(private val loader: Loader) {
                 is Dialogue.TransitNode -> {
                     if (node is Dialogue.Response) {
                         val text = node.getText(context)
-                        val item = MessageItem(text)
-                        if (node is Dialogue.AudioResponse)
-                            item.audio = node.audio
-                        if (node is Dialogue.ImageResponse)
-                            item.image = node.image
+                        val item = MessageItem(text, image = node.image, audio = node.audio, video = node.video)
                         turn.responseItems.add(item)
                     }
                     node = node.next

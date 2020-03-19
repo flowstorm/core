@@ -17,9 +17,7 @@ object DialogueLoadTest {
         val dialogue = loader.newObject<Dialogue>("$dialogueName/model", "ble", 1, false)
         dialogue.validate()
         println(dialogue.describe())
-
         val user = User(username = "tester@promethist.ai", name = "Tester", surname = "Tester", nickname = "Tester")
-
         val context = Context(
                 Profile(name = "tester@promethist.ai", user_id = user._id),
                 Session(
@@ -28,9 +26,10 @@ object DialogueLoadTest {
                         user = user,
                         application = Application(name = "test", dialogueName = "product/some-dialogue/1", ttsVoice = "Grace")
                 ),
-                Turn(Turn.Input("some message")),
+                Turn(Input("some message")),
                 logger
         )
+
         val func = dialogue.functions.first()
         println("calling $func:")
         println(func.exec(context))

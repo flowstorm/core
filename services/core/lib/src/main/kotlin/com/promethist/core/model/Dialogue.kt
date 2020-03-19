@@ -52,23 +52,17 @@ open class Dialogue(open val loader: Loader, open val name: String) {
 
     open inner class Response(
             override val id: Int,
+            val image: String? = null,
+            val audio: String? = null,
+            val video: String? = null,
             vararg text: (Context.(Response) -> String)
     ): TransitNode(id) {
         val texts = text
+
+        constructor(id: Int, vararg text: (Context.(Response) -> String)) : this(id, null, null, null, *text)
+
         fun getText(context: Context, index: Int = -1): String = texts[if (index < 0) Random.nextInt(texts.size) else index](context, this)
     }
-
-    inner class AudioResponse(
-            override val id: Int,
-            val audio: String,
-            vararg text: (Context.(Response) -> String)
-    ): Response(id, *text)
-
-    inner class ImageResponse(
-            override val id: Int,
-            val image: String,
-            vararg text: (Context.(Response) -> String)
-    ): Response(id, *text)
 
     inner class Function(
             override val id: Int,
@@ -96,6 +90,8 @@ open class Dialogue(open val loader: Loader, open val name: String) {
     val intents: List<Intent> get() = nodes.filterIsInstance<Intent>()
 
     val globalIntents: List<GlobalIntent> get() = nodes.filterIsInstance<GlobalIntent>()
+
+    val userInputs: List<UserInput> get() = nodes.filterIsInstance<UserInput>()
 
     val responses: List<Response> get() = nodes.filterIsInstance<Response>()
 

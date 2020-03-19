@@ -1,16 +1,28 @@
-package com.promethist.core
+package com.promethist.core.builder
 
+import com.promethist.core.model.Dialogue
+import com.promethist.core.resources.FileResource
+import com.promethist.core.runtime.Kotlin
+import com.promethist.core.runtime.Loader
+import java.io.ByteArrayInputStream
+import java.io.StringReader
+import java.math.BigInteger
+import java.security.MessageDigest
 import java.time.LocalDateTime
 
-class DialogueModelClassBuilder(val name: String, initCode: CharSequence = "", parentClass: String = "Dialogue") {
+class DialogueModelBuilder(val name: String, initCode: CharSequence = "", parentClass: String = "Dialogue") {
 
     val source = StringBuilder()
     val className: String
+    val version = "undefined"//AppConfig.instance.get("git.ref", "unknown")
+    private val md = MessageDigest.getInstance("MD5")
+
+    private fun md5(str: String): String =
+            BigInteger(1, md.digest(str.toByteArray())).toString(16).padStart(32, '0')
 
     init {
         val names = name.split("/").toMutableList()
         className = "Model" + names.removeAt(names.size - 1)
-        val version = "undefined"//AppConfig.instance.get("git.ref", "unknown")
         source
                 .appendln("//--dialogue-model;version:$version;name:$name;time:" + LocalDateTime.now())
                 .appendln("package " + names.joinToString(".") { "`$it`" }).appendln()
@@ -69,11 +81,32 @@ class DialogueModelClassBuilder(val name: String, initCode: CharSequence = "", p
         source.appendln("$className::class")
     }
 
+    /**
+     * Builds dialogue model with intent model and stores dialogue model class with included files using file resource.
+     *
+     */
+    fun build(intentModelBuilder: IntentModelBuilder, loader: Loader, fileResource: FileResource) {
+        val dialogue = Kotlin.newObject(Kotlin.loadClass<Dialogue>(StringReader(source.toString())), loader, name)
+        dialogue.validate()
+        val intentModels = mutableMapOf<String, String>()
+        val modelId = md5("${name}")
+        intentModels["Global"] = modelId
+        intentModelBuilder.build(modelId, dialogue.globalIntents)
+        dialogue.userInputs.forEach {
+            val modelId = md5("${name}${it.id}")
+            intentModels["${it.javaClass.simpleName}:${it.id}"] = modelId
+            intentModelBuilder.build(modelId, it.intents.asList())
+        }
+        source.appendln("//--intent-models:$intentModels")
+        val stream = ByteArrayInputStream(source.toString().toByteArray())
+        fileResource.writeFile("$name/model.kts", "text/kotlin", listOf("version:$version"), stream)
+    }
+
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
             var nodeId = 0
-            val builder = DialogueModelClassBuilder("product/dialogue/1", "val i = 1").apply {
+            val builder = DialogueModelBuilder("product/dialogue/1", "val i = 1").apply {
                 addResponse(--nodeId, "response1", listOf("hello", "hi"))
                 addIntent(--nodeId, "intent1", listOf("yes", "ok"))
                 addIntent(--nodeId, "intent2", listOf("no", "nope"))

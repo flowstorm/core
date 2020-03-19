@@ -15,7 +15,7 @@ data class Model1(
 ) : Dialogue(loader, name) {
 
     // dialogue functions and local values (declared in editor dialogue init section)
-    val data = loader.loadObject("$name/data")
+    val data = loader.loadObject<Map<String, Any>>("$name/data")
 
     fun someUsefulFunction(intent: Intent): Intent = intent
 
