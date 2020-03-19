@@ -18,10 +18,12 @@ import com.promethist.core.profile.MongoProfileRepository
 import com.promethist.core.profile.ProfileRepository
 import com.promethist.core.resources.*
 import com.promethist.core.runtime.DialogueManager
+import com.promethist.core.runtime.LocalFileLoader
 import org.glassfish.hk2.api.InjectionResolver
 import org.glassfish.hk2.api.TypeLiteral
 import org.glassfish.jersey.process.internal.RequestScoped
 import org.litote.kmongo.KMongo
+import java.io.File
 import javax.inject.Singleton
 
 class Application : JerseyApplication() {
@@ -39,7 +41,8 @@ class Application : JerseyApplication() {
                 bind(DialogueManagerNlpAdapter::class.java).to(NlpAdapter::class.java).named("dm")
                 bind(MongoProfileRepository::class.java).to(ProfileRepository::class.java)
 
-
+                val dm = DialogueManager(LocalFileLoader(File(AppConfig.instance.get("models.dir"))))
+                bindTo(DialogueManager::class.java, dm)
 
                 bindTo(SessionResource::class.java, SessionResourceImpl::class.java)
                 bindTo(MongoDatabase::class.java,
