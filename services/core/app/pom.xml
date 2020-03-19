@@ -26,6 +26,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.promethist.core</groupId>
+            <artifactId>core-lib</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.promethist.common</groupId>
             <artifactId>common-app</artifactId>
             <version>${promethist.common.version}</version>
