@@ -4,9 +4,10 @@ import com.promethist.core.Context
 import com.promethist.core.model.Turn
 import com.promethist.core.model.Dialogue
 import com.promethist.core.model.MessageItem
+import com.promethist.core.nlp.Component
 import org.slf4j.LoggerFactory
 
-class DialogueManager(private val loader: Loader) {
+class DialogueManager(private val loader: Loader) : Component {
 
     private var logger = LoggerFactory.getLogger(this::class.qualifiedName)
     private val dialogues: MutableMap<String, Dialogue> = mutableMapOf()
@@ -31,14 +32,15 @@ class DialogueManager(private val loader: Loader) {
         return dialogue
     }
 
-    fun proceed(context: Context): Boolean = with (context) {
-        return if (turn.dialogueStack.isEmpty()) {
+    override fun process(context: Context): Context = with (context) {
+        context.sessionEnded = if (turn.dialogueStack.isEmpty()) {
             start(get("${context.session.application.dialogueName}/model", context,
                     context.session.application.properties.values.toTypedArray()), context)
         } else {
             turn.dialogueStack.first.nodeId = turn.input.text.toInt()
-            process(context)
+            trace(context)
         }
+        return context
     }
 
     private fun start(dialogue: Dialogue, context: Context): Boolean = with (context) {
@@ -46,13 +48,13 @@ class DialogueManager(private val loader: Loader) {
         dialogue.validate()
         set(dialogue.name, context, dialogue)
         turn.dialogueStack.push(Turn.DialogueStackFrame(dialogue.name))
-        return process(context)
+        return trace(context)
     }
 
     /**
      * @return true if next user input requested, false if session ended
      */
-    private fun process(context: Context): Boolean = with (context) {
+    private fun trace(context: Context): Boolean = with (context) {
         var frame = turn.dialogueStack.first()
         val dialogue = get(frame.name, context)
         var node = dialogue.node(frame.nodeId)
@@ -73,7 +75,7 @@ class DialogueManager(private val loader: Loader) {
                 }
                 is Dialogue.StopDialogue -> {
                     turn.dialogueStack.pop()
-                    return if (turn.dialogueStack.isEmpty()) false else process(context)
+                    return if (turn.dialogueStack.isEmpty()) false else trace(context)
                 }
                 is Dialogue.SubDialogue -> {
                     val subDialogue = node.createDialogue(context)

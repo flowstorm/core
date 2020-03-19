@@ -1,10 +1,9 @@
-package com.promethist.core.nlp.intentRecognition
+package com.promethist.core.nlp
 
 import com.promethist.core.Context
-import com.promethist.core.nlp.NlpAdapter
 import org.slf4j.LoggerFactory
 
-class IllusionistNlpAdapter : NlpAdapter {
+class IllusionistComponent : Component {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 

@@ -10,10 +10,9 @@ import com.promethist.common.query.QueryInjectionResolver
 import com.promethist.common.query.QueryParams
 import com.promethist.common.query.QueryValueFactory
 import com.promethist.core.context.ContextFactory
-import com.promethist.core.nlp.intentRecognition.IllusionistNlpAdapter
-import com.promethist.core.nlp.NlpAdapter
-import com.promethist.core.nlp.NlpPipeline
-import com.promethist.core.nlp.dialogueManager.DialogueManagerNlpAdapter
+import com.promethist.core.nlp.IllusionistComponent
+import com.promethist.core.nlp.Component
+import com.promethist.core.nlp.Pipeline
 import com.promethist.core.profile.MongoProfileRepository
 import com.promethist.core.profile.ProfileRepository
 import com.promethist.core.resources.*
@@ -33,12 +32,11 @@ class Application : JerseyApplication() {
             override fun configure() {
 
                 // NLP pipeline
-                bindTo(NlpPipeline::class.java)
+                bindTo(Pipeline::class.java)
                 bindTo(ContextFactory::class.java)
 
                 //register pipeline adapters - order is important
-                bind(IllusionistNlpAdapter::class.java).to(NlpAdapter::class.java).named("illusionist")
-                bind(DialogueManagerNlpAdapter::class.java).to(NlpAdapter::class.java).named("dm")
+                bind(IllusionistComponent::class.java).to(Component::class.java).named("illusionist")
                 bind(MongoProfileRepository::class.java).to(ProfileRepository::class.java)
 
                 val dm = DialogueManager(LocalFileLoader(File(AppConfig.instance.get("models.dir"))))

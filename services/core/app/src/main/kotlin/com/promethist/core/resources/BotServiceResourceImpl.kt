@@ -3,7 +3,7 @@ package com.promethist.core.resources
 import com.promethist.core.Context
 import com.promethist.core.context.ContextFactory
 import com.promethist.core.model.*
-import com.promethist.core.nlp.NlpPipeline
+import com.promethist.core.nlp.Pipeline
 import com.promethist.core.profile.ProfileRepository
 import com.promethist.core.resources.ContentDistributionResource.ContentRequest
 import org.slf4j.LoggerFactory
@@ -25,7 +25,7 @@ class BotServiceResourceImpl : BotService {
     lateinit var dialogueResouce: BotService
 
     @Inject
-    lateinit var nlpPipeline: NlpPipeline
+    lateinit var nlpPipeline: Pipeline
 
     @Inject
     lateinit var contextFactory: ContextFactory
@@ -47,7 +47,7 @@ class BotServiceResourceImpl : BotService {
         val context = contextFactory.createContext(session, message)
 
         val response = try {
-            when (session.application.engine) {
+            when (session.application.dialogueEngine) {
                 "helena" -> getHelenaResponse(message, session, appKey)
                 "core" -> {
                     val processedContext = runPipeline(context)
