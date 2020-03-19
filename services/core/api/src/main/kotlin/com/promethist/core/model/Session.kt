@@ -13,7 +13,7 @@ data class Session(
         val sessionId: String,
         var user: User,
         var application: Application,
-        val contexts: MutableList<Turn> = mutableListOf(),
+        val turns: MutableList<Turn> = mutableListOf(),
         val messages: MutableList<Message> = mutableListOf(),
         val metrics: MutableList<Metric> = mutableListOf(Metric("session", "Count", 1)),
         val attributes: SessionAttributes = mutableMapOf()

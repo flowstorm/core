@@ -8,8 +8,9 @@ open class Application(
         open var name: String,
         open var dialogueName: String,
         open var ttsVoice: String,
-        open var startCondition: StartCondition = StartCondition(StartCondition.Type.OnAction, "\$intro")
+        open var startCondition: StartCondition = StartCondition(StartCondition.Type.OnAction, "\$intro"),
         /*, properties: <Map, Any>*/
+        open var engine: String = "core"
 ) {
     data class StartCondition(
             var type: Type,

@@ -1,6 +1,10 @@
 package com.promethist.core.resources
 
+import com.promethist.core.Context
+import com.promethist.core.context.ContextFactory
 import com.promethist.core.model.*
+import com.promethist.core.nlp.NlpPipeline
+import com.promethist.core.profile.ProfileRepository
 import com.promethist.core.resources.ContentDistributionResource.ContentRequest
 import org.slf4j.LoggerFactory
 import java.io.Serializable
@@ -20,6 +24,15 @@ class BotServiceResourceImpl : BotService {
     @Inject
     lateinit var dialogueResouce: BotService
 
+    @Inject
+    lateinit var nlpPipeline: NlpPipeline
+
+    @Inject
+    lateinit var contextFactory: ContextFactory
+
+    @Inject
+    lateinit var profileRepository: ProfileRepository
+
     private val czechLocale = Locale.forLanguageTag("cs")
     private var logger = LoggerFactory.getLogger(BotServiceResourceImpl::class.java)
 
@@ -31,23 +44,17 @@ class BotServiceResourceImpl : BotService {
             return getErrorMessageResponse(message, e)
         }
 
+        val context = contextFactory.createContext(session, message)
+
         val response = try {
-            val appVariables = mutableMapOf<String, Serializable>()
-            addUserToExtensions(message, session.user)
-            message.attributes["variables"] = appVariables as Serializable
-            message.recipient = session.application.dialogueName
-
-            logger.info(message.toString())
-            val response = dialogueResouce.message(appKey, message)!!
-            logger.info(response.toString())
-            response.apply { this.items.forEach { it.ttsVoice = it.ttsVoice ?: session.application.ttsVoice } }
-
-            val metrics = if (response.attributes.containsKey("metrics"))
-                response.attributes["metrics"] as Map<String, Any>
-            else mapOf()
-            updateMetrics(session, metrics)
-
-            response
+            when (session.application.engine) {
+                "helena" -> getHelenaResponse(message, session, appKey)
+                "core" -> {
+                    val processedContext = runPipeline(context)
+                    message.response(processedContext.turn.responseItems)
+                }
+                else -> error("Unknown dialogue engine.")
+            }
         } catch (e: Exception) {
             getErrorMessageResponse(message, e)
         }
@@ -59,6 +66,38 @@ class BotServiceResourceImpl : BotService {
         } catch (e: Exception) {
             getErrorMessageResponse(message, e)
         }
+    }
+
+    private fun runPipeline(context: Context): Context {
+        val processedContext = nlpPipeline.process(context)
+        persistContext(processedContext)
+        return processedContext
+    }
+
+    private fun persistContext(context: Context) {
+        context.session.turns.add(context.turn)
+        sessionResource.update(context.session)
+        profileRepository.save(context.profile)
+        //todo metrics
+    }
+
+    private fun getHelenaResponse(message: Message, session: Session, appKey: String): Message {
+        val appVariables = mutableMapOf<String, Serializable>()
+        addUserToExtensions(message, session.user)
+        message.attributes["variables"] = appVariables as Serializable
+        message.recipient = session.application.dialogueName
+
+        logger.info(message.toString())
+        val response = dialogueResouce.message(appKey, message)!!
+        logger.info(response.toString())
+        response.apply { this.items.forEach { it.ttsVoice = it.ttsVoice ?: session.application.ttsVoice } }
+
+        val metrics = if (response.attributes.containsKey("metrics"))
+            response.attributes["metrics"] as Map<String, Any>
+        else mapOf()
+        updateMetrics(session, metrics)
+
+        return response
     }
 
     private fun initSession(message: Message, appKey: String): Session {
