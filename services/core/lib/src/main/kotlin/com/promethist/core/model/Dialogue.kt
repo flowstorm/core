@@ -1,6 +1,6 @@
 package com.promethist.core.model
 
-import com.promethist.core.Context
+import com.promethist.core.nlp.Context
 import com.promethist.core.runtime.Loader
 import kotlin.random.Random
 import kotlin.reflect.KProperty

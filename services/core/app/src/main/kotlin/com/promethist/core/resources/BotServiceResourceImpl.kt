@@ -1,6 +1,6 @@
 package com.promethist.core.resources
 
-import com.promethist.core.Context
+import com.promethist.core.nlp.Context
 import com.promethist.core.context.ContextFactory
 import com.promethist.core.model.*
 import com.promethist.core.nlp.Pipeline

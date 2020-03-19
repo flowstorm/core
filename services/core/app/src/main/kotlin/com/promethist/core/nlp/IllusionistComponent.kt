@@ -1,6 +1,5 @@
 package com.promethist.core.nlp
 
-import com.promethist.core.Context
 import org.slf4j.LoggerFactory
 
 class IllusionistComponent : Component {

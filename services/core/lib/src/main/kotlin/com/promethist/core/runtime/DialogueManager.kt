@@ -1,6 +1,6 @@
 package com.promethist.core.runtime
 
-import com.promethist.core.Context
+import com.promethist.core.nlp.Context
 import com.promethist.core.model.Turn
 import com.promethist.core.model.Dialogue
 import com.promethist.core.model.MessageItem

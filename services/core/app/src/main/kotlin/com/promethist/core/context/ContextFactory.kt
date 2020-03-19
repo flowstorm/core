@@ -1,6 +1,6 @@
 package com.promethist.core.context
 
-import com.promethist.core.Context
+import com.promethist.core.nlp.Context
 import com.promethist.core.model.Profile
 import com.promethist.core.model.Session
 import com.promethist.core.model.Message

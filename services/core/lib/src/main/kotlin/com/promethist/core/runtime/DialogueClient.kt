@@ -1,6 +1,6 @@
 package com.promethist.core.runtime
 
-import com.promethist.core.Context
+import com.promethist.core.nlp.Context
 import com.promethist.core.model.*
 import org.slf4j.LoggerFactory
 import java.io.BufferedReader
