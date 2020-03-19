@@ -38,7 +38,7 @@ class DialogueManager(private val loader: Loader) {
         val frame = turn.dialogueStack.first
         //FIXME do intent reco instead of temporarily using context.input as nodeId
         //TODO call intent reco model with key equal to frame.hashCode
-        turn.dialogueStack.first.nodeId = turn.input.toInt()
+        turn.dialogueStack.first.nodeId = turn.input.text.toInt()
         val dialogue = get(turn.dialogueStack.first().name, context)
         return process(context)
     }

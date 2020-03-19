@@ -17,15 +17,18 @@ object DialogueLoadTest {
         val dialogue = loader.newObject<Dialogue>("$dialogueName/model", "ble", 1, false)
         dialogue.validate()
         println(dialogue.describe())
+
+        val user = User(username = "tester@promethist.ai", name = "Tester", surname = "Tester", nickname = "Tester")
+
         val context = Context(
-                Profile(name = "tester@promethist.ai"),
+                Profile(name = "tester@promethist.ai", user_id = user._id),
                 Session(
                         datetime = Date(),
                         sessionId = "T-E-S-T",
-                        user = User(username = "tester@promethist.ai", name = "Tester", surname = "Tester", nickname = "Tester"),
+                        user = user,
                         application = Application(name = "test", dialogueName = "product/some-dialogue/1", ttsVoice = "Grace")
                 ),
-                Turn("some message"),
+                Turn(Turn.Input("some message")),
                 logger
         )
         val func = dialogue.functions.first()

@@ -18,10 +18,10 @@ object DialogueClient {
         val dm = DialogueManager(LocalFileLoader(File("test/dialogue")))
 
         val user = User(username = "tester@promethist.ai", name = "Tester", surname = "Tester", nickname = "Tester")
-        val profile = Profile(name = user.username)
+        val profile = Profile(user_id = user._id,  name = user.username)
         val application = Application(name = "test", dialogueName = "product/some-dialogue/1", ttsVoice = "Grace")
         val session = Session(sessionId = "T-E-S-T", user = user, application = application)
-        val turn = Turn("\$intro")
+        val turn = Turn(Turn.Input("\$intro"))
         val context = Context(profile, session, turn, logger)
 // start or proceed
         dm.start("${session.application.dialogueName}/model", context, arrayOf("ble", 5, true))
@@ -29,8 +29,8 @@ object DialogueClient {
 
         val reader = BufferedReader(InputStreamReader(System.`in`))
         while (true) {
-            turn.input = reader.readLine()!!.trim()
-            if (turn.input == "exit")
+            turn.input = Turn.Input(reader.readLine()!!.trim())
+            if (turn.input.text == "exit")
                 break
             turn.attributes.clear()
             turn.responseItems.clear()
