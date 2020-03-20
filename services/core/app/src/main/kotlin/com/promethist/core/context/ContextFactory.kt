@@ -1,10 +1,8 @@
 package com.promethist.core.context
 
+import com.promethist.core.model.*
 import com.promethist.core.nlp.Context
-import com.promethist.core.model.Profile
-import com.promethist.core.model.Session
-import com.promethist.core.model.Message
-import com.promethist.core.model.Turn
+import com.promethist.core.nlp.Input
 import com.promethist.core.profile.ProfileRepository
 import org.slf4j.LoggerFactory
 import javax.inject.Inject
@@ -18,7 +16,7 @@ class ContextFactory {
         val profile = profileRepository.find(session.user._id)
                 ?: Profile(user_id = session.user._id, name = session.user.username)
 
-        val input = Turn.Input(message.items.first().text!!)
+        val input = Input(message.items.first().text!!)
         val turn = session.turns.lastOrNull()?.copy(input = input, responseItems = mutableListOf()) ?: Turn(input)
 
         return Context(
