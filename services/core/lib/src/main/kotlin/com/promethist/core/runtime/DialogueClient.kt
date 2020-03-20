@@ -28,12 +28,13 @@ object DialogueClient {
 
         val reader = BufferedReader(InputStreamReader(System.`in`))
         while (true) {
-            dm.proceed(context)
+            dm.process(context)
             logger.info(context.toString())
             println("> ${context.turn.responseItems}")
-            turn.input.text = reader.readLine()!!.trim()
-            if (turn.input.text == "exit")
+            val text = reader.readLine()!!.trim()
+            if (text == "exit")
                 break
+            turn.input = Input(text, mutableListOf(Input.Class(Input.Class.Type.Intent, text)))
             turn.attributes.clear()
             turn.responseItems.clear()
         }

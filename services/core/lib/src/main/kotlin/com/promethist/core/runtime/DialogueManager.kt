@@ -5,6 +5,7 @@ import com.promethist.core.model.Turn
 import com.promethist.core.model.Dialogue
 import com.promethist.core.model.MessageItem
 import com.promethist.core.nlp.Component
+import com.promethist.core.nlp.Input
 import org.slf4j.LoggerFactory
 
 class DialogueManager(private val loader: Loader) : Component {
@@ -37,8 +38,10 @@ class DialogueManager(private val loader: Loader) : Component {
             start(get("${context.session.application.dialogueName}/model", context,
                     context.session.application.properties.values.toTypedArray()), context)
         } else {
-            turn.dialogueStack.first.nodeId = turn.input.text.toInt()
-            trace(context)
+            turn.dialogueStack.first.nodeId =
+                    turn.input.classes.find { it.type == Input.Class.Type.Intent }?.name?.toInt()
+                            ?:error("Missing intent class in ${turn.dialogueStack.first}")
+            proceed(context)
         }
         return context
     }
@@ -48,13 +51,13 @@ class DialogueManager(private val loader: Loader) : Component {
         dialogue.validate()
         set(dialogue.name, context, dialogue)
         turn.dialogueStack.push(Turn.DialogueStackFrame(dialogue.name))
-        return trace(context)
+        return proceed(context)
     }
 
     /**
      * @return true if next user input requested, false if session ended
      */
-    private fun trace(context: Context): Boolean = with (context) {
+    private fun proceed(context: Context): Boolean = with (context) {
         var frame = turn.dialogueStack.first()
         val dialogue = get(frame.name, context)
         var node = dialogue.node(frame.nodeId)
@@ -75,7 +78,7 @@ class DialogueManager(private val loader: Loader) : Component {
                 }
                 is Dialogue.StopDialogue -> {
                     turn.dialogueStack.pop()
-                    return if (turn.dialogueStack.isEmpty()) false else trace(context)
+                    return if (turn.dialogueStack.isEmpty()) false else proceed(context)
                 }
                 is Dialogue.SubDialogue -> {
                     val subDialogue = node.createDialogue(context)
