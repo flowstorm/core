@@ -2,7 +2,7 @@ package com.promethist.core.runtime
 
 import com.promethist.core.nlp.Context
 import com.promethist.core.model.Turn
-import com.promethist.core.model.Dialogue
+import com.promethist.core.nlp.Dialogue
 import com.promethist.core.model.MessageItem
 import com.promethist.core.nlp.Component
 import com.promethist.core.nlp.Input
@@ -16,7 +16,7 @@ class DialogueManager(private val loader: Loader) : Component {
     private fun get(name: String, context: Context, args: Array<Any>? = null): Dialogue {
         val key = "$name:${context.session.sessionId}"
         return if (!dialogues.containsKey(key)) {
-            logger.info("loading $name")
+            logger.info("loading model $name")
             if (args == null)
                 error("Missing arguments for creating model $name")
             val dialogue = loader.newObject<Dialogue>(name, *args!!)
@@ -66,8 +66,10 @@ class DialogueManager(private val loader: Loader) : Component {
             frame.nodeId = node.id
             logger.info(frame.toString())
             when (node) {
-                is Dialogue.UserInput ->
+                is Dialogue.UserInput -> {
+                    frame.skipGlobalIntents = node.skipGlobalIntents
                     return true
+                }
                 is Dialogue.Function -> {
                     val transition = node.exec(context)
                     node = transition.node

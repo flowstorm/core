@@ -1,9 +1,10 @@
 package com.promethist.core.resources
 
-import com.promethist.core.model.File
+import com.promethist.core.model.FileObject
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiParam
 import java.io.InputStream
+import java.io.OutputStream
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
@@ -18,11 +19,14 @@ interface FileResource {
             @ApiParam(required = true) @PathParam("path") path: String
     ): Response
 
+    // local reading
+    fun readFile(path: String, output: OutputStream)
+
     @GET
     @Path("{path: .*}/_object")
     @Produces(MediaType.APPLICATION_JSON)
     fun getFile(
-            @ApiParam(required = true) @PathParam("path") path: String): File
+            @ApiParam(required = true) @PathParam("path") path: String): FileObject
 
     @POST
     @Path("{path: .*}")
@@ -37,7 +41,7 @@ interface FileResource {
     @Path("{path: .*}")
     fun deleteFile(
             @ApiParam(required = true) @PathParam("path") path: String
-    )
+    ): Boolean
 
     @GET
     @Path("provider")

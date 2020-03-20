@@ -2,7 +2,9 @@ package com.promethist.core.runtime
 
 import com.promethist.core.nlp.Context
 import com.promethist.core.model.*
+import com.promethist.core.nlp.Dialogue
 import com.promethist.core.nlp.Input
+import com.promethist.core.provider.LocalFileStorage
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -13,7 +15,7 @@ object DialogueLoadTest {
     @JvmStatic
     fun main(args: Array<String>) {
         val logger: Logger = LoggerFactory.getLogger("dialogue-model-load-test")
-        val loader = LocalFileLoader(File("test/dialogue"))
+        val loader = FileResourceLoader(LocalFileStorage(File("test")), "dialogue")
         val dialogueName = "product/some-dialogue/1"
         val dialogue = loader.newObject<Dialogue>("$dialogueName/model", "ble", 1, false)
         dialogue.validate()

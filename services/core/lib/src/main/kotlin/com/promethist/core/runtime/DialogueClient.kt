@@ -1,8 +1,11 @@
 package com.promethist.core.runtime
 
+import com.promethist.common.RestClient
 import com.promethist.core.nlp.Context
 import com.promethist.core.model.*
 import com.promethist.core.nlp.Input
+import com.promethist.core.provider.LocalFileStorage
+import com.promethist.core.resources.FileResource
 import org.slf4j.LoggerFactory
 import java.io.BufferedReader
 import java.io.File
@@ -16,7 +19,10 @@ object DialogueClient {
     fun main(args: Array<String>) {
 
         println("starting...")
-        val dm = DialogueManager(LocalFileLoader(File("test/dialogue")))
+        //val fileResource = RestClient.instance(FileResource::class.java, "https://filestore.develop.promethist.com")
+        val fileResource = LocalFileStorage(File("test"))
+        val loader = FileResourceLoader(fileResource, "dialogue")
+        val dm = DialogueManager(loader)
 
         val user = User(username = "tester@promethist.ai", name = "Tester", surname = "Tester", nickname = "Tester")
         val profile = Profile(user_id = user._id,  name = user.username)

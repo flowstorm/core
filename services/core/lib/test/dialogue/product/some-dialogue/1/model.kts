@@ -1,7 +1,7 @@
 package `product`.`some-dialogue`
 
 import com.promethist.core.runtime.Loader
-import com.promethist.core.model.*
+import com.promethist.core.nlp.Dialogue
 
 data class Model1(
         override val loader: Loader,
@@ -20,11 +20,11 @@ data class Model1(
     fun someUsefulFunction(intent: Intent): Intent = intent
 
     // dialogue nodes (always val named by editor elements)
-    val globalIntent1 = GlobalIntent(nextId--, "volume up")
-    val globalIntent2 = GlobalIntent(nextId--, "volume down")
-    val response0 = Response(nextId--, { "Hi, this is Jarmila" })
-    val intent1 = Intent(nextId--,"yes", "okay")
-    val intent2 = Intent(nextId--, "no", "nope")
+    val globalIntent1 = GlobalIntent(nextId--, "globalIntent1", "volume up")
+    val globalIntent2 = GlobalIntent(nextId--, "globalIntent2", "volume down")
+    val response0 = Response(nextId--, { """"Hi, this is Jarmila defined by ${name}""" })
+    val intent1 = Intent(nextId--, "intent1","yes", "okay")
+    val intent2 = Intent(nextId--, "intent2", "no", "nope")
     val input1 = UserInput(nextId--, intent1, intent2)
 
     val response1 = Response(nextId--,

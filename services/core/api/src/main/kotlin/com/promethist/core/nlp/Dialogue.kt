@@ -1,6 +1,5 @@
-package com.promethist.core.model
+package com.promethist.core.nlp
 
-import com.promethist.core.nlp.Context
 import com.promethist.core.runtime.Loader
 import kotlin.random.Random
 import kotlin.reflect.KProperty
@@ -25,7 +24,7 @@ open class Dialogue(open val loader: Loader, open val name: String) {
 
     abstract inner class TransitNode(override val id: Int): Node(id) {
         lateinit var next: Node
-
+        fun isNextInitialized() = ::next.isInitialized
         override fun toString(): String = "${javaClass.simpleName}(id=$id, next=$next)"
     }
 
@@ -33,13 +32,17 @@ open class Dialogue(open val loader: Loader, open val name: String) {
 
     inner class UserInput(
             override val id: Int,
+            var skipGlobalIntents: Boolean,
             vararg intent: Intent
     ): Node(id) {
         val intents = intent
+
+        constructor(id: Int, vararg intent: Intent) : this(id, false, *intent)
     }
 
     open inner class Intent(
             override val id: Int,
+            val name: String,
             vararg utterance: String
     ): TransitNode(id) {
         val utterances = utterance
@@ -48,7 +51,7 @@ open class Dialogue(open val loader: Loader, open val name: String) {
     inner class GlobalIntent(
              override val id: Int,
              vararg utterance: String
-    ): Intent(id, *utterance)
+    ): Intent(id, name, *utterance)
 
     open inner class Response(
             override val id: Int,
@@ -107,15 +110,13 @@ open class Dialogue(open val loader: Loader, open val name: String) {
         }.map { it.name to it.call(this) as Node }.toMap()
     }
 
-    //val nodes = nodeMap.values
-
     fun validate() {
         for (node in nodes) {
-            try {
-                node is TransitNode && node.next == null
-            } catch (e: UninitializedPropertyAccessException) {
-                error("${this::class.qualifiedName}.${node} missing next node reference")
-            }
+            val name by lazy { "${this::class.qualifiedName}: ${node::class.simpleName}(${node.id})" }
+            if (node is TransitNode && !node.isNextInitialized())
+                error("$name missing next node")
+            if (node is UserInput && node.intents.isEmpty())
+                error("$name missing intents")
         }
     }
 

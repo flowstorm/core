@@ -10,5 +10,5 @@ data class Turn(
         val dialogueStack: LinkedList<DialogueStackFrame> = LinkedList(),
         val responseItems: MutableList<MessageItem> = mutableListOf()
 ) {
-    data class DialogueStackFrame(val name: String, var nodeId: Int = 0)
+    data class DialogueStackFrame(val name: String, var nodeId: Int = 0, var skipGlobalIntents: Boolean = false)
 }

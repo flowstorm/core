@@ -1,6 +1,6 @@
 package com.promethist.core.model
 
-data class File(
+data class FileObject(
         var name: String,
         var size: Long,
         var contentType: String,

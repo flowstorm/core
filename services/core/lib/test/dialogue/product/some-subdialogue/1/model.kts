@@ -1,7 +1,7 @@
 package `product`.`some-subdialogue`
 
 import com.promethist.core.runtime.Loader
-import com.promethist.core.model.*
+import com.promethist.core.nlp.Dialogue
 
 data class Model1(
         override val loader: Loader,
@@ -13,8 +13,8 @@ data class Model1(
 ) : Dialogue(loader, name) {
 
     val response0 = Response(nextId--, { "Welcome to sub dialogue" })
-    val intent1 = Intent(nextId--,"yes", "okay")
-    val intent2 = Intent(nextId--, "no", "nope")
+    val intent1 = Intent(nextId--, "intent1", "yes", "okay")
+    val intent2 = Intent(nextId--, "intent2", "no", "nope")
     val input1 = UserInput(nextId--, intent1, intent2)
     val response1 = Response(nextId--, { "Bye from sub dialogue" })
 
