@@ -5,6 +5,7 @@ import com.mongodb.client.MongoDatabase
 import com.promethist.common.AppConfig
 import com.promethist.common.JerseyApplication
 import com.promethist.common.ResourceBinder
+import com.promethist.common.RestClient
 import com.promethist.common.query.Query
 import com.promethist.common.query.QueryInjectionResolver
 import com.promethist.common.query.QueryParams
@@ -36,7 +37,13 @@ class Application : JerseyApplication() {
                 bindTo(ContextFactory::class.java)
 
                 //register pipeline adapters - order is important
-                bind(IllusionistComponent::class.java).to(Component::class.java).named("illusionist")
+
+                val illusionist = IllusionistComponent()
+                illusionist.webTarget = RestClient.webTarget(ServiceUtil.getEndpointUrl("illusionist"))
+                        .path("/query")
+                        .queryParam("key", AppConfig.instance["illusionist.apiKey"])
+
+                bind(illusionist).to(Component::class.java).named("illusionist")
                 bind(MongoProfileRepository::class.java).to(ProfileRepository::class.java)
 
                 val dm = DialogueManager(LocalFileLoader(File(AppConfig.instance.get("models.dir"))))

@@ -12,7 +12,11 @@ class Pipeline {
         var processedContext = context
 
         for (adapter in adapters) {
-            processedContext = adapter.process(processedContext)
+            try {
+                processedContext = adapter.process(processedContext)
+            } catch (e: Throwable) {
+                throw Exception("NLP component failed: ${adapter::class.simpleName}, ${e.message}", e)
+            }
         }
 
         return processedContext
