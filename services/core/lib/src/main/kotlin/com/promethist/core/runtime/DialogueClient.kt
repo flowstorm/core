@@ -2,6 +2,7 @@ package com.promethist.core.runtime
 
 import com.promethist.core.nlp.Context
 import com.promethist.core.model.*
+import com.promethist.core.nlp.Input
 import org.slf4j.LoggerFactory
 import java.io.BufferedReader
 import java.io.File

@@ -1,4 +1,4 @@
-package com.promethist.core.model
+package com.promethist.core.nlp
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
@@ -7,7 +7,7 @@ import java.util.ArrayList
 
 data class Input(var text: String, val classes: MutableList<Class> = mutableListOf(), val tokens: MutableList<Token> = mutableListOf()) {
 
-    data class Class(val type: Type, val name: String) {
+    data class Class(val type: Type, val name: String, val score: Float = 1.0F) {
         enum class Type { Intent, Entity }
     }
 
@@ -39,14 +39,14 @@ data class Input(var text: String, val classes: MutableList<Class> = mutableList
         @JvmStatic
         fun main(args: Array<String>) {
             val input = Input("I see a dog and a cat.", mutableListOf(Class(Class.Type.Intent, "-1")),
-                mutableListOf(
-                    Word("i"),
-                    Word("see"),
-                    Word("dog", mutableListOf(Class(Class.Type.Entity, "animal"))),
-                    Word("and"),
-                    Word("cat", mutableListOf(Class(Class.Type.Entity, "animal"))),
-                    Punctuation(".")
-                )
+                    mutableListOf(
+                            Word("i"),
+                            Word("see"),
+                            Word("dog", mutableListOf(Class(Class.Type.Entity, "animal"))),
+                            Word("and"),
+                            Word("cat", mutableListOf(Class(Class.Type.Entity, "animal"))),
+                            Punctuation(".")
+                    )
             )
             println(input.words.entities("animal"))
             println(ObjectUtil.defaultMapper.writeValueAsString(input))

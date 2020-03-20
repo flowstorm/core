@@ -1,5 +1,6 @@
 package com.promethist.core.model
 
+import com.promethist.core.nlp.Input
 import com.promethist.core.type.Dynamic
 import java.util.*
 
