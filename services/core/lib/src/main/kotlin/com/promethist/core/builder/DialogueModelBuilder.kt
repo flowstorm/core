@@ -27,6 +27,8 @@ class DialogueModelBuilder(val name: String, private val language: Locale, priva
 
     init {
         logger.info("initializing builder of dialogue model $name : $parentClass")
+        if (!name.matches(Regex("([\\w\\-]+)/([\\w\\-]+)/(\\d+)")))
+            error("dialogue name $name does not conform to naming convention (product-name/dialogue-name/dialogue-version)")
         val names = name.split("/").toMutableList()
         className = "Model" + names.removeAt(names.size - 1)
         source
