@@ -2,25 +2,23 @@ package com.promethist.core.builder
 
 import com.promethist.common.RestClient
 import com.promethist.core.nlp.Dialogue
-import com.promethist.core.provider.LocalFileStorage
 import com.promethist.core.resources.FileResource
 import com.promethist.core.runtime.FileResourceLoader
 import com.promethist.core.runtime.Kotlin
 import org.jetbrains.kotlin.utils.addToStdlib.ifNotEmpty
 import org.slf4j.LoggerFactory
 import java.io.ByteArrayInputStream
-import java.io.File
 import java.io.StringReader
 import java.math.BigInteger
 import java.security.MessageDigest
 import java.time.LocalDateTime
 import java.util.*
 
-class DialogueModelBuilder(val name: String, val language: Locale, initCode: CharSequence = "", parentClass: String = "Dialogue") {
+class DialogueModelBuilder(val name: String, private val language: Locale, private val args: Map<String, Any>, initCode: CharSequence = "", parentClass: String = "Dialogue") {
 
     val source = StringBuilder()
-    val className: String
-    val version = "undefined"//AppConfig.instance.get("git.ref", "unknown")
+    private val className: String
+    private val version = "undefined"//AppConfig.instance.get("git.ref", "unknown")
     private val md = MessageDigest.getInstance("MD5")
     private var logger = LoggerFactory.getLogger(this::class.qualifiedName)
 
@@ -38,7 +36,15 @@ class DialogueModelBuilder(val name: String, val language: Locale, initCode: Cha
                 .appendln("import com.promethist.core.nlp.*")
                 .appendln("import com.promethist.core.model.*").appendln()
                 .append("data class $className(override val loader: Loader, override val name: String")
-
+        args.forEach {
+            if (it.value !is Int && it.value !is String && it.value !is Boolean)
+                error("arg ${it.key} is if on unsupported type ${it.value::class.simpleName} (only Int, String, Boolean supported)")
+            source.append(", val ${it.key}: ${it.value::class.simpleName} = ")
+            if (it.value is String)
+                source.append('"').append((it.value as String).trim().replace("\"", "\\\"")).append('"')
+            else
+                source.append(it.value.toString())
+        }
         source.appendln(") : $parentClass(loader, name) {")
         source.appendln("\tval language = \"$language\"")
         if (initCode.isNotBlank()) {
@@ -54,7 +60,6 @@ class DialogueModelBuilder(val name: String, val language: Locale, initCode: Cha
             source.append(", ").append('"').append(it.trim().replace("\"", "\\\"")).append('"')
         }
         source.appendln(')')
-        //TODO add to intent model
     }
 
     fun addUserInput(nodeId: Int, nodeName: String, intentNames: List<String>, skipGlobalIntents: Boolean) {
@@ -63,7 +68,6 @@ class DialogueModelBuilder(val name: String, val language: Locale, initCode: Cha
             source.append(", $it")
         }
         source.appendln(')')
-        //TODO add to intent model
     }
 
     fun addResponse(nodeId: Int, nodeName: String, texts: List<String>, type: String = "Response") {
@@ -107,7 +111,7 @@ class DialogueModelBuilder(val name: String, val language: Locale, initCode: Cha
     fun build(intentModelBuilder: IntentModelBuilder, fileResource: FileResource) {
         logger.info("building dialogue model $name")
         val loader = FileResourceLoader(fileResource, "dialogue")
-        val dialogue = Kotlin.newObject(Kotlin.loadClass<Dialogue>(StringReader(source.toString())), loader, name)
+        val dialogue = Kotlin.newObject(Kotlin.loadClass<Dialogue>(StringReader(source.toString())), loader, name, *args.values.toTypedArray())
 
         logger.info("validating dialogue model $name - $dialogue")
         dialogue.validate()
@@ -140,7 +144,11 @@ class DialogueModelBuilder(val name: String, val language: Locale, initCode: Cha
         @JvmStatic
         fun main(args: Array<String>) {
             var nodeId = 0
-            val builder = DialogueModelBuilder("product/dialogue/1", Locale("en"),"val i = 1").apply {
+            val builder = DialogueModelBuilder("product/dialogue/1", Locale("en"), mapOf(
+                    "str" to "bla",
+                    "num" to 123,
+                    "chk" to true
+            ),"val i = 1").apply {
                 addResponse(--nodeId, "response1", listOf("hello", "hi"))
                 addIntent(--nodeId, "intent1", listOf("no", "nope"))
                 addIntent(--nodeId, "intent2", listOf("yes", "ok"))
