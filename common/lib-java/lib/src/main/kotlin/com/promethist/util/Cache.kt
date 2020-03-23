@@ -10,13 +10,13 @@ class Cache(val dataLimit: Int): ArrayList<Cache.Item>() {
 
     var dataSize: Int = 0
 
-    override fun add(item: Item): Boolean {
+    override fun add(element: Item): Boolean {
         sort()
-        while (dataSize + item.dataSize >= dataLimit) {
+        while (dataSize + element.dataSize >= dataLimit) {
             dataSize -= removeAt(0).dataSize
         }
-        dataSize += item.dataSize
-        return super.add(item)
+        dataSize += element.dataSize
+        return super.add(element)
     }
 
     fun get(name: String): Item? = find {
