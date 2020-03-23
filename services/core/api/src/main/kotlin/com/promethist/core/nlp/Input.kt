@@ -1,5 +1,7 @@
 package com.promethist.core.nlp
 
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.promethist.common.ObjectUtil
@@ -25,6 +27,8 @@ data class Input(var text: String, val classes: MutableList<Class> = mutableList
 
     data class Punctuation(override val text: String) : Token(text)
 
+    data class Entity(val className: String, var value: String)
+
     class WordList(words: List<Word>) : ArrayList<Word>() {
         init {
             addAll(words)
@@ -33,27 +37,44 @@ data class Input(var text: String, val classes: MutableList<Class> = mutableList
         fun entities(name: String) = filter { it.classes.any { it.type == Class.Type.Entity && it.name == name } }
     }
 
+    @get:JsonIgnore
     val words: WordList by lazy { WordList(tokens.filterIsInstance<Word>()) }
-    val entities: Map<String, List<String>> by lazy {
-        val map = mutableMapOf<String, MutableList<String>>()
+
+    @get:JsonIgnore
+    val intents get() = classes.filter { it.type == Class.Type.Intent }
+
+    @get:JsonIgnore
+    val intent get() = intents.first()
+
+    @get:JsonIgnore
+    val entityMap: Map<String, List<Entity>> by lazy {
+        val map = mutableMapOf<String, MutableList<Entity>>()
         words.forEach { word ->
             word.classes.forEach {
                 if (it.type == Class.Type.Entity) {
                     val beginning = it.name.startsWith("B-")
                     val inside = it.name.startsWith("I-")
-                    val name = if (beginning || inside) it.name.substring(2) else it.name
-                    if (!map.containsKey(name))
-                        map[name] = mutableListOf()
+                    val className = if (beginning || inside) it.name.substring(2) else it.name
+                    if (!map.containsKey(className))
+                        map[className] = mutableListOf()
                     else if (inside) {
-                        val last = map[name]!!.size - 1
-                        map[name]!![last] = map[name]!![last] + " " + word.text
+                        val last = map[className]!!.size - 1
+                        map[className]!![last].value = map[className]!![last].value + " " + word.text
                     }
                     if (!inside)
-                        map[name]!!.add(word.text)
+                        map[className]!!.add(Entity(className, word.text))
                 }
             }
         }
         map
+    }
+
+    fun entitiesToString(className: String? = null, textIfEmpty: String = "none"): String {
+        val entities = entityMap.filter { className == null || className == it.key }.values
+        return if (entities.isEmpty())
+            textIfEmpty
+        else
+            entities.joinToString { entity -> entity.joinToString(", ") { it.value } }
     }
 
     companion object {
@@ -73,7 +94,9 @@ data class Input(var text: String, val classes: MutableList<Class> = mutableList
                     )
             )
             println(input.words.entities("animal"))
-            println(input.entities)
+            println(input.intent.name)
+            println(input.entityMap)
+            println(input.entitiesToString(/*"animal"*/))
             println(ObjectUtil.defaultMapper.writeValueAsString(input))
         }
     }

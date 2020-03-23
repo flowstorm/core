@@ -19,14 +19,14 @@ object DialogueClient {
     fun main(args: Array<String>) {
 
         println("starting...")
-        //val fileResource = RestClient.instance(FileResource::class.java, "https://filestore.develop.promethist.com")
-        val fileResource = LocalFileStorage(File("test"))
+        val fileResource = RestClient.instance(FileResource::class.java, "https://filestore.develop.promethist.com")
+        //val fileResource = LocalFileStorage(File("test"))
         val loader = FileResourceLoader(fileResource, "dialogue")
         val dm = DialogueManager(loader)
 
         val user = User(username = "tester@promethist.ai", name = "Tester", surname = "Tester", nickname = "Tester")
         val profile = Profile(user_id = user._id,  name = user.username)
-        val application = Application(name = "test", dialogueName = "product/some-dialogue/1", ttsVoice = "Grace",
+        val application = Application(name = "test", dialogueName = "product/dialogue/1", ttsVoice = "Grace",
                 properties = mutableMapOf("some_string" to "bla", "math_max" to 5, "do_math" to true))
         val session = Session(sessionId = "T-E-S-T", user = user, application = application)
         val turn = Turn(Input(""))
@@ -37,6 +37,8 @@ object DialogueClient {
             dm.process(context)
             logger.info(context.toString())
             println("> ${context.turn.responseItems}")
+            if (context.sessionEnded)
+                break
             val text = reader.readLine()!!.trim()
             if (text == "exit")
                 break

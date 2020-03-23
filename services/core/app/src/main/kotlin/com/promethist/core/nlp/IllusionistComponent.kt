@@ -19,8 +19,10 @@ class IllusionistComponent : Component {
 
     override fun process(context: Context): Context {
         if (context.turn.dialogueStack.isEmpty()) {
-            logger.info("Illusionist NLP adapter - nothing to do.")
+            logger.info("processing IR - nothing to do")
             return context
+        } else {
+            logger.info("processing IR")
         }
 
         val request = Request(context.input.text, getModelsIds(context.turn.dialogueStack.first))

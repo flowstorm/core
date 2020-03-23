@@ -48,7 +48,7 @@ class DialogueModelBuilder(val name: String, private val language: Locale, priva
                 source.append(it.value.toString())
         }
         source.appendln(") : $parentClass(loader, name) {")
-        source.appendln("\tval language = \"$language\"")
+        source.appendln("\toverride val language = \"$language\"")
         if (initCode.isNotBlank()) {
             source.appendln("//--code-start;type:init")
             source.appendln(initCode)
@@ -151,10 +151,11 @@ class DialogueModelBuilder(val name: String, private val language: Locale, priva
                     "num" to 123,
                     "chk" to true
             ),"val i = 1").apply {
-                addResponse(--nodeId, "response1", listOf("hello", "hi"))
-                addIntent(--nodeId, "intent1", listOf("no", "nope"))
-                addIntent(--nodeId, "intent2", listOf("yes", "ok"))
-                addFunction(--nodeId, "function1", mapOf("trans1" to "response1"), "println(trans1)\ntrans1")
+                addResponse(--nodeId, "response1", listOf("hello, say some animal", "hi, say some animal"))
+                addIntent(--nodeId, "intent1", listOf("no", "nope", "quit", "stop"))
+                addIntent(--nodeId, "intent2", listOf("dog", "cat", "tiger"))
+                addFunction(--nodeId, "function1", mapOf("trans1" to "stop"), "println(trans1)\ntrans1")
+                addResponse(--nodeId, "response2", listOf("Your response was \${input.text}. Intent \${input.intent.name}. Identified entities: \${input.entitiesToString()}"))
                 //addSubDialogue(--nodeId, "subDialogue1", "product/subdialogue/1")
 
                 // user inputs always at the end (all intents must be defined before)
@@ -163,7 +164,8 @@ class DialogueModelBuilder(val name: String, private val language: Locale, priva
                         "start" to "response1",
                         "response1" to "input1",
                         "intent1" to "function1",
-                        "intent2" to "stop"
+                        "intent2" to "response2",
+                        "response2" to "stop"
                         //"subDialogue1" to "response1",
                 ))
             }

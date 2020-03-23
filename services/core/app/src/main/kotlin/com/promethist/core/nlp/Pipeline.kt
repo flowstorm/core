@@ -6,16 +6,16 @@ import javax.inject.Inject
 class Pipeline {
 
     @Inject
-    lateinit var adapters: IterableProvider<Component>
+    lateinit var components: IterableProvider<Component>
 
     fun process(context: Context): Context {
         var processedContext = context
 
-        for (adapter in adapters) {
+        for (component in components) {
             try {
-                processedContext = adapter.process(processedContext)
+                processedContext = component.process(processedContext)
             } catch (e: Throwable) {
-                throw Exception("NLP component failed: ${adapter::class.simpleName}, ${e.message}", e)
+                throw Exception("NLP component failed: ${component::class.simpleName}: ${e.message}", e)
             }
         }
 

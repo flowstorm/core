@@ -8,10 +8,13 @@ import kotlin.reflect.full.isSubtypeOf
 
 open class Dialogue(open val loader: Loader, open val name: String) {
 
+    open val language = "en"
     val nodes: MutableSet<Node> = mutableSetOf()
     var nextId: Int = 0
     var start = StartDialogue(nextId--)
-    var stop = StopDialogue(Int.MIN_VALUE)
+    var stop = StopDialogue(Int.MAX_VALUE)
+    var stopSession = StopSession(Int.MAX_VALUE - 1)
+    var repeat = Repeat(Int.MAX_VALUE - 2)
 
     abstract inner class Node(open val id: Int) {
 
@@ -55,6 +58,7 @@ open class Dialogue(open val loader: Loader, open val name: String) {
 
     open inner class Response(
             override val id: Int,
+            val isRepeatable: Boolean = true,
             val image: String? = null,
             val audio: String? = null,
             val video: String? = null,
@@ -62,10 +66,14 @@ open class Dialogue(open val loader: Loader, open val name: String) {
     ): TransitNode(id) {
         val texts = text
 
-        constructor(id: Int, vararg text: (Context.(Response) -> String)) : this(id, null, null, null, *text)
+        constructor(id: Int, isRepeatable: Boolean, vararg text: (Context.(Response) -> String)) : this(id, isRepeatable,null, null, null, *text)
+
+        constructor(id: Int, vararg text: (Context.(Response) -> String)) : this(id, true, *text)
 
         fun getText(context: Context, index: Int = -1): String = texts[if (index < 0) Random.nextInt(texts.size) else index](context, this)
     }
+
+    inner class Repeat(override val id: Int): Node(id)
 
     inner class Function(
             override val id: Int,

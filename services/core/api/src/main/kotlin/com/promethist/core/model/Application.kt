@@ -17,8 +17,8 @@ open class Application(
             var condition: String
     ) {
         enum class Type {
-            Cron,
-            OnAction
+            OnAction,
+            OnTrigger
         }
     }
 }

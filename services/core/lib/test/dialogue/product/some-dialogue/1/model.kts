@@ -22,7 +22,7 @@ data class Model1(
     // dialogue nodes (always val named by editor elements)
     val globalIntent1 = GlobalIntent(nextId--, "globalIntent1", "volume up")
     val globalIntent2 = GlobalIntent(nextId--, "globalIntent2", "volume down")
-    val response0 = Response(nextId--, { """"Hi, this is Jarmila defined by ${name}""" })
+    val response0 = Response(nextId--, { """Hi, this is Jarmila defined by ${name}""" })
     val intent1 = Intent(nextId--, "intent1","yes", "okay")
     val intent2 = Intent(nextId--, "intent2", "no", "nope")
     val input1 = UserInput(nextId--, intent1, intent2)

@@ -50,10 +50,10 @@ class BotServiceResourceImpl : BotService {
             when (session.application.dialogueEngine) {
                 "helena" -> getHelenaResponse(message, session, appKey)
                 "core" -> {
-                    val processedContext = runPipeline(context)
+                    val processedContext = processPipeline(context)
                     message.response(processedContext.turn.responseItems)
                 }
-                else -> error("Unknown dialogue engine.")
+                else -> error("Unknown dialogue engine (${session.application.dialogueEngine})")
             }
         } catch (e: Exception) {
             getErrorMessageResponse(message, e)
@@ -68,7 +68,7 @@ class BotServiceResourceImpl : BotService {
         }
     }
 
-    private fun runPipeline(context: Context): Context {
+    private fun processPipeline(context: Context): Context {
         val processedContext = nlpPipeline.process(context)
         persistContext(processedContext)
         return processedContext

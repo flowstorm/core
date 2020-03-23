@@ -34,7 +34,8 @@ class DialogueManager(private val loader: Loader) : Component {
     }
 
     override fun process(context: Context): Context = with (context) {
-        context.sessionEnded = if (turn.dialogueStack.isEmpty()) {
+        logger.info("processing DM")
+        if (turn.dialogueStack.isEmpty()) {
             start(get("${context.session.application.dialogueName}/model", context,
                     context.session.application.properties.values.toTypedArray()), context)
         } else {
@@ -69,6 +70,22 @@ class DialogueManager(private val loader: Loader) : Component {
                 is Dialogue.UserInput -> {
                     frame.skipGlobalIntents = node.skipGlobalIntents
                     return true
+                }
+                is Dialogue.Repeat -> {
+                    //TODO not tested yet!!!
+                    var prevNodeId = 0
+                    var prevFound = false
+                    for (i in session.turns.size - 1 downTo 0) {
+                        val prevFrame = session.turns[i].dialogueStack.first()
+                        val prevNode = dialogue.node(prevFrame.nodeId)
+                        if (prevFrame.name == dialogue.name) {
+                            if (prevNode is Dialogue.Response && prevNode.isRepeatable)
+                                prevNodeId = prevFrame.nodeId
+                            else if (prevNodeId != 0)
+                                break
+                        }
+                    }
+                    frame.nodeId = prevNodeId
                 }
                 is Dialogue.Function -> {
                     val transition = node.exec(context)

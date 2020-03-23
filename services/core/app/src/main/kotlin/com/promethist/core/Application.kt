@@ -11,6 +11,7 @@ import com.promethist.common.query.QueryInjectionResolver
 import com.promethist.common.query.QueryParams
 import com.promethist.common.query.QueryValueFactory
 import com.promethist.core.context.ContextFactory
+import com.promethist.core.nlp.CassandraComponent
 import com.promethist.core.nlp.IllusionistComponent
 import com.promethist.core.nlp.Component
 import com.promethist.core.nlp.Pipeline
@@ -18,12 +19,11 @@ import com.promethist.core.profile.MongoProfileRepository
 import com.promethist.core.profile.ProfileRepository
 import com.promethist.core.resources.*
 import com.promethist.core.runtime.DialogueManager
-import com.promethist.core.runtime.LocalFileLoader
+import com.promethist.core.runtime.FileResourceLoader
 import org.glassfish.hk2.api.InjectionResolver
 import org.glassfish.hk2.api.TypeLiteral
 import org.glassfish.jersey.process.internal.RequestScoped
 import org.litote.kmongo.KMongo
-import java.io.File
 import javax.inject.Singleton
 
 class Application : JerseyApplication() {
@@ -32,33 +32,49 @@ class Application : JerseyApplication() {
         register(object : ResourceBinder() {
             override fun configure() {
 
+                val runMode = ServiceUtil.RunMode.valueOf(AppConfig.instance.get("runmode", "dist"))
+                AppConfig.instance.let {
+                    println("Promethist ${it["git.ref"]} core starting (namespace = ${it["namespace"]}, runMode = $runMode)")
+                }
+
+                // filestore
+                val filestore = RestClient.instance(FileResource::class.java, ServiceUtil.getEndpointUrl("filestore", runMode))
+                bind(filestore).to(FileResource::class.java)
+
                 // NLP pipeline
                 bindTo(Pipeline::class.java)
                 bindTo(ContextFactory::class.java)
 
-                //register pipeline adapters - order is important
-
+                // NLP components - order is important
+                // IR component
                 val illusionist = IllusionistComponent()
-                illusionist.webTarget = RestClient.webTarget(ServiceUtil.getEndpointUrl("illusionist"))
+                illusionist.webTarget = RestClient.webTarget(ServiceUtil.getEndpointUrl("illusionist", runMode))
                         .path("/query")
                         .queryParam("key", AppConfig.instance["illusionist.apiKey"])
-
                 bind(illusionist).to(Component::class.java).named("illusionist")
+                /*
+                // NER component
+                val cassandra = CassandraComponent()
+                cassandra.webTarget = RestClient.webTarget(ServiceUtil.getEndpointUrl("cassandra", runMode))
+                        .path("/query")
+                        .queryParam("input_tokenized", true)
+                        .queryParam("output_tokenized", true)
+                bind(illusionist).to(Component::class.java).named("cassandra")
+                */
+                // DM component
+                val dm = DialogueManager(FileResourceLoader(filestore, "dialogue"))
+                bind(dm).to(DialogueManager::class.java).named("dm")
+
                 bind(MongoProfileRepository::class.java).to(ProfileRepository::class.java)
-
-                val dm = DialogueManager(LocalFileLoader(File(AppConfig.instance.get("models.dir"))))
-                bindTo(DialogueManager::class.java, dm)
-
                 bindTo(SessionResource::class.java, SessionResourceImpl::class.java)
                 bindTo(MongoDatabase::class.java,
                         KMongo.createClient(ConnectionString(AppConfig.instance["database.url"]))
                                 .getDatabase(AppConfig.instance["database.name"]))
 
-                // manager
+                // dialogue manager helena (support of running V1 dialogue models)
                 val dialogueManagerUrl =
                         AppConfig.instance.get("dialoguemanager.url",
-                                ServiceUtil.getEndpointUrl("helena",
-                                        ServiceUtil.RunMode.valueOf(AppConfig.instance.get("runmode", "dist")))) + "/dm"
+                                ServiceUtil.getEndpointUrl("helena", runMode)) + "/dm"
                 println("dialogueManagerUrl = $dialogueManagerUrl")
                 bindTo(BotService::class.java, dialogueManagerUrl)
 
@@ -66,11 +82,8 @@ class Application : JerseyApplication() {
 
                 // admin
                 val adminUrl =
-                        AppConfig.instance.get("admin.url",
-                                ServiceUtil.getEndpointUrl("admin",
-                                        ServiceUtil.RunMode.valueOf(AppConfig.instance.get("runmode", "dist"))))
+                        AppConfig.instance.get("admin.url", ServiceUtil.getEndpointUrl("admin", runMode))
                 bindTo(ContentDistributionResource::class.java, adminUrl)
-
 
                 bindFactory(QueryValueFactory::class.java).to(Query::class.java).`in`(RequestScoped::class.java)
 
