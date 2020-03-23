@@ -77,10 +77,10 @@ data class Message(
     data class ExpectedPhrase(val text: String? = null, val boost: Float = 1.0F) // boost can be used in google stt v1p1beta1
 
 
-    fun response(items: MutableList<MessageItem>): Message {
+    fun response(items: MutableList<MessageItem>, sessionEnded: Boolean = false): Message {
         val sender = this.recipient?:"unknown"
         val recipient = this.sender
-        return this.copy(_id = createId(), _ref = _id, sender = sender, recipient = recipient, items = items, datetime = Date(), sessionId = this.sessionId)
+        return this.copy(_id = createId(), _ref = _id, sender = sender, recipient = recipient, items = items, datetime = Date(), sessionId = this.sessionId, sessionEnded = sessionEnded)
     }
 
     companion object {

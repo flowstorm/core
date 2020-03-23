@@ -44,7 +44,7 @@ data class Input(var text: String, val classes: MutableList<Class> = mutableList
     val intents get() = classes.filter { it.type == Class.Type.Intent }
 
     @get:JsonIgnore
-    val intent get() = intents.first()
+    val intent get() = intents.firstOrNull()?:error("No intent class recognized in input $text")
 
     @get:JsonIgnore
     val entityMap: Map<String, List<Entity>> by lazy {
@@ -94,7 +94,7 @@ data class Input(var text: String, val classes: MutableList<Class> = mutableList
                     )
             )
             println(input.words.entities("animal"))
-            println(input.intent.name)
+            println(input.intent?.name)
             println(input.entityMap)
             println(input.entitiesToString(/*"animal"*/))
             println(ObjectUtil.defaultMapper.writeValueAsString(input))

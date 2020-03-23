@@ -51,7 +51,7 @@ class BotServiceResourceImpl : BotService {
                 "helena" -> getHelenaResponse(message, session, appKey)
                 "core" -> {
                     val processedContext = processPipeline(context)
-                    message.response(processedContext.turn.responseItems)
+                    message.response(processedContext.turn.responseItems, context.sessionEnded)
                 }
                 else -> error("Unknown dialogue engine (${session.application.dialogueEngine})")
             }

@@ -5,11 +5,10 @@ import com.promethist.core.nlp.Dialogue
 import com.promethist.core.resources.FileResource
 import com.promethist.core.runtime.FileResourceLoader
 import com.promethist.core.runtime.Kotlin
-import org.jetbrains.kotlin.utils.addToStdlib.ifNotEmpty
+import org.jetbrains.kotlin.daemon.common.toHexString
 import org.slf4j.LoggerFactory
 import java.io.ByteArrayInputStream
 import java.io.StringReader
-import java.math.BigInteger
 import java.security.MessageDigest
 import java.time.LocalDateTime
 import java.util.*
@@ -19,11 +18,7 @@ class DialogueModelBuilder(val name: String, private val language: Locale, priva
     val source = StringBuilder()
     private val className: String
     private val version = "undefined"//AppConfig.instance.get("git.ref", "unknown")
-    private val md = MessageDigest.getInstance("MD5")
     private var logger = LoggerFactory.getLogger(this::class.qualifiedName)
-
-    private fun md5(str: String): String =
-            BigInteger(1, md.digest(str.toByteArray())).toString(16).padStart(32, '0')
 
     init {
         logger.info("initializing builder of dialogue model $name : $parentClass")
@@ -120,16 +115,17 @@ class DialogueModelBuilder(val name: String, private val language: Locale, priva
 
         logger.info("building intent models for dialogue model $name")
         val intentModels = mutableMapOf<String, String>()
-        val modelId = md5(name)
-        dialogue.globalIntents.ifNotEmpty {
-            intentModels[name] = modelId
+        val modelName = "$name/model"
+        val modelId = md5(modelName)
+        dialogue.globalIntents.apply/*ifNotEmpty*/ {
+            intentModels[modelName] = modelId
             intentModelBuilder.build(modelId, name, language, this)
         }
         dialogue.userInputs.forEach {
-            val name = "${name}#${it.id}"
-            val modelId = md5(name)
-            intentModels[name] = modelId
-            intentModelBuilder.build(modelId, name, language, it.intents.asList())
+            val modelName = "${name}/model#${it.id}"
+            val modelId = md5(modelName)
+            intentModels[modelName] = modelId
+            intentModelBuilder.build(modelId, modelName, language, it.intents.asList())
         }
         logger.info("builded intent models: $intentModels")
         source.appendln("//--intent-models:$intentModels")
@@ -143,6 +139,11 @@ class DialogueModelBuilder(val name: String, private val language: Locale, priva
     }
 
     companion object {
+
+        private val md = MessageDigest.getInstance("MD5")
+
+        fun md5(str: String): String = md.digest(str.toByteArray()).toHexString()
+
         @JvmStatic
         fun main(args: Array<String>) {
             var nodeId = 0
@@ -155,7 +156,7 @@ class DialogueModelBuilder(val name: String, private val language: Locale, priva
                 addIntent(--nodeId, "intent1", listOf("no", "nope", "quit", "stop"))
                 addIntent(--nodeId, "intent2", listOf("dog", "cat", "tiger"))
                 addFunction(--nodeId, "function1", mapOf("trans1" to "stop"), "println(trans1)\ntrans1")
-                addResponse(--nodeId, "response2", listOf("Your response was \${input.text}. Intent \${input.intent.name}. Identified entities: \${input.entitiesToString()}"))
+                addResponse(--nodeId, "response2", listOf("Your response was \${input.text}. Intent node \${input.intent.name}. Recognized entities: \${input.entitiesToString()}"))
                 //addSubDialogue(--nodeId, "subDialogue1", "product/subdialogue/1")
 
                 // user inputs always at the end (all intents must be defined before)

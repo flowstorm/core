@@ -39,9 +39,7 @@ class DialogueManager(private val loader: Loader) : Component {
             start(get("${context.session.application.dialogueName}/model", context,
                     context.session.application.properties.values.toTypedArray()), context)
         } else {
-            turn.dialogueStack.first.nodeId =
-                    turn.input.classes.find { it.type == Input.Class.Type.Intent }?.name?.toInt()
-                            ?:error("Missing intent class in ${turn.dialogueStack.first}")
+            turn.dialogueStack.first.nodeId = turn.input.intent.name.toInt()
             proceed(context)
         }
         return context

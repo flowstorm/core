@@ -1,10 +1,9 @@
 package com.promethist.core.nlp
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.promethist.core.builder.DialogueModelBuilder
 import com.promethist.core.model.Turn
-import org.jetbrains.kotlin.daemon.common.toHexString
 import org.slf4j.LoggerFactory
-import java.security.MessageDigest
 import javax.inject.Inject
 import javax.ws.rs.client.Entity
 import javax.ws.rs.client.WebTarget
@@ -21,11 +20,12 @@ class IllusionistComponent : Component {
         if (context.turn.dialogueStack.isEmpty()) {
             logger.info("processing IR - nothing to do")
             return context
-        } else {
-            logger.info("processing IR")
         }
 
-        val request = Request(context.input.text, getModelsIds(context.turn.dialogueStack.first))
+        val models = getModels(context.turn.dialogueStack.first)
+        logger.info("processing IR with models $models")
+
+        val request = Request(context.input.text, models.values.toList())
         val responses = webTarget.path("/multi_model").request().post(Entity.json(request), object : GenericType<List<Response>>() {})
 
         for (response in responses) {
@@ -35,11 +35,10 @@ class IllusionistComponent : Component {
         return context
     }
 
-    private fun getModelsIds(frame: Turn.DialogueStackFrame): List<String> = listOf(
-            md5(frame.name), md5(frame.name + frame.nodeId)
+    private fun getModels(frame: Turn.DialogueStackFrame): Map<String, String> = mapOf(
+            frame.name to DialogueModelBuilder.md5(frame.name),
+            "${frame.name}#${frame.nodeId}" to DialogueModelBuilder.md5("${frame.name}#${frame.nodeId}")
     )
-
-    private fun md5(string: String) = MessageDigest.getInstance("MD5").digest(string.toByteArray()).toHexString()
 
     data class Response(
             val _id: String,
