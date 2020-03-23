@@ -33,6 +33,8 @@ class AppConfig: Serializable, Cloneable {
         return if (properties[key] == null) defaultValue else properties[key] as String
     }
 
+    fun getOrNull(key: String): String? = properties[key] as String?
+
     operator fun get(key: String): String {
         return if (properties[key] == null)
             throw NullPointerException("Missing config property $key")
