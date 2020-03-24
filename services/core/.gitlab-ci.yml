@@ -47,6 +47,20 @@ deploy api snapshot:
     - mvn dokka:dokka
     - rsync -arv --delete ./target/dokka/core-api /ext/cluster/default/develop/site/default/apidoc/
 
+deploy lib snapshot:
+  stage: deploy
+  image: registry.promethist.ai/common/system/builder
+  only:
+    refs:
+      - develop
+    changes:
+      - lib/**/*
+  script:
+    - mvn -pl .,lib -B deploy
+    - cd lib
+    - mvn dokka:dokka
+    - rsync -arv --delete ./target/dokka/core-lib /ext/cluster/default/develop/site/default/apidoc/
+
 deploy app non-production:
   stage: deploy
   image: registry.promethist.ai/common/system/deployer
