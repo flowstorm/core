@@ -17,9 +17,13 @@ object ServiceUtil {
 
     enum class RunMode { local, docker, dist, detect }
 
-    fun getEndpointUrl(serviceName: String): String =
-            AppConfig.instance.get("$serviceName.url",
-            getEndpointUrl(serviceName, RunMode.valueOf(AppConfig.instance.get("runmode", "dist"))))
+    fun getEndpointUrl(serviceName: String): String {
+        val runMode = RunMode.valueOf(AppConfig.instance.get("$serviceName.runmode",
+                AppConfig.instance.get("runmode", "dist")
+        ))
+
+        return AppConfig.instance.get("$serviceName.url", getEndpointUrl(serviceName, runMode))
+    }
 
     fun getEndpointUrl(serviceName: String, runMode: RunMode = RunMode.detect): String =
             when (runMode) {

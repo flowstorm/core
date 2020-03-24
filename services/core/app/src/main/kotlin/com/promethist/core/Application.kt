@@ -38,7 +38,7 @@ class Application : JerseyApplication() {
                 }
 
                 // filestore
-                val filestore = RestClient.instance(FileResource::class.java, ServiceUtil.getEndpointUrl("filestore", runMode))
+                val filestore = RestClient.instance(FileResource::class.java, ServiceUtil.getEndpointUrl("filestore"))
                 bind(filestore).to(FileResource::class.java)
 
                 // NLP pipeline
@@ -48,7 +48,7 @@ class Application : JerseyApplication() {
                 // NLP components - order is important
                 // IR component
                 val illusionist = IllusionistComponent()
-                illusionist.webTarget = RestClient.webTarget(ServiceUtil.getEndpointUrl("illusionist", runMode))
+                illusionist.webTarget = RestClient.webTarget(ServiceUtil.getEndpointUrl("illusionist"))
                         .path("/query")
                         .queryParam("key", AppConfig.instance["illusionist.apiKey"])
                 bind(illusionist).to(Component::class.java).named("illusionist")
@@ -72,18 +72,14 @@ class Application : JerseyApplication() {
                                 .getDatabase(AppConfig.instance["database.name"]))
 
                 // dialogue manager helena (support of running V1 dialogue models)
-                val dialogueManagerUrl =
-                        AppConfig.instance.get("dialoguemanager.url",
-                                ServiceUtil.getEndpointUrl("helena", runMode)) + "/dm"
+                val dialogueManagerUrl = ServiceUtil.getEndpointUrl("helena") + "/dm"
                 println("dialogueManagerUrl = $dialogueManagerUrl")
                 bindTo(BotService::class.java, dialogueManagerUrl)
 
                 bindTo(BotServiceResourceImpl::class.java)
 
                 // admin
-                val adminUrl =
-                        AppConfig.instance.get("admin.url", ServiceUtil.getEndpointUrl("admin", runMode))
-                bindTo(ContentDistributionResource::class.java, adminUrl)
+                bindTo(ContentDistributionResource::class.java, ServiceUtil.getEndpointUrl("admin"))
 
                 bindFactory(QueryValueFactory::class.java).to(Query::class.java).`in`(RequestScoped::class.java)
 
