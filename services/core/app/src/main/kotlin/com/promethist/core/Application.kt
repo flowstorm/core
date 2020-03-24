@@ -52,15 +52,15 @@ class Application : JerseyApplication() {
                         .path("/query")
                         .queryParam("key", AppConfig.instance["illusionist.apiKey"])
                 bind(illusionist).to(Component::class.java).named("illusionist")
-                /*
+
                 // NER component
                 val cassandra = CassandraComponent()
-                cassandra.webTarget = RestClient.webTarget(ServiceUtil.getEndpointUrl("cassandra", runMode))
+                cassandra.webTarget = RestClient.webTarget(ServiceUtil.getEndpointUrl("cassandra", ServiceUtil.RunMode.dist))
                         .path("/query")
                         .queryParam("input_tokenized", true)
                         .queryParam("output_tokenized", true)
-                bind(illusionist).to(Component::class.java).named("cassandra")
-                */
+                bind(cassandra).to(Component::class.java).named("cassandra")
+
                 // DM component
                 val dm = DialogueManager(FileResourceLoader(filestore, "dialogue"))
                 bind(dm).to(DialogueManager::class.java).named("dm")

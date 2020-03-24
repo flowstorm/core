@@ -5,9 +5,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.promethist.common.ObjectUtil
-import java.util.ArrayList
+import java.util.*
 
-data class Input(var text: String, val classes: MutableList<Class> = mutableListOf(), val tokens: MutableList<Token> = mutableListOf()) {
+data class Input(var text: String, val language: Locale, val classes: MutableList<Class> = mutableListOf(), val tokens: MutableList<Token> = mutableListOf()) {
 
     data class Class(val type: Type, val name: String, val score: Float = 1.0F) {
         enum class Type { Intent, Entity }
@@ -80,7 +80,7 @@ data class Input(var text: String, val classes: MutableList<Class> = mutableList
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            val input = Input("I see a dog, a red rose and a cat.", mutableListOf(Class(Class.Type.Intent, "-1")),
+            val input = Input("I see a dog, a red rose and a cat.", Locale.ENGLISH, mutableListOf(Class(Class.Type.Intent, "-1")),
                     mutableListOf(
                             Word("i"),
                             Word("see"),

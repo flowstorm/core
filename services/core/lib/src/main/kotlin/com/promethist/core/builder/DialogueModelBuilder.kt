@@ -34,8 +34,8 @@ class DialogueModelBuilder(val name: String, private val language: Locale, priva
                 .appendln("import com.promethist.core.model.*").appendln()
                 .append("data class $className(override val loader: Loader, override val name: String")
         args.forEach {
-            if (it.value !is Int && it.value !is String && it.value !is Boolean)
-                error("arg ${it.key} is if on unsupported type ${it.value::class.simpleName} (only Int, String, Boolean supported)")
+            if (it.value !is Int && it.value !is Long && it.value !is Float && it.value !is Double && it.value !is String && it.value !is Boolean)
+                error("arg ${it.key} is if on unsupported type ${it.value::class.simpleName} (only Int, Long, Float, Double, String, Boolean supported)")
             source.append(", val ${it.key}: ${it.value::class.simpleName} = ")
             if (it.value is String)
                 source.append('"').append((it.value as String).trim().replace("\"", "\\\"")).append('"')
@@ -156,7 +156,7 @@ class DialogueModelBuilder(val name: String, private val language: Locale, priva
                 addIntent(--nodeId, "intent1", listOf("no", "nope", "quit", "stop"))
                 addIntent(--nodeId, "intent2", listOf("dog", "cat", "tiger"))
                 addFunction(--nodeId, "function1", mapOf("trans1" to "stop"), "println(trans1)\ntrans1")
-                addResponse(--nodeId, "response2", listOf("Your response was \${input.text}. Intent node \${input.intent.name}. Recognized entities: \${input.entitiesToString()}"))
+                addResponse(--nodeId, "response2", listOf("Your response was \${input.text}. Intent node \${input.intent.name}. Recognized entities: \${input.entitiesToString()}."))
                 //addSubDialogue(--nodeId, "subDialogue1", "product/subdialogue/1")
 
                 // user inputs always at the end (all intents must be defined before)

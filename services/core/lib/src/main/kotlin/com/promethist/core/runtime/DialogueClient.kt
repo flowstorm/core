@@ -4,12 +4,11 @@ import com.promethist.common.RestClient
 import com.promethist.core.nlp.Context
 import com.promethist.core.model.*
 import com.promethist.core.nlp.Input
-import com.promethist.core.provider.LocalFileStorage
 import com.promethist.core.resources.FileResource
 import org.slf4j.LoggerFactory
 import java.io.BufferedReader
-import java.io.File
 import java.io.InputStreamReader
+import java.util.*
 
 object DialogueClient {
 
@@ -26,10 +25,11 @@ object DialogueClient {
 
         val user = User(username = "tester@promethist.ai", name = "Tester", surname = "Tester", nickname = "Tester")
         val profile = Profile(user_id = user._id,  name = user.username)
-        val application = Application(name = "test", dialogueName = "product/dialogue/1", ttsVoice = "Grace",
+        val app = Application(name = "test", dialogueName = "product/dialogue/1", ttsVoice = "Grace",
                 properties = mutableMapOf("some_string" to "bla", "math_max" to 5, "do_math" to true))
-        val session = Session(sessionId = "T-E-S-T", user = user, application = application)
-        val turn = Turn(Input(""))
+        val session = Session(sessionId = "T-E-S-T", user = user, application = app)
+        val language = Locale.ENGLISH
+        val turn = Turn(Input("", language))
         val context = Context(profile, session, turn, logger)
 
         val reader = BufferedReader(InputStreamReader(System.`in`))
@@ -42,7 +42,7 @@ object DialogueClient {
             val text = reader.readLine()!!.trim()
             if (text == "exit")
                 break
-            turn.input = Input(text, mutableListOf(Input.Class(Input.Class.Type.Intent, text)))
+            turn.input = Input(text, language, mutableListOf(Input.Class(Input.Class.Type.Intent, text)))
             turn.attributes.clear()
             turn.responseItems.clear()
         }

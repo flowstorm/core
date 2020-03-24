@@ -17,12 +17,12 @@ class CassandraComponent : Component {
         if (context.turn.dialogueStack.isEmpty()) {
             logger.info("processing NER - nothing to do")
             return context
-        } else {
-            logger.info("processing NER")
         }
+        logger.info("processing NER with input ${context.input}")
 
         context.turn.input =
-                webTarget.path("/ner/ner3").request().post(Entity.json(context.turn.input), object : GenericType<Input>() {})
+                webTarget.path("/ner/ner3").queryParam("language", context.input.language.toString())
+                        .request().post(Entity.json(context.input), object : GenericType<Input>() {})
 
         return context
     }

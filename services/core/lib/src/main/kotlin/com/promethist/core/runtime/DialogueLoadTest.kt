@@ -29,7 +29,7 @@ object DialogueLoadTest {
                         user = user,
                         application = Application(name = "test", dialogueName = "product/some-dialogue/1", ttsVoice = "Grace")
                 ),
-                Turn(Input("some message")),
+                Turn(Input("some message", Locale.ENGLISH)),
                 logger
         )
 
