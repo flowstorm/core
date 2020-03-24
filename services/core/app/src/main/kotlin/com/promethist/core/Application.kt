@@ -63,7 +63,7 @@ class Application : JerseyApplication() {
 
                 // DM component
                 val dm = DialogueManager(FileResourceLoader(filestore, "dialogue"))
-                bind(dm).to(DialogueManager::class.java).named("dm")
+                bind(dm).to(Component::class.java).named("dm")
 
                 bind(MongoProfileRepository::class.java).to(ProfileRepository::class.java)
                 bindTo(SessionResource::class.java, SessionResourceImpl::class.java)
