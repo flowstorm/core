@@ -43,6 +43,9 @@ deploy api snapshot:
       - api/**/*
   script:
     - mvn -pl .,api -B deploy
+    - cd api
+    - mvn dokka:dokka
+    - rsync -arv --delete ./target/dokka/core-api /ext/cluster/default/develop/site/default/apidoc/
 
 deploy app non-production:
   stage: deploy
