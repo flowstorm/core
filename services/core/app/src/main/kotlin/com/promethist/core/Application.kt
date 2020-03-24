@@ -21,8 +21,8 @@ import com.promethist.core.resources.*
 import com.promethist.core.runtime.DialogueManager
 import com.promethist.core.runtime.FileResourceLoader
 import org.glassfish.hk2.api.InjectionResolver
+import org.glassfish.hk2.api.PerLookup
 import org.glassfish.hk2.api.TypeLiteral
-import org.glassfish.jersey.process.internal.RequestScoped
 import org.litote.kmongo.KMongo
 import javax.inject.Singleton
 
@@ -81,7 +81,7 @@ class Application : JerseyApplication() {
                 // admin
                 bindTo(ContentDistributionResource::class.java, ServiceUtil.getEndpointUrl("admin"))
 
-                bindFactory(QueryValueFactory::class.java).to(Query::class.java).`in`(RequestScoped::class.java)
+                bindFactory(QueryValueFactory::class.java).to(Query::class.java).`in`(PerLookup::class.java)
 
                 bind(QueryInjectionResolver::class.java)
                         .to(object: TypeLiteral<InjectionResolver<QueryParams>>() {})
