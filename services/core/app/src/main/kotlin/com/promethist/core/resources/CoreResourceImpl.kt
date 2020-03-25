@@ -13,7 +13,7 @@ import javax.ws.rs.*
 import java.util.*
 
 @Path("/")
-class BotServiceResourceImpl : BotService {
+class CoreResourceImpl : CoreResource {
 
     @Inject
     lateinit var contentDistributionResource: ContentDistributionResource
@@ -34,7 +34,7 @@ class BotServiceResourceImpl : BotService {
     lateinit var profileRepository: ProfileRepository
 
     private val czechLocale = Locale.forLanguageTag("cs")
-    private var logger = LoggerFactory.getLogger(BotServiceResourceImpl::class.java)
+    private var logger = LoggerFactory.getLogger(javaClass)
 
     override fun message(appKey: String, message: Message): Message? {
 

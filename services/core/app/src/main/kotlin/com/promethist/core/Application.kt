@@ -76,7 +76,7 @@ class Application : JerseyApplication() {
                 println("dialogueManagerUrl = $dialogueManagerUrl")
                 bindTo(BotService::class.java, dialogueManagerUrl)
 
-                bindTo(BotServiceResourceImpl::class.java)
+                bindTo(CoreResourceImpl::class.java)
 
                 // admin
                 bindTo(ContentDistributionResource::class.java, ServiceUtil.getEndpointUrl("admin"))
