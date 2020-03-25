@@ -11,6 +11,7 @@ import com.promethist.common.query.QueryInjectionResolver
 import com.promethist.common.query.QueryParams
 import com.promethist.common.query.QueryValueFactory
 import com.promethist.core.context.ContextFactory
+import com.promethist.core.context.ContextPersister
 import com.promethist.core.nlp.CassandraComponent
 import com.promethist.core.nlp.IllusionistComponent
 import com.promethist.core.nlp.Component
@@ -44,6 +45,7 @@ class Application : JerseyApplication() {
                 // NLP pipeline
                 bindTo(Pipeline::class.java)
                 bindTo(ContextFactory::class.java)
+                bindTo(ContextPersister::class.java)
 
                 // NLP components - order is important
                 // IR component

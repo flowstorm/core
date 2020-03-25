@@ -2,9 +2,9 @@ package com.promethist.core.resources
 
 import com.promethist.core.nlp.Context
 import com.promethist.core.context.ContextFactory
+import com.promethist.core.context.ContextPersister
 import com.promethist.core.model.*
 import com.promethist.core.nlp.Pipeline
-import com.promethist.core.profile.ProfileRepository
 import com.promethist.core.resources.ContentDistributionResource.ContentRequest
 import org.slf4j.LoggerFactory
 import java.io.Serializable
@@ -31,7 +31,7 @@ class CoreResourceImpl : CoreResource {
     lateinit var contextFactory: ContextFactory
 
     @Inject
-    lateinit var profileRepository: ProfileRepository
+    lateinit var contextPersister: ContextPersister
 
     private val czechLocale = Locale.forLanguageTag("cs")
     private var logger = LoggerFactory.getLogger(javaClass)
@@ -70,15 +70,8 @@ class CoreResourceImpl : CoreResource {
 
     private fun processPipeline(context: Context): Context {
         val processedContext = nlpPipeline.process(context)
-        persistContext(processedContext)
+        contextPersister.persist(processedContext)
         return processedContext
-    }
-
-    private fun persistContext(context: Context) {
-        context.session.turns.add(context.turn)
-        sessionResource.update(context.session)
-        profileRepository.save(context.profile)
-        //todo metrics
     }
 
     private fun getHelenaResponse(message: Message, session: Session, appKey: String): Message {
