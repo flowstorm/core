@@ -1,13 +1,17 @@
 package com.promethist.core.nlp
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.promethist.common.ObjectUtil
 import java.util.*
 
-data class Input(var text: String, val language: Locale, val classes: MutableList<Class> = mutableListOf(), val tokens: MutableList<Token> = mutableListOf()) {
+data class Input(
+        var text: String,
+        val language: Locale,
+        val classes: MutableList<Class> = mutableListOf(),
+        val tokens: MutableList<Token> = mutableListOf(),
+        val confidence: Float = 1.0F) {
 
     data class Class(val type: Type, val name: String, val score: Float = 1.0F) {
         enum class Type { Intent, Entity }
@@ -20,7 +24,7 @@ data class Input(var text: String, val language: Locale, val classes: MutableLis
     )
     open class Token(open val text: String)
 
-    data class Word(override val text: String, val classes: MutableList<Class> = mutableListOf()) : Token(text) {
+    data class Word(override val text: String, val classes: MutableList<Class> = mutableListOf(), val startTime: Long = 0, val endTime: Long = 0) : Token(text) {
         fun hasClass(type: Class.Type, name: String) = classes.any { it.type == type && it.name == name }
         fun isEntity(name: String) = hasClass(Class.Type.Entity, name)
     }

@@ -5,7 +5,6 @@ import com.promethist.core.model.Turn
 import com.promethist.core.nlp.Dialogue
 import com.promethist.core.model.MessageItem
 import com.promethist.core.nlp.Component
-import com.promethist.core.nlp.Input
 import org.slf4j.LoggerFactory
 
 class DialogueManager(private val loader: Loader) : Component {
