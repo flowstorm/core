@@ -1,5 +1,6 @@
 package com.promethist.core.model
 
+import com.promethist.core.Response
 import org.litote.kmongo.Id
 import org.litote.kmongo.newId
 import com.promethist.core.model.Message as CoreMessage
@@ -26,10 +27,11 @@ data class Session(
             val datetime: Date?,
             val sender: String?,
             val recipient: String?,
-            val items: MutableList<MessageItem>
+            val items: MutableList<Response.Item>
     ) {
         constructor(message: CoreMessage) : this(message.datetime, message.sender, message.recipient, message.items)
     }
 
+    fun addMessage(message: Message) = messages.add(message)
     fun addMessage(message: CoreMessage) = messages.add(Message(message))
 }

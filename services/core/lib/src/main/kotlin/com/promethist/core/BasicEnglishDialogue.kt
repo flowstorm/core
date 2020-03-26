@@ -1,5 +1,6 @@
-package com.promethist.core.nlp
+package com.promethist.core
 
+import com.promethist.core.Dialogue
 import com.promethist.core.runtime.Loader
 
 class BasicEnglishDialogue(loader: Loader, name: String) : Dialogue(loader, name) {

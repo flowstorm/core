@@ -1,5 +1,7 @@
-package com.promethist.core.nlp
+package com.promethist.core
 
+import com.promethist.core.Component
+import com.promethist.core.Context
 import org.glassfish.hk2.api.IterableProvider
 import javax.inject.Inject
 

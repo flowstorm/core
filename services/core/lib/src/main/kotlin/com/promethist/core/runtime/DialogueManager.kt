@@ -1,10 +1,10 @@
 package com.promethist.core.runtime
 
-import com.promethist.core.nlp.Context
+import com.promethist.core.Context
 import com.promethist.core.model.Turn
-import com.promethist.core.nlp.Dialogue
-import com.promethist.core.model.MessageItem
-import com.promethist.core.nlp.Component
+import com.promethist.core.Dialogue
+import com.promethist.core.Component
+import com.promethist.core.Response
 import org.slf4j.LoggerFactory
 
 class DialogueManager(private val loader: Loader) : Component {
@@ -104,7 +104,7 @@ class DialogueManager(private val loader: Loader) : Component {
                 is Dialogue.TransitNode -> {
                     if (node is Dialogue.Response) {
                         val text = node.getText(context)
-                        val item = MessageItem(text, image = node.image, audio = node.audio, video = node.video)
+                        val item = Response.Item(text, image = node.image, audio = node.audio, video = node.video)
                         turn.responseItems.add(item)
                     }
                     node = node.next

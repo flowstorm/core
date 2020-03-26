@@ -1,6 +1,6 @@
 package com.promethist.core.builder
 
-import com.promethist.core.nlp.Dialogue
+import com.promethist.core.Dialogue
 import java.util.*
 
 interface IntentModelBuilder {

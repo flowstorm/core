@@ -1,7 +1,7 @@
 package com.promethist.core.builder
 
 import com.promethist.common.RestClient
-import com.promethist.core.nlp.Dialogue
+import com.promethist.core.Dialogue
 import com.promethist.core.resources.FileResource
 import com.promethist.core.runtime.FileResourceLoader
 import com.promethist.core.runtime.Kotlin
@@ -29,9 +29,10 @@ class DialogueModelBuilder(val name: String, private val language: Locale, priva
         source
                 .appendln("//--dialogue-model;version:$version;name:$name;time:" + LocalDateTime.now())
                 .appendln("package " + names.joinToString(".") { "`$it`" }).appendln()
+                .appendln("import com.promethist.core.*")
+                .appendln("import com.promethist.core.model.*")
                 .appendln("import com.promethist.core.runtime.Loader")
-                .appendln("import com.promethist.core.nlp.*")
-                .appendln("import com.promethist.core.model.*").appendln()
+                .appendln()
                 .append("data class $className(override val loader: Loader, override val name: String")
         args.forEach {
             if (it.value !is Int && it.value !is Long && it.value !is Float && it.value !is Double && it.value !is String && it.value !is Boolean)

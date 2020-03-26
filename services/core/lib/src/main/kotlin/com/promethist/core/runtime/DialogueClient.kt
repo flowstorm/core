@@ -1,9 +1,9 @@
 package com.promethist.core.runtime
 
 import com.promethist.common.RestClient
-import com.promethist.core.nlp.Context
+import com.promethist.core.Context
 import com.promethist.core.model.*
-import com.promethist.core.nlp.Input
+import com.promethist.core.Input
 import com.promethist.core.resources.FileResource
 import org.slf4j.LoggerFactory
 import java.io.BufferedReader

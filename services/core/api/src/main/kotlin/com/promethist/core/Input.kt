@@ -1,4 +1,4 @@
-package com.promethist.core.nlp
+package com.promethist.core
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonSubTypes
@@ -24,7 +24,7 @@ data class Input(
     )
     open class Token(open val text: String)
 
-    data class Word(override val text: String, val classes: MutableList<Class> = mutableListOf(), val startTime: Long = 0, val endTime: Long = 0) : Token(text) {
+    data class Word(override val text: String, val classes: MutableList<Class> = mutableListOf(), val startTime: Float = 0F, val endTime: Float = 0F) : Token(text) {
         fun hasClass(type: Class.Type, name: String) = classes.any { it.type == type && it.name == name }
         fun isEntity(name: String) = hasClass(Class.Type.Entity, name)
     }

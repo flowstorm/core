@@ -2,7 +2,7 @@ package com.promethist.core.builder
 
 import com.promethist.common.ObjectUtil
 import com.promethist.common.RestClient
-import com.promethist.core.nlp.Dialogue
+import com.promethist.core.Dialogue
 import org.slf4j.LoggerFactory
 import java.net.URL
 import java.util.*

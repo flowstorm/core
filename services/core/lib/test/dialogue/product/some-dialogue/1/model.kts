@@ -1,7 +1,7 @@
 package `product`.`some-dialogue`
 
 import com.promethist.core.runtime.Loader
-import com.promethist.core.nlp.Dialogue
+import com.promethist.core.Dialogue
 
 data class Model1(
         override val loader: Loader,

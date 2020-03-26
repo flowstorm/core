@@ -1,4 +1,4 @@
-package com.promethist.core.nlp
+package com.promethist.core
 
 import com.promethist.core.model.Profile
 import com.promethist.core.model.Turn

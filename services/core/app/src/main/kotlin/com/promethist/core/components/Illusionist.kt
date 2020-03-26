@@ -1,6 +1,9 @@
-package com.promethist.core.nlp
+package com.promethist.core.components
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.promethist.core.Component
+import com.promethist.core.Context
+import com.promethist.core.Input
 import com.promethist.core.builder.DialogueModelBuilder
 import com.promethist.core.model.Turn
 import org.slf4j.LoggerFactory
@@ -9,7 +12,7 @@ import javax.ws.rs.client.Entity
 import javax.ws.rs.client.WebTarget
 import javax.ws.rs.core.GenericType
 
-class IllusionistComponent : Component {
+class Illusionist : Component {
 
     @Inject
     lateinit var webTarget: WebTarget

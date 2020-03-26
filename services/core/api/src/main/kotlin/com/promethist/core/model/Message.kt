@@ -2,6 +2,7 @@ package com.promethist.core.model
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.promethist.common.DataObject
+import com.promethist.core.Response
 import java.util.*
 
 data class Message(
@@ -19,7 +20,7 @@ data class Message(
         /**
          * Each message has none or more items
          */
-        var items: MutableList<MessageItem> = mutableListOf(),
+        var items: MutableList<Response.Item> = mutableListOf(),
 
         /**
          * Message language.
@@ -73,11 +74,9 @@ data class Message(
         }
     }
 
-
     data class ExpectedPhrase(val text: String? = null, val boost: Float = 1.0F) // boost can be used in google stt v1p1beta1
 
-
-    fun response(items: MutableList<MessageItem>, sessionEnded: Boolean = false): Message {
+    fun response(items: MutableList<Response.Item>, sessionEnded: Boolean = false): Message {
         val sender = this.recipient?:"unknown"
         val recipient = this.sender
         return this.copy(_id = createId(), _ref = _id, sender = sender, recipient = recipient, items = items, datetime = Date(), sessionId = this.sessionId, sessionEnded = sessionEnded)

@@ -1,6 +1,6 @@
 package com.promethist.core.context
 
-import com.promethist.core.nlp.Context
+import com.promethist.core.Context
 import com.promethist.core.profile.ProfileRepository
 import com.promethist.core.resources.SessionResource
 import javax.inject.Inject

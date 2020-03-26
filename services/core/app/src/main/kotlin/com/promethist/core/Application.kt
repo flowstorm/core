@@ -12,10 +12,7 @@ import com.promethist.common.query.QueryParams
 import com.promethist.common.query.QueryValueFactory
 import com.promethist.core.context.ContextFactory
 import com.promethist.core.context.ContextPersister
-import com.promethist.core.nlp.CassandraComponent
-import com.promethist.core.nlp.IllusionistComponent
-import com.promethist.core.nlp.Component
-import com.promethist.core.nlp.Pipeline
+import com.promethist.core.components.*
 import com.promethist.core.profile.MongoProfileRepository
 import com.promethist.core.profile.ProfileRepository
 import com.promethist.core.resources.*
@@ -48,15 +45,18 @@ class Application : JerseyApplication() {
                 bindTo(ContextPersister::class.java)
 
                 // NLP components - order is important
+                // tokenizer
+                bind(InternalTokenizer()).to(Component::class.java).named("tokenizer")
+
                 // IR component
-                val illusionist = IllusionistComponent()
+                val illusionist = Illusionist()
                 illusionist.webTarget = RestClient.webTarget(ServiceUtil.getEndpointUrl("illusionist"))
                         .path("/query")
                         .queryParam("key", AppConfig.instance["illusionist.apiKey"])
                 bind(illusionist).to(Component::class.java).named("illusionist")
 
                 // NER component
-                val cassandra = CassandraComponent()
+                val cassandra = Cassandra()
                 cassandra.webTarget = RestClient.webTarget(ServiceUtil.getEndpointUrl("cassandra", ServiceUtil.RunMode.dist))
                         .path("/query")
                         .queryParam("input_tokenized", true)

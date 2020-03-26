@@ -1,12 +1,15 @@
-package com.promethist.core.nlp
+package com.promethist.core.components
 
+import com.promethist.core.Component
+import com.promethist.core.Context
+import com.promethist.core.Input
 import org.slf4j.LoggerFactory
 import javax.inject.Inject
 import javax.ws.rs.client.Entity
 import javax.ws.rs.client.WebTarget
 import javax.ws.rs.core.GenericType
 
-class CassandraComponent : Component {
+class Cassandra : Component {
 
     @Inject
     lateinit var webTarget: WebTarget

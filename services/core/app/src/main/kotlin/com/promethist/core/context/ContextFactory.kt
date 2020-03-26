@@ -1,11 +1,10 @@
 package com.promethist.core.context
 
 import com.promethist.core.model.*
-import com.promethist.core.nlp.Context
-import com.promethist.core.nlp.Input
+import com.promethist.core.Context
+import com.promethist.core.Input
 import com.promethist.core.profile.ProfileRepository
 import org.slf4j.LoggerFactory
-import java.util.*
 import javax.inject.Inject
 
 class ContextFactory {
@@ -13,12 +12,10 @@ class ContextFactory {
     @Inject
     lateinit var profileRepository: ProfileRepository
 
-    fun createContext(session: Session, message: Message): Context {
+    fun createContext(session: Session,input: Input): Context {
         val profile = profileRepository.find(session.user._id)
                 ?: Profile(user_id = session.user._id, name = session.user.username)
 
-        val item = message.items.first()
-        val input = Input(item.text!!, message.language?: Locale.ENGLISH)
         val turn = session.turns.lastOrNull()?.copy(input = input, responseItems = mutableListOf()) ?: Turn(input)
 
         return Context(
