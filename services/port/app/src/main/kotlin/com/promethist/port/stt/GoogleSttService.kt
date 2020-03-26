@@ -9,11 +9,12 @@ import java.util.concurrent.TimeUnit
 class GoogleSttService(config: SttConfig, callback: SttCallback, expectedPhrases: List<Message.ExpectedPhrase>) : SttService {
 
     private val client = SpeechClient.create()
-    private val responseObserver = GoogleSttObserver(callback)
+    private val responseObserver = GoogleSttObserver(callback, config.language?:"en")
     private val recognitionConfig = RecognitionConfig.newBuilder()
             .setEncoding(RecognitionConfig.AudioEncoding.LINEAR16)
             .setLanguageCode(config.language)
             .setSampleRateHertz(config.sampleRate)
+            .setEnableWordTimeOffsets(true)
             .addSpeechContexts(SpeechContext.newBuilder()
                     .addAllPhrases(expectedPhrases.map { expectedPhrase: Message.ExpectedPhrase -> expectedPhrase.text })
                     .build())

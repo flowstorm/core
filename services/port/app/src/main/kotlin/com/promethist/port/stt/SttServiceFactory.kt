@@ -1,5 +1,6 @@
 package com.promethist.port.stt
 
+import com.promethist.core.Input
 import com.promethist.core.model.Message
 import java.io.File
 
@@ -19,8 +20,8 @@ object SttServiceFactory {
             create("google", SttConfig("cs-CZ", 44100),
                 listOf(Message.ExpectedPhrase("Ano",1F), Message.ExpectedPhrase("Ne", 1F)),
                 object : SttCallback {
-                    override fun onResponse(transcript: String, confidence: Float, final: Boolean) {
-                        println("SST response - transcript: $transcript, confidence: $confidence, final: $final")
+                    override fun onResponse(input: Input, final: Boolean) {
+                        println("SST response - transcript: ${input.text}, confidence: ${input.confidence}, final: $final")
                     }
 
                     override fun onOpen() {

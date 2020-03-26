@@ -1,8 +1,10 @@
 package com.promethist.port.stt
 
+import com.promethist.core.Input
+
 interface SttCallback {
 
-    fun onResponse(transcript: String, confidence: Float, isFinal: Boolean)
+    fun onResponse(input: Input, isFinal: Boolean)
 
     fun onOpen()
 

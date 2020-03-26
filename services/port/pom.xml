@@ -14,9 +14,9 @@
     <properties>
         <kotlin.version>1.3.41</kotlin.version>
         <promethist.common.version>1.1</promethist.common.version>
-        <promethist.core.version>1.1</promethist.core.version>
+        <promethist.core.version>1.0.0-SNAPSHOT</promethist.core.version>
         <promethist.filestore.version>1.1</promethist.filestore.version>
-        <promethist.client-app-common.version>1.1</promethist.client-app-common.version>
+        <promethist.client-app-common.version>1.0.0-SNAPSHOT</promethist.client-app-common.version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>

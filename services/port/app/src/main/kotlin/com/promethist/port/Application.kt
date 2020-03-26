@@ -7,6 +7,7 @@ import com.promethist.common.JerseyApplication
 import com.promethist.common.ResourceBinder
 import com.promethist.core.ServiceUtil
 import com.promethist.core.resources.BotService
+import com.promethist.core.resources.CoreResource
 import com.promethist.filestore.resources.FileResource
 import com.promethist.port.resources.PortResource
 import com.promethist.port.resources.PortResourceImpl
@@ -36,7 +37,7 @@ class Application : JerseyApplication() {
                         .createClient(ConnectionString(AppConfig.instance["database.url"]))
                         .getDatabase(AppConfig.instance["database.name"]))
                 bindTo(PortService::class.java)
-                bindTo(BotService::class.java, ServiceUtil.getEndpointUrl(
+                bindTo(CoreResource::class.java, ServiceUtil.getEndpointUrl(
                         AppConfig.instance.get("service.name", "core"),
                         ServiceUtil.RunMode.valueOf(AppConfig.instance.get("service.mode", "dist"))))
             }

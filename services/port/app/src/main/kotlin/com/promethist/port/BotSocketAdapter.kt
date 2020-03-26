@@ -6,9 +6,11 @@ import ai.promethist.client.BotSocket
 import com.promethist.common.AppConfig
 import com.promethist.common.ObjectUtil
 import com.promethist.core.model.Message
-import com.promethist.core.model.MessageItem
 import com.promethist.core.model.TtsConfig
-import com.promethist.core.resources.BotService
+import com.promethist.core.Input
+import com.promethist.core.Request
+import com.promethist.core.Response
+import com.promethist.core.resources.CoreResource
 import com.promethist.port.stt.*
 import com.promethist.port.tts.TtsRequest
 import org.eclipse.jetty.websocket.api.WebSocketAdapter
@@ -22,11 +24,11 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
 
     inner class BotSttCallback() : SttCallback {
 
-        override fun onResponse(transcript: String, confidence: Float, final: Boolean) {
+        override fun onResponse(input: Input, final: Boolean) {
             try {
                 if (final && !inputAudioStreamCancelled) {
-                    sendEvent(BotEvent.Recognized(transcript))
-                    onText(text = transcript, confidence = confidence.toDouble())
+                    sendEvent(BotEvent.Recognized(input.text))
+                    onInput(input)
                 }
             } catch (e: IOException) {
                 onError(e)
@@ -45,7 +47,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
     }
 
     @Inject
-    lateinit var botService: BotService
+    lateinit var coreResource: CoreResource
 
     @Inject
     lateinit var dataService: PortService
@@ -64,24 +66,45 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
     private var expectedPhrases: List<Message.ExpectedPhrase> = listOf()
     private var logger = LoggerFactory.getLogger(BotSocketAdapter::class.qualifiedName)
 
-    fun onText(text: String, confidence: Double) = lastMessage?.apply {
+    fun onInput(input: Input) = lastMessage?.apply {
         val message = Message(
                 sender = sender,
                 language = language,
                 sessionId = sessionId,
-                items = mutableListOf(MessageItem(text = text, confidence = confidence))
+                items = mutableListOf(Response.Item(text = input.text, confidence = input.confidence.toDouble()))
         )
-        onMessageEvent(BotEvent.Message(appKey, message))
+        onMessageEvent(BotEvent.Message(appKey, message), input)
     }
+
+    private fun isDetectingAudio(payload: ByteArray, offset: Int, len: Int): Boolean {
+        var i = offset
+        while (i < offset + len - 1) {
+            // expecting LINEAR16 in little endian.
+            var s = payload[i + 1].toInt()
+            if (s < 0) s *= -1
+            s = s shl 8
+            s += Math.abs(payload[i].toInt())
+            print("$s, ")
+            if (s > 1500/*AMPLITUDE_THRESHOLD*/) {
+                return true
+            }
+            i += 2
+        }
+        return false
+    }
+
 
     override fun onWebSocketBinary(payload: ByteArray, offset: Int, len: Int) {
         logger.debug("onWebSocketBinary(payload[${payload.size}], offset = $offset, len = $len)")
         if (!inputAudioStreamCancelled) {
+            //val detectingAudio = isDetectingAudio(payload, offset, len)
+            //println("detectingAudio = $detectingAudio")
             if (inputAudioTime + 10000 < System.currentTimeMillis()) {
                 val text = "\$noaudio"
                 inputAudioClose(true)
                 sendEvent(BotEvent.Recognized(text))
-                onText(text, 1.0)
+                onInput(Input(text, language = lastMessage?.language
+                        ?: Locale.ENGLISH))
             } else {
                 super.onWebSocketBinary(payload, offset, len)
                 sttStream?.write(payload, offset, len)
@@ -89,10 +112,13 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
         }
     }
 
-    /**
-     * Determine if the response from botService will be followed by waiting for user input or another message will be sent to botService
-     */
-    private fun onMessageEvent(event: BotEvent.Message) = event.apply {
+
+    private fun onMessageEvent(event: BotEvent.Message) = with (event) {
+        onMessageEvent(event, Input(message.items.firstOrNull()?.text?:"", message.language?:Locale.ENGLISH))
+    }
+
+    private fun onMessageEvent(event: BotEvent.Message, input: Input) = with (event) {
+
         val currentTime = System.currentTimeMillis()
         lastMessageTime = currentTime
         lastMessage = message
@@ -100,8 +126,10 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
             message.sessionId = Message.createId()
             sendEvent(BotEvent.SessionStarted(message.sessionId!!))
         }
-        val response = botService.message(event.appKey, message)
-        if (response != null) {
+        val request = Request(event.appKey, message.sender, message.sessionId!!, input)
+        coreResource.process(request).let {
+            val response = message.response(it.items)
+            response.sessionEnded = it.sessionEnded
             response.attributes["serviceResponseTime"] = System.currentTimeMillis() - currentTime
             expectedPhrases = response.expectedPhrases?: listOf()
             response.expectedPhrases = null
