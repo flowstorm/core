@@ -8,5 +8,5 @@ data class Profile(
         val _id: Id<Profile> = newId(),
         val user_id: Id<User>,
         val name: String, //deprecated, for compatibility with helena
-        val properties: Dynamic = Dynamic()
+        val attributes: Dynamic = Dynamic()
 )
