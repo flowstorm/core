@@ -14,6 +14,7 @@ class GoogleSttService(config: SttConfig, callback: SttCallback, expectedPhrases
             .setEncoding(RecognitionConfig.AudioEncoding.LINEAR16)
             .setLanguageCode(config.language)
             .setSampleRateHertz(config.sampleRate)
+            .setMaxAlternatives(5)
             .setEnableWordTimeOffsets(true)
             .addSpeechContexts(SpeechContext.newBuilder()
                     .addAllPhrases(expectedPhrases.map { expectedPhrase: Message.ExpectedPhrase -> expectedPhrase.text })

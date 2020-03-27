@@ -21,19 +21,20 @@ class GoogleSttObserver(private val callback: SttCallback, private val language:
         responses.add(response)
         for (result in response.resultsList) {
             val alternatives = result.alternativesList ?: continue
-            for (alt in alternatives) {
-                val input = Input(alt.transcript, Locale(language), confidence = alt.confidence)
-                alt.wordsList.forEach {
-                    val word = Input.Word(
-                            it.word,
-                            startTime = it.startTime.seconds.toFloat() + it.startTime.nanos.toFloat() / 1000000000,
-                            endTime = it.endTime.seconds.toFloat() + it.endTime.nanos.toFloat() / 1000000000
-                    )
-                    input.tokens.add(word)
-                }
-                callback.onResponse(input, result.isFinal)
-                alt.wordsList
+            val firstAlternative = alternatives[0]
+            val input = Input(Locale(language), Input.Transcript(firstAlternative.transcript, firstAlternative.confidence))
+            firstAlternative.wordsList.forEach {
+                input.tokens.add(Input.Word(
+                        it.word,
+                        startTime = it.startTime.seconds.toFloat() + it.startTime.nanos.toFloat() / 1000000000,
+                        endTime = it.endTime.seconds.toFloat() + it.endTime.nanos.toFloat() / 1000000000
+                ))
             }
+            for (i in 1 until alternatives.size) {
+                val nextAlternative = alternatives[i]
+                input.alternatives.add(Input.Transcript(nextAlternative.transcript, nextAlternative.confidence))
+            }
+            callback.onResponse(input, result.isFinal)
         }
     }
 

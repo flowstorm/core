@@ -27,7 +27,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
         override fun onResponse(input: Input, final: Boolean) {
             try {
                 if (final && !inputAudioStreamCancelled) {
-                    sendEvent(BotEvent.Recognized(input.text))
+                    sendEvent(BotEvent.Recognized(input.transcript.text))
                     onInput(input)
                 }
             } catch (e: IOException) {
@@ -71,7 +71,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                 sender = sender,
                 language = language,
                 sessionId = sessionId,
-                items = mutableListOf(Response.Item(text = input.text, confidence = input.confidence.toDouble()))
+                items = mutableListOf(Response.Item(text = input.transcript.text, confidence = input.transcript.confidence.toDouble()))
         )
         onMessageEvent(BotEvent.Message(appKey, message), input)
     }
@@ -103,8 +103,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                 val text = "\$noaudio"
                 inputAudioClose(true)
                 sendEvent(BotEvent.Recognized(text))
-                onInput(Input(text, language = lastMessage?.language
-                        ?: Locale.ENGLISH))
+                onInput(Input(lastMessage?.language ?: Locale.ENGLISH, Input.Transcript(text)))
             } else {
                 super.onWebSocketBinary(payload, offset, len)
                 sttStream?.write(payload, offset, len)
@@ -114,7 +113,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
 
 
     private fun onMessageEvent(event: BotEvent.Message) = with (event) {
-        onMessageEvent(event, Input(message.items.firstOrNull()?.text?:"", message.language?:Locale.ENGLISH))
+        onMessageEvent(event, Input(message.language?:Locale.ENGLISH, Input.Transcript(message.items.firstOrNull()?.text?:"")))
     }
 
     private fun onMessageEvent(event: BotEvent.Message, input: Input) = with (event) {

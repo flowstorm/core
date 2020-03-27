@@ -21,7 +21,7 @@ object SttServiceFactory {
                 listOf(Message.ExpectedPhrase("Ano",1F), Message.ExpectedPhrase("Ne", 1F)),
                 object : SttCallback {
                     override fun onResponse(input: Input, final: Boolean) {
-                        println("SST response - transcript: ${input.text}, confidence: ${input.confidence}, final: $final")
+                        println("SST response - transcript: ${input.transcript.text}, confidence: ${input.transcript.confidence}, final: $final")
                     }
 
                     override fun onOpen() {
