@@ -2,6 +2,7 @@ package com.promethist.core.builder
 
 import com.promethist.common.ObjectUtil
 import com.promethist.common.RestClient
+import com.promethist.core.builder.IntentModelBuilder.Output
 import com.promethist.core.Dialogue
 import org.slf4j.LoggerFactory
 import java.net.URL
@@ -10,17 +11,20 @@ import javax.ws.rs.WebApplicationException
 
 class IllusionistModelBuilder(val apiUrl: String, val apiKey: String) : IntentModelBuilder {
 
-    data class Output(val model: Model, val qa: MutableMap<String, Item> = mutableMapOf()) {
-        data class Model(val name: String, val lang: String/*, val algorithm: String? = null*/)
-        data class Item(val questions: Array<out String>, val answer: String)
-    }
     private var logger = LoggerFactory.getLogger(this::class.qualifiedName)
 
     override fun build(modelId: String, name: String, language: Locale, intents: List<Dialogue.Intent>) {
-        val output = Output(Output.Model(name, language.toString()))
+        val items = mutableMapOf<String, Output.Item>()
         intents.forEach { intent ->
-            output.qa[intent.name] = Output.Item(intent.utterances, intent.id.toString())
+            items[intent.name] = Output.Item(intent.utterances, intent.id.toString())
         }
+
+        build(modelId, name, language, items)
+    }
+
+    override fun build(modelId: String, name: String, language: Locale, intents: Map<String, Output.Item>) {
+        val output = Output(Output.Model(name, language.toString()), intents)
+
         val url = URL("$apiUrl/models/$modelId?key=$apiKey")
         logger.info("$url < $output")
         try {

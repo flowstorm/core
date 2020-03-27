@@ -45,7 +45,7 @@ open class Dialogue(open val loader: Loader, open val name: String) {
 
     open inner class Intent(
             override val id: Int,
-            val name: String,
+            open val name: String,
             vararg utterance: String
     ): TransitNode(id) {
         val utterances = utterance
@@ -53,6 +53,7 @@ open class Dialogue(open val loader: Loader, open val name: String) {
 
     inner class GlobalIntent(
              override val id: Int,
+             override val name: String,
              vararg utterance: String
     ): Intent(id, name, *utterance)
 

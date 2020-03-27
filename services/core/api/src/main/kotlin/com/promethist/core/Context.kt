@@ -13,4 +13,5 @@ data class Context(val profile: Profile, val session: Session, val turn: Turn, v
     val application get() = session.application
     val previousTurns get() = session.turns.reversed()
     val sessionEnded get() = turn.dialogueStack.isEmpty()
+    val metrics get() = session.metrics
 }
