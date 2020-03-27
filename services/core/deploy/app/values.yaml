@@ -22,6 +22,8 @@ app:
 database:
   url: "mongodb+srv://developer:Devel135$@promethistai-default-vxs3n.gcp.mongodb.net"
   name: "core-develop"
+illusionist:
+  apiKey: "AIzaSyDgHsjHyK4cS11nEUJuRGeVUEDITi6OtZA"
 git:
   ref: branch_or_tag
   commit: short_sha
