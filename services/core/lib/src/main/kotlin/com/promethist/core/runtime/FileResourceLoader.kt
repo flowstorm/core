@@ -6,7 +6,7 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 
-class FileResourceLoader(private val fileResource: FileResource, val basePath: String) : AbstractLoader() {
+class FileResourceLoader(private val fileResource: FileResource, val basePath: String, override val noCache: Boolean = false) : AbstractLoader(noCache) {
 
     override fun getInputStream(name: String): InputStream {
         logger.info("loading file resource $name")
@@ -17,7 +17,9 @@ class FileResourceLoader(private val fileResource: FileResource, val basePath: S
             fileResource.readFile(path, buf)
             ByteArrayInputStream(buf.toByteArray())
         } else {
-            ByteArrayInputStream(fileResource.readFile(path).readEntity(ByteArray::class.java))
+            val buf = fileResource.readFile(path).readEntity(ByteArray::class.java)
+            println(String(buf))
+            ByteArrayInputStream(buf)
         }
     }
 

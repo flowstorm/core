@@ -6,7 +6,7 @@ import java.io.InputStream
 import java.io.InputStreamReader
 import kotlin.reflect.KClass
 
-abstract class AbstractLoader : Loader {
+abstract class AbstractLoader(open val noCache: Boolean) : Loader {
 
     data class CacheItem(val item: Any, val lastModified: Long)
 
@@ -15,7 +15,7 @@ abstract class AbstractLoader : Loader {
 
     private fun <T: Any> cache(name: String, load: () -> T): T {
         val lastModified = getLastModified(name)
-        if (!cache.containsKey(name) || (cache[name]!!.lastModified < lastModified)) {
+        if (noCache || !cache.containsKey(name) || (cache[name]!!.lastModified < lastModified)) {
             cache[name] = CacheItem(load(), lastModified)
         }
         return cache[name]!!.item as T

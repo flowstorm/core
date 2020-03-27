@@ -28,7 +28,7 @@ data class Model1(
     val input1 = UserInput(nextId--, intent1, intent2)
 
     val response1 = Response(nextId--,
-            { """welcome back ${session.user.name}""" },
+            { """welcome back ${session.user.name}, you said: ${input.transcript.text}""" },
             { """hello back${session.user.name}""" }
     )
     val response2 = Response(nextId--,

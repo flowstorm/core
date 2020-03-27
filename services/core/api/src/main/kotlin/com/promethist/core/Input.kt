@@ -7,11 +7,13 @@ import com.promethist.common.ObjectUtil
 import java.util.*
 
 data class Input(
-        var text: String,
         val language: Locale,
+        var transcript: Transcript,
+        val alternatives: MutableList<Transcript> = mutableListOf(),
         val classes: MutableList<Class> = mutableListOf(),
-        val tokens: MutableList<Token> = mutableListOf(),
-        val confidence: Float = 1.0F) {
+        val tokens: MutableList<Token> = mutableListOf()
+) {
+    data class Transcript(val text: String, val confidence: Float = 1.0F)
 
     data class Class(val type: Type, val name: String, val score: Float = 1.0F) {
         enum class Type { Intent, Entity }
@@ -48,7 +50,7 @@ data class Input(
     val intents get() = classes.filter { it.type == Class.Type.Intent }
 
     @get:JsonIgnore
-    val intent get() = intents.firstOrNull()?:error("No intent class recognized in input $text")
+    val intent get() = intents.firstOrNull()?:error("No intent class recognized in input")
 
     @get:JsonIgnore
     val entityMap: Map<String, List<Entity>> by lazy {
@@ -84,8 +86,11 @@ data class Input(
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            val input = Input("I see a dog, a red rose and a cat.", Locale.ENGLISH, mutableListOf(Class(Class.Type.Intent, "-1")),
-                    mutableListOf(
+            val input = Input(
+                    Locale.ENGLISH,
+                    Transcript("I see a dog, a red rose and a cat."),
+                    classes = mutableListOf(Class(Class.Type.Intent, "-1")),
+                    tokens = mutableListOf(
                             Word("i"),
                             Word("see"),
                             Word("dog", mutableListOf(Class(Class.Type.Entity, "animal"))),

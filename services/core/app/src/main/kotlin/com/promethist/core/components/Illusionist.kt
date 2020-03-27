@@ -28,7 +28,7 @@ class Illusionist : Component {
         val models = getModels(context.turn.dialogueStack.first)
         logger.info("processing IR with models $models")
 
-        val request = Request(context.input.text, models.values.toList())
+        val request = Request(context.input.transcript.text, models.values.toList())
         val responses = webTarget.path("/multi_model").request().post(Entity.json(request), object : GenericType<List<Response>>() {})
 
         for (response in responses) {

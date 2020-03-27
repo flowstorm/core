@@ -78,7 +78,7 @@ class CoreResourceImpl : CoreResource {
                 sender = sender,
                 recipient = session.application.dialogueName,
                 sessionId = session.sessionId,
-                items = mutableListOf(Response.Item(text = input.text)))
+                items = mutableListOf(Response.Item(text = input.transcript.text)))
         val appVariables = mutableMapOf<String, Serializable>()
         addUserToExtensions(message, session.user)
         message.attributes["variables"] = appVariables as Serializable
@@ -108,13 +108,13 @@ class CoreResourceImpl : CoreResource {
                             sender,
                             key,
                             input.language.toString(),
-                            Application.StartCondition(Application.StartCondition.Type.OnAction, input.text)
+                            Application.StartCondition(Application.StartCondition.Type.OnAction, input.transcript.text)
                     ))
 
             Session(sessionId = sessionId, user = contentResponse.user, application = contentResponse.application, attributes = contentResponse.sessionAttributes)
         }
 
-        session.addMessage(Session.Message(Date(), sender, null, mutableListOf(Response.Item(text = input.text))))
+        session.addMessage(Session.Message(Date(), sender, null, mutableListOf(Response.Item(text = input.transcript.text))))
         sessionResource.update(session)
 
         return session

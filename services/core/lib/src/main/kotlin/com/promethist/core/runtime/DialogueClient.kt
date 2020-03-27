@@ -29,7 +29,7 @@ object DialogueClient {
                 properties = mutableMapOf("some_string" to "bla", "math_max" to 5, "do_math" to true))
         val session = Session(sessionId = "T-E-S-T", user = user, application = app)
         val language = Locale.ENGLISH
-        val turn = Turn(Input("", language))
+        val turn = Turn(Input(language, Input.Transcript("")))
         val context = Context(profile, session, turn, logger)
 
         val reader = BufferedReader(InputStreamReader(System.`in`))
@@ -42,7 +42,7 @@ object DialogueClient {
             val text = reader.readLine()!!.trim()
             if (text == "exit")
                 break
-            turn.input = Input(text, language, mutableListOf(Input.Class(Input.Class.Type.Intent, text)))
+            turn.input = Input(language, Input.Transcript(text), classes = mutableListOf(Input.Class(Input.Class.Type.Intent, text)))
             turn.attributes.clear()
             turn.responseItems.clear()
         }

@@ -25,10 +25,12 @@ class DialogueModelBuilder(val name: String, private val language: Locale, priva
         if (!name.matches(Regex("([\\w\\-]+)/([\\w\\-]+)/(\\d+)")))
             error("dialogue name $name does not conform to naming convention (product-name/dialogue-name/dialogue-version)")
         val names = name.split("/").toMutableList()
+        val modelId = md5(random.nextLong().toString())
         className = "Model" + names.removeAt(names.size - 1)
         source
                 .appendln("//--dialogue-model;version:$version;name:$name;time:" + LocalDateTime.now())
-                .appendln("package " + names.joinToString(".") { "`$it`" }).appendln()
+                .append("package " + names.joinToString(".") { "`$it`" }).appendln(".`$modelId`")
+                .appendln()
                 .appendln("import com.promethist.core.*")
                 .appendln("import com.promethist.core.model.*")
                 .appendln("import com.promethist.core.runtime.Loader")
@@ -141,6 +143,7 @@ class DialogueModelBuilder(val name: String, private val language: Locale, priva
 
     companion object {
 
+        private val random = Random()
         private val md = MessageDigest.getInstance("MD5")
 
         fun md5(str: String): String = md.digest(str.toByteArray()).toHexString()

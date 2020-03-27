@@ -26,7 +26,7 @@ internal class DialogueModelBuilderTest {
             addIntent(--nodeId, "intent1", listOf("no", "nope", "quit", "stop"))
             addIntent(--nodeId, "intent2", listOf("dog", "cat", "tiger"))
             addFunction(--nodeId, "function1", mapOf("trans1" to "stop"), "println(trans1)\ntrans1")
-            addResponse(--nodeId, "response2", listOf("Your response was \${input.text}. Intent node \${input.intent.name}. Recognized entities: \${input.entitiesToString()}."))
+            addResponse(--nodeId, "response2", listOf("Your response was \${input.transcript.text}. Intent node \${input.intent.name}. Recognized entities: \${input.entitiesToString()}."))
             //addSubDialogue(--nodeId, "subDialogue1", "product/subdialogue/1")
 
             // user inputs always at the end (all intents must be defined before)
@@ -42,6 +42,6 @@ internal class DialogueModelBuilderTest {
         }
 
         builder.build(intentModelBuilder, fileResource)
-
+        println(builder.source)
     }
 }
