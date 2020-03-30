@@ -77,8 +77,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
     }
 
     private fun isDetectingAudio(payload: ByteArray, offset: Int, len: Int): Boolean {
-        var i = offset
-        while (i < offset + len - 1) {
+        for (i in offset until offset + len step 2) {
             // expecting LINEAR16 in little endian.
             var s = payload[i + 1].toInt()
             if (s < 0) s *= -1
@@ -88,7 +87,6 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
             if (s > 1500/*AMPLITUDE_THRESHOLD*/) {
                 return true
             }
-            i += 2
         }
         return false
     }
@@ -97,8 +95,8 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
     override fun onWebSocketBinary(payload: ByteArray, offset: Int, len: Int) {
         logger.debug("onWebSocketBinary(payload[${payload.size}], offset = $offset, len = $len)")
         if (!inputAudioStreamCancelled) {
-            //val detectingAudio = isDetectingAudio(payload, offset, len)
-            //println("detectingAudio = $detectingAudio")
+            if (isDetectingAudio(payload, offset, len))
+                inputAudioTime = System.currentTimeMillis()
             if (inputAudioTime + 10000 < System.currentTimeMillis()) {
                 val text = "\$noaudio"
                 inputAudioClose(true)
