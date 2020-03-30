@@ -27,6 +27,11 @@
             <version>${promethist.common.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.promethist.common</groupId>
+            <artifactId>common-lib</artifactId>
+            <version>${promethist.common.version}</version>
+        </dependency>
+        <dependency>
             <groupId>com.promethist.port</groupId>
             <artifactId>port-api</artifactId>
             <version>${project.version}</version>
