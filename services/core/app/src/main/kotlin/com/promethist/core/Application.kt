@@ -2,10 +2,7 @@ package com.promethist.core
 
 import com.mongodb.ConnectionString
 import com.mongodb.client.MongoDatabase
-import com.promethist.common.AppConfig
-import com.promethist.common.JerseyApplication
-import com.promethist.common.ResourceBinder
-import com.promethist.common.RestClient
+import com.promethist.common.*
 import com.promethist.common.query.Query
 import com.promethist.common.query.QueryInjectionResolver
 import com.promethist.common.query.QueryParams
@@ -30,13 +27,13 @@ class Application : JerseyApplication() {
         register(object : ResourceBinder() {
             override fun configure() {
 
-                val runMode = ServiceUtil.RunMode.valueOf(AppConfig.instance.get("runmode", "dist"))
+                val runMode = ServiceUrlResolver.RunMode.valueOf(AppConfig.instance.get("runmode", "dist"))
                 AppConfig.instance.let {
                     println("Promethist ${it["git.ref"]} core starting (namespace = ${it["namespace"]}, runMode = $runMode)")
                 }
 
                 // filestore
-                val filestore = RestClient.instance(FileResource::class.java, ServiceUtil.getEndpointUrl("filestore"))
+                val filestore = RestClient.instance(FileResource::class.java, ServiceUrlResolver.getEndpointUrl("filestore"))
                 bind(filestore).to(FileResource::class.java)
 
                 // NLP pipeline
@@ -50,14 +47,14 @@ class Application : JerseyApplication() {
 
                 // IR component
                 val illusionist = Illusionist()
-                illusionist.webTarget = RestClient.webTarget(ServiceUtil.getEndpointUrl("illusionist"))
+                illusionist.webTarget = RestClient.webTarget(ServiceUrlResolver.getEndpointUrl("illusionist"))
                         .path("/query")
                         .queryParam("key", AppConfig.instance["illusionist.apiKey"])
                 bind(illusionist).to(Component::class.java).named("illusionist")
 
                 // NER component
                 val cassandra = Cassandra()
-                cassandra.webTarget = RestClient.webTarget(ServiceUtil.getEndpointUrl("cassandra", ServiceUtil.RunMode.dist))
+                cassandra.webTarget = RestClient.webTarget(ServiceUrlResolver.getEndpointUrl("cassandra"))
                         .path("/query")
                         .queryParam("input_tokenized", true)
                         .queryParam("output_tokenized", true)
@@ -74,14 +71,12 @@ class Application : JerseyApplication() {
                                 .getDatabase(AppConfig.instance["database.name"]))
 
                 // dialogue manager helena (support of running V1 dialogue models)
-                val dialogueManagerUrl = ServiceUtil.getEndpointUrl("helena") + "/dm"
-                println("dialogueManagerUrl = $dialogueManagerUrl")
-                bindTo(BotService::class.java, dialogueManagerUrl)
+                bindTo(BotService::class.java, ServiceUrlResolver.getEndpointUrl("helena") + "/dm")
 
                 bindTo(CoreResourceImpl::class.java)
 
                 // admin
-                bindTo(ContentDistributionResource::class.java, ServiceUtil.getEndpointUrl("admin"))
+                bindTo(ContentDistributionResource::class.java, ServiceUrlResolver.getEndpointUrl("admin"))
 
                 bindFactory(QueryValueFactory::class.java).to(Query::class.java).`in`(PerLookup::class.java)
 
