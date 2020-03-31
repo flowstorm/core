@@ -1,0 +1,116 @@
+stages:
+  - build
+  - deploy
+
+build app non-production:
+  stage: build
+  image: docker:stable
+  only:
+    refs:
+      - develop
+      - preview
+    changes:
+      - app/**/*
+  services:
+    - registry.promethist.ai/common/system/docker:dind
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker build --cache-from $CI_REGISTRY_IMAGE --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA --build-arg API_HOST=$CI_PROJECT_NAME.$CI_COMMIT_REF_NAME.promethist.ai .
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+
+build app production:
+  stage: build
+  image: docker:stable
+  only:
+    refs:
+      - tags
+    changes:
+      - app/**/*
+  services:
+    - registry.promethist.ai/common/system/docker:dind
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker build --cache-from $CI_REGISTRY_IMAGE --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA --build-arg API_HOST=$CI_PROJECT_NAME.promethist.ai .
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+
+deploy api:
+  stage: deploy
+  image: registry.promethist.ai/common/system/builder
+  only:
+    refs:
+      - tags
+    changes:
+      - api/**/*
+  script:
+    - mvn -B -pl .,api versions:set -DnewVersion=$CI_COMMIT_REF_NAME
+    - mvn -B -pl .,api deploy
+
+deploy api snapshot:
+  stage: deploy
+  image: registry.promethist.ai/common/system/builder
+  only:
+    refs:
+      - develop
+    changes:
+      - api/**/*
+  script:
+    - mvn -B -pl .,api deploy
+    - cd api
+    - mvn dokka:dokka
+    - rsync -arv --delete ./target/dokka/port-api /ext/cluster/default/develop/site/default/apidoc/
+
+deploy app non-production:
+  stage: deploy
+  image: registry.promethist.ai/common/system/deployer
+  only:
+    refs:
+      - develop
+      - preview
+    changes:
+      - app/**/*
+      - deploy/app/**/*
+  script:
+    - sed -i -- "s/chart.version/$CI_COMMIT_SHORT_SHA/g; s/app.version/$CI_COMMIT_REF_NAME/g" deploy/app/Chart.yaml
+    - gcloud auth activate-service-account --key-file=${GCP_SA_KEY} --project=${GCP_PROJECT}
+    - gcloud container clusters get-credentials ${GCP_CLUSTER} --region ${GCP_REGION}
+    - helm upgrade
+      --install
+      --recreate-pods
+      --namespace $CI_COMMIT_REF_NAME
+      --set namespace=$CI_COMMIT_REF_NAME
+      --set git.ref=$CI_COMMIT_REF_NAME
+      --set git.commit=$CI_COMMIT_SHORT_SHA
+      --set app.image.tag=$CI_COMMIT_REF_NAME
+      --set imagePullPolicy=Always
+      --set database.url=$MONGODB_URL
+      --set database.name=port-$CI_COMMIT_REF_NAME
+      $CI_PROJECT_NAME-$CI_COMMIT_REF_NAME
+      deploy/app
+
+deploy app production:
+  stage: deploy
+  image: registry.promethist.ai/common/system/deployer
+  only:
+    refs:
+      - tags
+    changes:
+      - app/**/*
+      - deploy/app/**/*
+  except:
+    - /^(!master).+@/
+  script:
+    - sed -i -- "s/chart.version/$CI_COMMIT_REF_NAME/g; s/app.version/$CI_COMMIT_REF_NAME/g" deploy/app/Chart.yaml
+    - gcloud auth activate-service-account --key-file=${GCP_SA_KEY} --project=${GCP_PROJECT}
+    - gcloud container clusters get-credentials ${GCP_CLUSTER} --region ${GCP_REGION}
+    - helm upgrade
+      --install
+      --set git.ref=$CI_COMMIT_REF_NAME
+      --set git.commit=$CI_COMMIT_SHORT_SHA
+      --set app.image.tag=$CI_COMMIT_REF_NAME
+      --set database.url=$MONGODB_URL
+      --set database.name=$CI_PROJECT_NAME-default
+      $CI_PROJECT_NAME
+      deploy/app

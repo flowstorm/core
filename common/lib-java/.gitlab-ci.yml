@@ -1,0 +1,16 @@
+build release:
+  stage: deploy
+  image: registry.promethist.ai/common/system/builder
+  only:
+    - tags
+  script:
+    - mvn versions:set -DnewVersion=$CI_COMMIT_REF_NAME
+    - mvn -B deploy
+
+build snapshot:
+  stage: deploy
+  image: registry.promethist.ai/common/system/builder
+  only:
+    - develop
+  script:
+    - mvn -B deploy
