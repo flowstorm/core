@@ -11,6 +11,7 @@ import java.io.Serializable
 import javax.inject.Inject
 import javax.ws.rs.*
 import java.util.*
+import kotlin.collections.LinkedHashMap
 
 @Path("/")
 class CoreResourceImpl : CoreResource {
@@ -50,7 +51,7 @@ class CoreResourceImpl : CoreResource {
                 "core" -> {
                     val context = contextFactory.createContext(session, input)
                     val processedContext = processPipeline(context)
-                    Response(processedContext.turn.responseItems, context.sessionEnded)
+                    Response(processedContext.turn.responseItems, processedContext.turn.attributes, context.sessionEnded)
                 }
                 else -> error("Unknown dialogue engine (${session.application.dialogueEngine})")
             }
@@ -93,7 +94,7 @@ class CoreResourceImpl : CoreResource {
         else mapOf()
         updateMetrics(session, metrics)
 
-        return Response(response.items, response.sessionEnded)
+        return Response(response.items, response.attributes, response.sessionEnded)
     }
 
     private fun initSession(key: String, sender: String, sessionId: String, input: Input): Session {
@@ -155,7 +156,7 @@ class CoreResourceImpl : CoreResource {
             items.add(Response.Item(ttsVoice = TtsConfig.defaultVoice("en"), text = getErrorResourceString(Locale.ENGLISH, "exception.$type", listOf(code))))
         if (text != null)
             items.add(Response.Item(ttsVoice = TtsConfig.defaultVoice("en"), text = text))
-        return Response(items, true)
+        return Response(items, mutableMapOf<String, Any>(), true)
     }
 
     private fun updateMetrics(session: Session, metrics: Map<String, Any>) {

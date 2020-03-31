@@ -5,6 +5,7 @@ import com.promethist.common.DataObject
 import com.promethist.core.Response
 import java.util.*
 
+// deprecated - will be removed in future versions of platform
 data class Message(
 
         /**
@@ -20,7 +21,7 @@ data class Message(
         /**
          * Each message has none or more items
          */
-        var items: MutableList<Response.Item> = mutableListOf(),
+        override var items: MutableList<Response.Item> = mutableListOf(),
 
         /**
          * Message language.
@@ -53,7 +54,7 @@ data class Message(
         /**
          * Identification of the end of session (graph in dialog editor)
          */
-        var sessionEnded: Boolean = false,
+        override var sessionEnded: Boolean = false,
 
         /**
          * Expected phrases. It will be provided to Speech-to-text engine as a hint of more probable words
@@ -63,8 +64,8 @@ data class Message(
         /**
          * Extension properties for message. Determined by bot service and/or client application.
          */
-        val attributes: PropertyMap = PropertyMap()
-) {
+        override val attributes: PropertyMap = PropertyMap()
+) : Response(items, attributes, sessionEnded) {
 
     @JsonDeserialize(using = PropertyMap.Deserializer::class)
     class PropertyMap : DataObject() {
