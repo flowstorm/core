@@ -1,6 +1,7 @@
 # first stage - build app preferably using common builder
 FROM registry.promethist.ai/common/system/builder AS builder
 
+ARG VERSION=1.0.0-SNAPSHOT
 ARG API_HOST=localhost:8080
 
 WORKDIR /project
@@ -13,6 +14,7 @@ RUN mvn -B verify --fail-never
 
 # build and package app
 COPY . .
+RUN mvn -B versions:set -DnewVersion=${VERSION}
 RUN mvn -B -Dapi.host=${API_HOST} -U clean package
 
 # second stage - build app runtime
