@@ -14,6 +14,7 @@ RUN mvn -B verify --fail-never
 
 # build and package app
 COPY . .
+RUN mvn -B versions:set -DnewVersion=${VERSION}
 RUN mvn -B -Dapi.ref=${API_REF} -Dapi.host=${API_HOST} clean package
 
 # second stage - build app runtime
