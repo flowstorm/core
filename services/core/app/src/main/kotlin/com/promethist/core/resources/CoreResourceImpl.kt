@@ -5,13 +5,13 @@ import com.promethist.core.context.ContextFactory
 import com.promethist.core.context.ContextPersister
 import com.promethist.core.model.*
 import com.promethist.core.model.Application
+import com.promethist.core.model.metrics.Metric
 import com.promethist.core.resources.ContentDistributionResource.ContentRequest
 import org.slf4j.LoggerFactory
 import java.io.Serializable
 import javax.inject.Inject
 import javax.ws.rs.*
 import java.util.*
-import kotlin.collections.LinkedHashMap
 
 @Path("/")
 class CoreResourceImpl : CoreResource {
@@ -44,6 +44,8 @@ class CoreResourceImpl : CoreResource {
         } catch (e: Exception) {
             return processException(input, e)
         }
+
+        updateAutomaticMetrics(session)
 
         val response = try {
             when (session.application.dialogueEngine) {
@@ -121,6 +123,15 @@ class CoreResourceImpl : CoreResource {
         return session
     }
 
+    private fun updateAutomaticMetrics(session: Session) {
+        with(session.metrics) {
+            find { it.name == "count" && it.namespace == "session" }
+                    ?: add(Metric("session", "count", 1))
+            find { it.name == "turns" && it.namespace == "session" }?.increment()
+                    ?: add(Metric("session", "turns", 1))
+        }
+    }
+
     private fun addUserToExtensions(message: Message, user: User) {
         message.sender = user.username
         message.attributes["user"] = Hashtable(mapOf(
@@ -160,9 +171,6 @@ class CoreResourceImpl : CoreResource {
     }
 
     private fun updateMetrics(session: Session, metrics: Map<String, Any>) {
-        session.metrics.find { it.name == "TurnCount" && it.namespace == "session" }?.increment()
-                ?: session.metrics.add(Session.Metric("session", "TurnCount"))
-
         for (namespaceMetrics in metrics) {
             if (namespaceMetrics.value is Message.PropertyMap) {
                 updateMetricsValues(session, namespaceMetrics.key, namespaceMetrics.value as Map<String, Any>)
@@ -179,7 +187,7 @@ class CoreResourceImpl : CoreResource {
                 if (m != null) {
                     m.value = item.value as Long
                 } else {
-                    val metric = Session.Metric(namespace, item.key, item.value as Long)
+                    val metric = Metric(namespace, item.key, item.value as Long)
                     session.metrics.add(metric)
                 }
             } else {

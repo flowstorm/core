@@ -4,6 +4,7 @@ import com.promethist.common.RestClient
 import com.promethist.core.Context
 import com.promethist.core.model.*
 import com.promethist.core.Input
+import com.promethist.core.model.metrics.Metrics
 import com.promethist.core.resources.FileResource
 import org.slf4j.LoggerFactory
 import java.io.BufferedReader
@@ -30,7 +31,7 @@ object DialogueClient {
         val session = Session(sessionId = "T-E-S-T", user = user, application = app)
         val language = Locale.ENGLISH
         val turn = Turn(Input(language, Input.Transcript("")))
-        val context = Context(profile, session, turn, logger)
+        val context = Context(profile, session, turn, Metrics(listOf()), logger)
 
         val reader = BufferedReader(InputStreamReader(System.`in`))
         while (true) {

@@ -3,9 +3,10 @@ package com.promethist.core
 import com.promethist.core.model.Profile
 import com.promethist.core.model.Turn
 import com.promethist.core.model.Session
+import com.promethist.core.model.metrics.Metrics
 import org.slf4j.Logger
 
-data class Context(val profile: Profile, val session: Session, val turn: Turn, val logger: Logger) {
+data class Context(val profile: Profile, val session: Session, val turn: Turn, val metrics: Metrics, val logger: Logger) {
     // aliases
     val input get() = turn.input
     val user get() = session.user
@@ -13,5 +14,4 @@ data class Context(val profile: Profile, val session: Session, val turn: Turn, v
     val application get() = session.application
     val previousTurns get() = session.turns.reversed()
     val sessionEnded get() = turn.dialogueStack.isEmpty()
-    val metrics get() = session.metrics
 }

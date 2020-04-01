@@ -4,6 +4,7 @@ import com.promethist.core.Context
 import com.promethist.core.model.*
 import com.promethist.core.Dialogue
 import com.promethist.core.Input
+import com.promethist.core.model.metrics.Metrics
 import com.promethist.core.provider.LocalFileStorage
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -30,6 +31,7 @@ object DialogueLoadTest {
                         application = Application(name = "test", dialogueName = "product/some-dialogue/1", ttsVoice = "Grace")
                 ),
                 Turn(Input(Locale.ENGLISH, Input.Transcript("some message"))),
+                Metrics(listOf()),
                 logger
         )
 
