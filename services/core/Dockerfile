@@ -1,6 +1,7 @@
 # first stage - build app preferably using common builder
 FROM registry.promethist.ai/common/system/builder AS builder
 
+ARG VERSION=1.0.0-SNAPSHOT
 ARG API_REF=develop
 ARG API_HOST=localhost:8080
 
