@@ -27,7 +27,7 @@
         <dependency>
             <groupId>com.promethist.common</groupId>
             <artifactId>common-lib</artifactId>
-            <version>${promethist.common.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.litote.kmongo</groupId>

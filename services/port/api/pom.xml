@@ -26,7 +26,7 @@
         <dependency>
             <groupId>com.promethist.core</groupId>
             <artifactId>core-api</artifactId>
-            <version>${promethist.core.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <!-- jax-rs -->
         <dependency>

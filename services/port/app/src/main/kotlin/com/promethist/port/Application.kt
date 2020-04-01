@@ -7,7 +7,7 @@ import com.promethist.common.ServiceUrlResolver
 import com.promethist.common.JerseyApplication
 import com.promethist.common.ResourceBinder
 import com.promethist.core.resources.CoreResource
-import com.promethist.filestore.resources.FileResource
+import com.promethist.core.resources.FileResource
 import com.promethist.port.resources.PortResource
 import com.promethist.port.resources.PortResourceImpl
 import org.litote.kmongo.KMongo

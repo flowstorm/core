@@ -14,7 +14,6 @@
     <properties>
         <kotlin.version>1.3.21</kotlin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <promethist.common.version>1.0.0-SNAPSHOT</promethist.common.version>
     </properties>
 
     <modules>

@@ -4,9 +4,9 @@ import com.mongodb.client.MongoDatabase
 import com.mongodb.client.gridfs.GridFSBuckets
 import com.promethist.common.AppConfig
 import com.promethist.core.model.Message
+import com.promethist.core.resources.FileResource
 import com.promethist.port.tts.TtsRequest
 import com.promethist.port.tts.TtsServiceFactory
-import com.promethist.filestore.resources.FileResource
 import org.bson.types.ObjectId
 import org.litote.kmongo.and
 import org.litote.kmongo.eq

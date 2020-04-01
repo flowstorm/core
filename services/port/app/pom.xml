@@ -24,12 +24,12 @@
         <dependency>
             <groupId>com.promethist.common</groupId>
             <artifactId>common-app</artifactId>
-            <version>${promethist.common.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.promethist.common</groupId>
             <artifactId>common-lib</artifactId>
-            <version>${promethist.common.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.promethist.port</groupId>
@@ -39,12 +39,12 @@
         <dependency>
             <groupId>com.promethist.filestore</groupId>
             <artifactId>filestore-api</artifactId>
-            <version>${promethist.filestore.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>ai.promethist.client</groupId>
             <artifactId>client-app-common</artifactId>
-            <version>${promethist.client-app-common.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.litote.kmongo</groupId>
