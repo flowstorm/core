@@ -11,10 +11,30 @@
     <version>1.0.0-SNAPSHOT</version>
     <name>Promethist MAIN</name>
 
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
     <modules>
         <module>common</module>
         <module>clients</module>
         <module>services</module>
     </modules>
+
+    <repositories>
+        <repository>
+            <id>promethistai</id>
+            <name>PromethistAI repository</name>
+            <url>https://repository.promethist.ai/maven/</url>
+        </repository>
+    </repositories>
+
+    <distributionManagement>
+        <repository>
+            <id>promethistai</id>
+            <name>PromethistAI repository</name>
+            <url>file:/ext/cluster/default/default/repository/maven/</url>
+        </repository>
+    </distributionManagement>
 
 </project>

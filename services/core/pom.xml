@@ -17,7 +17,6 @@
 
     <properties>
         <kotlin.version>1.3.21</kotlin.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <modules>
@@ -26,20 +25,4 @@
         <module>app</module>
     </modules>
 
-    <repositories>
-        <repository>
-            <id>promethistai</id>
-            <name>PromethistAI repository</name>
-            <url>https://promethist.ai/repository/maven/</url>
-        </repository>
-    </repositories>
-
-
-    <distributionManagement>
-        <repository>
-            <id>promethistai-maven</id>
-            <name>PromethistAI repository</name>
-            <url>file:/ext/cluster/default/default/repository/maven/</url>
-        </repository>
-    </distributionManagement>
 </project>
