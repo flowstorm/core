@@ -29,7 +29,7 @@ class DialogueBuilder() {
         val loader = FileResourceLoader(fileResource, "dialogue")
 
         //todo remove args?
-        return Kotlin.newObject(Kotlin.loadClass(StringReader(source.code)), source.name, *source.args.values.toTypedArray())
+        return Kotlin.newObject(Kotlin.loadClass(StringReader(source.code)), *source.parameters.values.toTypedArray())
     }
 
     fun deploy(source: DialogueSourceCodeBuilder) {

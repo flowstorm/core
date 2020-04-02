@@ -18,11 +18,11 @@ internal class DialogueBuilderTest {
     @Test
     fun `test dialogue building`() {
         var nodeId = 0
-        val source = DialogueSourceCodeBuilder("product/dialogue/1", Locale("en"), mapOf(
+        val source = DialogueSourceCodeBuilder("product/dialogue/1", mapOf(
                 "str" to "bla",
                 "num" to 123,
                 "chk" to true
-        )).apply {
+        ), mapOf()).apply {
             initCode = "val i = 1"
 
             addNode(Response(--nodeId, "response1", listOf("hello, say some animal", "hi, say some animal")))

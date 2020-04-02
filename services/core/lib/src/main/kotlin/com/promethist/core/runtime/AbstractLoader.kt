@@ -48,6 +48,6 @@ abstract class AbstractLoader(open val noCache: Boolean) : Loader {
 
     override fun <T : Any> newObject(name: String, vararg args: Any?): T {
         logger.info("creating object $name ${args.toList()}")
-        return Kotlin.newObject(loadClass(name), name, *args)
+        return Kotlin.newObject(loadClass(name), *args)
     }
 }

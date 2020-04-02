@@ -6,8 +6,10 @@ import kotlin.reflect.KProperty
 import kotlin.reflect.full.createType
 import kotlin.reflect.full.isSubtypeOf
 
-open class Dialogue(open val name: String) {
+abstract class Dialogue {
 
+    //dialogue config - must/may be overrided
+    abstract val name: String
     open val language = "en"
 
     //runtime dependencies

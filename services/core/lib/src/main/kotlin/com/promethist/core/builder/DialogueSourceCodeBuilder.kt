@@ -8,8 +8,8 @@ import java.util.*
 
 class DialogueSourceCodeBuilder(
         val name: String,
-        private val language: Locale,
-        val args: Map<String, Any>
+        val parameters: Map<String, Any>,
+        val config: Map<String, Any>
 ) {
     var initCode: CharSequence = ""
     var extensionCode: CharSequence = ""
@@ -33,6 +33,9 @@ class DialogueSourceCodeBuilder(
     fun build(): String {
         source.clear()
         writeHeader()
+        writeClassSignature()
+        writeInit()
+
         globalIntents.forEach { write(it) }
         intents.forEach { write(it) }
         userInputs.forEach { write(it) }
@@ -40,7 +43,7 @@ class DialogueSourceCodeBuilder(
         functions.forEach { write(it) }
         subDialogues.forEach { write(it) }
 
-        writeTransitions(transitions)
+        writeTransitions()
 
         source.appendln('}')
         if (extensionCode.isNotBlank()) {
@@ -83,23 +86,43 @@ class DialogueSourceCodeBuilder(
                 .appendln("import com.promethist.core.model.*")
                 .appendln("import com.promethist.core.runtime.Loader")
                 .appendln()
-                .append("data class $className(override val name: String")
-        args.forEach {
-            if (it.value !is Int && it.value !is Long && it.value !is Float && it.value !is Double && it.value !is String && it.value !is Boolean)
-                error("arg ${it.key} is if on unsupported type ${it.value::class.simpleName} (only Int, Long, Float, Double, String, Boolean supported)")
-            source.append(", val ${it.key}: ${it.value::class.simpleName} = ")
+    }
+
+    private fun writeInit() {
+        source.appendln("\toverride val name = \"$name\"")
+
+        config.forEach {
+            source.append("override val ${it.key}: ${it.value::class.simpleName} = ")
             if (it.value is String)
                 source.append('"').append((it.value as String).trim().replace("\"", "\\\"")).append('"')
             else
                 source.append(it.value.toString())
+            source.appendln()
         }
-        source.appendln(") : $parentClass(name) {")
-        source.appendln("\toverride val language = \"$language\"")
+//        source.appendln("\toverride val language = \"$language\"")
+
         if (initCode.isNotBlank()) {
             source.appendln("//--code-start;type:init")
             source.appendln(initCode)
             source.appendln("//--code-end;type:init")
         }
+    }
+
+    private fun writeClassSignature() {
+        source.append("class $className(")
+
+        var comma = ""
+        parameters.forEach {
+            if (it.value !is Int && it.value !is Long && it.value !is Float && it.value !is Double && it.value !is String && it.value !is Boolean)
+                error("arg ${it.key} is if on unsupported type ${it.value::class.simpleName} (only Int, Long, Float, Double, String, Boolean supported)")
+            source.append("${comma}val ${it.key}: ${it.value::class.simpleName} = ")
+            if (it.value is String)
+                source.append('"').append((it.value as String).trim().replace("\"", "\\\"")).append('"')
+            else
+                source.append(it.value.toString())
+            comma = ", "
+        }
+        source.appendln(") : $parentClass() {")
     }
 
     private fun write(intent: Intent) {
@@ -155,7 +178,7 @@ class DialogueSourceCodeBuilder(
         source.appendln("//--code-end;type:subDialogue;name:$nodeName").appendln("\t}")
     }
 
-    private fun writeTransitions(transitions: Map<String, String>) {
+    private fun writeTransitions() {
         source.appendln()
         source.appendln("\tinit {")
         transitions.forEach { source.appendln("\t\t${it.key}.next = ${it.value}") }
