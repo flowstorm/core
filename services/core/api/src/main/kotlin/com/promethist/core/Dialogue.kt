@@ -6,9 +6,13 @@ import kotlin.reflect.KProperty
 import kotlin.reflect.full.createType
 import kotlin.reflect.full.isSubtypeOf
 
-open class Dialogue(open val loader: Loader, open val name: String) {
+open class Dialogue(open val name: String) {
 
     open val language = "en"
+
+    //runtime dependencies
+    lateinit var loader: Loader
+
     val nodes: MutableSet<Node> = mutableSetOf()
     var nextId: Int = 0
     var start = StartDialogue(nextId--)
@@ -90,7 +94,8 @@ open class Dialogue(open val loader: Loader, open val name: String) {
 
         fun createDialogue(context: Context): Dialogue = lambda(context, this)
 
-        fun create(vararg arg: Any) = loader.newObject<Dialogue>("$name/model", *arg)
+        fun create(vararg arg: Any) =
+                loader.newObject<Dialogue>("$name/model", *arg).apply { loader = this@Dialogue.loader }
     }
 
     inner class StartDialogue(override val id: Int) : TransitNode(id)

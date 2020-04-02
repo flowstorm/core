@@ -19,6 +19,8 @@ object DialogueLoadTest {
         val loader = FileResourceLoader(LocalFileStorage(File("test")), "dialogue")
         val dialogueName = "product/some-dialogue/1"
         val dialogue = loader.newObject<Dialogue>("$dialogueName/model", "ble", 1, false)
+        dialogue.loader = loader
+
         dialogue.validate()
         println(dialogue.describe())
         val user = User(username = "tester@promethist.ai", name = "Tester", surname = "Tester", nickname = "Tester")

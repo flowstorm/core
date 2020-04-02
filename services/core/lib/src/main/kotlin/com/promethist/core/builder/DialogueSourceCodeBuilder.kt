@@ -83,7 +83,7 @@ class DialogueSourceCodeBuilder(
                 .appendln("import com.promethist.core.model.*")
                 .appendln("import com.promethist.core.runtime.Loader")
                 .appendln()
-                .append("data class $className(override val loader: Loader, override val name: String")
+                .append("data class $className(override val name: String")
         args.forEach {
             if (it.value !is Int && it.value !is Long && it.value !is Float && it.value !is Double && it.value !is String && it.value !is Boolean)
                 error("arg ${it.key} is if on unsupported type ${it.value::class.simpleName} (only Int, Long, Float, Double, String, Boolean supported)")
@@ -93,7 +93,7 @@ class DialogueSourceCodeBuilder(
             else
                 source.append(it.value.toString())
         }
-        source.appendln(") : $parentClass(loader, name) {")
+        source.appendln(") : $parentClass(name) {")
         source.appendln("\toverride val language = \"$language\"")
         if (initCode.isNotBlank()) {
             source.appendln("//--code-start;type:init")
