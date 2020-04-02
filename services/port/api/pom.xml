@@ -16,9 +16,8 @@
 
     <properties>
         <swagger.version>1.5.22</swagger.version>
-        <api.host>localhost:8080</api.host>
+        <api.basedomain>promethis.com</api.basedomain>
         <api.locations>com.promethist.common.resources,com.promethist.port.resources</api.locations>
-        <api.version>${project.version}</api.version>
         <api.description>PromethistAI Port API (${project.version})</api.description>
     </properties>
 
@@ -106,13 +105,13 @@
                             <springmvc>false</springmvc>
                             <locations>${api.locations}</locations>
                             <schemes>https,http</schemes>
-                            <host>${api.host}</host>
+                            <host>${project.parent.artifactId}.${api.basedomain}</host>
                             <basePath>/</basePath>
                             <outputFormats>json,yaml</outputFormats>
                             <swaggerDirectory>${project.build.outputDirectory}/META-INF/${project.artifactId}</swaggerDirectory>
                             <info>
                                 <title>${project.name}</title>
-                                <version>${api.version}</version>
+                                <version>${project.version}</version>
                                 <description>${api.description}</description>
                                 <termsOfService>https://promethist.ai/terms</termsOfService>
                                 <contact>
