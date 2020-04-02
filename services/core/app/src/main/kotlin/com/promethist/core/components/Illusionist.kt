@@ -6,6 +6,7 @@ import com.promethist.core.Context
 import com.promethist.core.Input
 import com.promethist.core.builder.DialogueSourceCodeBuilder
 import com.promethist.core.model.Turn
+import com.promethist.util.LoggerDelegate
 import org.slf4j.LoggerFactory
 import javax.inject.Inject
 import javax.ws.rs.client.Entity
@@ -17,7 +18,7 @@ class Illusionist : Component {
     @Inject
     lateinit var webTarget: WebTarget
 
-    private val logger = LoggerFactory.getLogger(javaClass)
+    private val logger by LoggerDelegate()
 
     override fun process(context: Context): Context {
         if (context.turn.dialogueStack.isEmpty()) {

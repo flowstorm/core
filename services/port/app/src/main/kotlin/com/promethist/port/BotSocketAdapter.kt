@@ -13,6 +13,7 @@ import com.promethist.core.Response
 import com.promethist.core.resources.CoreResource
 import com.promethist.port.stt.*
 import com.promethist.port.tts.TtsRequest
+import com.promethist.util.LoggerDelegate
 import org.eclipse.jetty.websocket.api.WebSocketAdapter
 import org.slf4j.LoggerFactory
 import java.io.IOException
@@ -73,7 +74,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
     //private var lastMessage: Message? = null
     private var lastMessageTime: Long? = null
 
-    private var logger = LoggerFactory.getLogger(BotSocketAdapter::class.qualifiedName)
+    private val logger by LoggerDelegate()
 
 
     override fun open() {

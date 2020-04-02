@@ -1,6 +1,7 @@
 package com.promethist.core.runtime
 
 import com.promethist.common.ObjectUtil
+import com.promethist.util.LoggerDelegate
 import org.slf4j.LoggerFactory
 import java.io.InputStream
 import java.io.InputStreamReader
@@ -10,7 +11,7 @@ abstract class AbstractLoader(open val noCache: Boolean) : Loader {
 
     data class CacheItem(val item: Any, val lastModified: Long)
 
-    protected val logger = LoggerFactory.getLogger(this::class.qualifiedName)
+    protected val logger by LoggerDelegate()
     private val cache: MutableMap<String, CacheItem> = mutableMapOf()
 
     private fun <T: Any> cache(name: String, load: () -> T): T {

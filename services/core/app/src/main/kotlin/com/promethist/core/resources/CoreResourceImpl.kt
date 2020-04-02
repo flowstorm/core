@@ -7,6 +7,7 @@ import com.promethist.core.model.*
 import com.promethist.core.model.Application
 import com.promethist.core.model.metrics.Metric
 import com.promethist.core.resources.ContentDistributionResource.ContentRequest
+import com.promethist.util.LoggerDelegate
 import org.slf4j.LoggerFactory
 import java.io.Serializable
 import javax.inject.Inject
@@ -35,7 +36,7 @@ class CoreResourceImpl : CoreResource {
     lateinit var contextPersister: ContextPersister
 
     private val czechLocale = Locale.forLanguageTag("cs")
-    private var logger = LoggerFactory.getLogger(javaClass)
+    private val logger by LoggerDelegate()
 
     override fun process(request: Request): Response = with(request) {
 

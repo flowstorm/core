@@ -1,12 +1,13 @@
 package com.promethist.port.tts
 
 import com.promethist.core.model.TtsConfig
+import com.promethist.util.LoggerDelegate
 import org.slf4j.LoggerFactory
 import java.io.File
 
 object TtsServiceFactory {
 
-    val logger = LoggerFactory.getLogger(TtsServiceFactory::class.qualifiedName)
+    val logger by LoggerDelegate()
 
     private fun get(provider: TtsConfig.Provider): TtsService =
         when (provider) {

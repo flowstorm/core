@@ -7,6 +7,7 @@ import com.promethist.core.model.Message
 import com.promethist.core.resources.FileResource
 import com.promethist.port.tts.TtsRequest
 import com.promethist.port.tts.TtsServiceFactory
+import com.promethist.util.LoggerDelegate
 import org.bson.types.ObjectId
 import org.litote.kmongo.and
 import org.litote.kmongo.eq
@@ -66,7 +67,7 @@ class PortService {
     @Inject
     lateinit var appConfig: AppConfig
 
-    private var logger = LoggerFactory.getLogger(PortService::class.qualifiedName)
+    private val logger by LoggerDelegate()
 
     private var mediaTypeMap = MimetypesFileTypeMap()
 

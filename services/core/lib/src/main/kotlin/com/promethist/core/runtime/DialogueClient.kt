@@ -6,6 +6,7 @@ import com.promethist.core.model.*
 import com.promethist.core.Input
 import com.promethist.core.model.metrics.Metrics
 import com.promethist.core.resources.FileResource
+import com.promethist.util.LoggerDelegate
 import org.slf4j.LoggerFactory
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -13,7 +14,7 @@ import java.util.*
 
 object DialogueClient {
 
-    private val logger = LoggerFactory.getLogger(this::class.qualifiedName)
+    private val logger by LoggerDelegate()
 
     @JvmStatic
     fun main(args: Array<String>) {

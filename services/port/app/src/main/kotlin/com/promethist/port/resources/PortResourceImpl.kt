@@ -3,6 +3,7 @@ package com.promethist.port.resources
 import com.promethist.core.model.Message
 import com.promethist.core.resources.BotService
 import com.promethist.port.PortService
+import com.promethist.util.LoggerDelegate
 import org.bson.types.ObjectId
 import org.slf4j.LoggerFactory
 import javax.inject.Inject
@@ -13,7 +14,7 @@ import javax.ws.rs.core.StreamingOutput
 @Path("/")
 class PortResourceImpl : PortResource {
 
-    private var logger = LoggerFactory.getLogger(PortResourceImpl::class.java)
+    private val logger by LoggerDelegate()
 
     /**
      * Example of dependency injection

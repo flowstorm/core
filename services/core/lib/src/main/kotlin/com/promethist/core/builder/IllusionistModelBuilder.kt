@@ -4,6 +4,7 @@ import com.promethist.common.ObjectUtil
 import com.promethist.common.RestClient
 import com.promethist.core.builder.IntentModelBuilder.Output
 import com.promethist.core.Dialogue
+import com.promethist.util.LoggerDelegate
 import org.slf4j.LoggerFactory
 import java.net.URL
 import java.util.*
@@ -11,7 +12,7 @@ import javax.ws.rs.WebApplicationException
 
 class IllusionistModelBuilder(val apiUrl: String, val apiKey: String) : IntentModelBuilder {
 
-    private var logger = LoggerFactory.getLogger(this::class.qualifiedName)
+    private val logger by LoggerDelegate()
 
     override fun build(modelId: String, name: String, language: Locale, intents: List<Dialogue.Intent>) {
         val items = mutableMapOf<String, Output.Item>()

@@ -5,11 +5,12 @@ import com.promethist.core.model.Turn
 import com.promethist.core.Dialogue
 import com.promethist.core.Component
 import com.promethist.core.Response
+import com.promethist.util.LoggerDelegate
 import org.slf4j.LoggerFactory
 
 class DialogueManager(private val loader: Loader) : Component {
 
-    private var logger = LoggerFactory.getLogger(this::class.qualifiedName)
+    private val logger by LoggerDelegate()
     private val dialogues: MutableMap<String, Dialogue> = mutableMapOf()
 
     private fun get(name: String, context: Context, args: Array<Any>? = null): Dialogue {

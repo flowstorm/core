@@ -1,5 +1,6 @@
 package com.promethist.common
 
+import com.promethist.util.LoggerDelegate
 import org.slf4j.LoggerFactory
 import java.io.FileInputStream
 import java.io.Serializable
@@ -15,7 +16,7 @@ import java.util.*
 class AppConfig: Serializable, Cloneable {
 
     private val properties: Properties = Properties()
-    private var logger = LoggerFactory.getLogger(AppConfig::class.qualifiedName)
+    private val logger by LoggerDelegate()
 
     init {
         try {
