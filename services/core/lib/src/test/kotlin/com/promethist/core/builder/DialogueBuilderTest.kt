@@ -1,7 +1,6 @@
 package com.promethist.core.builder
 
-import com.promethist.core.builder.DialogueModelBuilder.*
-import com.promethist.core.resources.FileResource
+import com.promethist.core.builder.DialogueSourceCodeBuilder.*
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
 
@@ -9,19 +8,23 @@ import org.junit.jupiter.api.TestInstance
 import java.util.*
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-internal class DialogueModelBuilderTest {
+internal class DialogueBuilderTest {
 
-    val fileResource:FileResource = mockk(relaxed = true)
-    val intentModelBuilder:IntentModelBuilder =mockk(relaxed = true)
+    val dialogueBuilder = DialogueBuilder().apply {
+        fileResource = mockk(relaxed = true)
+        intentModelBuilder = mockk(relaxed = true)
+    }
 
     @Test
     fun `test dialogue building`() {
         var nodeId = 0
-        val builder = DialogueModelBuilder("product/dialogue/1", Locale("en"), mapOf(
+        val source = DialogueSourceCodeBuilder("product/dialogue/1", Locale("en"), mapOf(
                 "str" to "bla",
                 "num" to 123,
                 "chk" to true
-        ), "val i = 1").apply {
+        )).apply {
+            initCode = "val i = 1"
+
             addNode(Response(--nodeId, "response1", listOf("hello, say some animal", "hi, say some animal")))
             addNode(Intent(--nodeId, "intent1", listOf("no", "nope", "quit", "stop")))
             addNode(Intent(--nodeId, "intent2", listOf("dog", "cat", "tiger")))
@@ -39,6 +42,6 @@ internal class DialogueModelBuilderTest {
 
         }
 
-        builder.build(intentModelBuilder, fileResource)
+        dialogueBuilder.build(source)
     }
 }

@@ -1,25 +1,25 @@
 package com.promethist.core.builder
 
-import com.promethist.core.Dialogue
-import com.promethist.core.resources.FileResource
-import com.promethist.core.runtime.FileResourceLoader
-import com.promethist.core.runtime.Kotlin
 import com.promethist.util.LoggerDelegate
 import org.jetbrains.kotlin.daemon.common.toHexString
-import java.io.ByteArrayInputStream
-import java.io.StringReader
 import java.security.MessageDigest
 import java.time.LocalDateTime
 import java.util.*
 
-class DialogueModelBuilder(val name: String, private val language: Locale, private val args: Map<String, Any>,
-                           private val initCode: CharSequence = "", private val extensionSource: CharSequence = "", val parentClass: String = "Dialogue") {
+class DialogueSourceCodeBuilder(
+        val name: String,
+        private val language: Locale,
+        val args: Map<String, Any>
+) {
+    var initCode: CharSequence = ""
+    var extensionCode: CharSequence = ""
+    var parentClass: String = "Dialogue"
+    val code
+        get() = build() //todo lazy build
 
     private val source = StringBuilder()
     private val className: String
-    private val version = "undefined"//AppConfig.instance.get("git.ref", "unknown")
     private val logger by LoggerDelegate()
-
     private val names: MutableList<String>
 
     init {
@@ -28,6 +28,26 @@ class DialogueModelBuilder(val name: String, private val language: Locale, priva
             error("dialogue name $name does not conform to naming convention (product-name/dialogue-name/dialogue-version)")
         names = name.split("/").toMutableList()
         className = "Model" + names.removeAt(names.size - 1)
+    }
+
+    fun build(): String {
+        source.clear()
+        writeHeader()
+        globalIntents.forEach { write(it) }
+        intents.forEach { write(it) }
+        userInputs.forEach { write(it) }
+        responses.forEach { write(it) }
+        functions.forEach { write(it) }
+        subDialogues.forEach { write(it) }
+
+        writeTransitions(transitions)
+
+        source.appendln('}')
+        if (extensionCode.isNotBlank()) {
+            source.append(extensionCode)
+        }
+        source.appendln("$className::class")
+        return source.toString()
     }
 
     private val intents = mutableListOf<Intent>()
@@ -56,7 +76,7 @@ class DialogueModelBuilder(val name: String, private val language: Locale, priva
     private fun writeHeader() {
         val modelId = md5(random.nextLong().toString())
         source
-                .appendln("//--dialogue-model;version:$version;name:$name;time:" + LocalDateTime.now())
+                .appendln("//--dialogue-model;name:$name;time:" + LocalDateTime.now())
                 .append("package " + names.joinToString(".") { "`$it`" }).appendln(".`$modelId`")
                 .appendln()
                 .appendln("import com.promethist.core.*")
@@ -140,79 +160,6 @@ class DialogueModelBuilder(val name: String, private val language: Locale, priva
         source.appendln("\tinit {")
         transitions.forEach { source.appendln("\t\t${it.key}.next = ${it.value}") }
         source.appendln("\t}")
-    }
-
-    fun buildSource(): StringBuilder {
-        source.clear()
-        writeHeader()
-        globalIntents.forEach { write(it) }
-        intents.forEach { write(it) }
-        userInputs.forEach { write(it) }
-        responses.forEach { write(it) }
-        functions.forEach { write(it) }
-        subDialogues.forEach { write(it) }
-
-        writeTransitions(transitions)
-
-        source.appendln('}')
-        if (extensionSource.isNotBlank()) {
-            source.append(extensionSource)
-        }
-        source.appendln("$className::class")
-        return source
-    }
-
-    fun createDialogue(sourceCode: String, fileResource: FileResource): Dialogue {
-        logger.info("building dialogue model $name")
-        val loader = FileResourceLoader(fileResource, "dialogue")
-
-        return Kotlin.newObject(Kotlin.loadClass(StringReader(sourceCode)), loader, name, *args.values.toTypedArray())
-    }
-
-    fun deploy(fileResource: FileResource) {
-        val path = "dialogue/$name/model.kts"
-        logger.info("writing dialogue model to file resource $path")
-        val stream = ByteArrayInputStream(source.toString().toByteArray())
-        fileResource.writeFile(path, "text/kotlin", listOf("version:$version"), stream)
-        logger.info("dialogue model $name built successfully")
-    }
-
-    fun buildIntentModels(dialogue: Dialogue, intentModelBuilder: IntentModelBuilder) {
-        logger.info("building intent models for dialogue model $name")
-        val intentModels = mutableMapOf<String, String>()
-
-        dialogue.globalIntents.apply/*ifNotEmpty*/ {
-            val modelName = "$name/model"
-            val modelId = md5(modelName)
-            intentModels[modelName] = modelId
-            intentModelBuilder.build(modelId, name, language, this)
-        }
-
-        dialogue.userInputs.forEach {
-            val modelName = "${name}/model#${it.id}"
-            val modelId = md5(modelName)
-            intentModels[modelName] = modelId
-            intentModelBuilder.build(modelId, modelName, language, it.intents.asList())
-        }
-//        logger.info("builded intent models: $intentModels")
-//        source.appendln("//--intent-models:$intentModels")
-    }
-
-    fun validate(dialogue: Dialogue) {
-        logger.info("validating dialogue model $name - $dialogue")
-        dialogue.validate()
-    }
-
-    /**
-     * Builds dialogue model with intent model and stores dialogue model class with included files using file resource.
-     */
-    fun build(intentModelBuilder: IntentModelBuilder, fileResource: FileResource) {
-        val source = buildSource()
-        val dialogue = createDialogue(source.toString(), fileResource)
-
-        validate(dialogue)
-        buildIntentModels(dialogue, intentModelBuilder)
-        deploy(fileResource)
     }
 
     companion object {
