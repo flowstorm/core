@@ -2,12 +2,13 @@ package com.promethist.core.model
 
 import com.promethist.core.Response
 import com.promethist.core.model.metrics.Metric
+import com.promethist.core.type.Dynamic
 import org.litote.kmongo.Id
 import org.litote.kmongo.newId
 import com.promethist.core.model.Message as CoreMessage
 import java.util.*
 
-typealias SessionAttributes = MutableMap<String, Any>
+typealias SessionProperties = MutableMap<String, Any>
 
 data class Session(
         val _id: Id<Session> = newId(),
@@ -18,7 +19,8 @@ data class Session(
         val turns: MutableList<Turn> = mutableListOf(),
         val messages: MutableList<Message> = mutableListOf(),
         val metrics: MutableList<Metric> = mutableListOf(),
-        val attributes: SessionAttributes = mutableMapOf()
+        val properties: SessionProperties = mutableMapOf(),
+        val attributes: Dynamic = Dynamic()
 ) {
 
     data class Message(

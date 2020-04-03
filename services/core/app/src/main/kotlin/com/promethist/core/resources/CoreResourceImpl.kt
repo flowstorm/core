@@ -115,7 +115,7 @@ class CoreResourceImpl : CoreResource {
                             Application.StartCondition(Application.StartCondition.Type.OnAction, input.transcript.text)
                     ))
 
-            Session(sessionId = sessionId, user = contentResponse.user, application = contentResponse.application, attributes = contentResponse.sessionAttributes)
+            Session(sessionId = sessionId, user = contentResponse.user, application = contentResponse.application, properties = contentResponse.sessionProperties)
         }
 
         session.addMessage(Session.Message(Date(), sender, null, mutableListOf(Response.Item(text = input.transcript.text))))
