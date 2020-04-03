@@ -27,6 +27,7 @@ open class TimeValue<V>(override var value: V, private val timestamp: Long = Sys
         return time.isEqual(fromTime) || time.isEqual(toTime) || (time.isAfter(fromTime) && time.isBefore(toTime))
     }
 
+    fun today() = day(0, 0)
     fun yesterday() = day(1, 1)
 
 }
