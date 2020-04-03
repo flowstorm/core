@@ -1,5 +1,7 @@
 package com.promethist.core.type
 
+import java.time.LocalDate
+import java.time.LocalDateTime
 import kotlin.collections.LinkedHashMap
 import kotlin.reflect.KClass
 
@@ -54,6 +56,8 @@ class Dynamic : LinkedHashMap<String, Any> {
             TimeInt::class -> TimeInt(0)
             TimeString::class -> TimeString("")
             TimeBoolean::class -> TimeBoolean(false)
+            LocalDate::class -> LocalDate.now()
+            LocalDateTime::class -> LocalDateTime.now()
             else -> error("unsupported $clazz")
         }
         return if (any is Value<*>) {
