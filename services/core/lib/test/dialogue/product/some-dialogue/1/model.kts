@@ -1,18 +1,15 @@
 package `product`.`some-dialogue`
 
-import com.promethist.core.runtime.Loader
 import com.promethist.core.Dialogue
 
 data class Model1(
-        override val loader: Loader,
-        override val name: String,
-
         // dialogue properties
         val some_string: String = "blah",
         val math_max: Int = 10,
         val do_math: Boolean = true
 
-) : Dialogue(loader, name) {
+) : Dialogue() {
+    override val name: String = "product/some-dialogue"
 
     // dialogue functions and local values (declared in editor dialogue init section)
     val data = loader.loadObject<Map<String, Any>>("$name/data")
