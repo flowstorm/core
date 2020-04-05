@@ -6,6 +6,7 @@ import ai.promethist.client.BotSocket
 import com.promethist.common.AppConfig
 import com.promethist.common.ObjectUtil
 import com.promethist.core.ExpectedPhrase
+import com.promethist.core.model.Message
 import com.promethist.core.model.TtsConfig
 import com.promethist.core.Input
 import com.promethist.core.Request
@@ -13,14 +14,14 @@ import com.promethist.core.Response
 import com.promethist.core.resources.CoreResource
 import com.promethist.port.stt.*
 import com.promethist.port.tts.TtsRequest
-import com.promethist.util.LoggerDelegate
 import org.eclipse.jetty.websocket.api.WebSocketAdapter
+import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.nio.ByteBuffer
 import java.util.*
 import javax.inject.Inject
 
-class BotSocketAdapter : BotSocket, WebSocketAdapter() {
+class BotSocketAdapterV1 : BotSocket, WebSocketAdapter() {
 
     inner class BotSttCallback() : SttCallback {
 
@@ -28,7 +29,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
             try {
                 if (final && !inputAudioStreamCancelled) {
                     sendEvent(BotEvent.Recognized(input.transcript.text))
-                    onRequest(createRequest(input))
+                    onInput(input)
                 }
             } catch (e: IOException) {
                 onError(e)
@@ -56,6 +57,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
 
     override var state = BotSocket.State.Open
 
+    private var protocolVersion = 1
     private lateinit var appKey: String
     private lateinit var sender: String
     private var sessionId: String? = null
@@ -72,9 +74,8 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
     //private var lastMessage: Message? = null
     private var lastMessageTime: Long? = null
 
-    private val logger by LoggerDelegate()
+    private var logger = LoggerFactory.getLogger(BotSocketAdapterV1::class.qualifiedName)
 
-    private fun createRequest(input: Input): Request = Request(appKey, sender, sessionId?:error("missing session id"), input)
 
     override fun open() {
         logger.info("open()")
@@ -122,7 +123,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                 val text = "\$noaudio"
                 inputAudioClose(true)
                 sendEvent(BotEvent.Recognized(text))
-                onRequest(createRequest(Input(clientRequirements.locale, Input.Transcript(text))))
+                onInput(Input(clientRequirements.locale, Input.Transcript(text)))
             } else {
                 super.onWebSocketBinary(payload, offset, length)
                 sttStream?.write(payload, offset, length)
@@ -135,13 +136,14 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
             val event = ObjectUtil.defaultMapper.readValue(json, BotEvent::class.java)
             logger.info("onWebSocketText(event = $event)")
             when (event) {
-                is BotEvent.Init -> {
-                    appKey = event.key
-                    sender = event.sender //TODO verify event.sender - get user id to be stored in connection
+                // version 1 (deprecated - remove in version 3)
+                is BotEvent.Requirements -> {
+                    appKey = event.appKey
                     clientRequirements = event.requirements
-                    sendEvent(BotEvent.Ready())
+                    sendEvent(event)
                 }
-                is BotEvent.Request -> onRequest(event.request)
+                is BotEvent.Message -> onMessageEvent(event)
+                // version 1+2
                 is BotEvent.InputAudioStreamOpen -> {
                     inputAudioClose(false)
                     val sttConfig = SttConfig(clientRequirements.locale.language, clientRequirements.sttSampleRate)
@@ -155,7 +157,6 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                 else -> error("Unexpected event of type ${event::class.simpleName}")
             }
         } catch (e: Exception) {
-            logger.error("onWebSocketText", e)
             sendEvent(BotEvent.Error(e.message?:e::class.qualifiedName?:"unknown"))
         }
     }
@@ -170,17 +171,64 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
         inputAudioClose(false)
     }
 
-    fun onRequest(request: Request) {
-        if (sessionId == null) {
-            sessionId = request.sessionId
-            sendEvent(BotEvent.SessionStarted(request.sessionId))
+
+    fun onInput(input: Input) {
+        if (protocolVersion < 2) {
+            // deprecated - remove in version 3
+            val message = Message(
+                    sender = sender,
+                    language = language?:clientRequirements.locale,
+                    sessionId = sessionId,
+                    items = mutableListOf(Response.Item(text = input.transcript.text, confidence = input.transcript.confidence.toDouble()))
+            )
+            onMessageEvent(BotEvent.Message(appKey, message), input)
+        } else {
+            val request = Request(appKey, sender, sessionId?:error("Session ID not set"), input)
+            val response = coreResource.process(request)
+            sendResponse(response)
+            if (response.sessionEnded) {
+                sendEvent(BotEvent.SessionEnded())
+                inputAudioClose(false)
+                sessionId = null
+            }
         }
-        val response = coreResource.process(request)
-        sendResponse(response)
-        if (response.sessionEnded) {
-            sendEvent(BotEvent.SessionEnded())
-            inputAudioClose(false)
-            sessionId = null
+    }
+
+    // deprecated - remove in version 3
+    private fun onMessageEvent(event: BotEvent.Message) = with (event) {
+        onMessageEvent(event, Input(message.language?:Locale.ENGLISH, Input.Transcript(message.items.firstOrNull()?.text?:"")))
+    }
+
+    // deprecated - remove in version 3
+    private fun onMessageEvent(event: BotEvent.Message, input: Input) = with (event) {
+
+        val currentTime = System.currentTimeMillis()
+        lastMessageTime = currentTime
+        sender = message.sender
+        language = message.language
+        if (message.sessionId == null) {
+            sessionId = Message.createId()
+            sendEvent(BotEvent.SessionStarted(sessionId!!))
+        } else {
+            sessionId = message.sessionId
+        }
+        val request = Request(event.appKey!!, message.sender, sessionId?:error("Session ID not set"), input)
+        coreResource.process(request).let {
+            val response = message.response(it.items)
+            response.sessionEnded = it.sessionEnded
+            response.attributes["serviceResponseTime"] = System.currentTimeMillis() - currentTime
+            expectedPhrases = response.expectedPhrases?: listOf()
+            response.expectedPhrases = null
+            if (response.sessionEnded) {
+                sendResponse(response)
+                sendEvent(BotEvent.SessionEnded())
+                inputAudioClose(false)
+                sessionId = null
+            }
+            // todo will not work correctly before the subdialogs in helena will be implemented
+            else {
+                sendResponse(response) // client will wait for user input
+            }
         }
     }
 
@@ -204,21 +252,21 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                 item.text = ""
             } else {
                 val ttsRequest =
-                    TtsRequest(
-                        clientRequirements.ttsVoice?:item.ttsVoice?:TtsConfig.defaultVoice("en"),
-                        ((if (item.ssml != null) item.ssml else item.text)?:"").replace(Regex("\\$(\\w+)")) {
-                            // command processing
-                            when (it.groupValues[1]) {
-                                "version" -> {
-                                    item.text = "Client version ${clientRequirements.clientVersion}, port version ${AppConfig.version}, environment ${AppConfig.instance.get("namespace", "unknown")}."
-                                    item.text!!
-                                }
-                                else -> ""
-                            }
-                        },
-                        item.ssml != null,
-                        speakingRate = response.attributes["speakingRate"]?.toString()?.toDoubleOrNull()?:1.0
-                )
+                        TtsRequest(
+                                clientRequirements.ttsVoice?:item.ttsVoice?:TtsConfig.defaultVoice("en"),
+                                ((if (item.ssml != null) item.ssml else item.text)?:"").replace(Regex("\\$(\\w+)")) {
+                                    // command processing
+                                    when (it.groupValues[1]) {
+                                        "version" -> {
+                                            item.text = "Client version ${clientRequirements.clientVersion}, port version ${AppConfig.version}, environment ${AppConfig.instance.get("namespace", "unknown")}."
+                                            item.text!!
+                                        }
+                                        else -> ""
+                                    }
+                                },
+                                item.ssml != null,
+                                speakingRate = response.attributes["speakingRate"]?.toString()?.toDoubleOrNull()?:1.0
+                        )
                 if (clientRequirements.tts != BotClientRequirements.TtsType.None) {
                     val audio = dataService.getTtsAudio(
                             ttsRequest,
@@ -238,7 +286,10 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
         if (!ttsOnly) {
             if (lastMessageTime != null)
                 (response.attributes as MutableMap<String, Any>)["portResponseTime"] = (System.currentTimeMillis() - lastMessageTime!!)
-            sendEvent(BotEvent.Response(response))
+            if (protocolVersion >= 2)
+                sendEvent(BotEvent.Response(response))
+            else
+                sendEvent(BotEvent.Message(null, response as Message))
         }
     }
 }

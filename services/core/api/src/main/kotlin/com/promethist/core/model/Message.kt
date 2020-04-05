@@ -2,6 +2,7 @@ package com.promethist.core.model
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.promethist.common.DataObject
+import com.promethist.core.ExpectedPhrase
 import com.promethist.core.Response
 import java.util.*
 
@@ -64,8 +65,10 @@ data class Message(
         /**
          * Extension properties for message. Determined by bot service and/or client application.
          */
-        override val attributes: PropertyMap = PropertyMap()
-) : Response(items, attributes, sessionEnded) {
+        override val attributes: PropertyMap = PropertyMap(),
+
+        override var logs: MutableList<Log> = mutableListOf()
+) : Response(items, logs, attributes, sessionEnded) {
 
     @JsonDeserialize(using = PropertyMap.Deserializer::class)
     class PropertyMap : DataObject() {
@@ -74,8 +77,6 @@ data class Message(
             //TODO support for specific data types used in message properties (if needed)
         }
     }
-
-    data class ExpectedPhrase(val text: String? = null, val boost: Float = 1.0F) // boost can be used in google stt v1p1beta1
 
     fun response(items: MutableList<Response.Item>, sessionEnded: Boolean = false): Message {
         val sender = this.recipient?:"unknown"

@@ -3,10 +3,10 @@ package com.promethist.port.stt
 import com.google.cloud.speech.v1.RecognitionConfig
 import com.google.cloud.speech.v1.SpeechClient
 import com.google.cloud.speech.v1.SpeechContext
-import com.promethist.core.model.Message
+import com.promethist.core.ExpectedPhrase
 import java.util.concurrent.TimeUnit
 
-class GoogleSttService(config: SttConfig, callback: SttCallback, expectedPhrases: List<Message.ExpectedPhrase>) : SttService {
+class GoogleSttService(config: SttConfig, callback: SttCallback, expectedPhrases: List<ExpectedPhrase>) : SttService {
 
     private val client = SpeechClient.create()
     private val responseObserver = GoogleSttObserver(callback, config.language?:"en")
@@ -17,7 +17,7 @@ class GoogleSttService(config: SttConfig, callback: SttCallback, expectedPhrases
             .setMaxAlternatives(5)
             .setEnableWordTimeOffsets(true)
             .addSpeechContexts(SpeechContext.newBuilder()
-                    .addAllPhrases(expectedPhrases.map { expectedPhrase: Message.ExpectedPhrase -> expectedPhrase.text })
+                    .addAllPhrases(expectedPhrases.map { expectedPhrase: ExpectedPhrase -> expectedPhrase.text })
                     .build())
             .buildPartial()
     //		            .setModel("default")
