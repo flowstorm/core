@@ -176,6 +176,10 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
             sendEvent(BotEvent.SessionStarted(request.sessionId))
         }
         val response = coreResource.process(request)
+        if (response.expectedPhrases != null) {
+            expectedPhrases = response.expectedPhrases!!
+            response.expectedPhrases = null
+        }
         sendResponse(response)
         if (response.sessionEnded) {
             sendEvent(BotEvent.SessionEnded())

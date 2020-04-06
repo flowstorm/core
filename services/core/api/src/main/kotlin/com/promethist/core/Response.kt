@@ -4,6 +4,7 @@ open class Response(
         open var items: MutableList<Item>,
         open var logs: MutableList<Log>,
         open val attributes: MutableMap<String, *>, //TODO after removing Message class, change atrributes type to MutableMap<String, Any>
+        open var expectedPhrases: MutableList<ExpectedPhrase>?,
         open var sessionEnded: Boolean = false
 ) {
 

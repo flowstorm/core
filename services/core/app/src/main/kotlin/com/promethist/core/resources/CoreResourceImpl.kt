@@ -54,7 +54,8 @@ class CoreResourceImpl : CoreResource {
                     val context = contextFactory.createContext(session, input)
                     val processedContext = processPipeline(context)
                     val logs = mutableListOf<Response.Log>() // TODO get logs from context logger
-                    Response(processedContext.turn.responseItems, logs, processedContext.turn.attributes, context.sessionEnded)
+                    Response(processedContext.turn.responseItems, logs,
+                            processedContext.turn.attributes, context.expectedPhrases, context.sessionEnded)
                 }
                 else -> error("Unknown dialogue engine (${session.application.dialogueEngine})")
             }
@@ -78,27 +79,28 @@ class CoreResourceImpl : CoreResource {
     }
 
     private fun getHelenaResponse(key: String, sender: String, session: Session, input: Input): Response {
-        val message = Message(
+        val requestMessage = Message(
                 sender = sender,
                 recipient = session.application.dialogueName,
                 sessionId = session.sessionId,
                 items = mutableListOf(Response.Item(text = input.transcript.text)))
         val appVariables = mutableMapOf<String, Serializable>()
-        addUserToExtensions(message, session.user)
-        message.attributes["variables"] = appVariables as Serializable
+        addUserToExtensions(requestMessage, session.user)
+        requestMessage.attributes["variables"] = appVariables as Serializable
 
-        logger.info(message.toString())
-        val response = dialogueResouce.message(key, message)!!
-        logger.info(response.toString())
-        response.apply { this.items.forEach { it.ttsVoice = it.ttsVoice ?: session.application.ttsVoice } }
+        logger.info(requestMessage.toString())
+        val responseMessage = dialogueResouce.message(key, requestMessage)!!
+        logger.info(responseMessage.toString())
+        responseMessage.apply { this.items.forEach { it.ttsVoice = it.ttsVoice ?: session.application.ttsVoice } }
 
-        val metrics = if (response.attributes.containsKey("metrics"))
-            response.attributes["metrics"] as Map<String, Any>
+        val metrics = if (responseMessage.attributes.containsKey("metrics"))
+            responseMessage.attributes["metrics"] as Map<String, Any>
         else mapOf()
         updateMetrics(session, metrics)
 
-        val logs = mutableListOf(Response.Log("passed nodes " + response.attributes["passedNodes"]))
-        return Response(response.items, logs, response.attributes, response.sessionEnded)
+        val logs = mutableListOf(Response.Log("passed nodes " + responseMessage.attributes["passedNodes"]))
+        return Response(responseMessage.items, logs,
+                responseMessage.attributes, responseMessage.expectedPhrases, responseMessage.sessionEnded)
     }
 
     private fun initSession(key: String, sender: String, sessionId: String, input: Input): Session {
@@ -170,7 +172,7 @@ class CoreResourceImpl : CoreResource {
             items.add(Response.Item(ttsVoice = TtsConfig.defaultVoice("en"), text = getErrorResourceString(Locale.ENGLISH, "exception.$type", listOf(code))))
         if (text != null)
             items.add(Response.Item(ttsVoice = TtsConfig.defaultVoice("en"), text = text))
-        return Response(items, mutableListOf(Response.Log("error $logText")), mutableMapOf<String, Any>(), true)
+        return Response(items, mutableListOf(Response.Log("error $logText")), mutableMapOf<String, Any>(), mutableListOf(), sessionEnded = true)
     }
 
     private fun updateMetrics(session: Session, metrics: Map<String, Any>) {

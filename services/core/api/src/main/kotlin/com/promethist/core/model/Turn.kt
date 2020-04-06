@@ -7,6 +7,7 @@ import java.util.*
 
 data class Turn(
         var input: Input,
+        val datetime: Date = Date(),
         var attributes: Dynamic = Dynamic(),
         val dialogueStack: LinkedList<DialogueStackFrame> = LinkedList(),
         val responseItems: MutableList<Response.Item> = mutableListOf()

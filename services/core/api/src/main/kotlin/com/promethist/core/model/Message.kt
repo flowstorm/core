@@ -60,7 +60,7 @@ data class Message(
         /**
          * Expected phrases. It will be provided to Speech-to-text engine as a hint of more probable words
          */
-        var expectedPhrases: MutableList<ExpectedPhrase>? = mutableListOf(),
+        override var expectedPhrases: MutableList<ExpectedPhrase>? = mutableListOf(),
 
         /**
          * Extension properties for message. Determined by bot service and/or client application.
@@ -68,7 +68,7 @@ data class Message(
         override val attributes: PropertyMap = PropertyMap(),
 
         override var logs: MutableList<Log> = mutableListOf()
-) : Response(items, logs, attributes, sessionEnded) {
+) : Response(items, logs, attributes, expectedPhrases, sessionEnded) {
 
     @JsonDeserialize(using = PropertyMap.Deserializer::class)
     class PropertyMap : DataObject() {
