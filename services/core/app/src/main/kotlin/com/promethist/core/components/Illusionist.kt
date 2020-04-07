@@ -36,7 +36,7 @@ class Illusionist : Component {
             context.turn.input.classes.add(Input.Class(Input.Class.Type.Intent, response.answer, response.confidence))
         }
 
-        return context
+        return context.pipeline.process(context)
     }
 
     private fun getModels(frame: Turn.DialogueStackFrame): Map<String, String> = mapOf(

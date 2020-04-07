@@ -1,9 +1,7 @@
 package com.promethist.core.runtime
 
-import com.promethist.core.Context
+import com.promethist.core.*
 import com.promethist.core.model.*
-import com.promethist.core.Dialogue
-import com.promethist.core.Input
 import com.promethist.core.model.metrics.Metrics
 import com.promethist.core.provider.LocalFileStorage
 import org.slf4j.Logger
@@ -25,6 +23,10 @@ object DialogueLoadTest {
         println(dialogue.describe())
         val user = User(username = "tester@promethist.ai", name = "Tester", surname = "Tester", nickname = "Tester")
         val context = Context(
+                object : Pipeline {
+                    override val components = LinkedList<Component>()
+                    override fun process(context: Context): Context = components.pop().process(context)
+                },
                 Profile(name = "tester@promethist.ai", user_id = user._id),
                 Session(
                         datetime = Date(),

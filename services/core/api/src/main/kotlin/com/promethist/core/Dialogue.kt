@@ -42,11 +42,14 @@ abstract class Dialogue {
     inner class UserInput(
             override val id: Int,
             var skipGlobalIntents: Boolean,
-            vararg intent: Intent
+            val intents: Array<Intent>,
+            val lambda: (Context.(UserInput) -> Transition?)
     ): Node(id) {
-        val intents = intent
 
-        constructor(id: Int, vararg intent: Intent) : this(id, false, *intent)
+        constructor(id: Int, intents: Array<Intent>, lambda: (Context.(UserInput) -> Transition?)) :
+                this(id, false, intents, lambda)
+
+        fun process(context: Context): Transition? = lambda(context, this)
     }
 
     open inner class Intent(
@@ -143,6 +146,8 @@ abstract class Dialogue {
         }
         return sb.toString()
     }
+
+    fun <T: Any> load(name: String): Lazy<T> = lazy { loader.loadObject<T>(name) }
 
     companion object: DialogueScript()
 }

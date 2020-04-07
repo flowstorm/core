@@ -63,7 +63,7 @@ class DialogueSourceCodeBuilder(
 
     data class Intent(val nodeId: Int, val nodeName: String, val utterances: List<String>)
     data class GlobalIntent(val nodeId: Int, val nodeName: String, val utterances: List<String>)
-    data class UserInput(val nodeId: Int, val nodeName: String, val intentNames: List<String>, val skipGlobalIntents: Boolean)
+    data class UserInput(val nodeId: Int, val nodeName: String, val intentNames: List<String>, val skipGlobalIntents: Boolean, val transitions: Map<String, String>, val code: CharSequence = "")
     data class Response(val nodeId: Int, val nodeName: String, val texts: List<String>, val type: String = "Response")
     data class Function(val nodeId: Int, val nodeName: String, val transitions: Map<String, String>, val code: CharSequence)
     data class SubDialogue(val nodeId: Int, val nodeName: String, val subDialogueName: String, val code: CharSequence = "")
@@ -146,12 +146,20 @@ class DialogueSourceCodeBuilder(
     }
 
     private fun write(userInput: UserInput) {
-        val (nodeId, nodeName, intentNames, skipGlobalIntents) = userInput
-        source.append("\tval $nodeName = UserInput($nodeId, $skipGlobalIntents")
-        intentNames.forEach {
-            source.append(", $it")
+        val (nodeId, nodeName, intentNames, skipGlobalIntents, transitions, code) = userInput
+        source.append("\tval $nodeName = UserInput($nodeId, $skipGlobalIntents, arrayOf(")
+        for (i in intentNames.indices) {
+            if (i > 0)
+                source.append(", ")
+            source.append(intentNames[i])
         }
-        source.appendln(')')
+        source.appendln(")) {")
+        transitions.forEach { source.appendln("\t\tval ${it.key} = Transition(${it.value})") }
+        source.appendln("//--code-start;type:userInput;name:$nodeName")
+        if (code.isNotEmpty())
+            source.appendln(code)
+        source.appendln("processPipeline(); null")
+        source.appendln("//--code-end;type:userInput;name:$nodeName").appendln("\t}")
     }
 
     private fun write(response: Response) {

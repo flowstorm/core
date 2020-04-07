@@ -9,10 +9,10 @@ data class Model1(
         val do_math: Boolean = true
 
 ) : Dialogue() {
-    override val name: String = "product/some-dialogue"
+    override val name: String = "product/some-dialogue/1/model"
 
     // dialogue functions and local values (declared in editor dialogue init section)
-    val data = loader.loadObject<Map<String, Any>>("$name/data")
+    val data by load<Map<String, Any>>("$name/data")
 
     fun someUsefulFunction(intent: Intent): Intent = intent
 
@@ -22,7 +22,10 @@ data class Model1(
     val response0 = Response(nextId--, { """Hi, this is Jarmila defined by ${name}""" })
     val intent1 = Intent(nextId--, "intent1","yes", "okay")
     val intent2 = Intent(nextId--, "intent2", "no", "nope")
-    val input1 = UserInput(nextId--, intent1, intent2)
+    val input1 = UserInput(nextId--, arrayOf(intent1, intent2)) {
+        processPipeline()
+        null
+    }
 
     val response1 = Response(nextId--,
             { """welcome back ${session.user.name}, you said: ${input.transcript.text}""" },

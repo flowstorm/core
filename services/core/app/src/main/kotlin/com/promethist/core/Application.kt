@@ -36,14 +36,11 @@ class Application : JerseyApplication() {
                 val filestore = RestClient.instance(FileResource::class.java, ServiceUrlResolver.getEndpointUrl("filestore"))
                 bind(filestore).to(FileResource::class.java)
 
-                // NLP pipeline
-                bindTo(Pipeline::class.java)
+                bindTo(PipelineFactory::class.java)
                 bindTo(ContextFactory::class.java)
                 bindTo(ContextPersister::class.java)
 
-                // NLP components - order is important
-                // tokenizer
-                bind(InternalTokenizer()).to(Component::class.java).named("tokenizer")
+                // NLP pipeline (last binded component will be used first)
 
                 // IR component
                 val illusionist = Illusionist()
@@ -52,7 +49,11 @@ class Application : JerseyApplication() {
                         .queryParam("key", AppConfig.instance["illusionist.apiKey"])
                 bind(illusionist).to(Component::class.java).named("illusionist")
 
-                // NER component
+                // DM component (third - dialog user input decides whether to process the rest of pipeline or not)
+                val dm = DialogueManager(FileResourceLoader(filestore, "dialogue"))
+                bind(dm).to(Component::class.java).named("dm")
+
+                // NER component (second)
                 val cassandra = Cassandra()
                 cassandra.webTarget = RestClient.webTarget(ServiceUrlResolver.getEndpointUrl("cassandra"))
                         .path("/query")
@@ -60,9 +61,8 @@ class Application : JerseyApplication() {
                         .queryParam("output_tokenized", true)
                 bind(cassandra).to(Component::class.java).named("cassandra")
 
-                // DM component
-                val dm = DialogueManager(FileResourceLoader(filestore, "dialogue"))
-                bind(dm).to(Component::class.java).named("dm")
+                // tokenizer (first)
+                bind(InternalTokenizer()).to(Component::class.java).named("tokenizer")
 
                 bind(MongoProfileRepository::class.java).to(ProfileRepository::class.java)
                 bindTo(SessionResource::class.java, SessionResourceImpl::class.java)

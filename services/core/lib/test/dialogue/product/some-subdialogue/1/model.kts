@@ -13,7 +13,10 @@ data class Model1(
     val response0 = Response(nextId--, { "Welcome to sub dialogue" })
     val intent1 = Intent(nextId--, "intent1", "yes", "okay")
     val intent2 = Intent(nextId--, "intent2", "no", "nope")
-    val input1 = UserInput(nextId--, intent1, intent2)
+    val input1 = UserInput(nextId--, arrayOf(intent1, intent2)) {
+        processPipeline()
+        null
+    }
     val response1 = Response(nextId--, { "Bye from sub dialogue" })
 
     init {

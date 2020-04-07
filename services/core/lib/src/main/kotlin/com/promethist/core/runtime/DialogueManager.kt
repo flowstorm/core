@@ -36,7 +36,6 @@ class DialogueManager(private val loader: Loader) : Component {
             start(get("${context.session.application.dialogueName}/model", context,
                     context.session.application.properties.values.toTypedArray()), context)
         } else {
-            turn.dialogueStack.first.nodeId = turn.input.intent.name.toInt()
             proceed(context)
         }
         return context
@@ -57,6 +56,15 @@ class DialogueManager(private val loader: Loader) : Component {
         var frame = turn.dialogueStack.first()
         val dialogue = get(frame.name, context)
         var node = dialogue.node(frame.nodeId)
+        if (node is Dialogue.UserInput) {
+            var transition = node.process(context)
+            if (transition != null) {
+                node = transition.node
+            } else {
+                // intent recognition
+                node = dialogue.node(turn.input.intent.name.toInt())
+            }
+        }
         var step = 0
         while (step++ < 20) {
             frame.nodeId = node.id

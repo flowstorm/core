@@ -6,7 +6,7 @@ import com.promethist.core.model.Session
 import com.promethist.core.model.metrics.Metrics
 import org.slf4j.Logger
 
-data class Context(val profile: Profile, val session: Session, val turn: Turn, val metrics: Metrics, val logger: Logger) {
+data class Context(var pipeline: Pipeline, val profile: Profile, val session: Session, val turn: Turn, val metrics: Metrics, val logger: Logger) {
     // aliases
     val input get() = turn.input
     val user get() = session.user
@@ -14,6 +14,8 @@ data class Context(val profile: Profile, val session: Session, val turn: Turn, v
     val application get() = session.application
     val previousTurns get() = session.turns.reversed()
     val sessionEnded get() = turn.dialogueStack.isEmpty()
+    fun processPipeline() = pipeline.process(this)
 
+    // other properties
     val expectedPhrases: MutableList<ExpectedPhrase> = mutableListOf()
 }

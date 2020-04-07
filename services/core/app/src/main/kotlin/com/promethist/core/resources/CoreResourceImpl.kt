@@ -26,7 +26,7 @@ class CoreResourceImpl : CoreResource {
     lateinit var dialogueResouce: BotService
 
     @Inject
-    lateinit var nlpPipeline: Pipeline
+    lateinit var pipelineFactory: PipelineFactory
 
     @Inject
     lateinit var contextFactory: ContextFactory
@@ -51,7 +51,8 @@ class CoreResourceImpl : CoreResource {
             when (session.application.dialogueEngine) {
                 "helena" -> getHelenaResponse(appKey, sender, session, input)
                 "core" -> {
-                    val context = contextFactory.createContext(session, input)
+                    val pipeline = pipelineFactory.createPipeline()
+                    val context = contextFactory.createContext(pipeline, session, input)
                     val processedContext = processPipeline(context)
                     val logs = mutableListOf<Response.Log>() // TODO get logs from context logger
                     Response(processedContext.turn.responseItems, logs,
@@ -73,7 +74,7 @@ class CoreResourceImpl : CoreResource {
     }
 
     private fun processPipeline(context: Context): Context {
-        val processedContext = nlpPipeline.process(context)
+        val processedContext = context.pipeline.process(context)
         contextPersister.persist(processedContext)
         return processedContext
     }
