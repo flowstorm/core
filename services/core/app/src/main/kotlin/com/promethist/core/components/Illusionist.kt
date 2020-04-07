@@ -23,7 +23,7 @@ class Illusionist : Component {
     override fun process(context: Context): Context {
         if (context.turn.dialogueStack.isEmpty()) {
             logger.info("processing IR - nothing to do")
-            return context
+            return context.pipeline.process(context)
         }
 
         val models = getModels(context.turn.dialogueStack.first)

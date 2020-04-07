@@ -15,6 +15,6 @@ class InternalTokenizer : Component {
 
         //TODO check/do context.input tokenization
 
-        return context
+        return context.pipeline.process(context)
     }
 }

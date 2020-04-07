@@ -20,7 +20,7 @@ class Cassandra : Component {
     override fun process(context: Context): Context {
         if (context.turn.dialogueStack.isEmpty()) {
             logger.info("processing NER - nothing to do")
-            return context
+            return context.pipeline.process(context)
         }
         logger.info("processing NER with input ${context.input}")
 
