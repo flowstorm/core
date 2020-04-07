@@ -1,12 +1,8 @@
 package com.promethist.core.runtime
 
-import com.promethist.core.Context
+import com.promethist.core.*
 import com.promethist.core.model.Turn
-import com.promethist.core.Dialogue
-import com.promethist.core.Component
-import com.promethist.core.Response
 import com.promethist.util.LoggerDelegate
-import org.slf4j.LoggerFactory
 
 class DialogueManager(private val loader: Loader) : Component {
 
@@ -68,12 +64,14 @@ class DialogueManager(private val loader: Loader) : Component {
             when (node) {
                 is Dialogue.UserInput -> {
                     frame.skipGlobalIntents = node.skipGlobalIntents
+                    node.intents.forEach { intent ->
+                        context.expectedPhrases.addAll(intent.utterances.map { text -> ExpectedPhrase(text) })
+                    }
                     return true
                 }
                 is Dialogue.Repeat -> {
                     //TODO not tested yet!!!
                     var prevNodeId = 0
-                    var prevFound = false
                     for (i in session.turns.size - 1 downTo 0) {
                         val prevFrame = session.turns[i].dialogueStack.first()
                         val prevNode = dialogue.node(prevFrame.nodeId)

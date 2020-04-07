@@ -33,7 +33,7 @@ open class JerseyApplication : ResourceConfig() {
             }
         })
 
-        register(ContextResolver<ObjectMapper> { ObjectUtil.defaultMapper })
+        register(ContextResolver { ObjectUtil.defaultMapper })
 
         if ("TRUE" == AppConfig.instance["app.logging"])
             register(LoggingFeature(Logger.getLogger(LoggingFeature.DEFAULT_LOGGER_NAME), Level.INFO, LoggingFeature.Verbosity.PAYLOAD_ANY, 10000))

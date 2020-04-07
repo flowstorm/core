@@ -8,7 +8,6 @@ import com.promethist.core.model.Application
 import com.promethist.core.model.metrics.Metric
 import com.promethist.core.resources.ContentDistributionResource.ContentRequest
 import com.promethist.util.LoggerDelegate
-import org.slf4j.LoggerFactory
 import java.io.Serializable
 import javax.inject.Inject
 import javax.ws.rs.*
@@ -41,7 +40,7 @@ class CoreResourceImpl : CoreResource {
     override fun process(request: Request): Response = with(request) {
 
         val session = try {
-            initSession(key, sender, sessionId, input)
+            initSession(appKey, sender, sessionId, input)
         } catch (e: Exception) {
             return processException(input, e)
         }
@@ -50,11 +49,13 @@ class CoreResourceImpl : CoreResource {
 
         val response = try {
             when (session.application.dialogueEngine) {
-                "helena" -> getHelenaResponse(key, sender, session, input)
+                "helena" -> getHelenaResponse(appKey, sender, session, input)
                 "core" -> {
                     val context = contextFactory.createContext(session, input)
                     val processedContext = processPipeline(context)
-                    Response(processedContext.turn.responseItems, processedContext.turn.attributes, context.sessionEnded)
+                    val logs = mutableListOf<Response.Log>() // TODO get logs from context logger
+                    Response(processedContext.turn.responseItems, logs,
+                            processedContext.turn.attributes, context.expectedPhrases, context.sessionEnded)
                 }
                 else -> error("Unknown dialogue engine (${session.application.dialogueEngine})")
             }
@@ -78,26 +79,28 @@ class CoreResourceImpl : CoreResource {
     }
 
     private fun getHelenaResponse(key: String, sender: String, session: Session, input: Input): Response {
-        val message = Message(
+        val requestMessage = Message(
                 sender = sender,
                 recipient = session.application.dialogueName,
                 sessionId = session.sessionId,
                 items = mutableListOf(Response.Item(text = input.transcript.text)))
         val appVariables = mutableMapOf<String, Serializable>()
-        addUserToExtensions(message, session.user)
-        message.attributes["variables"] = appVariables as Serializable
+        addUserToExtensions(requestMessage, session.user)
+        requestMessage.attributes["variables"] = appVariables as Serializable
 
-        logger.info(message.toString())
-        val response = dialogueResouce.message(key, message)!!
-        logger.info(response.toString())
-        response.apply { this.items.forEach { it.ttsVoice = it.ttsVoice ?: session.application.ttsVoice } }
+        logger.info(requestMessage.toString())
+        val responseMessage = dialogueResouce.message(key, requestMessage)!!
+        logger.info(responseMessage.toString())
+        responseMessage.apply { this.items.forEach { it.ttsVoice = it.ttsVoice ?: session.application.ttsVoice } }
 
-        val metrics = if (response.attributes.containsKey("metrics"))
-            response.attributes["metrics"] as Map<String, Any>
+        val metrics = if (responseMessage.attributes.containsKey("metrics"))
+            responseMessage.attributes["metrics"] as Map<String, Any>
         else mapOf()
         updateMetrics(session, metrics)
 
-        return Response(response.items, response.attributes, response.sessionEnded)
+        val logs = mutableListOf(Response.Log("passed nodes " + responseMessage.attributes["passedNodes"]))
+        return Response(responseMessage.items, logs,
+                responseMessage.attributes, responseMessage.expectedPhrases, responseMessage.sessionEnded)
     }
 
     private fun initSession(key: String, sender: String, sessionId: String, input: Input): Session {
@@ -115,7 +118,7 @@ class CoreResourceImpl : CoreResource {
                             Application.StartCondition(Application.StartCondition.Type.OnAction, input.transcript.text)
                     ))
 
-            Session(sessionId = sessionId, user = contentResponse.user, application = contentResponse.application, attributes = contentResponse.sessionAttributes)
+            Session(sessionId = sessionId, user = contentResponse.user, application = contentResponse.application, properties = contentResponse.sessionProperties)
         }
 
         session.addMessage(Session.Message(Date(), sender, null, mutableListOf(Response.Item(text = input.transcript.text))))
@@ -160,7 +163,8 @@ class CoreResourceImpl : CoreResource {
             else ->
                 text = e.message
         }
-        logger.warn("getErrorMessageResponse(class = ${e.javaClass}, type = $type, code = $code, text = $text)")
+        val logText = "class = ${e.javaClass}, type = $type, code = $code, text = $text"
+        logger.warn("getErrorMessageResponse($logText)")
         val items = mutableListOf<Response.Item>()
         if (input.language == czechLocale)
             items.add(Response.Item(ttsVoice = TtsConfig.defaultVoice("cs"), text = getErrorResourceString(czechLocale, "exception.$type", listOf(code))))
@@ -168,7 +172,7 @@ class CoreResourceImpl : CoreResource {
             items.add(Response.Item(ttsVoice = TtsConfig.defaultVoice("en"), text = getErrorResourceString(Locale.ENGLISH, "exception.$type", listOf(code))))
         if (text != null)
             items.add(Response.Item(ttsVoice = TtsConfig.defaultVoice("en"), text = text))
-        return Response(items, mutableMapOf<String, Any>(), true)
+        return Response(items, mutableListOf(Response.Log("error $logText")), mutableMapOf<String, Any>(), mutableListOf(), sessionEnded = true)
     }
 
     private fun updateMetrics(session: Session, metrics: Map<String, Any>) {

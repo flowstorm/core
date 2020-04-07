@@ -1,16 +1,14 @@
 package `product`.`some-subdialogue`
 
-import com.promethist.core.runtime.Loader
 import com.promethist.core.Dialogue
 
 data class Model1(
-        override val loader: Loader,
-        override val name: String,
-
         // dialogue properties
         val i: Int = 1
 
-) : Dialogue(loader, name) {
+) : Dialogue() {
+
+    override val name: String = "product/some-subdialogue"
 
     val response0 = Response(nextId--, { "Welcome to sub dialogue" })
     val intent1 = Intent(nextId--, "intent1", "yes", "okay")

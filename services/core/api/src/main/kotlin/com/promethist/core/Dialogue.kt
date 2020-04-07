@@ -143,5 +143,7 @@ abstract class Dialogue {
         }
         return sb.toString()
     }
+
+    companion object: DialogueScript()
 }
 

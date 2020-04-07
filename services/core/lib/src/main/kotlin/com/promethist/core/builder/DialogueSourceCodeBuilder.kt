@@ -85,6 +85,8 @@ class DialogueSourceCodeBuilder(
                 .appendln("import com.promethist.core.*")
                 .appendln("import com.promethist.core.model.*")
                 .appendln("import com.promethist.core.runtime.Loader")
+                .appendln("import java.time.LocalDateTime")
+                .appendln("import java.time.LocalDate")
                 .appendln()
     }
 
