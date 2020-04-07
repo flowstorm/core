@@ -31,7 +31,7 @@ internal class DialogueBuilderTest {
             addNode(Function(--nodeId, "function1", mapOf("trans1" to "stop"), "println(trans1)\ntrans1"))
             addNode(Response(--nodeId, "response2", listOf("Your response was \${input.transcript.text}. Intent node \${input.intent.name}. Recognized entities: \${input.entitiesToString()}.")))
 //            addNode(SubDialogue(--nodeId, "subDialogue1", "product/subdialogue/1"))
-            addNode(UserInput(--nodeId, "input1", listOf("intent1", "intent2"), false))
+            addNode(UserInput(--nodeId, "input1", listOf("intent1", "intent2"), false, mapOf(), ""))
 
             addTransition("start" to "response1")
             addTransition("response1" to "input1")

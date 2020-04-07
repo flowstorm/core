@@ -1,9 +1,11 @@
 package com.promethist.core.runtime
 
 import com.promethist.common.RestClient
+import com.promethist.core.Component
 import com.promethist.core.Context
 import com.promethist.core.model.*
 import com.promethist.core.Input
+import com.promethist.core.Pipeline
 import com.promethist.core.model.metrics.Metrics
 import com.promethist.core.resources.FileResource
 import com.promethist.util.LoggerDelegate
@@ -32,7 +34,11 @@ object DialogueClient {
         val session = Session(sessionId = "T-E-S-T", user = user, application = app)
         val language = Locale.ENGLISH
         val turn = Turn(Input(language, Input.Transcript("")))
-        val context = Context(profile, session, turn, Metrics(listOf()), logger)
+        val pipeline = object : Pipeline {
+            override val components = LinkedList<Component>(listOf(dm))
+            override fun process(context: Context): Context = components.pop().process(context)
+        }
+        val context = Context(pipeline, profile, session, turn, Metrics(listOf()), logger)
 
         val reader = BufferedReader(InputStreamReader(System.`in`))
         while (true) {

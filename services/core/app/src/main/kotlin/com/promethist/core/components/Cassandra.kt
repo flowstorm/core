@@ -28,6 +28,6 @@ class Cassandra : Component {
                 webTarget.path("/ner/ner3").queryParam("language", context.input.language.toString())
                         .request().post(Entity.json(context.input), object : GenericType<Input>() {})
 
-        return context
+        return context.pipeline.process(context)
     }
 }
