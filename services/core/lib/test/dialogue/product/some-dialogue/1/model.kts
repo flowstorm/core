@@ -12,7 +12,7 @@ data class Model1(
     override val name: String = "product/some-dialogue/1/model"
 
     // dialogue functions and local values (declared in editor dialogue init section)
-    val data by load<Map<String, Any>>("$name/data")
+    val data by loader<Map<String, Any>>("$name/data")
 
     fun someUsefulFunction(intent: Intent): Intent = intent
 

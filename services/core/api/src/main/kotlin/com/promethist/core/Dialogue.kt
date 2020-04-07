@@ -147,7 +147,7 @@ abstract class Dialogue {
         return sb.toString()
     }
 
-    fun <T: Any> load(name: String): Lazy<T> = lazy { loader.loadObject<T>(name) }
+    fun <T: Any> loader(name: String): Lazy<T> = lazy { loader.loadObject<T>(name) }
 
     companion object: DialogueScript()
 }
