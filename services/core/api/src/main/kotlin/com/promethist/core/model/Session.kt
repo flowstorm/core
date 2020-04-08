@@ -20,7 +20,8 @@ data class Session(
         val messages: MutableList<Message> = mutableListOf(),
         val metrics: MutableList<Metric> = mutableListOf(),
         val properties: SessionProperties = mutableMapOf(),
-        val attributes: Dynamic = Dynamic()
+        val attributes: Dynamic = Dynamic(),
+        val log: MutableList<LogEntry> = mutableListOf()
 ) {
 
     data class Message(

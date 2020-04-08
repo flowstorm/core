@@ -1,6 +1,7 @@
 package com.promethist.core
 
 import com.promethist.core.runtime.Loader
+import org.slf4j.Logger
 import kotlin.random.Random
 import kotlin.reflect.KProperty
 import kotlin.reflect.full.createType
@@ -14,6 +15,7 @@ abstract class Dialogue {
 
     //runtime dependencies
     lateinit var loader: Loader
+    lateinit var logger: Logger
 
     val nodes: MutableSet<Node> = mutableSetOf()
     var nextId: Int = 0

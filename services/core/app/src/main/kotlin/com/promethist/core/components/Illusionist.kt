@@ -7,7 +7,6 @@ import com.promethist.core.Input
 import com.promethist.core.builder.DialogueSourceCodeBuilder
 import com.promethist.core.model.Turn
 import com.promethist.util.LoggerDelegate
-import org.slf4j.LoggerFactory
 import javax.inject.Inject
 import javax.ws.rs.client.Entity
 import javax.ws.rs.client.WebTarget
@@ -27,7 +26,7 @@ class Illusionist : Component {
         }
 
         val models = getModels(context.turn.dialogueStack.first)
-        logger.info("processing IR with models $models")
+        context.logger.info("processing IR with models $models")
 
         val request = Request(context.input.transcript.text, models.values.toList())
         val responses = webTarget.path("/multi_model").request().post(Entity.json(request), object : GenericType<List<Response>>() {})

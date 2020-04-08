@@ -1,14 +1,15 @@
 package com.promethist.core
 
+import com.promethist.core.model.LogEntry
+
+//TODO after removing Message class, change atrributes type to MutableMap<String, Any>
 open class Response(
         open var items: MutableList<Item>,
-        open var logs: MutableList<Log>,
+        open var logs: MutableList<LogEntry>,
         open val attributes: MutableMap<String, *>, //TODO after removing Message class, change atrributes type to MutableMap<String, Any>
         open var expectedPhrases: MutableList<ExpectedPhrase>?,
         open var sessionEnded: Boolean = false
 ) {
-
-    data class Log(val text: String, val time: Float = 0F)
 
     data class Item (
             /**

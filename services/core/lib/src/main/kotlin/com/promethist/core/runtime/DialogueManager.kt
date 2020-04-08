@@ -17,6 +17,7 @@ class DialogueManager(private val loader: Loader) : Component {
                 error("Missing arguments for creating model $name")
             val dialogue = loader.newObject<Dialogue>(name, *args!!)
             dialogue.loader = loader
+            dialogue.logger = context.logger
             dialogues[key] = dialogue
             dialogue
         } else {
@@ -31,7 +32,7 @@ class DialogueManager(private val loader: Loader) : Component {
     }
 
     override fun process(context: Context): Context = with (context) {
-        logger.info("processing DM")
+        this@DialogueManager.logger.info("processing DM")
         if (turn.dialogueStack.isEmpty()) {
             start(get("${context.session.application.dialogueName}/model", context,
                     context.session.application.properties.values.toTypedArray()), context)
@@ -42,7 +43,7 @@ class DialogueManager(private val loader: Loader) : Component {
     }
 
     private fun start(dialogue: Dialogue, context: Context): Boolean = with (context) {
-        logger.info("starting ${dialogue.name}\n" + dialogue.describe())
+        this@DialogueManager.logger.info("starting ${dialogue.name}\n" + dialogue.describe())
         dialogue.validate()
         set(dialogue.name, context, dialogue)
         turn.dialogueStack.push(Turn.DialogueStackFrame(dialogue.name))

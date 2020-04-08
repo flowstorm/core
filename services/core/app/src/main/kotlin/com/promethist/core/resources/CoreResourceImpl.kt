@@ -1,5 +1,6 @@
 package com.promethist.core.resources
 
+import ch.qos.logback.classic.Level
 import com.promethist.core.*
 import com.promethist.core.context.ContextFactory
 import com.promethist.core.context.ContextPersister
@@ -7,6 +8,7 @@ import com.promethist.core.model.*
 import com.promethist.core.model.Application
 import com.promethist.core.model.metrics.Metric
 import com.promethist.core.resources.ContentDistributionResource.ContentRequest
+import com.promethist.core.runtime.DialogueLog
 import com.promethist.util.LoggerDelegate
 import java.io.Serializable
 import javax.inject.Inject
@@ -32,12 +34,18 @@ class CoreResourceImpl : CoreResource {
     lateinit var contextFactory: ContextFactory
 
     @Inject
+    lateinit var dialogueLog: DialogueLog
+
+    @Inject
     lateinit var contextPersister: ContextPersister
 
     private val czechLocale = Locale.forLanguageTag("cs")
     private val logger by LoggerDelegate()
 
     override fun process(request: Request): Response = with(request) {
+
+        //todo get logger level from request
+        dialogueLog.level = Level.ALL
 
         val session = try {
             initSession(appKey, sender, sessionId, input)
@@ -54,8 +62,7 @@ class CoreResourceImpl : CoreResource {
                     val pipeline = pipelineFactory.createPipeline()
                     val context = contextFactory.createContext(pipeline, session, input)
                     val processedContext = processPipeline(context)
-                    val logs = mutableListOf<Response.Log>() // TODO get logs from context logger
-                    Response(processedContext.turn.responseItems, logs,
+                    Response(processedContext.turn.responseItems, dialogueLog.log,
                             processedContext.turn.attributes, context.expectedPhrases, context.sessionEnded)
                 }
                 else -> error("Unknown dialogue engine (${session.application.dialogueEngine})")
@@ -99,8 +106,9 @@ class CoreResourceImpl : CoreResource {
         else mapOf()
         updateMetrics(session, metrics)
 
-        val logs = mutableListOf(Response.Log("passed nodes " + responseMessage.attributes["passedNodes"]))
-        return Response(responseMessage.items, logs,
+        dialogueLog.logger.info("passed nodes " + responseMessage.attributes["passedNodes"])
+
+        return Response(responseMessage.items, dialogueLog.log,
                 responseMessage.attributes, responseMessage.expectedPhrases, responseMessage.sessionEnded)
     }
 
@@ -173,7 +181,10 @@ class CoreResourceImpl : CoreResource {
             items.add(Response.Item(ttsVoice = TtsConfig.defaultVoice("en"), text = getErrorResourceString(Locale.ENGLISH, "exception.$type", listOf(code))))
         if (text != null)
             items.add(Response.Item(ttsVoice = TtsConfig.defaultVoice("en"), text = text))
-        return Response(items, mutableListOf(Response.Log("error $logText")), mutableMapOf<String, Any>(), mutableListOf(), sessionEnded = true)
+
+        dialogueLog.logger.error(logText)
+
+        return Response(items, dialogueLog.log, mutableMapOf<String, Any>(), mutableListOf(), sessionEnded = true)
     }
 
     private fun updateMetrics(session: Session, metrics: Map<String, Any>) {

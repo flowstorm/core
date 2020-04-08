@@ -13,11 +13,13 @@ import com.promethist.core.components.*
 import com.promethist.core.profile.MongoProfileRepository
 import com.promethist.core.profile.ProfileRepository
 import com.promethist.core.resources.*
+import com.promethist.core.runtime.DialogueLog
 import com.promethist.core.runtime.DialogueManager
 import com.promethist.core.runtime.FileResourceLoader
 import org.glassfish.hk2.api.InjectionResolver
 import org.glassfish.hk2.api.PerLookup
 import org.glassfish.hk2.api.TypeLiteral
+import org.glassfish.jersey.process.internal.RequestScoped
 import org.litote.kmongo.KMongo
 import javax.inject.Singleton
 
@@ -74,6 +76,8 @@ class Application : JerseyApplication() {
                 bindTo(BotService::class.java, ServiceUrlResolver.getEndpointUrl("helena") + "/dm")
 
                 bindTo(CoreResourceImpl::class.java)
+
+                bind(DialogueLog::class.java).to(DialogueLog::class.java).`in`(RequestScoped::class.java)
 
                 // admin
                 bindTo(ContentDistributionResource::class.java, ServiceUrlResolver.getEndpointUrl("admin"))
