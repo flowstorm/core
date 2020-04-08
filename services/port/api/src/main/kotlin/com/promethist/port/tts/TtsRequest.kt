@@ -2,10 +2,18 @@ package com.promethist.port.tts
 
 import java.security.MessageDigest
 
-data class TtsRequest(val voice: String, var text: String, var isSsml: Boolean = false, val sampleRate: Int = 16000, var speakingRate: Double = 1.0) {
+data class TtsRequest(
+        val voice: String,
+        var text: String,
+        var isSsml: Boolean = false,
+        val sampleRate: Int = 16000,
+        var speakingRate: Double = 1.0,
+        var speakingPitch: Double = 0.0,
+        var speakingVolumeGain: Double = 1.0
+) {
 
     fun code(): String {
-        val input = text + isSsml + voice + speakingRate
+        val input = text + isSsml + voice + speakingRate + speakingPitch + speakingVolumeGain
         val hexChars = "0123456789ABCDEF"
         val bytes = MessageDigest.getInstance("SHA-1").digest(input.toByteArray())
         val result = StringBuilder(bytes.size * 2)

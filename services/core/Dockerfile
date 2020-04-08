@@ -12,5 +12,4 @@ FROM jetty:9.4.18-jre8-alpine
 RUN java -jar $JETTY_HOME/start.jar --create-startd --add-to-start=http2 --approve-all-licenses
 
 COPY --from=builder /project/api/target/classes/META-INF/core-api/swagger.* /app/
-COPY --from=builder /project/app/app.properties .
 COPY --from=builder /project/app/target/app.war /var/lib/jetty/webapps/ROOT.war

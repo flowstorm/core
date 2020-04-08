@@ -220,9 +220,17 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                                 else -> ""
                             }
                         },
-                        item.ssml != null,
-                        speakingRate = response.attributes["speakingRate"]?.toString()?.toDoubleOrNull()?:1.0
-                )
+                        item.ssml != null
+                ).apply {
+                    with (response) {
+                        if (attributes.containsKey("speakingRate"))
+                            speakingRate = attributes["speakingRate"].toString().toDouble()
+                        if (attributes.containsKey("speakingPitch"))
+                            speakingPitch = attributes["speakingPitch"].toString().toDouble()
+                        if (attributes.containsKey("speakingVolumeGain"))
+                            speakingVolumeGain = attributes["speakingVolumeGain"].toString().toDouble()
+                    }
+                }
                 if (clientRequirements.tts != BotClientRequirements.TtsType.None) {
                     val audio = dataService.getTtsAudio(
                             ttsRequest,

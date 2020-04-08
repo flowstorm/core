@@ -15,7 +15,6 @@
     <name>Promethist Port App</name>
 
     <properties>
-        <jetty.version>9.4.18.v20190429</jetty.version>
         <google.speech.version>0.80.0-beta</google.speech.version>
         <amazon.speech.version>1.11.77</amazon.speech.version>
     </properties>
@@ -121,7 +120,11 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.5.1</version>
+                <version>${maven.compiler.version}</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                </configuration>
                 <executions>
                     <execution>
                         <id>default-compile</id>

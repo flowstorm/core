@@ -35,7 +35,9 @@ class Application : JerseyApplication() {
                 }
 
                 // filestore
-                val filestore = RestClient.instance(FileResource::class.java, ServiceUrlResolver.getEndpointUrl("filestore"))
+                val filestoreUrl = ServiceUrlResolver.getEndpointUrl("filestore")
+                println("filestore url = $filestoreUrl")
+                val filestore = RestClient.instance(FileResource::class.java, filestoreUrl)
                 bind(filestore).to(FileResource::class.java)
 
                 bindTo(PipelineFactory::class.java)
@@ -45,8 +47,10 @@ class Application : JerseyApplication() {
                 // NLP pipeline (last binded component will be used first)
 
                 // IR component
+                val illusionistUrl = ServiceUrlResolver.getEndpointUrl("illusionist")
+                println("illusionist url = $illusionistUrl")
                 val illusionist = Illusionist()
-                illusionist.webTarget = RestClient.webTarget(ServiceUrlResolver.getEndpointUrl("illusionist"))
+                illusionist.webTarget = RestClient.webTarget(illusionistUrl)
                         .path("/query")
                         .queryParam("key", AppConfig.instance["illusionist.apiKey"])
                 bind(illusionist).to(Component::class.java).named("illusionist")
@@ -56,8 +60,10 @@ class Application : JerseyApplication() {
                 bind(dm).to(Component::class.java).named("dm")
 
                 // NER component (second)
+                val cassandraUrl = ServiceUrlResolver.getEndpointUrl("cassandra")
+                println("cassandra url = $cassandraUrl")
                 val cassandra = Cassandra()
-                cassandra.webTarget = RestClient.webTarget(ServiceUrlResolver.getEndpointUrl("cassandra"))
+                cassandra.webTarget = RestClient.webTarget(cassandraUrl)
                         .path("/query")
                         .queryParam("input_tokenized", true)
                         .queryParam("output_tokenized", true)

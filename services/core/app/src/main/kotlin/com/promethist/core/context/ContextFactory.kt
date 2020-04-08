@@ -22,13 +22,11 @@ class ContextFactory {
         val profile = profileRepository.find(session.user._id)
                 ?: Profile(user_id = session.user._id, name = session.user.username)
 
-        val turn = session.turns.lastOrNull()?.copy(input = input, responseItems = mutableListOf()) ?: Turn(input)
-
         return Context(
                 pipeline,
                 profile,
                 session,
-                turn,
+                Turn(input),
                 Metrics(session.metrics),
                 dialogueLog.logger
         )

@@ -61,9 +61,17 @@ class CoreResourceImpl : CoreResource {
                 "core" -> {
                     val pipeline = pipelineFactory.createPipeline()
                     val context = contextFactory.createContext(pipeline, session, input)
-                    val processedContext = processPipeline(context)
-                    Response(processedContext.turn.responseItems, dialogueLog.log,
-                            processedContext.turn.attributes, context.expectedPhrases, context.sessionEnded)
+                    with (processPipeline(context)) {
+                        // client attributes
+                        listOf("speakingRate", "speakingPitch", "speakingVolumeGain").forEach {
+                            if (!turn.attributes.containsKey(it)) {
+                                val value = session.attributes[it] ?: profile.attributes[it]
+                                if (value != null)
+                                    turn.attributes[it] = value
+                            }
+                        }
+                        Response(turn.responseItems, dialogueLog.log, turn.attributes, expectedPhrases, sessionEnded)
+                    }
                 }
                 else -> error("Unknown dialogue engine (${session.application.dialogueEngine})")
             }

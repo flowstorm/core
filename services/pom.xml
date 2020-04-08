@@ -21,4 +21,17 @@
         <module>filestore</module>
     </modules>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-maven-plugin</artifactId>
+                <version>${jetty.version}</version>
+                <configuration>
+                    <jettyXml>jetty.xml</jettyXml>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>

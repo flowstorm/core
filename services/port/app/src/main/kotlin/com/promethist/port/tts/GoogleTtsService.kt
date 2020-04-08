@@ -28,8 +28,8 @@ object GoogleTtsService: TtsService {
                 .setAudioEncoding(AudioEncoding.MP3)
                 .setSampleRateHertz(ttsRequest.sampleRate)
                 .setSpeakingRate(ttsRequest.speakingRate)
-                //.setPitch(request.pitch)
-                //.setVolumeGainDb(request.volumeGain)
+                .setPitch(ttsRequest.speakingPitch)
+                .setVolumeGainDb(ttsRequest.speakingVolumeGain)
                 .build()
 
         TtsServiceFactory.logger.info("speak(ttsRequest = $ttsRequest)")
