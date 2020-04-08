@@ -1,13 +1,10 @@
-package com.promethist.core
+package com.promethist.core.type
 
-import com.promethist.core.type.Dynamic
-import com.promethist.core.type.TimeString
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class DynamicTest {
-    //Dummy test to keep test directory in git and avoid warnings in build until we introduce actual tests.
 
     @Test
     fun `dynamic test case`() {
