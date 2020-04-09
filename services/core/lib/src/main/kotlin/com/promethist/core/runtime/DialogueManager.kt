@@ -130,6 +130,6 @@ class DialogueManager(private val loader: Loader) : Component {
         logger.info("passed ${dialogue.name} >> " +
                 processedNodes.map { "${it::class.simpleName}#${it.id}" }.reduce { acc, s -> "$acc > $s" })
 
-        return true
+        return inputRequested
     }
 }
