@@ -24,7 +24,10 @@ data class Input(
             JsonSubTypes.Type(value = Word::class, name = "Word"),
             JsonSubTypes.Type(value = Punctuation::class, name = "Punctuation")
     )
-    open class Token(open val text: String)
+    open class Token(open val text: String) {
+        override fun equals(other: Any?): Boolean = text.equals(other)
+        override fun hashCode(): Int = text.hashCode()
+    }
 
     data class Word(override val text: String, val classes: MutableList<Class> = mutableListOf(), val startTime: Float = 0F, val endTime: Float = 0F) : Token(text) {
         fun hasClass(type: Class.Type, name: String) = classes.any { it.type == type && it.name == name }
