@@ -68,16 +68,21 @@ class DialogueManager(private val loader: Loader) : Component {
             }
         }
         var step = 0
-        while (step++ < 20) {
+        var inputRequested: Boolean? = null
+
+        val processedNodes = mutableListOf<Dialogue.Node>()
+        while (inputRequested == null) {
+            if (step++ > 20) error("Too much steps in processing dialogue (infinite loop?)")
+
             frame.nodeId = node.id
-            logger.info(frame.toString())
+            processedNodes.add(node)
             when (node) {
                 is Dialogue.UserInput -> {
                     frame.skipGlobalIntents = node.skipGlobalIntents
                     node.intents.forEach { intent ->
                         context.expectedPhrases.addAll(intent.utterances.map { text -> ExpectedPhrase(text) })
                     }
-                    return true
+                    inputRequested = true
                 }
                 is Dialogue.Repeat -> {
                     //TODO not tested yet!!!
@@ -100,16 +105,16 @@ class DialogueManager(private val loader: Loader) : Component {
                 }
                 is Dialogue.StopSession -> {
                     turn.dialogueStack.clear()
-                    return false
+                    inputRequested = false
                 }
                 is Dialogue.StopDialogue -> {
                     turn.dialogueStack.pop()
-                    return if (turn.dialogueStack.isEmpty()) false else proceed(context)
+                    inputRequested =  if (turn.dialogueStack.isEmpty()) false else proceed(context)
                 }
                 is Dialogue.SubDialogue -> {
                     val subDialogue = node.createDialogue(context)
                     frame.nodeId = node.next.id
-                    return start(subDialogue, context)
+                    inputRequested = start(subDialogue, context)
                 }
                 is Dialogue.TransitNode -> {
                     if (node is Dialogue.Response) {
@@ -121,6 +126,10 @@ class DialogueManager(private val loader: Loader) : Component {
                 }
             }
         }
-        error("Too much steps in processing dialogue (infinite loop?)")
+
+        logger.info("passed ${dialogue.name} >> " +
+                processedNodes.map { "${it::class.simpleName}#${it.id}" }.reduce { acc, s -> "$acc > $s" })
+
+        return true
     }
 }
