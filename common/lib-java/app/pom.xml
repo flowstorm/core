@@ -14,6 +14,10 @@
     <artifactId>common-app</artifactId>
     <name>Promethist Common App</name>
 
+    <properties>
+        <jetty.version>9.4.18.v20190429</jetty.version>
+    </properties>
+
     <repositories>
         <repository>
             <id>jitpack.io</id>
