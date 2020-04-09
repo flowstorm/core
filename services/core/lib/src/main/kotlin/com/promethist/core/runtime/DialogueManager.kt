@@ -119,7 +119,10 @@ class DialogueManager(private val loader: Loader) : Component {
                 is Dialogue.TransitNode -> {
                     if (node is Dialogue.Response) {
                         val text = node.getText(context)
-                        val item = Response.Item(text, image = node.image, audio = node.audio, video = node.video)
+                        val plainText = text.replace(Regex("\\<.*?\\>"), "")
+                        val item = Response.Item(plainText,
+                                ssml = if (text != plainText) text else null,
+                                image = node.image, audio = node.audio, video = node.video)
                         turn.responseItems.add(item)
                     }
                     node = node.next
