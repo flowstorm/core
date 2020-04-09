@@ -58,11 +58,12 @@ class DialogueManager(private val loader: Loader) : Component {
         val dialogue = get(frame.name, context)
         var node = dialogue.node(frame.nodeId)
         if (node is Dialogue.UserInput) {
-            var transition = node.process(context)
+            val transition = node.process(context)
             if (transition != null) {
                 node = transition.node
             } else {
                 // intent recognition
+                context.processPipeline()
                 node = dialogue.node(turn.input.intent.name.toInt())
             }
         }

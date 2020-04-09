@@ -155,10 +155,13 @@ class DialogueSourceCodeBuilder(
         }
         source.appendln(")) {")
         transitions.forEach { source.appendln("\t\tval ${it.key} = Transition(${it.value})") }
+        source.appendln("\t\tval pass:Transition? = null")
         source.appendln("//--code-start;type:userInput;name:$nodeName")
-        if (code.isNotEmpty())
+        if (code.isNotEmpty()) {
             source.appendln(code)
-        source.appendln("processPipeline(); null")
+        } else {
+            source.appendln("pass")
+        }
         source.appendln("//--code-end;type:userInput;name:$nodeName").appendln("\t}")
     }
 
