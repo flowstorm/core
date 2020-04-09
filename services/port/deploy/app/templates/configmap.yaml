@@ -5,9 +5,9 @@ metadata:
   name: {{ .Values.name }}
 data:
   app.properties: |
+    runmode=dist
     name={{ .Values.name }}
     namespace={{ .Values.namespace }}
-    runmode=dist
     git.ref={{ .Values.git.ref }}
     git.commit={{ .Values.git.commit }}
     app.image={{ .Values.app.image.name }}:{{ .Values.app.image.tag }}

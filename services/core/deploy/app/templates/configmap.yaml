@@ -5,6 +5,7 @@ metadata:
   name: {{ .Values.name }}
 data:
   app.properties: |
+    runmode=dist
     name={{ .Values.name }}
     namespace={{ .Values.namespace }}
     git.ref={{ .Values.git.ref }}
