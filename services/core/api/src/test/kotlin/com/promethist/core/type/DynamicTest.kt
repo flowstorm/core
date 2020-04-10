@@ -15,6 +15,17 @@ class DynamicTest {
             value += 1
             Unit
         }
+        mem<Int>("counter.b") { ++value }
+        mem<Dynamic>("counter") {
+            value<Int>("a") {
+                println("a=$value")
+            }
+            value<Int>("b") {
+                println("b=$value")
+            }
+        }
+
+        if (mem<Int>("level") { apply { value = if (value == 0) 1 else 2 }.value } == 1)
 
         mem("user.name", "John") // another direct assignment
         val node = mem<String>("user.name") {
