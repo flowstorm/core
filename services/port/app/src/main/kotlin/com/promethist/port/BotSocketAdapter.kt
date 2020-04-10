@@ -154,9 +154,11 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                 is BotEvent.SessionEnded -> sendEvent(BotEvent.SessionEnded())
                 else -> error("Unexpected event of type ${event::class.simpleName}")
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             logger.error("onWebSocketText", e)
-            sendEvent(BotEvent.Error(e.message?:e::class.qualifiedName?:"unknown"))
+            (e.cause?:e).apply {
+                sendEvent(BotEvent.Error(message?:this::class.qualifiedName?:"unknown"))
+            }
         }
     }
 

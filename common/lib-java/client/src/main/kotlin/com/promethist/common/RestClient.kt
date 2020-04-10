@@ -3,7 +3,7 @@ package com.promethist.common
 import org.glassfish.jersey.client.proxy.WebResourceFactory
 import org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJaxbJsonProvider
 import java.io.OutputStreamWriter
-import java.lang.reflect.AnnotatedElement
+import java.lang.reflect.*
 import java.net.HttpURLConnection
 import java.net.URL
 import javax.inject.Named
@@ -13,20 +13,30 @@ import javax.ws.rs.client.ClientBuilder
 import javax.ws.rs.client.WebTarget
 import kotlin.reflect.KFunction
 import kotlin.reflect.jvm.javaMethod
+import com.promethist.common.ObjectUtil.defaultMapper as mapper
 
 object RestClient {
 
-    val mapper = ObjectUtil.defaultMapper
+    inline fun <reified I> proxy(obj: I, target: String): I =
+        Proxy.newProxyInstance(I::class.java.classLoader, arrayOf<Class<*>>(I::class.java)) { _, method, args ->
+            try {
+                method.invoke(obj, *args)
+            } catch (e: Throwable) {
+                throw when {
+                    e.cause is WebApplicationException -> e.cause!!
+                    e is WebApplicationException -> e
+                    else -> InvocationTargetException(e, "Call to ${I::class.simpleName}.${method.name} on $target failed"
+                            + (e.cause?.let {  " - ${it.message}" }))
+                }
+            }
+        } as I
 
-    fun <I>instance(iface: Class<I>, targetUrl: String): I {
+    inline fun <reified I>instance(iface: Class<I>, targetUrl: String): I {
         val provider = JacksonJaxbJsonProvider()
         provider.setMapper(mapper)
-
-        val target = ClientBuilder.newClient()
-                .register(provider)
-                .target(targetUrl)
-
-        return WebResourceFactory.newResource(iface, target)
+        val target = ClientBuilder.newClient().register(provider).target(targetUrl)
+        val resource = WebResourceFactory.newResource(iface, target)
+        return proxy<I>(resource, targetUrl)
     }
 
     fun <T>call(url: URL, responseType: Class<T>, method: String = "GET", headers: Map<String, String>? = null, output: Any? = null): T =

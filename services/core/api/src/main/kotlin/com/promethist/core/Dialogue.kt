@@ -30,7 +30,9 @@ abstract class Dialogue {
 
         override fun hashCode(): Int = id
 
-        override fun toString(): String = "${javaClass.simpleName}(id=$id)"
+        override fun toString(): String = "${javaClass.simpleName}" + (if (isSingleton) "" else "#$id")
+
+        val isSingleton = this is StartDialogue || this is StopDialogue || this is StopSession || this is Repeat
     }
 
     abstract inner class TransitNode(override val id: Int): Node(id) {

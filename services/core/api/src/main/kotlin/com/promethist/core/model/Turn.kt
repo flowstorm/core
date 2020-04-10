@@ -13,4 +13,12 @@ data class Turn(
         val responseItems: MutableList<Response.Item> = mutableListOf()
 ) {
     data class DialogueStackFrame(val name: String, var nodeId: Int = 0, var skipGlobalIntents: Boolean = false)
+
+    fun addResponseItem(text: String, image: String? = null, audio: String? = null, video: String? = null) {
+        val plainText = text.replace(Regex("\\<.*?\\>"), "")
+        val item = Response.Item(plainText,
+                ssml = if (text != plainText) text else null,
+                image = image, audio = audio, video = video)
+        responseItems.add(item)
+    }
 }

@@ -178,7 +178,7 @@ class CoreResourceImpl : CoreResource {
                     e.message
             }
             else ->
-                text = e.message
+                text = (e.cause?:e).message
         }
         val logText = "class = ${e.javaClass}, type = $type, code = $code, text = $text"
         logger.warn("getErrorMessageResponse($logText)")

@@ -119,19 +119,15 @@ class DialogueManager(private val loader: Loader) : Component {
                 is Dialogue.TransitNode -> {
                     if (node is Dialogue.Response) {
                         val text = node.getText(context)
-                        val plainText = text.replace(Regex("\\<.*?\\>"), "")
-                        val item = Response.Item(plainText,
-                                ssml = if (text != plainText) text else null,
-                                image = node.image, audio = node.audio, video = node.video)
-                        turn.responseItems.add(item)
+                        turn.addResponseItem(text, node.image, node.audio, node.video)
                     }
                     node = node.next
                 }
             }
         }
 
-        logger.info("passed ${dialogue.name} >> " +
-                processedNodes.map { "${it::class.simpleName}#${it.id}" }.reduce { acc, s -> "$acc > $s" })
+        logger.info("passed nodes ${dialogue.name} >> " +
+                processedNodes.map { it.toString() }.reduce { acc, s -> "$acc > $s" })
 
         return inputRequested
     }

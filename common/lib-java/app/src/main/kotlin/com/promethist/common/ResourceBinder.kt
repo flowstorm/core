@@ -14,7 +14,7 @@ abstract class ResourceBinder : AbstractBinder() {
         return bind(type).to(iface)
     }
 
-    fun <I>bindTo(iface: Class<I>, targetUrl: String): BindingBuilder<I> {
+    inline fun <reified I>bindTo(iface: Class<I>, targetUrl: String): BindingBuilder<I> {
         return bindFactory(object : Factory<I> {
 
             override fun provide(): I {
@@ -26,7 +26,7 @@ abstract class ResourceBinder : AbstractBinder() {
         }).to(iface)
     }
 
-    fun <I,T>bindTo(iface: Class<I>, obj: T): BindingBuilder<T> {
+    fun <I, T>bindTo(iface: Class<I>, obj: T): BindingBuilder<T> {
         return bindFactory(object : Factory<T> {
 
             override fun provide(): T {
