@@ -182,6 +182,8 @@ abstract class Dialogue {
                 URL(path).openStream().use {
                     mapper.readValue(it, T::class.java)
             }
+            path.startsWith("./") ->
+                loader.loadObject<T>(name + path.substring(1))
             else ->
                 loader.loadObject<T>(path)
         }
