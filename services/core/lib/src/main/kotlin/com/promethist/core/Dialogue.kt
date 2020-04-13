@@ -3,6 +3,7 @@ package com.promethist.core
 import com.promethist.core.runtime.Loader
 import org.slf4j.Logger
 import kotlin.random.Random
+import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.full.createType
 import kotlin.reflect.full.isSubtypeOf
@@ -53,7 +54,8 @@ abstract class Dialogue {
         constructor(id: Int, intents: Array<Intent>, lambda: (Context.(UserInput) -> Transition?)) :
                 this(id, false, intents, lambda)
 
-        fun process(context: Context): Transition? = lambda(context, this)
+        fun process(context: Context): Transition? =
+                withCurrentContext(context) { lambda(context, this) } as Transition?
     }
 
     open inner class Intent(
@@ -84,7 +86,9 @@ abstract class Dialogue {
 
         constructor(id: Int, vararg text: (Context.(Response) -> String)) : this(id, true, *text)
 
-        fun getText(context: Context, index: Int = -1): String = texts[if (index < 0) Random.nextInt(texts.size) else index](context, this)
+        fun getText(context: Context, index: Int = -1) = withCurrentContext(context) {
+            texts[if (index < 0) Random.nextInt(texts.size) else index](context, this)
+        } as String
     }
 
     inner class Repeat(override val id: Int): Node(id)
@@ -93,7 +97,8 @@ abstract class Dialogue {
             override val id: Int,
             val lambda: (Context.(Function) -> Transition)
     ): Node(id) {
-        fun exec(context: Context): Transition = lambda(context, this)
+        fun exec(context: Context): Transition =
+                withCurrentContext(context) { lambda(context, this) } as Transition
     }
 
     inner class SubDialogue(
@@ -101,10 +106,12 @@ abstract class Dialogue {
             val name: String,
             val lambda: (Context.(SubDialogue) -> Dialogue)): TransitNode(id) {
 
-        fun createDialogue(context: Context): Dialogue = lambda(context, this)
+        fun createDialogue(context: Context): Dialogue =
+                withCurrentContext(context) { lambda(context, this) } as Dialogue
 
         fun create(vararg arg: Any) =
                 loader.newObject<Dialogue>("$name/model", *arg).apply { loader = this@Dialogue.loader }
+
     }
 
     inner class StartDialogue(override val id: Int) : TransitNode(id)
@@ -112,6 +119,17 @@ abstract class Dialogue {
     inner class StopDialogue(override val id: Int) : Node(id)
 
     inner class StopSession(override val id: Int) : Node(id)
+
+    inline fun <reified V: Any> turnAttribute(namespace: String = nameWithoutVersion, noinline default: (() -> V)? = null) =
+            AttributeDelegate(DialogueScript.AttributeScope.Turn, V::class, namespace, default)
+
+    inline fun <reified V: Any> sessionAttribute(namespace: String = nameWithoutVersion, noinline default: (() -> V)? = null) =
+            AttributeDelegate(DialogueScript.AttributeScope.Session, V::class, namespace, default)
+
+    inline fun <reified V: Any> profileAttribute(namespace: String = nameWithoutVersion, noinline default: (() -> V)? = null) =
+            AttributeDelegate(DialogueScript.AttributeScope.Profile, V::class, namespace, default)
+
+    val nameWithoutVersion get() = name.substringBeforeLast("/")
 
     val intents: List<Intent> get() = nodes.filterIsInstance<Intent>()
 

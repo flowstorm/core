@@ -1,8 +1,5 @@
 package com.promethist.core
 
-import com.promethist.core.Dialogue
-import com.promethist.core.runtime.Loader
-
 abstract class BasicEnglishDialogue() : Dialogue() {
 
     var basicId = 1

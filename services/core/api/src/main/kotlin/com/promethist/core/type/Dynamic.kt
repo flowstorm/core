@@ -11,6 +11,25 @@ class Dynamic : LinkedHashMap<String, Any> {
     constructor(dynamic: Dynamic) : super(dynamic)
     constructor(map: Map<String, Any>) { putAll(map) }
 
+    companion object {
+        fun <V: Any> defaultValue(clazz: KClass<*>): Any =
+                when (clazz) {
+                    Int::class -> 0
+                    Long::class -> 0L
+                    Double::class -> 0.0
+                    String::class -> ""
+                    Boolean::class -> false
+                    MutableSet::class -> mutableSetOf<V>()
+                    MutableList::class -> mutableListOf<V>()
+                    TimeInt::class -> TimeInt(0)
+                    TimeString::class -> TimeString("")
+                    TimeBoolean::class -> TimeBoolean(false)
+                    LocalDate::class -> LocalDate.now()
+                    LocalDateTime::class -> LocalDateTime.now()
+                    else -> error("unsupported $clazz")
+                }
+    }
+
     override fun put(key: String, value: Any): Any? {
         return if (value is Map<*, *>) {
             super.put(key, Dynamic(value as Map<String, Any>))
@@ -43,23 +62,9 @@ class Dynamic : LinkedHashMap<String, Any> {
         return Triple(obj, name, obj.get(name))
     }
 
-    fun <V: Any> put(key: String, clazz: KClass<*>, eval: (Value<V>.() -> Any)): Any {
+    fun <V: Any> put(key: String, clazz: KClass<*>, default: (() -> V)? = null, eval: (Value<V>.() -> Any)): Any {
         val triple = item(key)
-        var any = triple.third?:when (clazz) {
-            Int::class -> 0
-            Long::class -> 0L
-            Double::class -> 0.0
-            String::class -> ""
-            Boolean::class -> false
-            MutableSet::class -> mutableSetOf<V>()
-            MutableList::class -> mutableListOf<V>()
-            TimeInt::class -> TimeInt(0)
-            TimeString::class -> TimeString("")
-            TimeBoolean::class -> TimeBoolean(false)
-            LocalDate::class -> LocalDate.now()
-            LocalDateTime::class -> LocalDateTime.now()
-            else -> error("unsupported $clazz")
-        }
+        var any = triple.third ?: default?.invoke() ?: defaultValue<V>(clazz)
         return if (any is Value<*>) {
             eval(any as Value<V>)
         } else {
@@ -73,13 +78,13 @@ class Dynamic : LinkedHashMap<String, Any> {
     inline operator fun <reified V: Any> invoke(key: String, any: V) = put<V>(key, V::class) { value = any; Unit }
 
     inline operator fun <reified V: Any> invoke(key: String, noinline eval: (Value<V>.() -> Any)): Any =
-            put(key, V::class, eval)
+            put(key, V::class, null, eval)
 
     inline fun <reified V> set(key: String, noinline eval: (Value<MutableSet<V>>.() -> Any)): Any =
-            put(key, MutableSet::class, eval)
+            put(key, MutableSet::class, null, eval)
 
     inline fun <reified V> list(key: String, noinline eval: (Value<MutableList<V>>.() -> Any)): Any =
-            put(key, MutableList::class, eval)
+            put(key, MutableList::class, null, eval)
 
     operator fun invoke(key: String): Any = item(key).third?:error("missing item $key")
 

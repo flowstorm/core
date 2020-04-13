@@ -42,6 +42,6 @@ internal class DialogueBuilderTest {
 
         }
 
-        dialogueBuilder.build(source)
+        //dialogueBuilder.build(source)
     }
 }

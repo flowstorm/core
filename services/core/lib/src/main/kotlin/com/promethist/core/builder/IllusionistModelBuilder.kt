@@ -5,7 +5,6 @@ import com.promethist.common.RestClient
 import com.promethist.core.builder.IntentModelBuilder.Output
 import com.promethist.core.Dialogue
 import com.promethist.util.LoggerDelegate
-import org.slf4j.LoggerFactory
 import java.net.URL
 import java.util.*
 import javax.ws.rs.WebApplicationException
