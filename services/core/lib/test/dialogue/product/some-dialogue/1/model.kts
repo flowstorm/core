@@ -1,6 +1,7 @@
 package `product`.`some-dialogue`
 
 import com.promethist.core.Dialogue
+import com.promethist.core.type.Dynamic
 
 data class Model1(
         // dialogue properties
@@ -11,8 +12,11 @@ data class Model1(
 ) : Dialogue() {
     override val name: String = "product/some-dialogue/1/model"
 
+    //val movies by loader<List<Movie>>("file:///Users/tomas.zajicek/Projects/promethist-main/local/movies.json")
+    val movies by loader<List<Dynamic>>("https://raw.githubusercontent.com/vega/vega/master/docs/data/movies.json")
+
     // dialogue functions and local values (declared in editor dialogue init section)
-    val data by loader<Map<String, Any>>("$name/data")
+    val data by loader<Dynamic>("$name/data")
 
     var testx0 by sessionAttribute<Int>() // default value will be 0
     var testx1 by sessionAttribute { 1 } // specific default value (not 0)
@@ -49,6 +53,7 @@ data class Model1(
         //-- start of dialogue script
         println("turn = $turn")
         println("data = $data")
+        movies.forEach { println(it["Title"]) }
         println("session.attributes = ${session.attributes}")
         testx0++
         testx1++

@@ -1,6 +1,7 @@
 package com.promethist.core.runtime
 
-import com.promethist.common.ObjectUtil
+import com.fasterxml.jackson.core.type.TypeReference
+import com.promethist.common.ObjectUtil.defaultMapper as mapper
 import com.promethist.util.LoggerDelegate
 import org.slf4j.LoggerFactory
 import java.io.InputStream
@@ -32,19 +33,14 @@ abstract class AbstractLoader(open val noCache: Boolean) : Loader {
         Kotlin.loadClass(InputStreamReader(getInputStream("$name.kts")))
     }
 
-    override fun <T : Any> loadObject(name: String): T = cache("$name.json") {
-        logger.info("loading object $name")
-        ObjectUtil.defaultMapper.readValue(getInputStream("$name.json"), Map::class.java) as T
-    }
-
     override fun loadText(name: String): String = cache("$name.txt") {
         logger.info("loading text $name")
         String(getInputStream("$name.txt").readBytes())
     }
 
-    override fun <T : Any> loadObject(name: String, type: KClass<T>): T = cache("$name.json") {
+    override fun <T : Any> loadObject(name: String): T = cache("$name.json") {
         logger.info("loading object $name")
-        ObjectUtil.defaultMapper.readValue<T>(getInputStream("$name.json"), type.java) as T
+        mapper.readValue<T>(getInputStream("$name.json"), object : TypeReference<T>() {}) as T
     }
 
     override fun <T : Any> newObject(name: String, vararg args: Any?): T {

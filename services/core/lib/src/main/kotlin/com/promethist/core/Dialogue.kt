@@ -1,5 +1,6 @@
 package com.promethist.core
 
+import com.fasterxml.jackson.core.type.TypeReference
 import com.promethist.common.ObjectUtil.defaultMapper as mapper
 import com.promethist.core.runtime.Loader
 import org.slf4j.Logger
@@ -172,20 +173,20 @@ abstract class Dialogue {
         return sb.toString()
     }
 
-    inline fun <reified T: Any> loader(path: String): Lazy<T> = lazy {
+    fun <T: Any> loader(path: String): Lazy<T> = lazy {
         when {
             path.startsWith("file:///") ->
                 FileInputStream(File(path.substring(7))).use {
-                    mapper.readValue(it, T::class.java)
+                    mapper.readValue<T>(it, object : TypeReference<T>() {})
                 }
             path.startsWith("http") ->
                 URL(path).openStream().use {
-                    mapper.readValue(it, T::class.java)
+                    mapper.readValue<T>(it, object : TypeReference<T>() {})
             }
             path.startsWith("./") ->
-                loader.loadObject<T>(name + path.substring(1))
+                loader.loadObject<T>(name + path.substring(1).substringBeforeLast(".json"))
             else ->
-                loader.loadObject<T>(path)
+                loader.loadObject<T>(path.substringBeforeLast(".json"))
         }
     }
 

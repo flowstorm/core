@@ -1,5 +1,7 @@
 package com.promethist.core.runtime
 
+import com.fasterxml.jackson.core.type.TypeReference
+import com.promethist.common.ObjectUtil
 import com.promethist.common.RestClient
 import com.promethist.core.Component
 import com.promethist.core.Context
@@ -9,10 +11,12 @@ import com.promethist.core.Pipeline
 import com.promethist.core.model.metrics.Metrics
 import com.promethist.core.provider.LocalFileStorage
 import com.promethist.core.resources.FileResource
+import com.promethist.core.type.Dynamic
 import com.promethist.util.LoggerDelegate
 import org.slf4j.LoggerFactory
 import java.io.BufferedReader
 import java.io.File
+import java.io.FileInputStream
 import java.io.InputStreamReader
 import java.util.*
 
