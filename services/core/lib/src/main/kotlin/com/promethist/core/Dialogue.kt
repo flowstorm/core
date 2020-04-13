@@ -1,9 +1,12 @@
 package com.promethist.core
 
+import com.promethist.common.ObjectUtil.defaultMapper as mapper
 import com.promethist.core.runtime.Loader
 import org.slf4j.Logger
+import java.io.File
+import java.io.FileInputStream
+import java.net.URL
 import kotlin.random.Random
-import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.full.createType
 import kotlin.reflect.full.isSubtypeOf
@@ -169,7 +172,20 @@ abstract class Dialogue {
         return sb.toString()
     }
 
-    fun <T: Any> loader(name: String): Lazy<T> = lazy { loader.loadObject<T>(name) }
+    inline fun <reified T: Any> loader(path: String): Lazy<T> = lazy {
+        when {
+            path.startsWith("file:///") ->
+                FileInputStream(File(path.substring(7))).use {
+                    mapper.readValue(it, T::class.java)
+                }
+            path.startsWith("http") ->
+                URL(path).openStream().use {
+                    mapper.readValue(it, T::class.java)
+            }
+            else ->
+                loader.loadObject<T>(path)
+        }
+    }
 
     companion object: DialogueScript()
 }
