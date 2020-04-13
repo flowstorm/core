@@ -6,16 +6,20 @@ import java.security.MessageDigest
 import java.time.LocalDateTime
 import java.util.*
 
-class DialogueSourceCodeBuilder(
-        val name: String,
-        val parameters: Map<String, Any>,
-        val config: Map<String, Any>
-) {
+class DialogueSourceCodeBuilder(val name: String) {
+
+    // builder configuration:
+    var parameters: Map<String, Any> = mapOf()
+    var config: Map<String, Any> = mapOf()
     var initCode: CharSequence = ""
     var extensionCode: CharSequence = ""
     var parentClass: String = "Dialogue"
-    val code
-        get() = build() //todo lazy build
+
+    var code: String = ""
+        get() {
+            if (field.isEmpty()) error("Code has not been build yet.")
+            return field
+        }
 
     private val source = StringBuilder()
     private val className: String
@@ -23,14 +27,16 @@ class DialogueSourceCodeBuilder(
     private val names: MutableList<String>
 
     init {
-        logger.info("initializing builder of dialogue model $name : $parentClass")
         if (!name.matches(Regex("([\\w\\-]+)/([\\w\\-]+)/(\\d+)")))
             error("dialogue name $name does not conform to naming convention (product-name/dialogue-name/dialogue-version)")
         names = name.split("/").toMutableList()
         className = "Model" + names.removeAt(names.size - 1)
     }
 
-    fun build(): String {
+    fun build() {
+        logger.info("building source code for $name")
+        logger.info("class $className : $parentClass")
+
         source.clear()
         writeHeader()
         writeClassSignature()
@@ -50,7 +56,9 @@ class DialogueSourceCodeBuilder(
             source.append(extensionCode)
         }
         source.appendln("$className::class")
-        return source.toString()
+        logger.info("built source code for $name")
+
+        code = source.toString()
     }
 
     private val intents = mutableListOf<Intent>()

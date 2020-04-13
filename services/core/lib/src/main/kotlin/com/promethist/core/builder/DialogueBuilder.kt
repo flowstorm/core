@@ -2,11 +2,11 @@ package com.promethist.core.builder
 
 import com.promethist.core.Dialogue
 import com.promethist.core.resources.FileResource
-import com.promethist.core.runtime.FileResourceLoader
 import com.promethist.core.runtime.Kotlin
 import com.promethist.util.LoggerDelegate
 import org.jetbrains.kotlin.daemon.common.toHexString
 import java.io.ByteArrayInputStream
+import java.io.InputStream
 import java.io.StringReader
 import java.security.MessageDigest
 import java.util.*
@@ -24,59 +24,79 @@ class DialogueBuilder() {
 
     private val version = "undefined"
 
-    fun createDialogue(source: DialogueSourceCodeBuilder): Dialogue {
-        logger.info("creating dialogue model instance ${source.name}")
-        val loader = FileResourceLoader(fileResource, "dialogue")
+    fun create(name: String): Builder = Builder(name)
 
-        //todo remove args?
-        return Kotlin.newObject(Kotlin.loadClass(StringReader(source.code)), *source.parameters.values.toTypedArray())
+    interface Resource {
+        val filename: String
+        val stream: InputStream
     }
 
-    fun deploy(source: DialogueSourceCodeBuilder) {
-        val path = "dialogue/${source.name}/model.kts"
-        logger.info("writing dialogue model to file resource $path")
-        val stream = ByteArrayInputStream(source.code.toByteArray())
-        fileResource.writeFile(path, "text/kotlin", listOf("version:$version"), stream)
-        logger.info("dialogue model ${source.name} built successfully")
-    }
+    inner class Builder(val name: String) {
+        val source = DialogueSourceCodeBuilder(name)
+        val resources: MutableList<Resource> = mutableListOf()
+        val basePath = "dialogue/${name}/"
 
-    fun buildIntentModels(name:String, dialogue: Dialogue) {
-        logger.info("building intent models for dialogue model $name")
-        val intentModels = mutableMapOf<String, String>()
-        val language = Locale(dialogue.language)
+        fun addResource(resource: Resource) = resources.add(resource)
 
-        dialogue.globalIntents.apply/*ifNotEmpty*/ {
-
-
-            val modelName = "$name"
-            val modelId = md5(modelName)
-            intentModels[modelName] = modelId
-            intentModelBuilder.build(modelId, name, language, this)
+        /**
+         * Builds dialogue model with intent model and stores dialogue model class with included files using file resource.
+         */
+        fun build() {
+            logger.info("start building dialogue model $name")
+            source.build()
+            val dialogue = createDialogue()
+            validate(dialogue)
+            saveSourceCode()
+            saveResources()
+            buildIntentModels(dialogue)
+            logger.info("finished building dialogue model $name")
         }
 
-        dialogue.userInputs.forEach {
-            val modelName = "${name}#${it.id}"
-            val modelId = md5(modelName)
-            intentModels[modelName] = modelId
-            intentModelBuilder.build(modelId, modelName, language, it.intents.asList())
+        fun validate(dialogue: Dialogue) {
+            dialogue.validate()
         }
-        logger.info("builded intent models: $intentModels")
-    }
 
-    fun validate(dialogue: Dialogue) {
-        logger.info("validating dialogue model $dialogue")
-        dialogue.validate()
-    }
+        fun createDialogue(): Dialogue {
+            logger.info("creating dialogue model instance $name")
+            //todo remove args?
+            return Kotlin.newObject(Kotlin.loadClass(StringReader(source.code)), *source.parameters.values.toTypedArray())
+        }
 
-    /**
-     * Builds dialogue model with intent model and stores dialogue model class with included files using file resource.
-     */
-    fun build(source: DialogueSourceCodeBuilder) {
-        val dialogue = createDialogue(source)
+        fun saveSourceCode() {
+            val path = basePath + "model.kts"
+            logger.info("saving dialogue model $name to file resource $path")
+            val stream = ByteArrayInputStream(source.code.toByteArray())
+            fileResource.writeFile(path, "text/kotlin", listOf("version:$version"), stream)
+        }
 
-        validate(dialogue)
-        buildIntentModels(source.name, dialogue)
-        deploy(source)
+        fun saveResources() {
+            resources.forEach {
+                val path = "${basePath}resources/${it.filename}"
+                logger.info("saving resource file ${it.filename}")
+                fileResource.writeFile(path, "text/json", listOf(), it.stream)
+            }
+        }
+
+        fun buildIntentModels(dialogue: Dialogue) {
+            logger.info("building intent models for dialogue model $name")
+            val intentModels = mutableMapOf<String, String>()
+            val language = Locale(dialogue.language)
+
+            dialogue.globalIntents.apply/*ifNotEmpty*/ {
+                val modelName = name
+                val modelId = md5(modelName)
+                intentModels[modelName] = modelId
+                intentModelBuilder.build(modelId, modelName, language, this)
+            }
+
+            dialogue.userInputs.forEach {
+                val modelName = "${name}#${it.id}"
+                val modelId = md5(modelName)
+                intentModels[modelName] = modelId
+                intentModelBuilder.build(modelId, modelName, language, it.intents.asList())
+            }
+            logger.info("built intent models: $intentModels")
+        }
     }
 
     companion object {
