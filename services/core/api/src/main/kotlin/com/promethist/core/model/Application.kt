@@ -1,5 +1,6 @@
 package com.promethist.core.model
 
+import com.promethist.core.type.MutablePropertyMap
 import org.litote.kmongo.Id
 import org.litote.kmongo.newId
 
@@ -10,7 +11,7 @@ open class Application(
         open var ttsVoice: String,
         open var startCondition: StartCondition = StartCondition(StartCondition.Type.OnAction, "\$intro"),
         open var dialogueEngine: String = "helena",
-        open var properties: MutableMap<String, Any> = mutableMapOf()
+        open var properties: MutablePropertyMap = mutableMapOf()
 ) {
     data class StartCondition(
             var type: Type,

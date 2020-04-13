@@ -1,13 +1,12 @@
 package com.promethist.core.resources
 
 import com.promethist.core.model.Application
-import com.promethist.core.model.SessionProperties
 import com.promethist.core.model.User
+import com.promethist.core.type.MutablePropertyMap
 import io.swagger.annotations.Api
 import io.swagger.annotations.Authorization
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
-
 
 @Api(tags = ["Content Distribution"], authorizations = [Authorization("Authorization")])
 @Path("/contentDistribution")
@@ -27,5 +26,5 @@ interface ContentDistributionResource {
             val starCondition: Application.StartCondition
     )
 
-    data class ContentResponse(val application: Application, val user: User, val sessionProperties: SessionProperties)
+    data class ContentResponse(val application: Application, val user: User, val sessionProperties: MutablePropertyMap)
 }

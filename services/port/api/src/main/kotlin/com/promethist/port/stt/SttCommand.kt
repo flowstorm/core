@@ -1,10 +1,11 @@
 package com.promethist.port.stt
 
+import com.promethist.core.type.PropertyMap
 import java.io.Serializable
 
 data class SttCommand(
         var type: Type? = null,
-        var params: Map<String, Any>? = null) : Serializable {
+        var params: PropertyMap? = null) : Serializable {
 
     enum class Type {
         Init,

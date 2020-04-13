@@ -1,7 +1,5 @@
 package com.promethist.core.type
 
-import com.fasterxml.jackson.databind.JsonDeserializer
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import java.time.LocalDate
 import java.time.LocalDateTime
 import kotlin.collections.LinkedHashMap
@@ -11,7 +9,7 @@ class Dynamic : LinkedHashMap<String, Any> {
 
     constructor() : super()
     constructor(dynamic: Dynamic) : super(dynamic)
-    constructor(map: Map<String, Any>) { putAll(map) }
+    constructor(map: PropertyMap) { putAll(map) }
 
     companion object {
         fun <V: Any> defaultValue(clazz: KClass<*>): Any =
@@ -34,7 +32,7 @@ class Dynamic : LinkedHashMap<String, Any> {
 
     override fun put(key: String, value: Any): Any? {
         return if (value is Map<*, *>) {
-            super.put(key, Dynamic(value as Map<String, Any>))
+            super.put(key, Dynamic(value as PropertyMap))
         } else {
             super.put(key, value)
         }

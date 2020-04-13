@@ -11,6 +11,7 @@ import com.promethist.core.Input
 import com.promethist.core.Request
 import com.promethist.core.Response
 import com.promethist.core.resources.CoreResource
+import com.promethist.core.type.MutablePropertyMap
 import com.promethist.port.stt.*
 import com.promethist.port.tts.TtsRequest
 import com.promethist.util.LoggerDelegate
@@ -251,7 +252,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
         }
         if (!ttsOnly) {
             if (lastMessageTime != null)
-                (response.attributes as MutableMap<String, Any>)["portResponseTime"] = (System.currentTimeMillis() - lastMessageTime!!)
+                (response.attributes as MutablePropertyMap)["portResponseTime"] = (System.currentTimeMillis() - lastMessageTime!!)
             sendEvent(BotEvent.Response(response))
         }
     }

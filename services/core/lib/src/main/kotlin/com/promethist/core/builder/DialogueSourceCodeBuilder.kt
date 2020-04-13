@@ -1,5 +1,6 @@
 package com.promethist.core.builder
 
+import com.promethist.core.type.PropertyMap
 import com.promethist.util.LoggerDelegate
 import org.jetbrains.kotlin.daemon.common.toHexString
 import java.security.MessageDigest
@@ -9,8 +10,8 @@ import java.util.*
 class DialogueSourceCodeBuilder(val name: String) {
 
     // builder configuration:
-    var parameters: Map<String, Any> = mapOf()
-    var config: Map<String, Any> = mapOf()
+    var parameters: PropertyMap = mapOf()
+    var config: PropertyMap = mapOf()
     var initCode: CharSequence = ""
     var extensionCode: CharSequence = ""
     var parentClass: String = "Dialogue"

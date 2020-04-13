@@ -1,7 +1,6 @@
 package com.promethist.common
 
 import com.promethist.util.LoggerDelegate
-import org.slf4j.LoggerFactory
 import java.io.FileInputStream
 import java.io.Serializable
 import java.lang.NullPointerException

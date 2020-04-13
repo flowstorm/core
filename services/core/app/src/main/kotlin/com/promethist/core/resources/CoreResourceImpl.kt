@@ -9,6 +9,7 @@ import com.promethist.core.model.Application
 import com.promethist.core.model.metrics.Metric
 import com.promethist.core.resources.ContentDistributionResource.ContentRequest
 import com.promethist.core.runtime.DialogueLog
+import com.promethist.core.type.PropertyMap
 import com.promethist.util.LoggerDelegate
 import java.io.Serializable
 import javax.inject.Inject
@@ -110,7 +111,7 @@ class CoreResourceImpl : CoreResource {
         responseMessage.apply { this.items.forEach { it.ttsVoice = it.ttsVoice ?: session.application.ttsVoice } }
 
         val metrics = if (responseMessage.attributes.containsKey("metrics"))
-            responseMessage.attributes["metrics"] as Map<String, Any>
+            responseMessage.attributes["metrics"] as PropertyMap
         else mapOf()
         updateMetrics(session, metrics)
 
@@ -195,17 +196,17 @@ class CoreResourceImpl : CoreResource {
         return Response(items, dialogueLog.log, mutableMapOf<String, Any>(), mutableListOf(), sessionEnded = true)
     }
 
-    private fun updateMetrics(session: Session, metrics: Map<String, Any>) {
+    private fun updateMetrics(session: Session, metrics: PropertyMap) {
         for (namespaceMetrics in metrics) {
             if (namespaceMetrics.value is Message.PropertyMap) {
-                updateMetricsValues(session, namespaceMetrics.key, namespaceMetrics.value as Map<String, Any>)
+                updateMetricsValues(session, namespaceMetrics.key, namespaceMetrics.value as PropertyMap)
             } else {
                 //TODO warning
             }
         }
     }
 
-    private fun updateMetricsValues(session: Session, namespace: String, metrics: Map<String, Any>) {
+    private fun updateMetricsValues(session: Session, namespace: String, metrics: PropertyMap) {
         for (item in metrics) {
             if (item.value is Long) {
                 val m = session.metrics.filter { it.namespace == namespace && it.name == item.key }.firstOrNull()
