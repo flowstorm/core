@@ -1,6 +1,7 @@
 package com.promethist.core.runtime
 
 import com.promethist.core.*
+import com.promethist.core.dialogue.Dialogue
 import com.promethist.core.model.Session
 import com.promethist.util.LoggerDelegate
 
