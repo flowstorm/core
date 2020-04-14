@@ -67,7 +67,9 @@ class Application : JerseyApplication() {
                         .path("/query")
                         .queryParam("input_tokenized", true)
                         .queryParam("output_tokenized", true)
-                bind(cassandra).to(Component::class.java).named("cassandra")
+//temporarilly disable casandra
+//                bind(cassandra).to(Component::class.java).named("cassandra")
+
 
                 // tokenizer (first)
                 bind(InternalTokenizer()).to(Component::class.java).named("tokenizer")
