@@ -54,6 +54,6 @@ class DynamicTest {
             println("cat remembered ${it.time}")
         }
         println("dog remembered ${mem.set<TimeString>("animals").filter { it.value == "dog" }.size}x")
-        println("all remembered animals ${mem.set<TimeString>("animals").filter { it.yesterday() }.map { it.value }}.")
+        println("all remembered animals ${mem.set<TimeString>("animals").filter { it.wasYesterday() }.map { it.value }}.")
     }
 }

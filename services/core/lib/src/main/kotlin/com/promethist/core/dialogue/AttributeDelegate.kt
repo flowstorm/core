@@ -6,7 +6,7 @@ import kotlin.reflect.KProperty
 class AttributeDelegate<V: Any>(
         private val scope: Scope,
         private val clazz: KClass<*>,
-        private val namespace: String,
+        private val namespace: String? = null,
         private val default: (() -> V)? = null
 ) {
     enum class Scope { Turn, Session, Profile }
@@ -20,8 +20,8 @@ class AttributeDelegate<V: Any>(
     }
 
     operator fun getValue(thisRef: Dialogue, property: KProperty<*>): V =
-            attributes.put("$namespace.${property.name}", clazz, default) { value } as V
+            attributes.put((namespace?.plus(".")?:"") + property.name, clazz, default) { value } as V
 
     operator fun setValue(thisRef: Dialogue, property: KProperty<*>, any: V) =
-            attributes.put("$namespace.${property.name}", clazz, default) { value = any; Unit }
+            attributes.put((namespace?.plus(".")?:"") + property.name, clazz, default) { value = any; Unit }
 }

@@ -13,7 +13,7 @@ open class TimeValue<V>(override var value: V, private val timestamp: Long = Sys
     val time: LocalDateTime
         get() = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), TimeZone.getDefault().toZoneId())
 
-    fun day(from: Long, to: Long = from): Boolean {
+    fun wasDay(from: Long, to: Long = from): Boolean {
         var fromDay = LocalDateTime.now().minus(from, ChronoUnit.DAYS)
         var toDay = LocalDateTime.now().minus(to, ChronoUnit.DAYS)
         if (fromDay.isAfter(toDay)) {
@@ -27,7 +27,7 @@ open class TimeValue<V>(override var value: V, private val timestamp: Long = Sys
         return time.isEqual(fromTime) || time.isEqual(toTime) || (time.isAfter(fromTime) && time.isBefore(toTime))
     }
 
-    fun today() = day(0, 0)
-    fun yesterday() = day(1, 1)
+    fun isToday() = wasDay(0, 0)
+    fun wasYesterday() = wasDay(1, 1)
 
 }
