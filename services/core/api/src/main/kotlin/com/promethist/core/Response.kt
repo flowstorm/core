@@ -37,6 +37,8 @@ open class Response(
             /**
              * TTS voice
              */
-            var ttsVoice: String? = null
+            var ttsVoice: String? = null,
+
+            var repeatable: Boolean = true
     )
 }

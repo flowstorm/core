@@ -74,7 +74,6 @@ class DialogueManager(private val loader: Loader) : Component {
         while (inputRequested == null) {
             if (step++ > 20) error("Too much steps in processing dialogue (infinite loop?)")
 
-            frame.nodeId = node.id
             processedNodes.add(node)
             when (node) {
                 is Dialogue.UserInput -> {
@@ -82,22 +81,12 @@ class DialogueManager(private val loader: Loader) : Component {
                     node.intents.forEach { intent ->
                         context.expectedPhrases.addAll(intent.utterances.map { text -> ExpectedPhrase(text) })
                     }
+                    frame.nodeId = node.id
                     inputRequested = true
                 }
                 is Dialogue.Repeat -> {
-                    //TODO not tested yet!!!
-                    var prevNodeId = 0
-                    for (i in session.turns.size - 1 downTo 0) {
-                        val prevFrame = session.dialogueStack.first()
-                        val prevNode = dialogue.node(prevFrame.nodeId)
-                        if (prevFrame.name == dialogue.name) {
-                            if (prevNode is Dialogue.Response && prevNode.isRepeatable)
-                                prevNodeId = prevFrame.nodeId
-                            else if (prevNodeId != 0)
-                                break
-                        }
-                    }
-                    frame.nodeId = prevNodeId
+                    session.turns.last().responseItems.forEach { turn.responseItems.add(it) }
+                    inputRequested = true
                 }
                 is Dialogue.Function -> {
                     val transition = node.exec(context)
@@ -119,7 +108,7 @@ class DialogueManager(private val loader: Loader) : Component {
                 is Dialogue.TransitNode -> {
                     if (node is Dialogue.Response) {
                         val text = node.getText(context)
-                        turn.addResponseItem(text, node.image, node.audio, node.video)
+                        turn.addResponseItem(text, node.image, node.audio, node.video, repeatable = node.isRepeatable)
                     }
                     node = node.next
                 }

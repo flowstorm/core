@@ -12,11 +12,14 @@ data class Turn(
         val responseItems: MutableList<Response.Item> = mutableListOf()
 ) {
 
-    fun addResponseItem(text: String, image: String? = null, audio: String? = null, video: String? = null) {
+    fun addResponseItem(text: String, image: String? = null, audio: String? = null, video: String? = null, repeatable: Boolean = true) {
         val plainText = text.replace(Regex("\\<.*?\\>"), "")
         val item = Response.Item(plainText,
                 ssml = if (text != plainText) text else null,
-                image = image, audio = audio, video = video)
+                image = image, audio = audio, video = video,
+                repeatable = repeatable
+        )
+
         responseItems.add(item)
     }
 }
