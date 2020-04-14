@@ -1,7 +1,7 @@
 package com.promethist.core.runtime
 
 import com.promethist.core.*
-import com.promethist.core.model.Turn
+import com.promethist.core.model.Session
 import com.promethist.util.LoggerDelegate
 
 class DialogueManager(private val loader: Loader) : Component {
@@ -33,7 +33,7 @@ class DialogueManager(private val loader: Loader) : Component {
 
     override fun process(context: Context): Context = with (context) {
         this@DialogueManager.logger.info("processing DM")
-        if (turn.dialogueStack.isEmpty()) {
+        if (session.dialogueStack.isEmpty()) {
             start(get("${context.session.application.dialogueName}/model", context,
                     context.session.application.properties.values.toTypedArray()), context)
         } else {
@@ -46,7 +46,7 @@ class DialogueManager(private val loader: Loader) : Component {
         this@DialogueManager.logger.info("starting ${dialogue.name}\n" + dialogue.describe())
         dialogue.validate()
         set(dialogue.name, context, dialogue)
-        turn.dialogueStack.push(Turn.DialogueStackFrame(dialogue.name))
+        session.dialogueStack.push(Session.DialogueStackFrame(dialogue.name))
         return proceed(context)
     }
 
@@ -54,7 +54,7 @@ class DialogueManager(private val loader: Loader) : Component {
      * @return true if next user input requested, false if session ended
      */
     private fun proceed(context: Context): Boolean = with (context) {
-        var frame = turn.dialogueStack.first()
+        val frame = session.dialogueStack.first()
         val dialogue = get(frame.name, context)
         var node = dialogue.node(frame.nodeId)
         if (node is Dialogue.UserInput) {
@@ -88,7 +88,7 @@ class DialogueManager(private val loader: Loader) : Component {
                     //TODO not tested yet!!!
                     var prevNodeId = 0
                     for (i in session.turns.size - 1 downTo 0) {
-                        val prevFrame = session.turns[i].dialogueStack.first()
+                        val prevFrame = session.dialogueStack.first()
                         val prevNode = dialogue.node(prevFrame.nodeId)
                         if (prevFrame.name == dialogue.name) {
                             if (prevNode is Dialogue.Response && prevNode.isRepeatable)
@@ -104,12 +104,12 @@ class DialogueManager(private val loader: Loader) : Component {
                     node = transition.node
                 }
                 is Dialogue.StopSession -> {
-                    turn.dialogueStack.clear()
+                    session.dialogueStack.clear()
                     inputRequested = false
                 }
                 is Dialogue.StopDialogue -> {
-                    turn.dialogueStack.pop()
-                    inputRequested =  if (turn.dialogueStack.isEmpty()) false else proceed(context)
+                    session.dialogueStack.pop()
+                    inputRequested =  if (session.dialogueStack.isEmpty()) false else proceed(context)
                 }
                 is Dialogue.SubDialogue -> {
                     val subDialogue = node.createDialogue(context)

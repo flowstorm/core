@@ -5,7 +5,7 @@ import com.promethist.core.Component
 import com.promethist.core.Context
 import com.promethist.core.Input
 import com.promethist.core.builder.DialogueSourceCodeBuilder
-import com.promethist.core.model.Turn
+import com.promethist.core.model.Session
 import com.promethist.util.LoggerDelegate
 import javax.inject.Inject
 import javax.ws.rs.client.Entity
@@ -20,12 +20,12 @@ class Illusionist : Component {
     private val logger by LoggerDelegate()
 
     override fun process(context: Context): Context {
-        if (context.turn.dialogueStack.isEmpty()) {
+        if (context.session.dialogueStack.isEmpty()) {
             logger.info("processing IR - nothing to do")
             return context.pipeline.process(context)
         }
 
-        val models = getModels(context.turn.dialogueStack.first)
+        val models = getModels(context.session.dialogueStack.first)
         context.logger.info("processing IR with models $models")
 
         val request = Request(context.input.transcript.text, models.values.toList())
@@ -38,7 +38,7 @@ class Illusionist : Component {
         return context.pipeline.process(context)
     }
 
-    private fun getModels(frame: Turn.DialogueStackFrame): Map<String, String> = mapOf(
+    private fun getModels(frame: Session.DialogueStackFrame): Map<String, String> = mapOf(
             frame.name to DialogueSourceCodeBuilder.md5(frame.name),
             "${frame.name}#${frame.nodeId}" to DialogueSourceCodeBuilder.md5("${frame.name}#${frame.nodeId}")
     )

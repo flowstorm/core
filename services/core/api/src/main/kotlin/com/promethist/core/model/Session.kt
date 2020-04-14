@@ -21,8 +21,11 @@ data class Session(
         val metrics: MutableList<Metric> = mutableListOf(),
         val properties: SessionProperties = mutableMapOf(),
         val attributes: Dynamic = Dynamic(),
+        val dialogueStack: LinkedList<DialogueStackFrame> = LinkedList(),
         val log: MutableList<LogEntry> = mutableListOf()
 ) {
+
+    data class DialogueStackFrame(val name: String, var nodeId: Int = 0, var skipGlobalIntents: Boolean = false)
 
     data class Message(
             val datetime: Date?,

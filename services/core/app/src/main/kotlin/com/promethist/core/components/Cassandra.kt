@@ -18,7 +18,7 @@ class Cassandra : Component {
     private val logger by LoggerDelegate()
 
     override fun process(context: Context): Context {
-        if (context.turn.dialogueStack.isEmpty()) {
+        if (context.session.dialogueStack.isEmpty()) {
             logger.info("processing NER - nothing to do")
             return context.pipeline.process(context)
         }

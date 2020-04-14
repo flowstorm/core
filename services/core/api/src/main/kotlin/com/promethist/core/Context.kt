@@ -13,7 +13,7 @@ data class Context(var pipeline: Pipeline, val profile: Profile, val session: Se
     val attributes get() = turn.attributes
     val application get() = session.application
     val previousTurns get() = session.turns.reversed()
-    val sessionEnded get() = turn.dialogueStack.isEmpty()
+    val sessionEnded get() = session.dialogueStack.isEmpty()
     fun processPipeline() = pipeline.process(this)
 
     // other properties
