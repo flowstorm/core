@@ -5,7 +5,7 @@ import java.time.LocalDateTime
 import kotlin.collections.LinkedHashMap
 import kotlin.reflect.KClass
 
-class Dynamic : LinkedHashMap<String, Any> {
+class Dynamic : LinkedHashMap<String, Any>, MutablePropertyMap {
 
     constructor() : super()
     constructor(dynamic: Dynamic) : super(dynamic)

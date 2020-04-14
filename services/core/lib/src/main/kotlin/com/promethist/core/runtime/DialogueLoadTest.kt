@@ -1,6 +1,7 @@
 package com.promethist.core.runtime
 
 import com.promethist.core.*
+import com.promethist.core.dialogue.Dialogue
 import com.promethist.core.model.*
 import com.promethist.core.model.metrics.Metrics
 import com.promethist.core.provider.LocalFileStorage

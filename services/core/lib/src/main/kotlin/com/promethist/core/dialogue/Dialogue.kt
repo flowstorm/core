@@ -1,6 +1,7 @@
-package com.promethist.core
+package com.promethist.core.dialogue
 
 import com.fasterxml.jackson.core.type.TypeReference
+import com.promethist.core.Context
 import com.promethist.common.ObjectUtil.defaultMapper as mapper
 import com.promethist.core.runtime.Loader
 import org.slf4j.Logger
@@ -59,7 +60,7 @@ abstract class Dialogue {
                 this(id, false, intents, lambda)
 
         fun process(context: Context): Transition? =
-                withCurrentContext(context) { lambda(context, this) } as Transition?
+                threadContext(context, this@Dialogue) { lambda(context, this) } as Transition?
     }
 
     open inner class Intent(
@@ -90,7 +91,7 @@ abstract class Dialogue {
 
         constructor(id: Int, vararg text: (Context.(Response) -> String)) : this(id, true, *text)
 
-        fun getText(context: Context, index: Int = -1) = withCurrentContext(context) {
+        fun getText(context: Context, index: Int = -1) = threadContext(context, this@Dialogue) {
             texts[if (index < 0) Random.nextInt(texts.size) else index](context, this)
         } as String
     }
@@ -102,7 +103,7 @@ abstract class Dialogue {
             val lambda: (Context.(Function) -> Transition)
     ): Node(id) {
         fun exec(context: Context): Transition =
-                withCurrentContext(context) { lambda(context, this) } as Transition
+                threadContext(context, this@Dialogue) { lambda(context, this) } as Transition
     }
 
     inner class SubDialogue(
@@ -111,7 +112,7 @@ abstract class Dialogue {
             val lambda: (Context.(SubDialogue) -> Dialogue)): TransitNode(id) {
 
         fun createDialogue(context: Context): Dialogue =
-                withCurrentContext(context) { lambda(context, this) } as Dialogue
+                threadContext(context, this@Dialogue) { lambda(context, this) } as Dialogue
 
         fun create(vararg arg: Any) =
                 loader.newObject<Dialogue>("$name/model", *arg).apply { loader = this@Dialogue.loader }
@@ -125,13 +126,13 @@ abstract class Dialogue {
     inner class StopSession(override val id: Int) : Node(id)
 
     inline fun <reified V: Any> turnAttribute(namespace: String = nameWithoutVersion, noinline default: (() -> V)? = null) =
-            AttributeDelegate(DialogueScript.AttributeScope.Turn, V::class, namespace, default)
+            AttributeDelegate(AttributeDelegate.Scope.Turn, V::class, namespace, default)
 
     inline fun <reified V: Any> sessionAttribute(namespace: String = nameWithoutVersion, noinline default: (() -> V)? = null) =
-            AttributeDelegate(DialogueScript.AttributeScope.Session, V::class, namespace, default)
+            AttributeDelegate(AttributeDelegate.Scope.Session, V::class, namespace, default)
 
     inline fun <reified V: Any> profileAttribute(namespace: String = nameWithoutVersion, noinline default: (() -> V)? = null) =
-            AttributeDelegate(DialogueScript.AttributeScope.Profile, V::class, namespace, default)
+            AttributeDelegate(AttributeDelegate.Scope.Profile, V::class, namespace, default)
 
     val nameWithoutVersion get() = name.substringBeforeLast("/")
 
@@ -190,6 +191,20 @@ abstract class Dialogue {
         }
     }
 
-    companion object: DialogueScript()
-}
+    class ThreadContext(val dialogue: Dialogue, val context: Context)
 
+    companion object : DialogueScript() {
+
+        private val threadContext = ThreadLocal<ThreadContext>()
+
+        fun threadContext() = threadContext.get() ?: error("out of thread context")
+
+        fun threadContext(context: Context, dialogue: Dialogue, block: () -> Any?): Any? =
+                try {
+                    threadContext.set(ThreadContext(dialogue, context))
+                    block()
+                } finally {
+                    threadContext.remove()
+                }
+    }
+}

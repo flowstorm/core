@@ -1,6 +1,6 @@
 package com.promethist.core.builder
 
-import com.promethist.core.Dialogue
+import com.promethist.core.dialogue.Dialogue
 import com.promethist.core.resources.FileResource
 import com.promethist.core.runtime.Kotlin
 import com.promethist.util.LoggerDelegate

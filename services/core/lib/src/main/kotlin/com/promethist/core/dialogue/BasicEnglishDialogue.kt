@@ -1,4 +1,4 @@
-package com.promethist.core
+package com.promethist.core.dialogue
 
 abstract class BasicEnglishDialogue() : Dialogue() {
 

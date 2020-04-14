@@ -3,7 +3,7 @@ package com.promethist.core.builder
 import com.promethist.common.ObjectUtil
 import com.promethist.common.RestClient
 import com.promethist.core.builder.IntentModelBuilder.Output
-import com.promethist.core.Dialogue
+import com.promethist.core.dialogue.Dialogue
 import com.promethist.util.LoggerDelegate
 import java.net.URL
 import java.util.*

@@ -1,6 +1,6 @@
 package `product`.`some-subdialogue`
 
-import com.promethist.core.Dialogue
+import com.promethist.core.dialogue.Dialogue
 
 data class Model1(
         // dialogue properties
