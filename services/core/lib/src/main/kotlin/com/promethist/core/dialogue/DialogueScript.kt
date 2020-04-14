@@ -86,12 +86,12 @@ open class DialogueScript {
 
     fun Collection<String>.enumerateWithDefiniteArticle(subject: String = "") = enumerate(toList(), subject, Article.Definite)
 
-    fun Map<String, Any>.enumerate() {
+    fun Map<String, Any>.enumerate(): String {
         val list = mutableListOf<String>()
         forEach {
             list.add((if (it.value is Number) it.value as Number else 0).quantify(it.key))
         }
-        list.enumerate()
+        return list.enumerate()
     }
 
     fun Map<String, Any>.describe() = Dialogue.threadContext().let {
