@@ -2,6 +2,7 @@ package com.promethist.core.model
 
 import com.promethist.core.Input
 import com.promethist.core.Response
+import com.promethist.core.model.Session.DialogueStackFrame
 import com.promethist.core.type.Dynamic
 import java.util.*
 
@@ -9,6 +10,7 @@ data class Turn(
         var input: Input,
         val datetime: Date = Date(),
         var attributes: Dynamic = Dynamic(),
+        var endFrame: DialogueStackFrame? = null, //where the turn ends (input node)
         val responseItems: MutableList<Response.Item> = mutableListOf()
 ) {
 

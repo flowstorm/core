@@ -86,11 +86,19 @@ class DialogueManager(private val loader: Loader) : Component {
                     node.intents.forEach { intent ->
                         context.expectedPhrases.addAll(intent.utterances.map { text -> ExpectedPhrase(text) })
                     }
-                    session.dialogueStack.push(frame.copy(nodeId = node.id))
+                    frame.copy(nodeId = node.id).let {
+                        turn.endFrame = it
+                        session.dialogueStack.push(it)
+                    }
+
                     inputRequested = true
                 }
                 is Dialogue.Repeat -> {
-                    session.turns.last().responseItems.forEach { turn.responseItems.add(it) }
+                    session.turns.last { it.endFrame!!.name == frame.name }.let { lastTurn ->
+                        lastTurn.responseItems.forEach { if (it.repeatable) turn.responseItems.add(it) }
+                        session.dialogueStack.push(lastTurn.endFrame)
+                    }
+
                     inputRequested = true
                 }
                 is Dialogue.Function -> {
