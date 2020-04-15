@@ -14,7 +14,9 @@ object ServiceUrlResolver {
             "illusionist" to 8090,
             "helena" to 8091,
             "editor" to 8092,
-            "cassandra" to 8093
+            "cassandra" to 8093,
+            "cassandra-training" to 8094,
+            "illusionist-training" to 8095
     )
 
     enum class RunMode { local, docker, dist, detect }
@@ -25,7 +27,7 @@ object ServiceUrlResolver {
         ))
 
         return AppConfig.instance.get("$serviceName.url", getEndpointUrl(serviceName, runMode)).also {
-            logger.debug("Resolved $serviceName = $it")
+            logger.info("Resolved $serviceName = $it")
         }
     }
 
