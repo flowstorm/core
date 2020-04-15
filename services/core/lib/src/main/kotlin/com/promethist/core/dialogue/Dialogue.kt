@@ -194,20 +194,21 @@ abstract class Dialogue {
         return sb.toString()
     }
 
-    fun <T: Any> loader(path: String): Lazy<T> = lazy {
+    inline fun <reified T: Any> loader(path: String): Lazy<T> = lazy {
+        val typeRef = object : TypeReference<T>() {}
         when {
             path.startsWith("file:///") ->
                 FileInputStream(File(path.substring(7))).use {
-                    mapper.readValue<T>(it, object : TypeReference<T>() {})
+                    mapper.readValue<T>(it, typeRef)
                 }
             path.startsWith("http") ->
                 URL(path).openStream().use {
-                    mapper.readValue<T>(it, object : TypeReference<T>() {})
-            }
+                    mapper.readValue<T>(it, typeRef)
+                }
             path.startsWith("./") ->
-                loader.loadObject<T>(name + path.substring(1).substringBeforeLast(".json"))
+                loader.loadObject(name + path.substring(1).substringBeforeLast(".json"), typeRef)
             else ->
-                loader.loadObject<T>(path.substringBeforeLast(".json"))
+                loader.loadObject(path.substringBeforeLast(".json"), typeRef)
         }
     }
 

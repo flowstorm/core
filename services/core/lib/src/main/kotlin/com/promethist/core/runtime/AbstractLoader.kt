@@ -38,9 +38,9 @@ abstract class AbstractLoader(open val noCache: Boolean) : Loader {
         String(getInputStream("$name.txt").readBytes())
     }
 
-    override fun <T : Any> loadObject(name: String): T = cache("$name.json") {
+    override fun <T : Any> loadObject(name: String, typeReference: TypeReference<T>): T = cache("$name.json") {
         logger.info("loading object $name")
-        mapper.readValue<T>(getInputStream("$name.json"), object : TypeReference<T>() {}) as T
+        mapper.readValue<T>(getInputStream("$name.json"), typeReference)
     }
 
     override fun <T : Any> newObject(name: String, vararg args: Any?): T {
