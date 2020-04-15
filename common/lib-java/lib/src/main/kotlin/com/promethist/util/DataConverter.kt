@@ -71,4 +71,14 @@ object DataConverter {
         output.write(header, 0, 44)
         input.copyTo(output)
     }
+
+    fun valueFromString(name: String, type: String, str: String) = when (type) {
+        Int::class.simpleName -> str.toInt()
+        Long::class.simpleName -> str.toLong()
+        Float::class.simpleName -> str.toFloat()
+        Double::class.simpleName -> str.toDouble()
+        Boolean::class.simpleName -> str.toBoolean()
+        String::class.simpleName -> str
+        else -> error("Property $name has unsupported type $type")
+    }
 }

@@ -59,6 +59,9 @@ abstract class Dialogue {
         constructor(id: Int, intents: Array<Intent>, lambda: (Context.(UserInput) -> Transition?)) :
                 this(id, false, intents, lambda)
 
+        constructor(intents: Array<Intent>, lambda: (Context.(UserInput) -> Transition?)) :
+                this(nextId--, false, intents, lambda)
+
         fun process(context: Context): Transition? =
                 threadContext(context, this@Dialogue) { lambda(context, this) } as Transition?
     }
@@ -69,6 +72,8 @@ abstract class Dialogue {
             vararg utterance: String
     ): TransitNode(id) {
         val utterances = utterance
+
+        constructor(name: String, vararg utterance: String) : this(nextId--, name, *utterance)
     }
 
     inner class GlobalIntent(
@@ -91,6 +96,8 @@ abstract class Dialogue {
 
         constructor(id: Int, vararg text: (Context.(Response) -> String)) : this(id, true, *text)
 
+        constructor(vararg text: (Context.(Response) -> String)) : this(nextId--, true, *text)
+
         fun getText(context: Context, index: Int = -1) = threadContext(context, this@Dialogue) {
             texts[if (index < 0) Random.nextInt(texts.size) else index](context, this)
         } as String
@@ -102,6 +109,7 @@ abstract class Dialogue {
             override val id: Int,
             val lambda: (Context.(Function) -> Transition)
     ): Node(id) {
+        constructor(lambda: (Context.(Function) -> Transition)) : this(nextId--, lambda)
         fun exec(context: Context): Transition =
                 threadContext(context, this@Dialogue) { lambda(context, this) } as Transition
     }
@@ -125,14 +133,14 @@ abstract class Dialogue {
 
     inner class StopSession(override val id: Int) : Node(id)
 
-    inline fun <reified V: Any> turnAttribute(namespace: String? = nameWithoutVersion, noinline default: (() -> V)? = null) =
-            AttributeDelegate(AttributeDelegate.Scope.Turn, V::class, namespace, default)
+    inline fun <reified V: Any> turnAttribute(namespace: String? = null, noinline default: (() -> V)? = null) =
+            AttributeDelegate(AttributeDelegate.Scope.Turn, V::class, { namespace?:nameWithoutVersion }, default)
 
-    inline fun <reified V: Any> sessionAttribute(namespace: String? = nameWithoutVersion, noinline default: (() -> V)? = null) =
-            AttributeDelegate(AttributeDelegate.Scope.Session, V::class, namespace, default)
+    inline fun <reified V: Any> sessionAttribute(namespace: String? = null, noinline default: (() -> V)? = null) =
+            AttributeDelegate(AttributeDelegate.Scope.Session, V::class, { namespace?:nameWithoutVersion }, default)
 
-    inline fun <reified V: Any> profileAttribute(namespace: String? = nameWithoutVersion, noinline default: (() -> V)? = null) =
-            AttributeDelegate(AttributeDelegate.Scope.Profile, V::class, namespace, default)
+    inline fun <reified V: Any> profileAttribute(namespace: String? = null, noinline default: (() -> V)? = null) =
+            AttributeDelegate(AttributeDelegate.Scope.Profile, V::class, { namespace?:nameWithoutVersion }, default)
 
     val nameWithoutVersion get() = name.substringBeforeLast("/")
 

@@ -44,7 +44,7 @@ class DialogueManager(private val loader: Loader) : Component {
     }
 
     private fun start(dialogue: Dialogue, context: Context): Boolean = with (context) {
-        this@DialogueManager.logger.info("starting ${dialogue.name}\n" + dialogue.describe())
+        this@DialogueManager.logger.info("starting dialogue ${dialogue.name} with following nodes:\n" + dialogue.describe())
         dialogue.validate()
         set(dialogue.name, context, dialogue)
         session.dialogueStack.push(Session.DialogueStackFrame(dialogue.name))

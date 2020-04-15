@@ -57,6 +57,8 @@ class LocalFileStorage(private val base: File) : FileResource {
 
     override fun provider(): String = "local"
 
+    override fun toString(): String = "${this::class.simpleName}(base=$base)"
+
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
