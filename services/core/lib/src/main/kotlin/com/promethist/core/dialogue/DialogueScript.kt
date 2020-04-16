@@ -1,7 +1,9 @@
 package com.promethist.core.dialogue
 
+import com.promethist.core.Input
 import java.time.LocalDate
 import java.time.LocalDateTime
+import kotlin.reflect.KProperty
 
 open class DialogueScript {
 
@@ -114,5 +116,15 @@ open class DialogueScript {
 
     fun LocalDate.format() {
         "TODO LocalDate.format"
+    }
+
+    infix fun String.similarityTo(input: Input): Float {
+        val inputWords = input.words
+        val words = toLowerCase().split(" ", ",", ".", ":", ";")
+        var matches = 0
+        for (i in 0 until if (words.size < inputWords.size) words.size else inputWords.size)
+            if (words[i].trim() == inputWords[i].text)
+                matches++
+        return matches / words.size.toFloat()
     }
 }

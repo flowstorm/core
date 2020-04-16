@@ -7,8 +7,8 @@ import com.promethist.common.ObjectUtil
 import java.util.*
 
 data class Input(
-        val language: Locale,
-        var transcript: Transcript,
+        val language: Locale = Locale.ENGLISH,
+        var transcript: Transcript = Transcript(""),
         val alternatives: MutableList<Transcript> = mutableListOf(),
         val classes: MutableList<Class> = mutableListOf(),
         val tokens: MutableList<Token> = mutableListOf()
