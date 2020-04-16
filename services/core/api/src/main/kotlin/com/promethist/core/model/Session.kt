@@ -24,7 +24,11 @@ data class Session(
         val log: MutableList<LogEntry> = mutableListOf()
 ) {
 
-    data class DialogueStackFrame(val name: String, var nodeId: Int = 0, var skipGlobalIntents: Boolean = false)
+    data class DialogueStackFrame(
+            val name: String,
+            val nodeId: Int = 0,
+            val intentModels: List<String> = listOf()
+    )
 
     data class Message(
             val datetime: Date?,

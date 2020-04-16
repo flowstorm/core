@@ -20,15 +20,15 @@ class Illusionist : Component {
     private val logger by LoggerDelegate()
 
     override fun process(context: Context): Context {
-        if (context.session.dialogueStack.isEmpty()) {
+        val models = context.irModels
+        if (models.isEmpty()) {
             logger.info("processing IR - nothing to do")
             return context.pipeline.process(context)
         }
 
-        val models = getModels(context.session.dialogueStack.first)
         context.logger.info("processing IR with models $models")
 
-        val request = Request(context.input.transcript.text, models.values.toList())
+        val request = Request(context.input.transcript.text, models)
         val responses = webTarget.path("/multi_model").request().post(Entity.json(request), object : GenericType<List<Response>>() {})
 
         for (response in responses) {
@@ -37,11 +37,6 @@ class Illusionist : Component {
 
         return context.pipeline.process(context)
     }
-
-    private fun getModels(frame: Session.DialogueStackFrame): Map<String, String> = mapOf(
-            frame.name to DialogueSourceCodeBuilder.md5(frame.name),
-            "${frame.name}#${frame.nodeId}" to DialogueSourceCodeBuilder.md5("${frame.name}#${frame.nodeId}")
-    )
 
     data class Response(
             val _id: String,

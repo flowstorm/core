@@ -1,6 +1,7 @@
 package com.promethist.core.runtime
 
 import com.promethist.core.*
+import com.promethist.core.builder.DialogueSourceCodeBuilder
 import com.promethist.core.dialogue.Dialogue
 import com.promethist.core.model.Session
 import com.promethist.util.LoggerDelegate
@@ -55,17 +56,21 @@ class DialogueManager(private val loader: Loader) : Component {
      * @return true if next user input requested, false if session ended
      */
     private fun proceed(context: Context): Boolean = with (context) {
-        val frame = session.dialogueStack.first()
+        val frame = session.dialogueStack.pop()
         val dialogue = get(frame.name, context)
         var node = dialogue.node(frame.nodeId)
         if (node is Dialogue.UserInput) {
+            val models = mutableListOf(DialogueSourceCodeBuilder.md5("${frame.name}#${frame.nodeId}"))
+            if (!node.skipGlobalIntents) models.add(DialogueSourceCodeBuilder.md5(frame.name))
+            context.irModels = models
+
             val transition = node.process(context)
-            if (transition != null) {
-                node = transition.node
+            node = if (transition != null) {
+                transition.node
             } else {
                 // intent recognition
                 context.processPipeline()
-                node = dialogue.node(turn.input.intent.name.toInt())
+                dialogue.node(turn.input.intent.name.toInt())
             }
         }
         var step = 0
@@ -78,11 +83,10 @@ class DialogueManager(private val loader: Loader) : Component {
             processedNodes.add(node)
             when (node) {
                 is Dialogue.UserInput -> {
-                    frame.skipGlobalIntents = node.skipGlobalIntents
                     node.intents.forEach { intent ->
                         context.expectedPhrases.addAll(intent.utterances.map { text -> ExpectedPhrase(text) })
                     }
-                    frame.nodeId = node.id
+                    session.dialogueStack.push(frame.copy(nodeId = node.id))
                     inputRequested = true
                 }
                 is Dialogue.Repeat -> {
@@ -98,12 +102,11 @@ class DialogueManager(private val loader: Loader) : Component {
                     inputRequested = false
                 }
                 is Dialogue.StopDialogue -> {
-                    session.dialogueStack.pop()
                     inputRequested =  if (session.dialogueStack.isEmpty()) false else proceed(context)
                 }
                 is Dialogue.SubDialogue -> {
                     val subDialogue = node.createDialogue(context)
-                    frame.nodeId = node.next.id
+                    session.dialogueStack.push(frame.copy(nodeId = node.next.id))
                     inputRequested = start(subDialogue, context)
                 }
                 is Dialogue.TransitNode -> {
