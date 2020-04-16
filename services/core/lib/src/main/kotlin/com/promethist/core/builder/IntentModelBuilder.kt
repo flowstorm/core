@@ -12,5 +12,7 @@ interface IntentModelBuilder {
 
     fun build(modelId: String, name: String, language: Locale, intents: List<Dialogue.Intent>)
 
+    fun build(irModel: IrModel, language: Locale, intents: List<Dialogue.Intent>)
+
     fun build(modelId: String, name: String, language: Locale, intents: Map<String, Output.Item>)
 }

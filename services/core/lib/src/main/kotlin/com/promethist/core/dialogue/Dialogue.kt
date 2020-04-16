@@ -17,6 +17,7 @@ abstract class Dialogue {
 
     //dialogue config - must/may be overrided
     abstract val name: String
+    open val buildId: String = "unknown" // used for generated classes, others are unknown
     open val language = "en"
 
     //runtime dependencies

@@ -32,7 +32,10 @@ class DialogueBuilder() {
     }
 
     inner class Builder(val name: String) {
-        val source = DialogueSourceCodeBuilder(name)
+
+        val buildId = md5(random.nextLong().toString())
+
+        val source = DialogueSourceCodeBuilder(name, buildId)
         val resources: MutableList<Resource> = mutableListOf()
         val basePath = "dialogue/${name}/"
 
@@ -79,27 +82,26 @@ class DialogueBuilder() {
 
         fun buildIntentModels(dialogue: Dialogue) {
             logger.info("building intent models for dialogue model $name")
-            val intentModels = mutableMapOf<String, String>()
+            val irModels = mutableListOf<IrModel>()
             val language = Locale(dialogue.language)
 
             dialogue.globalIntents.apply/*ifNotEmpty*/ {
-                val modelName = name
-                val modelId = md5(modelName)
-                intentModels[modelName] = modelId
-                intentModelBuilder.build(modelId, modelName, language, this)
+                val irModel = IrModel(buildId, name, null)
+                irModels.add(irModel)
+                intentModelBuilder.build(irModel, language, this)
             }
 
             dialogue.userInputs.forEach {
-                val modelName = "${name}#${it.id}"
-                val modelId = md5(modelName)
-                intentModels[modelName] = modelId
-                intentModelBuilder.build(modelId, modelName, language, it.intents.asList())
+                val irModel = IrModel(buildId, name, it.id)
+                irModels.add(irModel)
+                intentModelBuilder.build(irModel, language, it.intents.asList())
             }
-            logger.info("built intent models: $intentModels")
+            logger.info("built intent models: $irModels")
         }
     }
 
     companion object {
+        private val random = Random()
         private val md = MessageDigest.getInstance("MD5")
 
         fun md5(str: String): String = md.digest(str.toByteArray()).toHexString()

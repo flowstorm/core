@@ -1,8 +1,8 @@
 package com.promethist.core.runtime
 
 import com.promethist.core.*
-import com.promethist.core.builder.DialogueSourceCodeBuilder
 import com.promethist.core.dialogue.Dialogue
+import com.promethist.core.builder.IrModel
 import com.promethist.core.model.Session
 import com.promethist.util.LoggerDelegate
 
@@ -60,8 +60,9 @@ class DialogueManager(private val loader: Loader) : Component {
         val dialogue = get(frame.name, context)
         var node = dialogue.node(frame.nodeId)
         if (node is Dialogue.UserInput) {
-            val models = mutableListOf(DialogueSourceCodeBuilder.md5("${frame.name}#${frame.nodeId}"))
-            if (!node.skipGlobalIntents) models.add(DialogueSourceCodeBuilder.md5(frame.name))
+            val models = mutableListOf(IrModel(dialogue.buildId, dialogue.name, node.id))
+            if (!node.skipGlobalIntents) models.add(IrModel(dialogue.buildId, dialogue.name, null))
+
             context.irModels = models
 
             val transition = node.process(context)
@@ -96,6 +97,7 @@ class DialogueManager(private val loader: Loader) : Component {
                 is Dialogue.Repeat -> {
                     session.turns.last { it.endFrame!!.name == frame.name }.let { lastTurn ->
                         lastTurn.responseItems.forEach { if (it.repeatable) turn.responseItems.add(it) }
+                        turn.endFrame = lastTurn.endFrame
                         session.dialogueStack.push(lastTurn.endFrame)
                     }
 

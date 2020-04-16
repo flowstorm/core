@@ -7,7 +7,7 @@ import java.security.MessageDigest
 import java.time.LocalDateTime
 import java.util.*
 
-class DialogueSourceCodeBuilder(val name: String) {
+class DialogueSourceCodeBuilder(val name: String, val buildId: String) {
 
     // builder configuration:
     var parameters: PropertyMap = mapOf()
@@ -86,10 +86,9 @@ class DialogueSourceCodeBuilder(val name: String) {
     fun addTransition(transition: Pair<String, String>) = transitions.put(transition.first, transition.second)
 
     private fun writeHeader() {
-        val modelId = md5(random.nextLong().toString())
         source
                 .appendln("//--dialogue-model;name:$name;time:" + LocalDateTime.now())
-                .append("package " + names.joinToString(".") { "`$it`" }).appendln(".`$modelId`")
+                .append("package " + names.joinToString(".") { "`$it`" }).appendln(".`$buildId`")
                 .appendln()
                 .appendln("import com.promethist.core.*")
                 .appendln("import com.promethist.core.type.*")
@@ -103,6 +102,7 @@ class DialogueSourceCodeBuilder(val name: String) {
 
     private fun writeInit() {
         source.appendln("\toverride val name = \"$name\"")
+        source.appendln("\toverride val buildId = \"$buildId\"")
 
         config.forEach {
             source.append("override val ${it.key}: ${it.value::class.simpleName} = ")
@@ -112,7 +112,6 @@ class DialogueSourceCodeBuilder(val name: String) {
                 source.append(it.value.toString())
             source.appendln()
         }
-//        source.appendln("\toverride val language = \"$language\"")
 
         if (initCode.isNotBlank()) {
             source.appendln("//--code-start;type:init")
