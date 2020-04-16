@@ -2,9 +2,8 @@ package com.promethist.core.components
 
 import com.promethist.core.Component
 import com.promethist.core.Context
-import com.promethist.core.Input
+import com.promethist.core.dialogue.tokenize
 import com.promethist.util.LoggerDelegate
-import java.util.*
 
 class InternalTokenizer : Component {
 
@@ -15,12 +14,8 @@ class InternalTokenizer : Component {
         with (context.input) {
             if (tokens.isEmpty()) {
                 // tokenization has not been done yet (ASR skipped?)
-                logger.info("processing tokenization")
-                val tokenizer = StringTokenizer(transcript.text, " \t\n\r,.:;?![]'")
-                while (tokenizer.hasMoreTokens()) {
-                    tokens.add(Input.Word(tokenizer.nextToken().toLowerCase()))
-                }
-                context.logger.info("input tokens $tokens")
+                tokens.addAll(transcript.text.tokenize())
+                context.logger.info("processing tokenization - tokens $tokens")
             } else {
                 logger.info("processing tokenization - nothing to do")
             }

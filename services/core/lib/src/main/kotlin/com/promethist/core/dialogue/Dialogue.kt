@@ -69,18 +69,23 @@ abstract class Dialogue {
     open inner class Intent(
             override val id: Int,
             open val name: String,
+            open val threshold: Float,
             vararg utterance: String
     ): TransitNode(id) {
         val utterances = utterance
 
+        constructor(id: Int, name: String, vararg utterance: String) : this(id, name, 0.0F, *utterance)
         constructor(name: String, vararg utterance: String) : this(nextId--, name, *utterance)
     }
 
     inner class GlobalIntent(
              override val id: Int,
              override val name: String,
+             override val threshold: Float,
              vararg utterance: String
-    ): Intent(id, name, *utterance)
+    ): Intent(id, name, threshold, *utterance) {
+        constructor(id: Int, name: String, vararg utterance: String) : this(id, name, 0.0F, *utterance)
+    }
 
     open inner class Response(
             override val id: Int,

@@ -23,10 +23,19 @@ internal class DialogueScriptTest {
         input.tokens.add(Input.Word("blade"))
         //input.tokens.add(Input.Word("runner"))
 
+        println(movies.filter { it.name similarityTo input >= 0.5 }.maxBy { it.name similarityTo input }.let { movie ->
+            if (movie != null) {
+                val favoriteMovie = movie.name
+                "So you like $favoriteMovie. Did you know that the movie was shot by director ${movie.director}?"
+            } else {
+                "Unfortunately I don't know such movie."
+            }
+        })
+
         println(movies.maxBy { it.name similarityTo input }) // movie with highest similarity of name
         println(movies.sortedByDescending { it.name similarityTo input }.take(2)) // take first two movies with highest similarity
 
         println(movies.map { it.name similarityTo input })
-        println(movies.find { it.name similarityTo input > 0.5 })
+        println(movies.find { it.name similarityTo input >= 0.5 })
     }
 }

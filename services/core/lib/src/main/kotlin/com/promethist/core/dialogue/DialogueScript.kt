@@ -3,7 +3,7 @@ package com.promethist.core.dialogue
 import com.promethist.core.Input
 import java.time.LocalDate
 import java.time.LocalDateTime
-import kotlin.reflect.KProperty
+import java.util.*
 
 open class DialogueScript {
 
@@ -99,14 +99,6 @@ open class DialogueScript {
         else this
     }
 
-    operator fun String.unaryPlus() = ""
-
-    fun format(any: Any?) = any?.toString() ?: "unknown"
-
-    fun mediumFormat(any: Any?) = +""
-
-    fun longFormat(any: Any?) = format(any)
-
     fun article(subject: String, article: Article = Article.None) = Dialogue.threadContext().let {
         when (it.dialogue.language) {
             "en" -> when (article) {
@@ -120,17 +112,18 @@ open class DialogueScript {
 
     fun definiteArticle(subject: String) = article(subject, Article.Definite)
 
-    fun String.startsWithVowel() = Regex("[aioy].*").matches(this)
-
-    infix fun String.similarityTo(input: Input): Float {
-        val inputWords = input.words
+    infix fun String.similarityTo(tokens: List<Input.Word>): Float {
         val words = toLowerCase().split(" ", ",", ".", ":", ";")
         var matches = 0
-        for (i in 0 until if (words.size < inputWords.size) words.size else inputWords.size)
-            if (words[i].trim() == inputWords[i].text)
+        for (i in 0 until if (words.size < tokens.size) words.size else tokens.size)
+            if (words[i].trim() == tokens[i].text)
                 matches++
         return matches / words.size.toFloat()
     }
+
+    infix fun String.similarityTo(input: Input) = similarityTo(input.words)
+
+    infix fun String.similarityTo(text: String) = similarityTo(text.tokenize())
 
     infix fun Number.of(subject: String) =
             when (this) {
@@ -144,4 +137,15 @@ open class DialogueScript {
     infix fun Collection<*>.of(subject: String) = size of subject
 
     infix fun Map<*, *>.of(subject: String) = size of subject
+}
+
+fun String.startsWithVowel() = Regex("[aioy].*").matches(this)
+
+fun String.tokenize(): List<Input.Word> {
+    val tokens = mutableListOf<Input.Word>()
+    val tokenizer = StringTokenizer(this, " \t\n\r,.:;?![]'")
+    while (tokenizer.hasMoreTokens()) {
+        tokens.add(Input.Word(tokenizer.nextToken().toLowerCase()))
+    }
+    return tokens
 }
