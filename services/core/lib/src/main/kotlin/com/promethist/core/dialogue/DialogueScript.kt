@@ -17,86 +17,32 @@ open class DialogueScript {
         throw error("${stackTraceElement.className}.${stackTraceElement.methodName} does not support language ${it.dialogue.language} of dialogue ${it.dialogue.name}")
     }
 
-    private fun enumerate(list: List<String>, subject: String = "", article: Article = Article.None) = Dialogue.threadContext().let {
+    private fun enumerate(col: Collection<String>, subject: String = "", article: Article = Article.None) = Dialogue.threadContext().let {
+        val list = if (col is List<String>) col else col.toList()
         when {
-            list.isEmpty() -> subject.empty()
+            list.isEmpty() -> empty(subject)
             list.size == 1 ->
-                list.first().withArticle(article) + (if (subject.isNotEmpty()) " $subject" else "")
+                article(list.first(), article) + (if (subject.isNotEmpty()) " $subject" else "")
             else -> {
                 val and = mapOf("en" to "and", "de" to "und", "cs" to "a")[it.dialogue.language] ?: unsupportedLanguage()
                 val str = StringBuilder()
                 for (i in list.indices) {
                     if (i > 0)
-                        str.append(if (i == list.size - 1) " $and " else ", ")
-                    str.append(list[i].withArticle(article))
+                        str.append(if (i == list.size - 1) ", $and " else ", ")
+                    str.append(article(list[i], article))
                 }
                 if (subject.isNotEmpty())
-                    str.append(' ').append(subject.pluralize())
+                    str.append(' ').append(plural(subject))
                 str.toString()
             }
         }
     }
 
-    fun String.empty() = Dialogue.threadContext().let {
-        when (it.dialogue.language) {
-            "en" -> "no"
-            "de" -> "kein" //TODO male vs. female
-            else -> unsupportedLanguage()
-        } + " $this"
-    }
+    fun enumerateWithArticle(col: Collection<String>, subject: String = "") = enumerate(col, subject, Article.Indefinite)
 
-    fun String.startsWithVowel() = Regex("[aioy].*").matches(this)
+    fun enumerateWithDefiniteArticle(col: Collection<String>, subject: String = "") = enumerate(col, subject, Article.Definite)
 
-    fun String.withArticle(article: Article = Article.None) = Dialogue.threadContext().let {
-        when (it.dialogue.language) {
-            "en" -> when (article) {
-                Article.Indefinite -> (if (startsWithVowel()) "an " else "a ") + this
-                Article.Definite -> "the $this"
-                else -> this
-            }
-            else -> this
-        }
-    }
-
-    fun String.lemma() = this //TODO
-
-    fun String.pluralize(cond: (() -> Boolean)? = null) = Dialogue.threadContext().let {
-        if (cond == null || cond())
-            when (it.dialogue.language) {
-                "en" -> this + "s"
-                else -> unsupportedLanguage()
-            }
-        else this
-    }
-
-    fun Number.quantify(subject: String) =
-            when (this) {
-                0 -> subject.empty()
-                1 -> "$this $subject"
-                else -> "$this " + subject.pluralize()
-            }
-
-    fun Array<*>.quantify(subject: String) = size.quantify(subject)
-
-    fun Collection<*>.quantify(subject: String) = size.quantify(subject)
-
-    fun Map<*, *>.quantify(subject: String) = size.quantify(subject)
-
-    fun Collection<String>.enumerate(subject: String = "") = enumerate(toList(), subject)
-
-    fun Collection<String>.enumerateWithArticle(subject: String = "") = enumerate(toList(), subject, Article.Indefinite)
-
-    fun Collection<String>.enumerateWithDefiniteArticle(subject: String = "") = enumerate(toList(), subject, Article.Definite)
-
-    fun Map<String, Any>.enumerate(): String {
-        val list = mutableListOf<String>()
-        forEach {
-            list.add((if (it.value is Number) it.value as Number else 0).quantify(it.key))
-        }
-        return list.enumerate()
-    }
-
-    fun Map<String, Any>.describe() = Dialogue.threadContext().let {
+    fun describe(map: Map<String, Any>) = Dialogue.threadContext().let {
         val list = mutableListOf<String>()
         val isWord = when (it.dialogue.language) {
             "en" -> "is"
@@ -104,19 +50,77 @@ open class DialogueScript {
             "cs" -> "je"
             else -> unsupportedLanguage()
         }
-        forEach {
-            list.add("${it.key} $isWord ${it.value}")
+        map.forEach { item ->
+            list.add("${item.key} $isWord " + describe(item.value))
         }
-        list.enumerate()
+        enumerate(list)
     }
 
-    fun LocalDateTime.format() {
-        "TODO LocalDateTime.format"
+    fun describe(col: Collection<String>) = enumerate(col)
+
+    fun describe(value: Any?, detailLevel: Int = 0) = Dialogue.threadContext().let {
+        when (value) {
+            is LocalDateTime -> value.toString()
+            is LocalDate -> value.toString()
+            is String -> value
+            null -> "unknown"
+            else -> value.toString()
+        }
     }
 
-    fun LocalDate.format() {
-        "TODO LocalDate.format"
+    fun describeMore(value: Any?) = describe(1)
+
+    fun describeDetailed(value: Any?) = describe(2)
+
+    fun enumerate(map: Map<String, Number>): String {
+        val list = mutableListOf<String>()
+        map.forEach {
+            list.add(it.value of it.key)
+        }
+        return enumerate(list)
     }
+
+    fun empty(subject: String) = Dialogue.threadContext().let {
+        when (it.dialogue.language) {
+            "en" -> "no"
+            "de" -> "kein" //TODO male vs. female
+            else -> unsupportedLanguage()
+        } + " $subject"
+    }
+
+    fun lemma(word: String) = word
+
+    fun plural(subject: String, cond: (() -> Boolean)? = null) = Dialogue.threadContext().let {
+        if (cond == null || cond())
+            when (it.dialogue.language) {
+                "en" -> if (subject.endsWith("s")) subject else subject + "s"
+                else -> unsupportedLanguage()
+            }
+        else this
+    }
+
+    operator fun String.unaryPlus() = ""
+
+    fun format(any: Any?) = any?.toString() ?: "unknown"
+
+    fun mediumFormat(any: Any?) = +""
+
+    fun longFormat(any: Any?) = format(any)
+
+    fun article(subject: String, article: Article = Article.None) = Dialogue.threadContext().let {
+        when (it.dialogue.language) {
+            "en" -> when (article) {
+                Article.Indefinite -> (if (subject.startsWithVowel()) "an " else "a ") + subject
+                Article.Definite -> "the $subject"
+                else -> subject
+            }
+            else -> subject
+        }
+    }
+
+    fun definiteArticle(subject: String) = article(subject, Article.Definite)
+
+    fun String.startsWithVowel() = Regex("[aioy].*").matches(this)
 
     infix fun String.similarityTo(input: Input): Float {
         val inputWords = input.words
@@ -127,4 +131,17 @@ open class DialogueScript {
                 matches++
         return matches / words.size.toFloat()
     }
+
+    infix fun Number.of(subject: String) =
+            when (this) {
+                0 -> empty(subject)
+                1 -> "$this $subject"
+                else -> "$this " + plural(subject)
+            }
+
+    infix fun Array<*>.of(subject: String) = size of subject
+
+    infix fun Collection<*>.of(subject: String) = size of subject
+
+    infix fun Map<*, *>.of(subject: String) = size of subject
 }
