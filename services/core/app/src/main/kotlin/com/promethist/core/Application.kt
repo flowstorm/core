@@ -78,6 +78,7 @@ class Application : JerseyApplication() {
 
                 bind(MongoProfileRepository::class.java).to(ProfileRepository::class.java)
                 bindTo(SessionResource::class.java, SessionResourceImpl::class.java)
+                bindTo(ProfileResource::class.java, ProfileResourceImpl::class.java)
                 bindTo(MongoDatabase::class.java,
                         KMongo.createClient(ConnectionString(AppConfig.instance["database.url"]))
                                 .getDatabase(AppConfig.instance["database.name"]))
