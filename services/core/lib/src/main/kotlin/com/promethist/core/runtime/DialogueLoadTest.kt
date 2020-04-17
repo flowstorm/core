@@ -28,7 +28,7 @@ object DialogueLoadTest {
                     override val components = LinkedList<Component>()
                     override fun process(context: Context): Context = components.pop().process(context)
                 },
-                Profile(name = "tester@promethist.ai", user_id = user._id),
+                Profile(user_id = user._id),
                 Session(
                         datetime = Date(),
                         sessionId = "T-E-S-T",

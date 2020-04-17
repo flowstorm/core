@@ -21,7 +21,7 @@ class DialogueRunner(
         val name: String,
         val properties: MutablePropertyMap = mutableMapOf(),
         val user: User = User(username = "tester@promethist.ai", name = "Tester", surname = "Tester", nickname = "Tester"),
-        val profile: Profile = Profile(user_id = user._id, name = user.username),
+        val profile: Profile = Profile(user_id = user._id),
         private val ir: Component = SimpleIntentRecognition()
 ) {
     class SimpleIntentRecognition : Component {

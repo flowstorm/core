@@ -21,7 +21,7 @@ class ContextFactory {
 
     fun createContext(pipeline: Pipeline, session: Session, input: Input): Context {
         val profile = profileRepository.find(session.user._id)
-                ?: Profile(user_id = session.user._id, name = session.user.username)
+                ?: Profile(user_id = session.user._id)
 
         return Context(
                 pipeline,
