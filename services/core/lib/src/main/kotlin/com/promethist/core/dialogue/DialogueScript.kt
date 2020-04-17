@@ -11,6 +11,7 @@ open class DialogueScript {
 
     val now get() = LocalDateTime.now()
     val today get() = LocalDate.now()
+    val clientNamespace = "client"
 
     private inline fun unsupportedLanguage(): Nothing = Dialogue.threadContext().let {
         val stackTraceElement = Thread.currentThread().stackTrace[1]

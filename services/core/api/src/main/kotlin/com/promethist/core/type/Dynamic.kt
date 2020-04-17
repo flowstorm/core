@@ -1,5 +1,6 @@
 package com.promethist.core.type
 
+import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
 import kotlin.collections.LinkedHashMap
@@ -16,7 +17,9 @@ class Dynamic : LinkedHashMap<String, Any>, MutablePropertyMap {
                 when (clazz) {
                     Int::class -> 0
                     Long::class -> 0L
+                    Float::class -> 0.0F
                     Double::class -> 0.0
+                    BigDecimal::class -> BigDecimal(0)
                     String::class -> ""
                     Boolean::class -> false
                     MutableSet::class -> mutableSetOf<V>()
@@ -45,7 +48,7 @@ class Dynamic : LinkedHashMap<String, Any>, MutablePropertyMap {
         var pos = 0
         while (true) {
             val pos2 = key.indexOf('.', pos)
-            if (pos2 < 0)
+            if (pos2 <= 0)
                 break
             val name = key.substring(pos, pos2)
             var any = obj.get(name)

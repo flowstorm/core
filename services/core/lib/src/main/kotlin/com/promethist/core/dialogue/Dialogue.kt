@@ -148,7 +148,15 @@ abstract class Dialogue {
     inline fun <reified V: Any> profileAttribute(namespace: String? = null, noinline default: (() -> V)? = null) =
             AttributeDelegate(AttributeDelegate.Scope.Profile, V::class, { namespace?:nameWithoutVersion }, default)
 
+    val turnAttributes get() = with (threadContext().context.turn) { attributes(nameWithoutVersion) }
+
+    val sessionAttributes get() = with (threadContext().context.session) { attributes(nameWithoutVersion) }
+
+    val profileAttributes get() = with (threadContext().context.profile) { attributes(nameWithoutVersion) }
+
     val nameWithoutVersion get() = name.substringBeforeLast("/")
+
+    val version get() = name.substringAfterLast("/").toInt()
 
     val intents: List<Intent> get() = nodes.filterIsInstance<Intent>()
 
@@ -164,17 +172,17 @@ abstract class Dialogue {
 
     fun node(id: Int): Node = nodes.find { it.id == id }?:error("Node $id not found in $this")
 
-    val turnSpeakingRate by AttributeDelegate(AttributeDelegate.Scope.Turn, Double::class) { 1.0 }
-    val sessionSpeakingRate by AttributeDelegate(AttributeDelegate.Scope.Session, Double::class) { 1.0 }
-    val profileSpeakingRate by AttributeDelegate(AttributeDelegate.Scope.Profile, Double::class) { 1.0 }
+    val turnSpeakingRate by turnAttribute(clientNamespace) { 1.0 }
+    val sessionSpeakingRate by sessionAttribute(clientNamespace) { 1.0 }
+    val profileSpeakingRate by profileAttribute(clientNamespace) { 1.0 }
 
-    val turnSpeakingPitch by AttributeDelegate(AttributeDelegate.Scope.Turn, Double::class) { 0.0 }
-    val sessionSpeakingPitch by AttributeDelegate(AttributeDelegate.Scope.Session, Double::class) { 0.0 }
-    val profileSpeakingPitch by AttributeDelegate(AttributeDelegate.Scope.Profile, Double::class) { 0.0 }
+    val turnSpeakingPitch by turnAttribute(clientNamespace) { 0.0 }
+    val sessionSpeakingPitch by sessionAttribute(clientNamespace) { 0.0 }
+    val profileSpeakingPitch by profileAttribute(clientNamespace) { 0.0 }
 
-    val turnSpeakingVolumeGain by AttributeDelegate(AttributeDelegate.Scope.Turn, Double::class) { 1.0 }
-    val sessionSpeakingVolumeGain by AttributeDelegate(AttributeDelegate.Scope.Session, Double::class) { 1.0 }
-    val profileSpeakingVolumeGain by AttributeDelegate(AttributeDelegate.Scope.Profile, Double::class) { 1.0 }
+    val turnSpeakingVolumeGain by turnAttribute(clientNamespace) { 1.0 }
+    val sessionSpeakingVolumeGain by sessionAttribute(clientNamespace) { 1.0 }
+    val profileSpeakingVolumeGain by profileAttribute(clientNamespace) { 1.0 }
 
     val nodeMap: Map<String, Node> by lazy {
         javaClass.kotlin.members.filter {

@@ -51,11 +51,11 @@ data class Model1(
         val trans2 = Transition(stop)
 
         //-- start of dialogue script
-        println(movies.quantify("movie"))
-        println(1.quantify("time"))
-        println(data.enumerate())
-        println(data.describe())
-        println(listOf("a1", "a2", "a3").enumerateWithArticle("value"))
+        println(movies of "movie")
+        println(1 of "time")
+        println(enumerate(data))
+        println(describe(data))
+        println(enumerateWithArticle(listOf("a1", "a2", "a3"), "value"))
         println("turn = $turn")
         println("data = $data")
         //movies.forEach { println(it["Title"]) }
