@@ -3,6 +3,7 @@ package com.promethist.core
 import com.mongodb.ConnectionString
 import com.mongodb.client.MongoDatabase
 import com.promethist.common.*
+import com.promethist.common.mongo.KMongoIdParamConverterProvider
 import com.promethist.common.query.Query
 import com.promethist.common.query.QueryInjectionResolver
 import com.promethist.common.query.QueryParams
@@ -22,6 +23,7 @@ import org.glassfish.hk2.api.TypeLiteral
 import org.glassfish.jersey.process.internal.RequestScoped
 import org.litote.kmongo.KMongo
 import javax.inject.Singleton
+import javax.ws.rs.ext.ParamConverterProvider
 
 class Application : JerseyApplication() {
 
@@ -90,6 +92,7 @@ class Application : JerseyApplication() {
                 // admin
                 bindTo(ContentDistributionResource::class.java, ServiceUrlResolver.getEndpointUrl("admin"))
 
+                bind(KMongoIdParamConverterProvider::class.java).to(ParamConverterProvider::class.java).`in`(Singleton::class.java)
                 bindFactory(QueryValueFactory::class.java).to(Query::class.java).`in`(PerLookup::class.java)
 
                 bind(QueryInjectionResolver::class.java)
