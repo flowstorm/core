@@ -53,6 +53,16 @@ class MongoFiltersFactory {
             return filters
         }
 
+        fun createPipeline(
+                model: KClass<*>,
+                query: Query,
+                seekProperty: KProperty<*>? = model.memberProperties.firstOrNull { it.name == "_id" }
+        ): MutableList<Bson> = mutableListOf<Bson>().apply {
+            add(match(*createFilters(model, query).toTypedArray()))
+            add(sort(orderBy(seekProperty as KProperty<*>)))
+            add(limit(query.limit))
+        }
+
         private fun createValue(property: KProperty<*>, value: String): Any {
             if (property.returnType.isSubtypeOf(Id::class.createType(listOf(KTypeProjection.STAR)))) {
                 return ObjectIdGenerator.create(value)
