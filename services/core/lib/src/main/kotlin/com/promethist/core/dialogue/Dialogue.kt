@@ -172,17 +172,17 @@ abstract class Dialogue {
 
     fun node(id: Int): Node = nodes.find { it.id == id }?:error("Node $id not found in $this")
 
-    val turnSpeakingRate by turnAttribute(clientNamespace) { 1.0 }
-    val sessionSpeakingRate by sessionAttribute(clientNamespace) { 1.0 }
-    val profileSpeakingRate by profileAttribute(clientNamespace) { 1.0 }
+    var turnSpeakingRate by turnAttribute(clientNamespace) { 1.0 }
+    var sessionSpeakingRate by sessionAttribute(clientNamespace) { 1.0 }
+    var profileSpeakingRate by profileAttribute(clientNamespace) { 1.0 }
 
-    val turnSpeakingPitch by turnAttribute(clientNamespace) { 0.0 }
-    val sessionSpeakingPitch by sessionAttribute(clientNamespace) { 0.0 }
-    val profileSpeakingPitch by profileAttribute(clientNamespace) { 0.0 }
+    var turnSpeakingPitch by turnAttribute(clientNamespace) { 0.0 }
+    var sessionSpeakingPitch by sessionAttribute(clientNamespace) { 0.0 }
+    var profileSpeakingPitch by profileAttribute(clientNamespace) { 0.0 }
 
-    val turnSpeakingVolumeGain by turnAttribute(clientNamespace) { 1.0 }
-    val sessionSpeakingVolumeGain by sessionAttribute(clientNamespace) { 1.0 }
-    val profileSpeakingVolumeGain by profileAttribute(clientNamespace) { 1.0 }
+    var turnSpeakingVolumeGain by turnAttribute(clientNamespace) { 1.0 }
+    var sessionSpeakingVolumeGain by sessionAttribute(clientNamespace) { 1.0 }
+    var profileSpeakingVolumeGain by profileAttribute(clientNamespace) { 1.0 }
 
     val nodeMap: Map<String, Node> by lazy {
         javaClass.kotlin.members.filter {
