@@ -172,6 +172,8 @@ abstract class Dialogue {
 
     fun node(id: Int): Node = nodes.find { it.id == id }?:error("Node $id not found in $this")
 
+    fun intentNode(context: Context) = node(context.turn.input.intent.name.toInt())
+
     var turnSpeakingRate by turnAttribute(clientNamespace) { 1.0 }
     var sessionSpeakingRate by sessionAttribute(clientNamespace) { 1.0 }
     var profileSpeakingRate by profileAttribute(clientNamespace) { 1.0 }

@@ -9,9 +9,13 @@ open class DialogueScript {
 
     enum class Article { None, Indefinite, Definite }
 
+    val clientNamespace = "client"
     val now get() = LocalDateTime.now()
     val today get() = LocalDate.now()
-    val clientNamespace = "client"
+    val pass: Dialogue.Transition? = null
+    val toIntent get() = Dialogue.threadContext().let {
+        Dialogue.Transition(it.dialogue.intentNode(it.context))
+    }
 
     private inline fun unsupportedLanguage(): Nothing = Dialogue.threadContext().let {
         val stackTraceElement = Thread.currentThread().stackTrace[1]
@@ -73,13 +77,11 @@ open class DialogueScript {
 
     fun describeDetailed(value: Any?) = describe(2)
 
-    fun enumerate(map: Map<String, Number>): String {
-        val list = mutableListOf<String>()
+    fun enumerate(map: Map<String, Number>): String = enumerate(mutableListOf<String>().apply {
         map.forEach {
-            list.add(it.value of it.key)
+            add(it.value of it.key)
         }
-        return enumerate(list)
-    }
+    })
 
     fun empty(subject: String) = Dialogue.threadContext().let {
         when (it.dialogue.language) {

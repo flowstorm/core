@@ -165,7 +165,6 @@ class DialogueSourceCodeBuilder(val name: String, val buildId: String) {
         }
         source.appendln(")) {")
         transitions.forEach { source.appendln("\t\tval ${it.key} = Transition(${it.value})") }
-        source.appendln("\t\tval pass:Transition? = null")
         source.appendln("//--code-start;type:userInput;name:$nodeName")
         if (code.isNotEmpty()) {
             source.appendln(code)

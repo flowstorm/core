@@ -78,13 +78,7 @@ data class Input(
         map
     }
 
-    fun entitiesToString(className: String? = null, textIfEmpty: String = "none"): String {
-        val entities = entityMap.filter { className == null || className == it.key }.values
-        return if (entities.isEmpty())
-            textIfEmpty
-        else
-            entities.joinToString { entity -> entity.joinToString(", ") { it.value } }
-    }
+    fun entities(className: String) = entityMap[className]?.map { it.value } ?: listOf()
 
     companion object {
         @JvmStatic
@@ -108,7 +102,7 @@ data class Input(
             println(input.words.entities("animal"))
             println(input.intent?.name)
             println(input.entityMap)
-            println(input.entitiesToString(/*"animal"*/))
+            println(input.entities("animal"))
             println(ObjectUtil.defaultMapper.writeValueAsString(input))
         }
     }

@@ -70,8 +70,8 @@ class DialogueManager(private val loader: Loader) : Component {
                 transition.node
             } else {
                 // intent recognition
-                context.processPipeline()
-                dialogue.node(turn.input.intent.name.toInt())
+                processPipeline()
+                dialogue.intentNode(this)
             }
         }
         var step = 0
