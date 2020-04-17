@@ -18,7 +18,7 @@ open class DialogueScript {
         throw error("${stackTraceElement.className}.${stackTraceElement.methodName} does not support language ${it.dialogue.language} of dialogue ${it.dialogue.name}")
     }
 
-    private fun enumerate(col: Collection<String>, subject: String = "", article: Article = Article.None) = Dialogue.threadContext().let {
+    fun enumerate(col: Collection<String>, subject: String = "", article: Article = Article.None) = Dialogue.threadContext().let {
         val list = if (col is List<String>) col else col.toList()
         when {
             list.isEmpty() -> empty(subject)
