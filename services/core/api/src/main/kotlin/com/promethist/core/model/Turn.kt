@@ -11,7 +11,8 @@ data class Turn(
         val datetime: Date = Date(),
         var attributes: Dynamic = Dynamic(),
         var endFrame: DialogueStackFrame? = null, //where the turn ends (input node)
-        val responseItems: MutableList<Response.Item> = mutableListOf()
+        val responseItems: MutableList<Response.Item> = mutableListOf(),
+        val log: MutableList<LogEntry> = mutableListOf()
 ) {
 
     fun addResponseItem(text: String, image: String? = null, audio: String? = null, video: String? = null, repeatable: Boolean = true) {
