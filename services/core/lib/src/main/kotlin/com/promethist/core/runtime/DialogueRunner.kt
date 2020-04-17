@@ -25,18 +25,49 @@ class DialogueRunner(
         private val ir: Component = SimpleIntentRecognition()
 ) {
     class SimpleIntentRecognition : Component {
+
+        lateinit var models: Map<IrModel, Map<Int, List<String>>>
+
         override fun process(context: Context): Context = Dialogue.threadContext().let {
+            if (!this::models.isInitialized) {
+                initModels(it.dialogue)
+            }
+
             val text = context.input.transcript.text
-            val userInput = it.dialogue.node(it.context.session.dialogueStack.first().nodeId) as Dialogue.UserInput
-            userInput.intents.forEach { intent ->
-                intent.utterances.forEach { utterance ->
-                    if (utterance.contains(text, true))
-                        context.turn.input.classes.add(Input.Class(Input.Class.Type.Intent, intent.id.toString()))
+
+            // select requested models
+            val requestedModels = models.filter { it.key.id in context.irModels.map { it.id } }
+            //merge models
+            val mergedModels = requestedModels.map { it.value }.reduce { acc, map -> acc + map }
+            //find matching intent ids
+            val intentIds = mergedModels.filter { it.value.filter { it.contains(text, true) }.isNotEmpty() }.keys
+
+            val intentId = when (intentIds.size) {
+                0 -> error("no intent model ${context.irModels.map { it.name }} matching text \"$text\"")
+                1 -> intentIds.first()
+                else -> {
+                    context.logger.warn("multiple intents $intentIds matched text \"$text\"")
+                    intentIds.first()
                 }
             }
-            if (context.input.intents.isEmpty())
-                error("no intent after $userInput matching text \"$text\"")
+
+            context.turn.input.classes.add(Input.Class(Input.Class.Type.Intent, intentId.toString()))
+
             return context
+        }
+
+        private fun initModels(dialogue: Dialogue) {
+            val map = mutableMapOf<IrModel, Map<Int, List<String>>>()
+
+            map.put(com.promethist.core.builder.IrModel(dialogue.buildId, dialogue.name, null),
+                    dialogue.globalIntents.map { it.id to it.utterances.toList() }.toMap())
+
+            dialogue.userInputs.forEach {
+                map.put(com.promethist.core.builder.IrModel(dialogue.buildId, dialogue.name, it.id),
+                        it.intents.map { it.id to it.utterances.toList() }.toMap())
+            }
+
+            models = map.toMap()
         }
     }
 
