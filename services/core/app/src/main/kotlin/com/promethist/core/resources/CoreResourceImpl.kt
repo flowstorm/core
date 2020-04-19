@@ -15,6 +15,7 @@ import java.io.Serializable
 import javax.inject.Inject
 import javax.ws.rs.*
 import java.util.*
+import kotlin.collections.toList
 
 @Path("/")
 class CoreResourceImpl : CoreResource {
@@ -111,6 +112,7 @@ class CoreResourceImpl : CoreResource {
         responseMessage.apply { this.items.forEach { it.ttsVoice = it.ttsVoice ?: session.application.ttsVoice } }
 
         val metrics = if (responseMessage.attributes.containsKey("metrics"))
+            @Suppress("UNCHECKED_CAST") //suppressed, will be removed anyway
             responseMessage.attributes["metrics"] as PropertyMap
         else mapOf()
         updateMetrics(session, metrics)
@@ -199,6 +201,7 @@ class CoreResourceImpl : CoreResource {
     private fun updateMetrics(session: Session, metrics: PropertyMap) {
         for (namespaceMetrics in metrics) {
             if (namespaceMetrics.value is Message.PropertyMap) {
+                @Suppress("UNCHECKED_CAST") //suppressed, will be removed anyway
                 updateMetricsValues(session, namespaceMetrics.key, namespaceMetrics.value as PropertyMap)
             } else {
                 //TODO warning

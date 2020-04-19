@@ -19,7 +19,7 @@ internal class DialogueBuilderTest {
 
     @Test
     fun `test dialogue building`() {
-        val builder = dialogueBuilder.create("product/dialogue/1").apply {
+        dialogueBuilder.create("product/dialogue/1").apply {
             source.apply {
                 parameters = mapOf("str" to "bla", "num" to 123, "chk" to true)
                 initCode = "val i = 1"
@@ -47,7 +47,5 @@ internal class DialogueBuilderTest {
 
             })
         }
-
-        //builder.build()
     }
 }

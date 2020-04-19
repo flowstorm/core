@@ -7,6 +7,7 @@ import com.promethist.core.model.Profile
 import org.litote.kmongo.*
 import javax.inject.Inject
 import javax.ws.rs.NotFoundException
+import kotlin.collections.toList
 
 class ProfileResourceImpl : ProfileResource {
 

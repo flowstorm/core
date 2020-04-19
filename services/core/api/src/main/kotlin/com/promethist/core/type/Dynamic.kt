@@ -6,6 +6,7 @@ import java.time.ZonedDateTime
 import kotlin.collections.LinkedHashMap
 import kotlin.reflect.KClass
 
+@Suppress("UNCHECKED_CAST")
 class Dynamic : LinkedHashMap<String, Any>, MutablePropertyMap {
 
     constructor() : super()
@@ -70,7 +71,7 @@ class Dynamic : LinkedHashMap<String, Any>, MutablePropertyMap {
 
     fun <V: Any> put(key: String, clazz: KClass<*>, default: (() -> V)? = null, eval: (Value<V>.() -> Any)): Any {
         val triple = item(key)
-        var any = triple.third ?: default?.invoke() ?: defaultValue<V>(clazz)
+        val any = triple.third ?: default?.invoke() ?: defaultValue<V>(clazz)
         return if (any is Value<*>) {
             eval(any as Value<V>)
         } else {

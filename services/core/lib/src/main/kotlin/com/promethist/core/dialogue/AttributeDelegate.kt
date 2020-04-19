@@ -20,7 +20,7 @@ class AttributeDelegate<V: Any>(
         }
     }
 
-    private fun key(name: String) = if (namespace != null) namespace!!() + ".$name" else name
+    private fun key(name: String) = namespace?.let { it() + ".$name" } ?: name
 
     operator fun getValue(thisRef: Dialogue, property: KProperty<*>): V = with (Dialogue.threadContext().context) {
         val eval = { default!!.invoke(this) }

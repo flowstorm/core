@@ -17,7 +17,7 @@ class DialogueManager(private val loader: Loader) : Component {
             logger.info("loading model $name")
             if (args == null)
                 error("Missing arguments for creating model $name")
-            val dialogue = loader.newObject<Dialogue>(name, *args!!)
+            val dialogue = loader.newObject<Dialogue>(name, *args)
             dialogue.loader = loader
             dialogue.logger = context.logger
             dialogues[key] = dialogue

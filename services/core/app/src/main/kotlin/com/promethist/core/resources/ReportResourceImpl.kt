@@ -21,6 +21,7 @@ import java.util.*
 import javax.inject.Inject
 import javax.ws.rs.WebApplicationException
 import javax.ws.rs.core.Response
+import kotlin.collections.toList
 
 class ReportResourceImpl: ReportResource {
 
@@ -145,7 +146,7 @@ class ReportResourceImpl: ReportResource {
         val columns = dates.map { SimpleDateFormat(getDateFormat(granularity)).format(it) }
 
         for (item in data) {
-            val key = getDatasetKey(item, aggregations)
+            val key = getDatasetKey(item)
             val dataSet = if (dataSets.containsKey(key)) dataSets[key]!! else {
                 dataSets[key] = Report.DataSet(getDatasetLabel(item, aggregations), MutableList(dates.size) { 0L })
                 dataSets[key]!!
@@ -164,7 +165,7 @@ class ReportResourceImpl: ReportResource {
     private fun propertiesFilters(): List<Bson> =
             query.filters.filter { it.name.startsWith(Session::properties.name) }.map { Filters.eq(it.name, it.value) }
 
-    private fun getDatasetKey(item: MetricItem, aggregations: List<Report.Aggregation>): String =
+    private fun getDatasetKey(item: MetricItem): String =
             listOf(item.user_id.toString(), item.namespace, item.metric).joinToString(separator = ":")
 
 

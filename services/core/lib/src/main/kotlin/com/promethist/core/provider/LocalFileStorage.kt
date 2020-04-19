@@ -24,7 +24,7 @@ class LocalFileStorage(private val base: File) : FileResource {
                         throw WebApplicationException("File streaming failed", e)
                     }
                 }, defaultContentType)
-                .header("Content-Disposition", "inline" + if (fileObject.name == null) "" else "; filename=\"${fileObject.name}\"")
+                .header("Content-Disposition", "inline" + "; filename=\"${fileObject.name}\"")
                 .header("Content-Length", fileObject.size)
                 .build()
     }

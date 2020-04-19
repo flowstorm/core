@@ -106,7 +106,7 @@ data class Input(
             println(ZonedDateTime.now())
             println(ZonedDateTime.now(input.zoneId))
             println(input.words.entities("animal"))
-            println(input.intent?.name)
+            println(input.intent.name)
             println(input.entityMap)
             println(input.entities("animal"))
             println(ObjectUtil.defaultMapper.writeValueAsString(input))

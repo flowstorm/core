@@ -20,6 +20,7 @@ abstract class AbstractLoader(open val noCache: Boolean) : Loader {
         if (noCache || !cache.containsKey(name) || (cache[name]!!.lastModified < lastModified)) {
             cache[name] = CacheItem(load(), lastModified)
         }
+        @Suppress("UNCHECKED_CAST")
         return cache[name]!!.item as T
     }
 
