@@ -3,6 +3,7 @@ package com.promethist.core.resources
 import com.mongodb.client.MongoDatabase
 import com.mongodb.client.model.BsonField
 import com.mongodb.client.model.Field
+import com.mongodb.client.model.Filters
 import com.promethist.common.query.MongoFiltersFactory
 import com.promethist.common.query.Query
 import com.promethist.core.model.Report
@@ -13,6 +14,7 @@ import com.promethist.core.type.PropertyMap
 import org.bson.Document
 import org.bson.conversions.Bson
 import org.litote.kmongo.*
+import org.litote.kmongo.id.WrappedObjectId
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -32,6 +34,7 @@ class ReportResourceImpl: ReportResource {
 
     override fun getMetrics(): List<PropertyMap> {
         return sessions.aggregate<PropertyMap>(
+                match(*propertiesFilters().toTypedArray()),
                 unwind("\$metrics"),
                 group(Session::metrics / Metric::name),
                 project(MetricItem::metric from "\$_id")
@@ -40,6 +43,7 @@ class ReportResourceImpl: ReportResource {
 
     override fun getNamespaces(): List<PropertyMap> {
         return sessions.aggregate<PropertyMap>(
+                match(*propertiesFilters().toTypedArray()),
                 unwind("\$metrics"),
                 group(Session::metrics / Metric::namespace),
                 project(MetricItem::namespace from "\$_id")
@@ -91,7 +95,16 @@ class ReportResourceImpl: ReportResource {
         // Apply filters
         pipeline.add(match(*MongoFiltersFactory.createFilters(Session::class, query).toTypedArray()))
 
+        //filter session.properties
+        pipeline.add(match(*propertiesFilters().toTypedArray()))
+
         pipeline.add(unwind("\$metrics"))
+
+        val userFilter = query.filters.firstOrNull { it.name == "user._id" }
+        if (userFilter != null) {
+            pipeline.add(match(Session::user / User::_id `in` userFilter.value.split(",").map { WrappedObjectId<User>(it) }))
+        }
+
 
         val metricFilter = query.filters.firstOrNull { it.name == "metric" }
         if (metricFilter != null) {
@@ -147,6 +160,9 @@ class ReportResourceImpl: ReportResource {
 
         return report
     }
+
+    private fun propertiesFilters(): List<Bson> =
+            query.filters.filter { it.name.startsWith(Session::properties.name) }.map { Filters.eq(it.name, it.value) }
 
     private fun getDatasetKey(item: MetricItem, aggregations: List<Report.Aggregation>): String =
             listOf(item.user_id.toString(), item.namespace, item.metric).joinToString(separator = ":")
