@@ -20,7 +20,11 @@ object RestClient {
     inline fun <reified I> proxy(obj: I, target: String): I =
         Proxy.newProxyInstance(I::class.java.classLoader, arrayOf<Class<*>>(I::class.java)) { _, method, args ->
             try {
-                method.invoke(obj, *args)
+                if (args != null) {
+                    method.invoke(obj, *args)
+                }                 else {
+                    method.invoke(obj)
+                }
             } catch (e: Throwable) {
                 throw when {
                     e.cause is WebApplicationException -> e.cause!!
