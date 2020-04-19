@@ -1,6 +1,7 @@
 package com.promethist.core.resources
 
 import com.mongodb.client.MongoDatabase
+import com.mongodb.client.model.BsonField
 import com.mongodb.client.model.Field
 import com.promethist.common.query.MongoFiltersFactory
 import com.promethist.common.query.Query
@@ -19,7 +20,7 @@ import javax.inject.Inject
 import javax.ws.rs.WebApplicationException
 import javax.ws.rs.core.Response
 
-open class ReportResourceImpl: ReportResource {
+class ReportResourceImpl: ReportResource {
 
     @Inject
     lateinit var database: MongoDatabase
@@ -27,8 +28,10 @@ open class ReportResourceImpl: ReportResource {
     @Inject
     lateinit var query: Query
 
+    private val sessions by lazy { database.getCollection<Session>() }
+
     override fun getMetrics(): List<PropertyMap> {
-        return database.getCollection<Session>().aggregate<Document>(
+        return sessions.aggregate<PropertyMap>(
                 unwind("\$metrics"),
                 group(Session::metrics / Metric::name),
                 project(MetricItem::metric from "\$_id")
@@ -36,7 +39,7 @@ open class ReportResourceImpl: ReportResource {
     }
 
     override fun getNamespaces(): List<PropertyMap> {
-        return database.getCollection<Session>().aggregate<Document>(
+        return sessions.aggregate<PropertyMap>(
                 unwind("\$metrics"),
                 group(Session::metrics / Metric::namespace),
                 project(MetricItem::namespace from "\$_id")
@@ -76,11 +79,8 @@ open class ReportResourceImpl: ReportResource {
     }
 
     override fun getData(
-//            dateFrom: String,
-//            dateTo: String?,
             granularity: Report.Granularity,
             aggregations: List<Report.Aggregation>
-//            user_id: String?
     ): Report {
         val start = getDateFromString(query.filters.firstOrNull() { it.name == Session::datetime.name && it.operator == Query.Operator.gte}!!.value)
         val end = getDateFromString(query.filters.firstOrNull() { it.name == Session::datetime.name && it.operator == Query.Operator.lte}!!.value)
@@ -109,15 +109,12 @@ open class ReportResourceImpl: ReportResource {
 
         // Apply aggregations
         val aggregationFields = createAggregationFields(aggregations)
-        pipeline.add(group(fields(*aggregationFields.toTypedArray()), MetricItem::value sum Session::metrics / Metric::value))
+        val expression = Document.parse("{\$first: {\$concat: [\"\$user.name\", \" \", \"\$user.surname\"]}}")
 
-        // Lookup username
-        if (aggregations.contains(Report.Aggregation.USER)) {
-            pipeline.add(lookup("user", "_id.user_id", "_id", "_user"))
-            pipeline.add(unwind("\$_user"))
-            val expression = Document.parse("{\$concat: [\"\$_user.name\", \" \", \"\$_user.surname\"]}")
-            pipeline.add(addFields(Field(MetricItem::username.name, expression)))
-        }
+        pipeline.add(group(fields(*aggregationFields.toTypedArray()), MetricItem::value sum Session::metrics / Metric::value,
+                BsonField(MetricItem::username.name, expression)
+
+        ))
 
         // Project final columns
         pipeline.add(project(
@@ -130,7 +127,7 @@ open class ReportResourceImpl: ReportResource {
         ))
 
         // Finally load data
-        val data = database.getCollection<Session>().aggregate<MetricItem>(*pipeline.toTypedArray()).toList()
+        val data = sessions.aggregate<MetricItem>(*pipeline.toTypedArray()).toList()
         val dataSets: MutableMap<String, Report.DataSet> = mutableMapOf()
         val columns = dates.map { SimpleDateFormat(getDateFormat(granularity)).format(it) }
 

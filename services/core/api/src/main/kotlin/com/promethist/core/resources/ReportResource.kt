@@ -19,11 +19,8 @@ interface ReportResource {
     @GET
     @Path("/data")
     fun getData(
-//            @ApiParam(required = true) @QueryParam("dateFrom") dateFrom: String,
-//            @ApiParam(required = false) @QueryParam("dateTo") dateTo: String? = null,
             @ApiParam(required = false) @QueryParam("granularity") granularity: Report.Granularity,
             @ApiParam(required = false) @QueryParam("aggregations") aggregations: List<Aggregation>
-//            @ApiParam(required = false) @QueryParam("user_id") user_id: String? = null
     ): Report
 
     @GET
