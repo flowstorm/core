@@ -77,6 +77,7 @@ class Application : JerseyApplication() {
                 bind(InternalTokenizer()).to(Component::class.java).named("tokenizer")
 
                 bind(MongoProfileRepository::class.java).to(ProfileRepository::class.java)
+                bindTo(ReportResource::class.java, ReportResourceImpl::class.java)
                 bindTo(SessionResource::class.java, SessionResourceImpl::class.java)
                 bindTo(ProfileResource::class.java, ProfileResourceImpl::class.java)
                 bindTo(MongoDatabase::class.java,
