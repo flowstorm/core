@@ -6,6 +6,7 @@ import com.promethist.common.ObjectUtil.defaultMapper as mapper
 import com.promethist.core.runtime.Loader
 import com.promethist.core.type.Dynamic
 import com.promethist.core.type.Location
+import com.promethist.core.type.NamedEntity
 import org.slf4j.Logger
 import java.io.File
 import java.io.FileInputStream
@@ -142,24 +143,25 @@ abstract class Dialogue {
     inner class StopSession(override val id: Int) : Node(id)
 
     inline fun <reified V: Any> turnAttribute(namespace: String? = null, noinline default: (Context.() -> V)? = null) =
-            ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.Turn, V::class, { namespace?:nameWithoutVersion }, default)
+            ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.Turn, V::class, { namespace ?: nameWithoutVersion }, default)
 
     inline fun <reified V: Any> sessionAttribute(namespace: String? = null, noinline default: (Context.() -> V)? = null) =
-            ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.Session, V::class, { namespace?:nameWithoutVersion }, default)
+            ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.Session, V::class, { namespace ?: nameWithoutVersion }, default)
 
     inline fun <reified V: Any> profileAttribute(namespace: String? = null, noinline default: (Context.() -> V)? = null) =
-            ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.Profile, V::class, { namespace?:nameWithoutVersion }, default)
+            ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.Profile, V::class, { namespace ?: nameWithoutVersion }, default)
 
     inline fun <reified V: Any> communityAttribute(communityName: String, namespace: String? = null, noinline default: (Context.() -> V)? = null) =
             CommunityAttributeDelegate(V::class, communityName, { namespace?:nameWithoutVersion }, default)
 
-    val turnAttributes get() = with (threadContext()) { context.turn.attributes(nameWithoutVersion) }
+    inline fun <reified E: NamedEntity> turnEntitySetAttribute(entities: Collection<E>, namespace: String? = null) =
+            NamedEntitySetAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Turn) { namespace ?: nameWithoutVersion }
 
-    val sessionAttributes get() = with (threadContext()) { context.session.attributes(nameWithoutVersion) }
+    inline fun <reified E: NamedEntity> sessionEntitySetAttribute(entities: Collection<E>, namespace: String? = null) =
+            NamedEntitySetAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Session) { namespace ?: nameWithoutVersion }
 
-    val profileAttributes get() = with (threadContext()) { context.profile.attributes(nameWithoutVersion) }
-
-    fun communityAttributes(communityName: String) = with (threadContext()) { context.communityResource.get(communityName)?.attributes ?: Dynamic.EMPTY }
+    inline fun <reified E: NamedEntity> profileEntitySetAttribute(entities: Collection<E>, namespace: String? = null) =
+            NamedEntitySetAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Profile) { namespace ?: nameWithoutVersion }
 
     val nameWithoutVersion get() = name.substringBeforeLast("/")
 

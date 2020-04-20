@@ -1,7 +1,10 @@
 package com.promethist.core.dialogue
 
+import com.promethist.core.Context
 import com.promethist.core.Input
+import com.promethist.core.type.Dynamic
 import com.promethist.core.type.Location
+import com.promethist.core.type.NamedEntity
 import com.promethist.core.type.TimeValue
 import java.time.DayOfWeek
 import java.time.LocalTime
@@ -22,6 +25,14 @@ open class DialogueScript {
     val today get() = now.toDay()
     val tomorrow get() = now.day(1)
     val yesterday get() = now.day(-1)
+
+    val turnAttributes get() = with (Dialogue.threadContext()) { context.turn.attributes(dialogue.nameWithoutVersion) }
+
+    val sessionAttributes get() = with (Dialogue.threadContext()) { context.session.attributes(dialogue.nameWithoutVersion) }
+
+    val profileAttributes get() = with (Dialogue.threadContext()) { context.profile.attributes(dialogue.nameWithoutVersion) }
+
+    fun communityAttributes(communityName: String) = with (Dialogue.threadContext()) { context.communityResource.get(communityName)?.attributes ?: Dynamic.EMPTY }
 
     private inline fun unsupportedLanguage(): Nothing = with (Dialogue.threadContext()) {
         val stackTraceElement = Thread.currentThread().stackTrace[1]
