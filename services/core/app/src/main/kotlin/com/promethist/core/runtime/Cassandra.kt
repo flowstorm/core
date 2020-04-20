@@ -1,4 +1,4 @@
-package com.promethist.core.components
+package com.promethist.core.runtime
 
 import com.promethist.core.Component
 import com.promethist.core.Context

@@ -10,7 +10,7 @@ import com.promethist.common.query.QueryParams
 import com.promethist.common.query.QueryValueFactory
 import com.promethist.core.context.ContextFactory
 import com.promethist.core.context.ContextPersister
-import com.promethist.core.components.*
+import com.promethist.core.runtime.*
 import com.promethist.core.profile.MongoProfileRepository
 import com.promethist.core.profile.ProfileRepository
 import com.promethist.core.resources.*
