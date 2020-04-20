@@ -1,6 +1,5 @@
 package com.promethist.core.type
 
-import com.promethist.core.Defaults
-import java.time.ZoneId
+import java.time.ZonedDateTime
 
-class TimeInt(override var value : Int, override val zoneId: ZoneId = Defaults.zoneId) : TimeValue<Int>(value, zoneId)
+class TimeInt(override var value : Int, override val time: ZonedDateTime = ZonedDateTime.now()) : TimeValue<Int>(value, time)

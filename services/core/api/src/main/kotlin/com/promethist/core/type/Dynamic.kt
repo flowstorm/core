@@ -16,6 +16,7 @@ class Dynamic : LinkedHashMap<String, Any>, MutablePropertyMap {
     companion object {
 
         val EMPTY = Dynamic()
+        val ZERO_TIME = ZonedDateTime.of(0, 1, 1, 0, 0, 0, 0, Defaults.zoneId)
 
         fun <V: Any> defaultValue(clazz: KClass<*>): Any =
                 when (clazz) {
@@ -28,14 +29,14 @@ class Dynamic : LinkedHashMap<String, Any>, MutablePropertyMap {
                     Boolean::class -> false
                     MutableSet::class -> mutableSetOf<V>()
                     MutableList::class -> mutableListOf<V>()
-                    TimeInt::class -> TimeInt(0, Defaults.zoneId)
-                    TimeLong::class -> TimeLong(0, Defaults.zoneId)
-                    TimeFloat::class -> TimeFloat(0.0F, Defaults.zoneId)
-                    TimeDouble::class -> TimeDouble(0.0, Defaults.zoneId)
-                    TimeString::class -> TimeString("", Defaults.zoneId)
-                    TimeBoolean::class -> TimeBoolean(false, Defaults.zoneId)
-                    TimeBigDecimal::class -> TimeBigDecimal(BigDecimal.ZERO, Defaults.zoneId)
-                    ZonedDateTime::class -> ZonedDateTime.now(Defaults.zoneId)
+                    TimeInt::class -> TimeInt(0)
+                    TimeLong::class -> TimeLong(0)
+                    TimeFloat::class -> TimeFloat(0.0F)
+                    TimeDouble::class -> TimeDouble(0.0)
+                    TimeString::class -> TimeString("")
+                    TimeBoolean::class -> TimeBoolean(false)
+                    TimeBigDecimal::class -> TimeBigDecimal(BigDecimal.ZERO)
+                    ZonedDateTime::class -> ZERO_TIME
                     else -> error("unsupported $clazz")
                 }
     }

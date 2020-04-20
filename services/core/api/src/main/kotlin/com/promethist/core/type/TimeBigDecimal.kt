@@ -1,7 +1,6 @@
 package com.promethist.core.type
 
-import com.promethist.core.Defaults
 import java.math.BigDecimal
-import java.time.ZoneId
+import java.time.ZonedDateTime
 
-class TimeBigDecimal(override var value : BigDecimal, override val zoneId: ZoneId = Defaults.zoneId) : TimeValue<BigDecimal>(value, zoneId)
+class TimeBigDecimal(override var value : BigDecimal, override val time: ZonedDateTime = ZonedDateTime.now()) : TimeValue<BigDecimal>(value, time)

@@ -81,35 +81,4 @@ data class Input(
     }
 
     fun entities(className: String) = entityMap[className]?.map { it.value } ?: listOf()
-
-
-
-    companion object {
-        @JvmStatic
-        fun main(args: Array<String>) {
-            val input = Input(
-                    transcript = Transcript("I see a dog, a red rose and a cat."),
-                    classes = mutableListOf(Class(Class.Type.Intent, "-1")),
-                    tokens = mutableListOf(
-                            Word("i"),
-                            Word("see"),
-                            Word("dog", mutableListOf(Class(Class.Type.Entity, "animal"))),
-                            Punctuation(","),
-                            Word("red", mutableListOf(Class(Class.Type.Entity, "B-flower"))),
-                            Word("rose", mutableListOf(Class(Class.Type.Entity, "I-flower"))),
-                            Word("and"),
-                            Word("cat", mutableListOf(Class(Class.Type.Entity, "animal"))),
-                            Punctuation(".")
-                    )
-            )
-            println(Locale("cs", Locale.getDefault().country))
-            println(ZonedDateTime.now())
-            println(ZonedDateTime.now(input.zoneId))
-            println(input.words.entities("animal"))
-            println(input.intent.name)
-            println(input.entityMap)
-            println(input.entities("animal"))
-            println(ObjectUtil.defaultMapper.writeValueAsString(input))
-        }
-    }
 }
