@@ -29,13 +29,13 @@ class Dynamic : LinkedHashMap<String, Any>, MutablePropertyMap {
                     Boolean::class -> false
                     MutableSet::class -> mutableSetOf<V>()
                     MutableList::class -> mutableListOf<V>()
-                    TimeInt::class -> TimeInt(0)
-                    TimeLong::class -> TimeLong(0)
-                    TimeFloat::class -> TimeFloat(0.0F)
-                    TimeDouble::class -> TimeDouble(0.0)
-                    TimeString::class -> TimeString("")
-                    TimeBoolean::class -> TimeBoolean(false)
-                    TimeBigDecimal::class -> TimeBigDecimal(BigDecimal.ZERO)
+                    TimeInt::class -> TimeInt(0, ZERO_TIME)
+                    TimeLong::class -> TimeLong(0, ZERO_TIME)
+                    TimeFloat::class -> TimeFloat(0.0F, ZERO_TIME)
+                    TimeDouble::class -> TimeDouble(0.0, ZERO_TIME)
+                    TimeString::class -> TimeString("", ZERO_TIME)
+                    TimeBoolean::class -> TimeBoolean(false, ZERO_TIME)
+                    TimeBigDecimal::class -> TimeBigDecimal(BigDecimal.ZERO, ZERO_TIME)
                     ZonedDateTime::class -> ZERO_TIME
                     else -> error("unsupported $clazz")
                 }

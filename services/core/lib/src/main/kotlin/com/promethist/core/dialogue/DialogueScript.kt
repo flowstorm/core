@@ -124,16 +124,29 @@ open class DialogueScript {
     fun intent(value: Any?) = (value?.let { " " + describe(value) } ?: "")
 
     fun greeting(name: String? = null) = with (Dialogue.threadContext()) {
-        (when (dialogue.language) {
-            "en" ->
-                if (now.hour >= 18 || now.hour < 3)
-                    "good evening"
-                else if (now.hour < 12)
-                    "good morning"
-                else
-                    "good afternoon"
-            else -> unsupportedLanguage()
-        }) + intent(name)
+        (
+            if (now.hour >= 18 || now.hour < 3)
+                mapOf(
+                        "en" to "good evening",
+                        "de" to "guten abend",
+                        "cs" to "dobrý večer",
+                        "fr" to "bonsoir"
+                )[dialogue.language] ?: unsupportedLanguage()
+            else if (now.hour < 12)
+                mapOf(
+                        "en" to "good morning",
+                        "de" to "guten morgen",
+                        "cs" to "dobré ráno",
+                        "fr" to "bonjour"
+                )[dialogue.language] ?: unsupportedLanguage()
+            else
+                mapOf(
+                        "en" to "good afternoon",
+                        "de" to "guten tag",
+                        "cs" to "dobré odpoledne",
+                        "fr" to "bonne après-midi"
+                )[dialogue.language] ?: unsupportedLanguage()
+        ) + intent(name)
     }
 
     fun definiteArticle(subject: String) = article(subject, Article.Definite)
