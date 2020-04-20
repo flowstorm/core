@@ -1,35 +1,41 @@
 package com.promethist.core.dialogue
 
 import com.promethist.core.Input
-import java.time.LocalDate
-import java.time.LocalDateTime
+import com.promethist.core.type.Location
+import com.promethist.core.type.TimeValue
+import java.time.DayOfWeek
+import java.time.LocalTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.time.temporal.ChronoUnit
 import java.util.*
+import kotlin.math.absoluteValue
 
 open class DialogueScript {
 
     enum class Article { None, Indefinite, Definite }
 
     val clientNamespace = "client"
-    val now get() = LocalDateTime.now()
-    val today get() = LocalDate.now()
     val pass: Dialogue.Transition? = null
-    val toIntent get() = Dialogue.threadContext().let {
-        Dialogue.Transition(it.dialogue.intentNode(it.context))
-    }
+    val toIntent get() = with (Dialogue.threadContext()) { Dialogue.Transition(dialogue.intentNode(context)) }
+    val now get() = with (Dialogue.threadContext()) { ZonedDateTime.now(context.turn.input.zoneId) }
+    val today get() = now.toDay()
+    val tomorrow get() = now.day(1)
+    val yesterday get() = now.day(-1)
 
-    private inline fun unsupportedLanguage(): Nothing = Dialogue.threadContext().let {
+    private inline fun unsupportedLanguage(): Nothing = with (Dialogue.threadContext()) {
         val stackTraceElement = Thread.currentThread().stackTrace[1]
-        throw error("${stackTraceElement.className}.${stackTraceElement.methodName} does not support language ${it.dialogue.language} of dialogue ${it.dialogue.name}")
+        throw error("${stackTraceElement.className}.${stackTraceElement.methodName} does not support language ${dialogue.language} of dialogue ${dialogue.name}")
     }
 
-    fun enumerate(col: Collection<String>, subject: String = "", article: Article = Article.None) = Dialogue.threadContext().let {
+    fun enumerate(col: Collection<String>, subject: String = "", article: Article = Article.None) = with (Dialogue.threadContext()) {
         val list = if (col is List<String>) col else col.toList()
         when {
             list.isEmpty() -> empty(subject)
             list.size == 1 ->
                 article(list.first(), article) + (if (subject.isNotEmpty()) " $subject" else "")
             else -> {
-                val and = mapOf("en" to "and", "de" to "und", "cs" to "a")[it.dialogue.language] ?: unsupportedLanguage()
+                val and = mapOf("en" to "and", "de" to "und", "cs" to "a")[dialogue.language] ?: unsupportedLanguage()
                 val str = StringBuilder()
                 for (i in list.indices) {
                     if (i > 0)
@@ -47,9 +53,9 @@ open class DialogueScript {
 
     fun enumerateWithDefiniteArticle(col: Collection<String>, subject: String = "") = enumerate(col, subject, Article.Definite)
 
-    fun describe(map: Map<String, Any>) = Dialogue.threadContext().let {
+    fun describe(map: Map<String, Any>) = with (Dialogue.threadContext()) {
         val list = mutableListOf<String>()
-        val isWord = when (it.dialogue.language) {
+        val isWord = when (dialogue.language) {
             "en" -> "is"
             "de" -> "ist"
             "cs" -> "je"
@@ -63,10 +69,12 @@ open class DialogueScript {
 
     fun describe(col: Collection<String>) = enumerate(col)
 
-    fun describe(value: Any?, detailLevel: Int = 0) = Dialogue.threadContext().let {
+    fun describe(tm: TimeValue<*>) = describe(tm.value) + intent(describe(tm.time, 2))
+
+    fun describe(value: Any?, detailLevel: Int = 0) = with (Dialogue.threadContext()) {
         when (value) {
-            is LocalDateTime -> value.toString()
-            is LocalDate -> value.toString()
+            is Location -> "latitude ${value.latitude}, longitude ${value.longitude}"
+            is ZonedDateTime -> value.toString()
             is String -> value
             null -> "unknown"
             else -> value.toString()
@@ -83,8 +91,8 @@ open class DialogueScript {
         }
     })
 
-    fun empty(subject: String) = Dialogue.threadContext().let {
-        when (it.dialogue.language) {
+    fun empty(subject: String) = with (Dialogue.threadContext()) {
+        when (dialogue.language) {
             "en" -> "no"
             "de" -> "kein" //TODO male vs. female
             else -> unsupportedLanguage()
@@ -93,17 +101,17 @@ open class DialogueScript {
 
     fun lemma(word: String) = word
 
-    fun plural(subject: String, cond: (() -> Boolean)? = null) = Dialogue.threadContext().let {
+    fun plural(subject: String, cond: (() -> Boolean)? = null) = with (Dialogue.threadContext()) {
         if (cond == null || cond())
-            when (it.dialogue.language) {
+            when (dialogue.language) {
                 "en" -> if (subject.endsWith("s")) subject else subject + "s"
                 else -> unsupportedLanguage()
             }
         else this
     }
 
-    fun article(subject: String, article: Article = Article.None) = Dialogue.threadContext().let {
-        when (it.dialogue.language) {
+    fun article(subject: String, article: Article = Article.None) = with (Dialogue.threadContext()) {
+        when (dialogue.language) {
             "en" -> when (article) {
                 Article.Indefinite -> (if (subject.startsWithVowel()) "an " else "a ") + subject
                 Article.Definite -> "the $subject"
@@ -113,7 +121,24 @@ open class DialogueScript {
         }
     }
 
+    fun intent(value: Any?) = (value?.let { " " + describe(value) } ?: "")
+
+    fun greeting(name: String? = null) = with (Dialogue.threadContext()) {
+        (when (dialogue.language) {
+            "en" ->
+                if (now.hour >= 18 || now.hour < 3)
+                    "good evening"
+                else if (now.hour < 12)
+                    "good morning"
+                else
+                    "good afternoon"
+            else -> unsupportedLanguage()
+        }) + intent(name)
+    }
+
     fun definiteArticle(subject: String) = article(subject, Article.Definite)
+
+    fun String.toLocation() = Location(0F, 0F)
 
     infix fun String.similarityTo(tokens: List<Input.Word>): Float {
         val words = toLowerCase().split(" ", ",", ".", ":", ";")
@@ -140,6 +165,30 @@ open class DialogueScript {
     infix fun Collection<*>.of(subject: String) = size of subject
 
     infix fun Map<*, *>.of(subject: String) = size of subject
+
+    infix fun ZonedDateTime.isSameDateAs(to: ZonedDateTime) = true
+
+    fun ZonedDateTime.day(dayCount: Long): ZonedDateTime =
+            plus(dayCount, ChronoUnit.DAYS).with(LocalTime.of(0, 0, 0, 0))
+
+    fun ZonedDateTime.toDay() = day(0)
+
+    fun ZonedDateTime.isDay(from: Long, to: Long = from): Boolean {
+        val thisDay = day(0)
+        return now.day(from) <= thisDay && thisDay < now.day(to + 1)
+    }
+
+    fun ZonedDateTime.isToday() = isDay(0, 0)
+    fun ZonedDateTime.isTomorrow() = isDay(1, 1)
+    fun ZonedDateTime.isYesterday() = isDay(-1, -1)
+    fun ZonedDateTime.isWeekend() = now.let { it.dayOfWeek == DayOfWeek.SATURDAY || it.dayOfWeek == DayOfWeek.SUNDAY }
+    fun ZonedDateTime.isHoliday() = false
+    infix fun ZonedDateTime.differsInDaysFrom(dateTime: ZonedDateTime) =
+            (year * 366 * 24 + hour) - (dateTime.year * 366 * 24 + dateTime.hour)
+    infix fun ZonedDateTime.differsInHoursFrom(dateTime: ZonedDateTime) =
+            (year * 366 * 24 + hour) - (dateTime.year * 366 * 24 + dateTime.hour)
+    infix fun ZonedDateTime.differsInMonthsFrom(dateTime: ZonedDateTime) =
+            (year * 12 + monthValue) - (dateTime.year * 12 + dateTime.monthValue)
 }
 
 fun String.startsWithVowel() = Regex("[aioy].*").matches(this)

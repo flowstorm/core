@@ -28,7 +28,7 @@ class DialogueLog {
 
     init {
         with(root) {
-            level = ch.qos.logback.classic.Level.ALL
+            level = Level.ALL
             addAppender(Appender(log).also { it.context = loggerContext; it.start() })
         }
     }

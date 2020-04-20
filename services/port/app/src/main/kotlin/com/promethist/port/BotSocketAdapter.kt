@@ -123,7 +123,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                 val text = "\$noaudio"
                 inputAudioClose(true)
                 sendEvent(BotEvent.Recognized(text))
-                onRequest(createRequest(Input(clientRequirements.locale, Input.Transcript(text))))
+                onRequest(createRequest(Input(clientRequirements.locale, clientRequirements.zoneId, Input.Transcript(text))))
             } else {
                 super.onWebSocketBinary(payload, offset, length)
                 sttStream?.write(payload, offset, length)
@@ -145,7 +145,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                 is BotEvent.Request -> onRequest(event.request)
                 is BotEvent.InputAudioStreamOpen -> {
                     inputAudioClose(false)
-                    val sttConfig = SttConfig(clientRequirements.locale.language, clientRequirements.sttSampleRate)
+                    val sttConfig = SttConfig(clientRequirements.locale, clientRequirements.zoneId, clientRequirements.sttSampleRate)
                     sttService = SttServiceFactory.create("Google", sttConfig, this.expectedPhrases, BotSttCallback())
                     sttStream = sttService?.createStream()
                     inputAudioTime = System.currentTimeMillis()

@@ -1,8 +1,8 @@
 package com.promethist.core.type
 
+import com.promethist.core.Defaults
 import java.math.BigDecimal
-import java.time.LocalDate
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import kotlin.collections.LinkedHashMap
 import kotlin.reflect.KClass
 
@@ -24,11 +24,14 @@ class Dynamic : LinkedHashMap<String, Any>, MutablePropertyMap {
                     Boolean::class -> false
                     MutableSet::class -> mutableSetOf<V>()
                     MutableList::class -> mutableListOf<V>()
-                    TimeInt::class -> TimeInt(0)
-                    TimeString::class -> TimeString("")
-                    TimeBoolean::class -> TimeBoolean(false)
-                    LocalDate::class -> LocalDate.now()
-                    LocalDateTime::class -> LocalDateTime.now()
+                    TimeInt::class -> TimeInt(0, Defaults.zoneId)
+                    TimeLong::class -> TimeLong(0, Defaults.zoneId)
+                    TimeFloat::class -> TimeFloat(0.0F, Defaults.zoneId)
+                    TimeDouble::class -> TimeDouble(0.0, Defaults.zoneId)
+                    TimeString::class -> TimeString("", Defaults.zoneId)
+                    TimeBoolean::class -> TimeBoolean(false, Defaults.zoneId)
+                    TimeBigDecimal::class -> TimeBigDecimal(BigDecimal.ZERO, Defaults.zoneId)
+                    ZonedDateTime::class -> ZonedDateTime.now(Defaults.zoneId)
                     else -> error("unsupported $clazz")
                 }
     }

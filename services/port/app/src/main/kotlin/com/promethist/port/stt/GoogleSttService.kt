@@ -9,10 +9,10 @@ import java.util.concurrent.TimeUnit
 class GoogleSttService(config: SttConfig, callback: SttCallback, expectedPhrases: List<ExpectedPhrase>) : SttService {
 
     private val client = SpeechClient.create()
-    private val responseObserver = GoogleSttObserver(callback, config.language?:"en")
+    private val responseObserver = GoogleSttObserver(callback, config.locale, config.zoneId)
     private val recognitionConfig = RecognitionConfig.newBuilder()
             .setEncoding(RecognitionConfig.AudioEncoding.LINEAR16)
-            .setLanguageCode(config.language)
+            .setLanguageCode(config.locale.language)
             .setSampleRateHertz(config.sampleRate)
             .setMaxAlternatives(5)
             .setEnableWordTimeOffsets(true)

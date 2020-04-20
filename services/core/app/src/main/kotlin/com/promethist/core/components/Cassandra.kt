@@ -4,7 +4,6 @@ import com.promethist.core.Component
 import com.promethist.core.Context
 import com.promethist.core.Input
 import com.promethist.util.LoggerDelegate
-import org.slf4j.LoggerFactory
 import javax.inject.Inject
 import javax.ws.rs.client.Entity
 import javax.ws.rs.client.WebTarget
@@ -25,7 +24,7 @@ class Cassandra : Component {
         logger.info("processing NER with input ${context.input}")
 
         context.turn.input =
-                webTarget.path("/ner/ner3").queryParam("language", context.input.language.toString())
+                webTarget.path("/ner/ner3").queryParam("language", context.input.locale.toString())
                         .request().post(Entity.json(context.input), object : GenericType<Input>() {})
 
         return context.pipeline.process(context)

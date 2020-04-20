@@ -35,7 +35,7 @@ object DialogueLoadTest {
                         user = user,
                         application = Application(name = "test", dialogueName = "product/some-dialogue/1", ttsVoice = "Grace")
                 ),
-                Turn(Input(Locale.ENGLISH, Input.Transcript("some message"))),
+                Turn(Input(transcript = Input.Transcript("some message"))),
                 Metrics(listOf()),
                 logger
         )

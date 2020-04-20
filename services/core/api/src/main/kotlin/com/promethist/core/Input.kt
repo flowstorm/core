@@ -4,10 +4,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.promethist.common.ObjectUtil
+import java.time.*
 import java.util.*
 
 data class Input(
-        val language: Locale = Locale.ENGLISH,
+        val locale: Locale = Defaults.locale,
+        val zoneId: ZoneId = Defaults.zoneId,
         var transcript: Transcript = Transcript(""),
         val alternatives: MutableList<Transcript> = mutableListOf(),
         val classes: MutableList<Class> = mutableListOf(),
@@ -80,12 +82,13 @@ data class Input(
 
     fun entities(className: String) = entityMap[className]?.map { it.value } ?: listOf()
 
+
+
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
             val input = Input(
-                    Locale.ENGLISH,
-                    Transcript("I see a dog, a red rose and a cat."),
+                    transcript = Transcript("I see a dog, a red rose and a cat."),
                     classes = mutableListOf(Class(Class.Type.Intent, "-1")),
                     tokens = mutableListOf(
                             Word("i"),
@@ -99,6 +102,9 @@ data class Input(
                             Punctuation(".")
                     )
             )
+            println(Locale("cs", Locale.getDefault().country))
+            println(ZonedDateTime.now())
+            println(ZonedDateTime.now(input.zoneId))
             println(input.words.entities("animal"))
             println(input.intent?.name)
             println(input.entityMap)

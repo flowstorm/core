@@ -95,8 +95,7 @@ class DialogueSourceCodeBuilder(val name: String, val buildId: String) {
                 .appendln("import com.promethist.core.model.*")
                 .appendln("import com.promethist.core.dialogue.*")
                 .appendln("import com.promethist.core.runtime.Loader")
-                .appendln("import java.time.LocalDateTime")
-                .appendln("import java.time.LocalDate")
+                .appendln("import java.time.*")
                 .appendln()
     }
 

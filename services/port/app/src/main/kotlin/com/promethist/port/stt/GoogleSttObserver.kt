@@ -4,9 +4,10 @@ import com.google.api.gax.rpc.ResponseObserver
 import com.google.api.gax.rpc.StreamController
 import com.google.cloud.speech.v1.StreamingRecognizeResponse
 import com.promethist.core.Input
+import java.time.ZoneId
 import java.util.*
 
-class GoogleSttObserver(private val callback: SttCallback, private val language: String) : ResponseObserver<StreamingRecognizeResponse> {
+class GoogleSttObserver(private val callback: SttCallback, private val locale: Locale, private val zoneId: ZoneId) : ResponseObserver<StreamingRecognizeResponse> {
 
     private val responses = ArrayList<StreamingRecognizeResponse>()
 
@@ -22,7 +23,7 @@ class GoogleSttObserver(private val callback: SttCallback, private val language:
         for (result in response.resultsList) {
             val alternatives = result.alternativesList ?: continue
             val firstAlternative = alternatives[0]
-            val input = Input(Locale(language), Input.Transcript(firstAlternative.transcript, firstAlternative.confidence))
+            val input = Input(locale, zoneId, Input.Transcript(firstAlternative.transcript, firstAlternative.confidence))
             firstAlternative.wordsList.forEach {
                 input.tokens.add(Input.Word(
                         it.word,

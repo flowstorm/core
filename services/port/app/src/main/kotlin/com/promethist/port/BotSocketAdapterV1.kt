@@ -5,12 +5,9 @@ import ai.promethist.client.BotEvent
 import ai.promethist.client.BotSocket
 import com.promethist.common.AppConfig
 import com.promethist.common.ObjectUtil
-import com.promethist.core.ExpectedPhrase
+import com.promethist.core.*
 import com.promethist.core.model.Message
 import com.promethist.core.model.TtsConfig
-import com.promethist.core.Input
-import com.promethist.core.Request
-import com.promethist.core.Response
 import com.promethist.core.resources.CoreResource
 import com.promethist.core.type.MutablePropertyMap
 import com.promethist.port.stt.*
@@ -124,7 +121,7 @@ class BotSocketAdapterV1 : BotSocket, WebSocketAdapter() {
                 val text = "\$noaudio"
                 inputAudioClose(true)
                 sendEvent(BotEvent.Recognized(text))
-                onInput(Input(clientRequirements.locale, Input.Transcript(text)))
+                onInput(Input(clientRequirements.locale, clientRequirements.zoneId, Input.Transcript(text)))
             } else {
                 super.onWebSocketBinary(payload, offset, length)
                 sttStream?.write(payload, offset, length)
@@ -147,7 +144,7 @@ class BotSocketAdapterV1 : BotSocket, WebSocketAdapter() {
                 // version 1+2
                 is BotEvent.InputAudioStreamOpen -> {
                     inputAudioClose(false)
-                    val sttConfig = SttConfig(clientRequirements.locale.language, clientRequirements.sttSampleRate)
+                    val sttConfig = SttConfig(clientRequirements.locale, clientRequirements.zoneId, clientRequirements.sttSampleRate)
                     sttService = SttServiceFactory.create("Google", sttConfig, this.expectedPhrases, BotSttCallback())
                     sttStream = sttService?.createStream()
                     inputAudioTime = System.currentTimeMillis()
@@ -197,7 +194,7 @@ class BotSocketAdapterV1 : BotSocket, WebSocketAdapter() {
 
     // deprecated - remove in version 3
     private fun onMessageEvent(event: BotEvent.Message) = with (event) {
-        onMessageEvent(event, Input(message.language?:Locale.ENGLISH, Input.Transcript(message.items.firstOrNull()?.text?:"")))
+        onMessageEvent(event, Input(message.language?:Locale.ENGLISH, Defaults.zoneId, Input.Transcript(message.items.firstOrNull()?.text?:"")))
     }
 
     // deprecated - remove in version 3

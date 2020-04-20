@@ -53,7 +53,5 @@ class DynamicTest {
         mem.set<TimeString>("animals").find { it.value == "cat" }?.let {
             println("cat remembered ${it.time}")
         }
-        println("dog remembered ${mem.set<TimeString>("animals").filter { it.value == "dog" }.size}x")
-        println("all remembered animals ${mem.set<TimeString>("animals").filter { it.wasYesterday() }.map { it.value }}.")
     }
 }

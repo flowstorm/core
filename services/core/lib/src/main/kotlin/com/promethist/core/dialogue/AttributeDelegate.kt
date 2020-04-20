@@ -2,16 +2,17 @@ package com.promethist.core.dialogue
 
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
+import com.promethist.core.Context
 
 class AttributeDelegate<V: Any>(
         private val scope: Scope,
         private val clazz: KClass<*>,
         private val namespace: (() -> String)? = null,
-        private val default: (() -> V)? = null
+        private val default: (Context.() -> V)? = null
 ) {
     enum class Scope { Turn, Session, Profile }
 
-    private val attributes get() = with (Dialogue.threadContext().context) {
+    private fun attributes(context: Context) = with (context) {
         when (scope) {
             Scope.Session -> session.attributes
             Scope.Profile -> profile.attributes
@@ -21,9 +22,13 @@ class AttributeDelegate<V: Any>(
 
     private fun key(name: String) = if (namespace != null) namespace!!() + ".$name" else name
 
-    operator fun getValue(thisRef: Dialogue, property: KProperty<*>): V =
-            attributes.put(key(property.name), clazz, default) { value } as V
+    operator fun getValue(thisRef: Dialogue, property: KProperty<*>): V = with (Dialogue.threadContext().context) {
+        val eval = { default!!.invoke(this) }
+        attributes(this).put(key(property.name), clazz, if (default != null) eval else null) { value } as V
+    }
 
-    operator fun setValue(thisRef: Dialogue, property: KProperty<*>, any: V) =
-            attributes.put(key(property.name), clazz, default) { value = any; Unit }
+    operator fun setValue(thisRef: Dialogue, property: KProperty<*>, any: V) = with (Dialogue.threadContext().context) {
+        val eval = { default!!.invoke(this) }
+        attributes(this).put(key(property.name), clazz, if (default != null) eval else null) { value = any; Unit }
+    }
 }

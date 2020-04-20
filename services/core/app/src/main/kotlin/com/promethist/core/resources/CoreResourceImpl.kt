@@ -132,7 +132,7 @@ class CoreResourceImpl : CoreResource {
                     ContentRequest(
                             sender,
                             key,
-                            input.language.toString(),
+                            input.locale.toString(),
                             Application.StartCondition(Application.StartCondition.Type.OnAction, input.transcript.text)
                     ))
 
@@ -184,7 +184,7 @@ class CoreResourceImpl : CoreResource {
         val logText = "class = ${e.javaClass}, type = $type, code = $code, text = $text"
         logger.warn("getErrorMessageResponse($logText)")
         val items = mutableListOf<Response.Item>()
-        if (input.language == czechLocale)
+        if (input.locale == czechLocale)
             items.add(Response.Item(ttsVoice = TtsConfig.defaultVoice("cs"), text = getErrorResourceString(czechLocale, "exception.$type", listOf(code))))
         else
             items.add(Response.Item(ttsVoice = TtsConfig.defaultVoice("en"), text = getErrorResourceString(Locale.ENGLISH, "exception.$type", listOf(code))))

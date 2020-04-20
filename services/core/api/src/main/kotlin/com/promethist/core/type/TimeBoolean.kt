@@ -1,3 +1,6 @@
 package com.promethist.core.type
 
-class TimeBoolean(override var value : Boolean) : TimeValue<Boolean>(value)
+import com.promethist.core.Defaults
+import java.time.ZoneId
+
+class TimeBoolean(override var value : Boolean, override val zoneId: ZoneId = Defaults.zoneId) : TimeValue<Boolean>(value, zoneId)

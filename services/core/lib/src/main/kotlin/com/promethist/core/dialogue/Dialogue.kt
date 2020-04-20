@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.promethist.core.Context
 import com.promethist.common.ObjectUtil.defaultMapper as mapper
 import com.promethist.core.runtime.Loader
+import com.promethist.core.type.Location
 import org.slf4j.Logger
 import java.io.File
 import java.io.FileInputStream
@@ -139,20 +140,20 @@ abstract class Dialogue {
 
     inner class StopSession(override val id: Int) : Node(id)
 
-    inline fun <reified V: Any> turnAttribute(namespace: String? = null, noinline default: (() -> V)? = null) =
+    inline fun <reified V: Any> turnAttribute(namespace: String? = null, noinline default: (Context.() -> V)? = null) =
             AttributeDelegate(AttributeDelegate.Scope.Turn, V::class, { namespace?:nameWithoutVersion }, default)
 
-    inline fun <reified V: Any> sessionAttribute(namespace: String? = null, noinline default: (() -> V)? = null) =
+    inline fun <reified V: Any> sessionAttribute(namespace: String? = null, noinline default: (Context.() -> V)? = null) =
             AttributeDelegate(AttributeDelegate.Scope.Session, V::class, { namespace?:nameWithoutVersion }, default)
 
-    inline fun <reified V: Any> profileAttribute(namespace: String? = null, noinline default: (() -> V)? = null) =
+    inline fun <reified V: Any> profileAttribute(namespace: String? = null, noinline default: (Context.() -> V)? = null) =
             AttributeDelegate(AttributeDelegate.Scope.Profile, V::class, { namespace?:nameWithoutVersion }, default)
 
-    val turnAttributes get() = with (threadContext().context.turn) { attributes(nameWithoutVersion) }
+    val turnAttributes get() = with (threadContext()) { context.turn.attributes(nameWithoutVersion) }
 
-    val sessionAttributes get() = with (threadContext().context.session) { attributes(nameWithoutVersion) }
+    val sessionAttributes get() = with (threadContext()) { context.session.attributes(nameWithoutVersion) }
 
-    val profileAttributes get() = with (threadContext().context.profile) { attributes(nameWithoutVersion) }
+    val profileAttributes get() = with (threadContext()) { context.profile.attributes(nameWithoutVersion) }
 
     val nameWithoutVersion get() = name.substringBeforeLast("/")
 
@@ -173,6 +174,9 @@ abstract class Dialogue {
     fun node(id: Int): Node = nodes.find { it.id == id }?:error("Node $id not found in $this")
 
     fun intentNode(context: Context) = node(context.turn.input.intent.name.toInt())
+
+    // implicit attributes
+    val location by turnAttribute<Location>(clientNamespace)
 
     var turnSpeakingRate by turnAttribute(clientNamespace) { 1.0 }
     var sessionSpeakingRate by sessionAttribute(clientNamespace) { 1.0 }

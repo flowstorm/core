@@ -1,11 +1,8 @@
 package com.promethist.core.runtime
 
 import com.promethist.common.RestClient
-import com.promethist.core.Component
-import com.promethist.core.Context
+import com.promethist.core.*
 import com.promethist.core.model.*
-import com.promethist.core.Input
-import com.promethist.core.Pipeline
 import com.promethist.core.dialogue.Dialogue
 import com.promethist.core.model.metrics.Metrics
 import com.promethist.core.provider.LocalFileStorage
@@ -80,6 +77,9 @@ class DialogueRunner(
         }
     }
 
+    var locale = Defaults.locale
+    var zoneId = Defaults.zoneId
+
     private val loader: Loader = FileResourceLoader(fileResource, "dialogue")
     private val logger by LoggerDelegate()
 
@@ -88,8 +88,7 @@ class DialogueRunner(
         val app = Application(name = "test", dialogueName = name, ttsVoice = "Grace",
                 properties = properties)
         val session = Session(sessionId = "T-E-S-T", user = user, application = app)
-        val language = Locale.ENGLISH
-        val turn = Turn(Input(language, Input.Transcript("")))
+        val turn = Turn(Input(locale, zoneId, Input.Transcript("")))
         val context = Context(SimplePipeline(LinkedList(listOf(dm, ir))), profile, session, turn, Metrics(listOf()), logger)
         while (true) {
             context.pipeline.process(context)
@@ -99,7 +98,7 @@ class DialogueRunner(
             val text = input.readLine()!!.trim()
             if (text == "exit")
                 break
-            turn.input = Input(language, Input.Transcript(text))
+            turn.input = Input(locale, zoneId, Input.Transcript(text))
             turn.attributes.clear()
             turn.responseItems.clear()
             context.pipeline = SimplePipeline(LinkedList(listOf(dm, ir)))
