@@ -4,8 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.promethist.core.Component
 import com.promethist.core.Context
 import com.promethist.core.Input
-import com.promethist.core.builder.DialogueSourceCodeBuilder
-import com.promethist.core.model.Session
 import com.promethist.util.LoggerDelegate
 import javax.inject.Inject
 import javax.ws.rs.client.Entity
