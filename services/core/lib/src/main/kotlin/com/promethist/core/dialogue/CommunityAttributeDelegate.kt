@@ -1,22 +1,19 @@
 package com.promethist.core.dialogue
 
+import com.promethist.core.Context
+import com.promethist.core.model.Community
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
-import com.promethist.core.Context
 
-class AttributeDelegate<V: Any>(
-        private val scope: Scope,
+class CommunityAttributeDelegate<V: Any>(
         private val clazz: KClass<*>,
+        private val communityName: String,
         private val namespace: (() -> String)? = null,
         private val default: (Context.() -> V)? = null
 ) {
-    enum class Scope { Turn, Session, Profile }
-
-    private fun attributes(context: Context) = with (context) {
-        when (scope) {
-            Scope.Session -> session.attributes
-            Scope.Profile -> profile.attributes
-            else -> turn.attributes
+    private val community get() = with (Dialogue.threadContext().context) {
+        communityResource.get(communityName) ?: Community(name = communityName).apply {
+            communityResource.create(this)
         }
     }
 
@@ -24,11 +21,14 @@ class AttributeDelegate<V: Any>(
 
     operator fun getValue(thisRef: Dialogue, property: KProperty<*>): V = with (Dialogue.threadContext().context) {
         val eval = { default!!.invoke(this) }
-        attributes(this).put(key(property.name), clazz, if (default != null) eval else null) { value } as V
+        community.attributes.put(key(property.name), clazz, if (default != null) eval else null) { value } as V
     }
 
     operator fun setValue(thisRef: Dialogue, property: KProperty<*>, any: V) = with (Dialogue.threadContext().context) {
         val eval = { default!!.invoke(this) }
-        attributes(this).put(key(property.name), clazz, if (default != null) eval else null) { value = any; Unit }
+        with (community) {
+            attributes.put(key(property.name), clazz, if (default != null) eval else null) { value = any; Unit }
+            communityResource.update(this)
+        }
     }
 }

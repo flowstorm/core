@@ -37,7 +37,8 @@ object DialogueLoadTest {
                 ),
                 Turn(Input(transcript = Input.Transcript("some message"))),
                 Metrics(listOf()),
-                logger
+                logger,
+                SimpleCommunityResource()
         )
 
         val func = dialogue.functions.first()

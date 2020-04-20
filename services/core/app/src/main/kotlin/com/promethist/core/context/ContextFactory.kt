@@ -6,12 +6,14 @@ import com.promethist.core.Input
 import com.promethist.core.Pipeline
 import com.promethist.core.model.metrics.Metrics
 import com.promethist.core.profile.ProfileRepository
+import com.promethist.core.resources.CommunityResource
 import com.promethist.core.runtime.DialogueLog
-import org.slf4j.LoggerFactory
-import java.util.*
 import javax.inject.Inject
 
 class ContextFactory {
+
+    @Inject
+    lateinit var communityResource: CommunityResource
 
     @Inject
     lateinit var profileRepository: ProfileRepository
@@ -29,7 +31,8 @@ class ContextFactory {
                 session,
                 Turn(input = input),
                 Metrics(session.metrics),
-                dialogueLog.logger
+                dialogueLog.logger,
+                communityResource
         )
     }
 }

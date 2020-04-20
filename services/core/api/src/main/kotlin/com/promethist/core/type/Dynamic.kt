@@ -14,6 +14,9 @@ class Dynamic : LinkedHashMap<String, Any>, MutablePropertyMap {
     constructor(map: PropertyMap) { putAll(map) }
 
     companion object {
+
+        val EMPTY = Dynamic()
+
         fun <V: Any> defaultValue(clazz: KClass<*>): Any =
                 when (clazz) {
                     Int::class -> 0
@@ -72,7 +75,7 @@ class Dynamic : LinkedHashMap<String, Any>, MutablePropertyMap {
     fun <V: Any> put(key: String, clazz: KClass<*>, default: (() -> V)? = null, eval: (Value<V>.() -> Any)): Any {
         val triple = item(key)
         val any = triple.third ?: default?.invoke() ?: defaultValue<V>(clazz)
-        return if (any is Value<*>) {
+        return if (any is Value<*> && any !is TimeValue<*>) {
             eval(any as Value<V>)
         } else {
             val value = Value(any as V)

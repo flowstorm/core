@@ -6,5 +6,5 @@ open class Value<V>(open var value: V) {
 
     override fun hashCode(): Int = value.hashCode()
 
-    override fun toString(): String = "(value=$value)"
+    override fun toString(): String = "${this::class.simpleName}(value=$value)"
 }

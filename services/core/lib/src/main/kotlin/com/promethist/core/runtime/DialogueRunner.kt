@@ -89,7 +89,7 @@ class DialogueRunner(
                 properties = properties)
         val session = Session(sessionId = "T-E-S-T", user = user, application = app)
         val turn = Turn(Input(locale, zoneId, Input.Transcript("")))
-        val context = Context(SimplePipeline(LinkedList(listOf(dm, ir))), profile, session, turn, Metrics(listOf()), logger)
+        val context = Context(SimplePipeline(LinkedList(listOf(dm, ir))), profile, session, turn, Metrics(listOf()), logger, SimpleCommunityResource())
         while (true) {
             context.pipeline.process(context)
             output.println("> ${context.turn.responseItems}")

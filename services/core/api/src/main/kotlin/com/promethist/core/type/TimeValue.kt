@@ -11,6 +11,7 @@ import java.util.*
 open class TimeValue<V>(override var value: V, open val zoneId: ZoneId, private val timestamp: Long = System.currentTimeMillis()): Value<V>(value) {
 
     @get:JsonIgnore
-    val time: ZonedDateTime
-        get() = ZonedDateTime.ofInstant(Instant.ofEpochMilli(timestamp), TimeZone.getDefault().toZoneId())
+    val time: ZonedDateTime by lazy { ZonedDateTime.ofInstant(Instant.ofEpochMilli(timestamp), zoneId) }
+
+    override fun toString(): String = "${this::class.simpleName}(value=$value, time=$time)"
 }

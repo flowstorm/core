@@ -74,6 +74,7 @@ class Application : JerseyApplication() {
                 bindTo(ReportResource::class.java, ReportResourceImpl::class.java)
                 bindTo(SessionResource::class.java, SessionResourceImpl::class.java)
                 bindTo(ProfileResource::class.java, ProfileResourceImpl::class.java)
+                bindTo(CommunityResource::class.java, CommunityResourceImpl::class.java)
                 bindTo(MongoDatabase::class.java,
                         KMongo.createClient(ConnectionString(AppConfig.instance["database.url"]))
                                 .getDatabase(AppConfig.instance["database.name"]))

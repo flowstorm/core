@@ -15,7 +15,6 @@ import java.io.Serializable
 import javax.inject.Inject
 import javax.ws.rs.*
 import java.util.*
-import kotlin.collections.toList
 
 @Path("/")
 class CoreResourceImpl : CoreResource {
