@@ -38,7 +38,7 @@ class Dynamic : LinkedHashMap<String, Any>, MutablePropertyMap {
     }
 
     override fun put(key: String, value: Any): Any? {
-        return if (value is Map<*, *>) {
+        return if (value is Map<*, *> && value !is Dynamic) {
             super.put(key, Dynamic(value as PropertyMap))
         } else {
             super.put(key, value)
