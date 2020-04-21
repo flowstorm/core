@@ -10,12 +10,12 @@ class ContextualAttributeDelegate<V: Any>(
         private val namespace: (() -> String)? = null,
         private val default: (Context.() -> V)? = null
 ) {
-    enum class Scope { Turn, Session, Profile }
+    enum class Scope { Turn, Session, User }
 
     private fun attributes(context: Context) = with (context) {
         when (scope) {
             Scope.Session -> session.attributes
-            Scope.Profile -> profile.attributes
+            Scope.User -> userProfile.attributes
             else -> turn.attributes
         }
     }

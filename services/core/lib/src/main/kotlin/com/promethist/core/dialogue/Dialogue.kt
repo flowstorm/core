@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.promethist.core.Context
 import com.promethist.common.ObjectUtil.defaultMapper as mapper
 import com.promethist.core.runtime.Loader
-import com.promethist.core.type.Dynamic
 import com.promethist.core.type.Location
 import com.promethist.core.type.NamedEntity
 import org.slf4j.Logger
@@ -148,8 +147,8 @@ abstract class Dialogue {
     inline fun <reified V: Any> sessionAttribute(namespace: String? = null, noinline default: (Context.() -> V)? = null) =
             ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.Session, V::class, { namespace ?: nameWithoutVersion }, default)
 
-    inline fun <reified V: Any> profileAttribute(namespace: String? = null, noinline default: (Context.() -> V)? = null) =
-            ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.Profile, V::class, { namespace ?: nameWithoutVersion }, default)
+    inline fun <reified V: Any> userAttribute(namespace: String? = null, noinline default: (Context.() -> V)? = null) =
+            ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.User, V::class, { namespace ?: nameWithoutVersion }, default)
 
     inline fun <reified V: Any> communityAttribute(communityName: String, namespace: String? = null, noinline default: (Context.() -> V)? = null) =
             CommunityAttributeDelegate(V::class, communityName, { namespace?:nameWithoutVersion }, default)
@@ -160,8 +159,8 @@ abstract class Dialogue {
     inline fun <reified E: NamedEntity> sessionEntitySetAttribute(entities: Collection<E>, namespace: String? = null) =
             NamedEntitySetAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Session) { namespace ?: nameWithoutVersion }
 
-    inline fun <reified E: NamedEntity> profileEntitySetAttribute(entities: Collection<E>, namespace: String? = null) =
-            NamedEntitySetAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Profile) { namespace ?: nameWithoutVersion }
+    inline fun <reified E: NamedEntity> userEntitySetAttribute(entities: Collection<E>, namespace: String? = null) =
+            NamedEntitySetAttributeDelegate(entities, ContextualAttributeDelegate.Scope.User) { namespace ?: nameWithoutVersion }
 
     val nameWithoutVersion get() = name.substringBeforeLast("/")
 
@@ -188,15 +187,15 @@ abstract class Dialogue {
 
     var turnSpeakingRate by turnAttribute(clientNamespace) { 1.0 }
     var sessionSpeakingRate by sessionAttribute(clientNamespace) { 1.0 }
-    var profileSpeakingRate by profileAttribute(clientNamespace) { 1.0 }
+    var userSpeakingRate by userAttribute(clientNamespace) { 1.0 }
 
     var turnSpeakingPitch by turnAttribute(clientNamespace) { 0.0 }
     var sessionSpeakingPitch by sessionAttribute(clientNamespace) { 0.0 }
-    var profileSpeakingPitch by profileAttribute(clientNamespace) { 0.0 }
+    var userSpeakingPitch by userAttribute(clientNamespace) { 0.0 }
 
     var turnSpeakingVolumeGain by turnAttribute(clientNamespace) { 1.0 }
     var sessionSpeakingVolumeGain by sessionAttribute(clientNamespace) { 1.0 }
-    var profileSpeakingVolumeGain by profileAttribute(clientNamespace) { 1.0 }
+    var userSpeakingVolumeGain by userAttribute(clientNamespace) { 1.0 }
 
     val nodeMap: Map<String, Node> by lazy {
         javaClass.kotlin.members.filter {

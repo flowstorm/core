@@ -26,6 +26,6 @@ class ContextPersister {
         }
 
         sessionResource.update(context.session)
-        profileRepository.save(context.profile)
+        profileRepository.save(context.userProfile)
     }
 }

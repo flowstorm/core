@@ -1,18 +1,14 @@
 package com.promethist.core.dialogue
 
-import com.promethist.core.Context
 import com.promethist.core.Input
 import com.promethist.core.type.Dynamic
 import com.promethist.core.type.Location
-import com.promethist.core.type.NamedEntity
 import com.promethist.core.type.TimeValue
 import java.time.DayOfWeek
 import java.time.LocalTime
-import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import java.util.*
-import kotlin.math.absoluteValue
 
 open class DialogueScript {
 
@@ -30,7 +26,7 @@ open class DialogueScript {
 
     val sessionAttributes get() = with (Dialogue.threadContext()) { context.session.attributes(dialogue.nameWithoutVersion) }
 
-    val profileAttributes get() = with (Dialogue.threadContext()) { context.profile.attributes(dialogue.nameWithoutVersion) }
+    val userAttributes get() = with (Dialogue.threadContext()) { context.userProfile.attributes(dialogue.nameWithoutVersion) }
 
     fun communityAttributes(communityName: String) = with (Dialogue.threadContext()) { context.communityResource.get(communityName)?.attributes ?: Dynamic.EMPTY }
 

@@ -10,7 +10,7 @@ import org.slf4j.Logger
 
 data class Context(
         var pipeline: Pipeline,
-        val profile: Profile,
+        val userProfile: Profile,
         val session: Session,
         val turn: Turn,
         val metrics: Metrics,

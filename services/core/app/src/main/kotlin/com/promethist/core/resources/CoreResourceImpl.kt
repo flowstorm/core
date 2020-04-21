@@ -66,7 +66,7 @@ class CoreResourceImpl : CoreResource {
                         // client attributes
                         listOf("speakingRate", "speakingPitch", "speakingVolumeGain").forEach {
                             if (!turn.attributes.containsKey(it)) {
-                                val value = session.attributes[it] ?: profile.attributes[it]
+                                val value = session.attributes[it] ?: userProfile.attributes[it]
                                 if (value != null)
                                     turn.attributes[it] = value
                             }
