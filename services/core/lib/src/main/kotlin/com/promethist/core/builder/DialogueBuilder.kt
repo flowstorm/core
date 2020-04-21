@@ -62,7 +62,7 @@ class DialogueBuilder() {
         fun createDialogue(): Dialogue {
             logger.info("creating dialogue model instance $name")
             //todo remove args?
-            return Kotlin.newObject(Kotlin.loadClass(StringReader(source.code)), *source.parameters.values.toTypedArray())
+            return Kotlin.newObject(Kotlin.loadClass(StringReader(source.code)), source.parameters)
         }
 
         fun saveSourceCode() {

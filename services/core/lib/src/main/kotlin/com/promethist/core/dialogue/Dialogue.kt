@@ -6,6 +6,7 @@ import com.promethist.common.ObjectUtil.defaultMapper as mapper
 import com.promethist.core.runtime.Loader
 import com.promethist.core.type.Location
 import com.promethist.core.type.NamedEntity
+import com.promethist.core.type.PropertyMap
 import org.slf4j.Logger
 import java.io.File
 import java.io.FileInputStream
@@ -130,9 +131,11 @@ abstract class Dialogue {
         fun createDialogue(context: Context): Dialogue =
                 threadContext(context, this@Dialogue) { lambda(context, this) } as Dialogue
 
-        fun create(vararg arg: Any) =
-                loader.newObject<Dialogue>("$name/model", *arg).apply { loader = this@Dialogue.loader }
+        fun create(vararg args: Any) =
+                loader.newObject<Dialogue>("$name/model", *args).apply { loader = this@Dialogue.loader }
 
+        fun createWithArgs(vararg args: Pair<String, Any>) =
+                loader.newObjectWithArgs<Dialogue>("$name/model", mapOf(*args)).apply { loader = this@Dialogue.loader }
     }
 
     inner class StartDialogue(override val id: Int) : TransitNode(id)

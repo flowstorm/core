@@ -1,6 +1,7 @@
 package com.promethist.core.runtime
 
 import com.fasterxml.jackson.core.type.TypeReference
+import com.promethist.core.type.PropertyMap
 import com.promethist.common.ObjectUtil.defaultMapper as mapper
 import com.promethist.util.LoggerDelegate
 import org.slf4j.LoggerFactory
@@ -47,5 +48,10 @@ abstract class AbstractLoader(open val noCache: Boolean) : Loader {
     override fun <T : Any> newObject(name: String, vararg args: Any?): T {
         logger.info("creating object $name ${args.toList()}")
         return Kotlin.newObject(loadClass(name), *args)
+    }
+
+    override fun <T : Any> newObjectWithArgs(name: String, args: PropertyMap): T {
+        logger.info("creating object $name ${args.toList()}")
+        return Kotlin.newObjectWithArgs(loadClass(name), args)
     }
 }

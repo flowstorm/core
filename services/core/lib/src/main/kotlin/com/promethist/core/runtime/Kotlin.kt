@@ -1,6 +1,9 @@
 package com.promethist.core.runtime
 
+import com.promethist.core.type.PropertyMap
 import java.io.Reader
+import java.lang.Exception
+import java.lang.RuntimeException
 import javax.script.ScriptEngineManager
 import kotlin.reflect.KClass
 import kotlin.reflect.full.primaryConstructor
@@ -20,4 +23,17 @@ object Kotlin {
 
     fun <T : Any> newObject(clazz: KClass<T>, vararg args: Any?): T =
             clazz.primaryConstructor?.call(*args)?:error("Missing primary constructor for $clazz")
+
+    fun <T : Any> newObjectWithArgs(clazz: KClass<T>, args: PropertyMap): T {
+        try {
+            requireNotNull(clazz.primaryConstructor) { "Missing primary constructor for $clazz" }
+            val params = clazz.primaryConstructor!!.parameters
+                    .filter { args.contains(it.name) }
+                    .map { it to args[it.name] }.toMap()
+
+            return clazz.primaryConstructor!!.callBy(params)
+        } catch (e: Throwable) {
+            throw RuntimeException("Can not create instance of ${clazz.qualifiedName}", e)
+        }
+    }
 }

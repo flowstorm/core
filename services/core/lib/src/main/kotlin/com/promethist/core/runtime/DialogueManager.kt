@@ -4,6 +4,7 @@ import com.promethist.core.*
 import com.promethist.core.dialogue.Dialogue
 import com.promethist.core.builder.IrModel
 import com.promethist.core.model.Session
+import com.promethist.core.type.PropertyMap
 import com.promethist.util.LoggerDelegate
 
 class DialogueManager(private val loader: Loader) : Component {
@@ -11,13 +12,11 @@ class DialogueManager(private val loader: Loader) : Component {
     private val logger by LoggerDelegate()
     private val dialogues: MutableMap<String, Dialogue> = mutableMapOf()
 
-    private fun get(name: String, context: Context, args: Array<Any>? = null): Dialogue {
+    private fun get(name: String, context: Context, args: PropertyMap = mapOf()): Dialogue {
         val key = "$name:${context.session.sessionId}"
         return if (!dialogues.containsKey(key)) {
             logger.info("loading model $name")
-            if (args == null)
-                error("Missing arguments for creating model $name")
-            val dialogue = loader.newObject<Dialogue>(name, *args)
+            val dialogue = loader.newObjectWithArgs<Dialogue>(name, args)
             dialogue.loader = loader
             dialogue.logger = context.logger
             dialogues[key] = dialogue
@@ -37,7 +36,7 @@ class DialogueManager(private val loader: Loader) : Component {
         this@DialogueManager.logger.info("processing DM")
         if (session.dialogueStack.isEmpty()) {
             start(get("${context.session.application.dialogueName}/model", context,
-                    context.session.application.properties.values.toTypedArray()), context)
+                    context.session.application.properties), context)
         } else {
             proceed(context)
         }
