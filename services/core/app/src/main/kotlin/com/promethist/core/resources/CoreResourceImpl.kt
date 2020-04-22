@@ -71,6 +71,7 @@ class CoreResourceImpl : CoreResource {
                                     turn.attributes[it] = value
                             }
                         }
+                        turn.responseItems.forEach { it.ttsVoice = it.ttsVoice ?: session.application.ttsVoice }
                         Response(turn.responseItems, dialogueLog.log, turn.attributes, expectedPhrases, sessionEnded)
                     }
                 }
