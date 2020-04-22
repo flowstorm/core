@@ -202,7 +202,7 @@ open class DialogueScript {
     fun ZonedDateTime.isTomorrow() = isDay(1, 1)
     fun ZonedDateTime.isYesterday() = isDay(-1, -1)
     fun ZonedDateTime.isWeekend() = now.let { it.dayOfWeek == DayOfWeek.SATURDAY || it.dayOfWeek == DayOfWeek.SUNDAY }
-    fun ZonedDateTime.isHoliday() = false
+    fun ZonedDateTime.isHoliday() = isWeekend()
     infix fun ZonedDateTime.differsInDaysFrom(dateTime: ZonedDateTime) =
             (year * 366 * 24 + hour) - (dateTime.year * 366 * 24 + dateTime.hour)
     infix fun ZonedDateTime.differsInHoursFrom(dateTime: ZonedDateTime) =
