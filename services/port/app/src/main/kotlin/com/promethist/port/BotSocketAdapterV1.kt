@@ -272,7 +272,14 @@ class BotSocketAdapterV1 : BotSocket, WebSocketAdapter() {
         if (!ttsOnly) {
             if (lastMessageTime != null)
                 (response.attributes as MutablePropertyMap)["portResponseTime"] = (System.currentTimeMillis() - lastMessageTime!!)
-            sendEvent(BotEvent.Message(appKey, response as Message))
+            sendEvent(
+                BotEvent.Message(appKey,
+                    if (response is Message)
+                        response
+                    else
+                        Message(sender = "port", items = response.items, sessionEnded = response.sessionEnded)
+                )
+            )
         }
     }
 }
