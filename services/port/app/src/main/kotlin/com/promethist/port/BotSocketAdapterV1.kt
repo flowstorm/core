@@ -55,7 +55,6 @@ class BotSocketAdapterV1 : BotSocket, WebSocketAdapter() {
 
     override var state = BotSocket.State.Open
 
-    private var protocolVersion = 1
     private lateinit var appKey: String
     private lateinit var sender: String
     private var sessionId: String? = null
@@ -171,24 +170,13 @@ class BotSocketAdapterV1 : BotSocket, WebSocketAdapter() {
 
 
     fun onInput(input: Input) {
-        if (protocolVersion < 2) {
-            // deprecated - remove in version 3
-            val message = Message(
-                    sender = sender,
-                    language = language?:clientRequirements.locale,
-                    sessionId = sessionId,
-                    items = mutableListOf(Response.Item(text = input.transcript.text, confidence = input.transcript.confidence.toDouble()))
-            )
-            onMessageEvent(BotEvent.Message(appKey, message), input)
-        } else {
-            val request = Request(appKey, sender, sessionId?:error("Session ID not set"), input)
-            val response = coreResource.process(request)
-            sendResponse(response)
-            if (response.sessionEnded) {
-                sendEvent(BotEvent.SessionEnded())
-                inputAudioClose(false)
-                sessionId = null
-            }
+        val request = Request(appKey, sender, sessionId?:error("Session ID not set"), input)
+        val response = coreResource.process(request)
+        sendResponse(response)
+        if (response.sessionEnded) {
+            sendEvent(BotEvent.SessionEnded())
+            inputAudioClose(false)
+            sessionId = null
         }
     }
 
@@ -284,10 +272,7 @@ class BotSocketAdapterV1 : BotSocket, WebSocketAdapter() {
         if (!ttsOnly) {
             if (lastMessageTime != null)
                 (response.attributes as MutablePropertyMap)["portResponseTime"] = (System.currentTimeMillis() - lastMessageTime!!)
-            if (protocolVersion >= 2)
-                sendEvent(BotEvent.Response(response))
-            else
-                sendEvent(BotEvent.Message(null, response as Message))
+            sendEvent(BotEvent.Message(appKey, response as Message))
         }
     }
 }
