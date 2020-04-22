@@ -68,8 +68,8 @@ open class DialogueScript {
             "cs" -> "je"
             else -> unsupportedLanguage()
         }
-        map.forEach { item ->
-            list.add("${item.key} $isWord " + describe(item.value))
+        map.forEach {
+            list.add("${it.key} $isWord " + describe(it.value))
         }
         enumerate(list)
     }
