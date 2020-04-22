@@ -2,15 +2,12 @@ package com.promethist.core.builder
 
 import com.promethist.core.type.PropertyMap
 import com.promethist.util.LoggerDelegate
-import org.jetbrains.kotlin.daemon.common.toHexString
 import java.io.ByteArrayOutputStream
 import java.io.FileInputStream
 import java.net.HttpURLConnection
 import java.net.URL
 import java.nio.charset.StandardCharsets
-import java.security.MessageDigest
 import java.time.LocalDateTime
-import java.util.*
 
 class DialogueSourceCodeBuilder(val name: String, val buildId: String) {
 
@@ -164,8 +161,7 @@ class DialogueSourceCodeBuilder(val name: String, val buildId: String) {
         source.appendln("\tval $nodeName = GoBack($nodeId, $repeat)")
     }
 
-    private fun write(intent: Intent) {
-        val (nodeId, nodeName, utterances) = intent
+    private fun write(intent: Intent) = with(intent) {
         source.append("\tval $nodeName = Intent($nodeId, \"$nodeName\"")
         utterances.forEach {
             source.append(", ").append('"').append(it.trim().replace("\"", "\\\"")).append('"')
@@ -173,8 +169,7 @@ class DialogueSourceCodeBuilder(val name: String, val buildId: String) {
         source.appendln(')')
     }
 
-    private fun write(intent: GlobalIntent) {
-        val (nodeId, nodeName, utterances) = intent
+    private fun write(intent: GlobalIntent) = with(intent) {
         source.append("\tval $nodeName = GlobalIntent($nodeId, \"$nodeName\"")
         utterances.forEach {
             source.append(", ").append('"').append(it.trim().replace("\"", "\\\"")).append('"')
@@ -182,8 +177,7 @@ class DialogueSourceCodeBuilder(val name: String, val buildId: String) {
         source.appendln(')')
     }
 
-    private fun write(userInput: UserInput) {
-        val (nodeId, nodeName, intentNames, skipGlobalIntents, transitions, code) = userInput
+    private fun write(userInput: UserInput) = with(userInput) {
         source.append("\tval $nodeName = UserInput($nodeId, $skipGlobalIntents, arrayOf(")
         for (i in intentNames.indices) {
             if (i > 0)
@@ -201,8 +195,7 @@ class DialogueSourceCodeBuilder(val name: String, val buildId: String) {
         source.appendln("//--code-end;type:userInput;name:$nodeName").appendln("\t}")
     }
 
-    private fun write(response: Response) {
-        val (nodeId, nodeName, repeatable, texts) = response
+    private fun write(response: Response) = with(response) {
         source.append("\tval $nodeName = Response($nodeId, $repeatable")
         texts.forEach {
             source.append(", { \"\"\"").append(it).append("\"\"\" }")
@@ -210,8 +203,7 @@ class DialogueSourceCodeBuilder(val name: String, val buildId: String) {
         source.appendln(')')
     }
 
-    private fun write(function: Function) {
-        val (nodeId, nodeName, transitions, code) = function
+    private fun write(function: Function) = with(function) {
         source.appendln("\tval $nodeName = Function($nodeId) {")
         transitions.forEach { source.appendln("\t\tval ${it.key} = Transition(${it.value})") }
         source.appendln("//--code-start;type:function;name:$nodeName")
@@ -219,8 +211,7 @@ class DialogueSourceCodeBuilder(val name: String, val buildId: String) {
         source.appendln("//--code-end;type:function;name:$nodeName").appendln("\t}")
     }
 
-    private fun write(subDialogue: SubDialogue) {
-        val (nodeId, nodeName, subDialogueName, code) = subDialogue
+    private fun write(subDialogue: SubDialogue) = with(subDialogue) {
         source.appendln("\tval $nodeName = SubDialogue($nodeId, \"$subDialogueName\") {")
         source.appendln("//--code-start;type:subDialogue;name:$nodeName")
         source.appendln(if (code.isNotEmpty()) code else "it.create()")
@@ -232,12 +223,5 @@ class DialogueSourceCodeBuilder(val name: String, val buildId: String) {
         source.appendln("\tinit {")
         transitions.forEach { source.appendln("\t\t${it.key}.next = ${it.value}") }
         source.appendln("\t}")
-    }
-
-    companion object {
-        private val random = Random()
-        private val md = MessageDigest.getInstance("MD5")
-
-        fun md5(str: String): String = md.digest(str.toByteArray()).toHexString()
     }
 }
