@@ -131,10 +131,7 @@ abstract class Dialogue {
         fun createDialogue(context: Context): Dialogue =
                 threadContext(context, this@Dialogue) { lambda(context, this) } as Dialogue
 
-        fun create(vararg args: Any) =
-                loader.newObject<Dialogue>("$name/model", *args).apply { loader = this@Dialogue.loader }
-
-        fun createWithArgs(vararg args: Pair<String, Any>) =
+        fun create(vararg args: Pair<String, Any>) =
                 loader.newObjectWithArgs<Dialogue>("$name/model", mapOf(*args)).apply { loader = this@Dialogue.loader }
     }
 
