@@ -76,7 +76,7 @@ open class DialogueScript {
 
     fun describe(col: Collection<String>) = enumerate(col)
 
-    fun describe(tm: TimeValue<*>) = describe(tm.value) + intent(describe(tm.time, 2))
+    fun describe(tm: TimeValue<*>) = describe(tm.value) + indent(describe(tm.time, 2))
 
     fun describe(value: Any?, detailLevel: Int = 0) = with (Dialogue.threadContext()) {
         when (value) {
@@ -128,7 +128,7 @@ open class DialogueScript {
         }
     }
 
-    fun intent(value: Any?) = (value?.let { " " + describe(value) } ?: "")
+    fun indent(value: Any?) = (value?.let { " " + describe(value) } ?: "")
 
     fun greeting(name: String? = null) = with (Dialogue.threadContext()) {
         (
@@ -153,7 +153,7 @@ open class DialogueScript {
                         "cs" to "dobré odpoledne",
                         "fr" to "bonne après-midi"
                 )[dialogue.language] ?: unsupportedLanguage()
-        ) + intent(name)
+        ) + indent(name)
     }
 
     fun definiteArticle(subject: String) = article(subject, Article.Definite)
