@@ -133,7 +133,7 @@ class CoreResourceImpl : CoreResource {
                     ContentRequest(
                             sender,
                             key,
-                            input.locale.toString(),
+                            input.locale.language,
                             Application.StartCondition(Application.StartCondition.Type.OnAction, input.transcript.text)
                     ))
 
