@@ -3,6 +3,11 @@ package com.promethist.core.builder
 import com.promethist.core.type.PropertyMap
 import com.promethist.util.LoggerDelegate
 import org.jetbrains.kotlin.daemon.common.toHexString
+import java.io.ByteArrayOutputStream
+import java.io.FileInputStream
+import java.net.HttpURLConnection
+import java.net.URL
+import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
 import java.time.LocalDateTime
 import java.util.*
@@ -28,7 +33,7 @@ class DialogueSourceCodeBuilder(val name: String, val buildId: String) {
     private val names: MutableList<String>
 
     init {
-        if (!name.matches(Regex("([\\w\\-\\.]+)/([\\w\\-\\.]+)/(\\d+)")))
+        if (!name.matches(Regex("([\\w\\-]+)/([\\w\\-]+)/(\\d+)")))
             error("dialogue name $name does not conform to naming convention (product-name/dialogue-name/dialogue-version)")
         names = name.split("/").toMutableList()
         className = "Model" + names.removeAt(names.size - 1)
@@ -114,7 +119,22 @@ class DialogueSourceCodeBuilder(val name: String, val buildId: String) {
 
         if (initCode.isNotBlank()) {
             source.appendln("//--code-start;type:init")
-            source.appendln(initCode)
+            source.appendln(initCode.replace(Regex("\\#include ([^\\s]+)")) {
+                val path = it.groupValues[1]
+                (if (path.startsWith("http://") || path.startsWith("https://")) {
+                    val conn = URL(path).openConnection() as HttpURLConnection
+                    if (conn.responseCode != 200)
+                        error("include from url $path returned code ${conn.responseCode}")
+                    else
+                        conn.inputStream
+                } else {
+                    FileInputStream(path)
+                }).use { input ->
+                    val buf = ByteArrayOutputStream()
+                    input.copyTo(buf)
+                    "//--include-start;url:$path\n" + String(buf.toByteArray(), StandardCharsets.UTF_8) + "\n//--include-end\n"
+                }
+            })
             source.appendln("//--code-end;type:init")
         }
     }
