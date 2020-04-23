@@ -77,7 +77,7 @@ data class Model1(
 
     val subDialogue1 = SubDialogue(nextId--,  "product/some-subdialogue/1") {
         //-- start of dialogue script (if text in editor is empty, then just it.create() will be inserted
-        it.create(math_max)
+        it.create("math_max" to math_max)
         //-- end of dialogue script
     }
 

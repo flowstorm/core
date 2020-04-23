@@ -28,7 +28,7 @@ class DialogueSourceCodeBuilder(val name: String, val buildId: String) {
     private val names: MutableList<String>
 
     init {
-        if (!name.matches(Regex("([\\w\\-]+)/([\\w\\-]+)/(\\d+)")))
+        if (!name.matches(Regex("([\\w\\-\\.]+)/([\\w\\-\\.]+)/(\\d+)")))
             error("dialogue name $name does not conform to naming convention (product-name/dialogue-name/dialogue-version)")
         names = name.split("/").toMutableList()
         className = "Model" + names.removeAt(names.size - 1)
