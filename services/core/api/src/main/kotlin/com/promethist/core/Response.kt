@@ -28,11 +28,12 @@ open class Response(
             var confidence: Double = 1.0,
 
             /**
-             * Resource links.
+             * Resources
              */
             var image: String? = null,
             var video: String? = null,
             var audio: String? = null,
+            var code: String? = null,
 
             /**
              * TTS voice

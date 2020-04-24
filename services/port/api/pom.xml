@@ -16,7 +16,7 @@
 
     <properties>
         <swagger.version>1.5.22</swagger.version>
-        <api.basedomain>promethis.com</api.basedomain>
+        <api.basedomain>promethist.com</api.basedomain>
         <api.locations>com.promethist.common.resources,com.promethist.port.resources</api.locations>
         <api.description>PromethistAI Port API (${project.version})</api.description>
     </properties>

@@ -72,14 +72,4 @@ class DynamicTest {
         assertTrue(mem.list<Int>("list").contains(1))
         assertTrue(mem.list<Int>("list").contains(2))
     }
-
-    @Test
-    fun `test set`() {
-        val mem = Dynamic()
-        mem.set<Int>("list") { value.add(1) }
-        mem.set<Int>("list") { value.add(1) } //add same again
-
-        assertEquals(1, mem.set<Int>("list").size)
-        assertTrue(mem.set<Int>("list").contains(1))
-    }
 }

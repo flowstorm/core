@@ -1,6 +1,6 @@
 namespace: default
 name: core
-replicas: 1
+replicas: 2
 imagePullSecrets: promethistai-registry
 imagePullPolicy: IfNotPresent
 

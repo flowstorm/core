@@ -119,7 +119,7 @@ class DialogueSourceCodeBuilder(val name: String, val buildId: String) {
 
         if (initCode.isNotBlank()) {
             source.appendln("//--code-start;type:init")
-            source.appendln(initCode.replace(Regex("\\#include ([^\\s]+)")) {
+            source.appendln(initCode.replace(Regex("//\\#include ([^\\s]+)")) {
                 val path = it.groupValues[1]
                 (if (path.startsWith("http://") || path.startsWith("https://")) {
                     val conn = URL(path).openConnection() as HttpURLConnection

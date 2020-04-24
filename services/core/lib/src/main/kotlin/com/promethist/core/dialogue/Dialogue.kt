@@ -6,7 +6,6 @@ import com.promethist.common.ObjectUtil.defaultMapper as mapper
 import com.promethist.core.runtime.Loader
 import com.promethist.core.type.Location
 import com.promethist.core.type.NamedEntity
-import com.promethist.core.type.PropertyMap
 import org.slf4j.Logger
 import java.io.File
 import java.io.FileInputStream
@@ -153,14 +152,14 @@ abstract class Dialogue {
     inline fun <reified V: Any> communityAttribute(communityName: String, namespace: String? = null, noinline default: (Context.() -> V)? = null) =
             CommunityAttributeDelegate(V::class, communityName, { namespace?:nameWithoutVersion }, default)
 
-    inline fun <reified E: NamedEntity> turnEntitySetAttribute(entities: Collection<E>, namespace: String? = null) =
-            NamedEntitySetAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Turn) { namespace ?: nameWithoutVersion }
+    inline fun <reified E: NamedEntity> turnEntityListAttribute(entities: Collection<E>, namespace: String? = null) =
+            NamedEntityListAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Turn) { namespace ?: nameWithoutVersion }
 
-    inline fun <reified E: NamedEntity> sessionEntitySetAttribute(entities: Collection<E>, namespace: String? = null) =
-            NamedEntitySetAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Session) { namespace ?: nameWithoutVersion }
+    inline fun <reified E: NamedEntity> sessionEntityListAttribute(entities: Collection<E>, namespace: String? = null) =
+            NamedEntityListAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Session) { namespace ?: nameWithoutVersion }
 
-    inline fun <reified E: NamedEntity> userEntitySetAttribute(entities: Collection<E>, namespace: String? = null) =
-            NamedEntitySetAttributeDelegate(entities, ContextualAttributeDelegate.Scope.User) { namespace ?: nameWithoutVersion }
+    inline fun <reified E: NamedEntity> userEntityListAttribute(entities: Collection<E>, namespace: String? = null) =
+            NamedEntityListAttributeDelegate(entities, ContextualAttributeDelegate.Scope.User) { namespace ?: nameWithoutVersion }
 
     val nameWithoutVersion get() = name.substringBeforeLast("/")
 

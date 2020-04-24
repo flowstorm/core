@@ -29,6 +29,9 @@ class CoreResourceImpl : CoreResource {
     lateinit var dialogueResouce: BotService
 
     @Inject
+    lateinit var pairingResource: DevicePairingResource
+
+    @Inject
     lateinit var pipelineFactory: PipelineFactory
 
     @Inject
@@ -51,7 +54,7 @@ class CoreResourceImpl : CoreResource {
         val session = try {
             initSession(appKey, sender, sessionId, input)
         } catch (e: Exception) {
-            return processException(input, e)
+            return processException(request, e)
         }
 
         updateAutomaticMetrics(session)
@@ -78,7 +81,7 @@ class CoreResourceImpl : CoreResource {
                 else -> error("Unknown dialogue engine (${session.application.dialogueEngine})")
             }
         } catch (e: Exception) {
-            processException(input, e)
+            processException(request, e)
         }
 
         return try {
@@ -86,7 +89,7 @@ class CoreResourceImpl : CoreResource {
             sessionResource.update(session)
             response
         } catch (e: Exception) {
-            return processException(input, e)
+            return processException(request, e)
         }
     }
 
@@ -167,8 +170,8 @@ class CoreResourceImpl : CoreResource {
         message.attributes["username"] = user.nickname
     }
 
-    private fun processException(input: Input, e: Exception): Response {
-        val type = e::class.simpleName
+    private fun processException(request: Request, e: Exception): Response {
+        val type = e::class.simpleName!!
         var code = 1
         val text: String?
         e.printStackTrace()
@@ -185,17 +188,31 @@ class CoreResourceImpl : CoreResource {
         }
         val logText = "class = ${e.javaClass}, type = $type, code = $code, text = $text"
         logger.warn("getErrorMessageResponse($logText)")
-        val items = mutableListOf<Response.Item>()
-        if (input.locale == czechLocale)
-            items.add(Response.Item(ttsVoice = TtsConfig.defaultVoice("cs"), text = getErrorResourceString(czechLocale, "exception.$type", listOf(code))))
-        else
-            items.add(Response.Item(ttsVoice = TtsConfig.defaultVoice("en"), text = getErrorResourceString(Locale.ENGLISH, "exception.$type", listOf(code))))
-        if (text != null)
-            items.add(Response.Item(ttsVoice = TtsConfig.defaultVoice("en"), text = text))
-
         dialogueLog.logger.error(logText)
 
-        return Response(items, dialogueLog.log, mutableMapOf<String, Any>(), mutableListOf(), sessionEnded = true)
+        return Response(mutableListOf<Response.Item>().apply {
+            if (text?.startsWith("admin:DeviceNotFoundException") == true) {
+                val devicePairing = DevicePairing(deviceId = request.sender)
+                pairingResource.createOrUpdateDevicePairing(devicePairing)
+                val pairingCode = devicePairing.pairingCode.replace(Regex(".(?!$)"), ", $0")
+                if (request.input.locale == czechLocale)
+                    add(Response.Item(ttsVoice = TtsConfig.defaultVoice("cs"),
+                        text = getMessageResourceString(czechLocale, "PAIRING", listOf(pairingCode))))
+                else
+                    add(Response.Item(ttsVoice = TtsConfig.defaultVoice("en"),
+                        text = getMessageResourceString(Locale.ENGLISH, "PAIRING", listOf(pairingCode))))
+            } else {
+                if (request.input.locale == czechLocale)
+                    add(Response.Item(ttsVoice = TtsConfig.defaultVoice("cs"),
+                        text = getMessageResourceString(czechLocale, type, listOf(code))))
+                else
+                    add(Response.Item(ttsVoice = TtsConfig.defaultVoice("en"),
+                        text = getMessageResourceString(Locale.ENGLISH, type, listOf(code))))
+                if (text != null)
+                    add(Response.Item(ttsVoice = TtsConfig.defaultVoice("en"),
+                        text = text))
+            }
+        }, dialogueLog.log, mutableMapOf<String, Any>(), mutableListOf(), sessionEnded = true)
     }
 
     private fun updateMetrics(session: Session, metrics: PropertyMap) {
@@ -225,8 +242,8 @@ class CoreResourceImpl : CoreResource {
         }
     }
 
-    private fun getErrorResourceString(locale: Locale, type: String, params: List<Any> = listOf()): String {
-        val resourceBundle = ResourceBundle.getBundle("errors", locale)
+    private fun getMessageResourceString(locale: Locale, type: String, params: List<Any> = listOf()): String {
+        val resourceBundle = ResourceBundle.getBundle("messages", locale)
         val key = if (resourceBundle.containsKey(type)) type else "OTHER"
 
         return resourceBundle.getString(key).replace("\\{(\\d)\\}".toRegex()) {

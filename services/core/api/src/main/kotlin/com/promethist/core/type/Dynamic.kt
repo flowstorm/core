@@ -27,7 +27,6 @@ class Dynamic : LinkedHashMap<String, Any>, MutablePropertyMap {
                     BigDecimal::class -> BigDecimal(0)
                     String::class -> ""
                     Boolean::class -> false
-                    MutableSet::class -> mutableSetOf<V>()
                     MutableList::class -> mutableListOf<V>()
                     TimeInt::class -> TimeInt(0, ZERO_TIME)
                     TimeLong::class -> TimeLong(0, ZERO_TIME)
@@ -91,15 +90,10 @@ class Dynamic : LinkedHashMap<String, Any>, MutablePropertyMap {
     inline operator fun <reified V: Any> invoke(key: String, noinline eval: (Value<V>.() -> Any)): Any =
             put(key, V::class, null, eval)
 
-    inline fun <reified V> set(key: String, noinline eval: (Value<MutableSet<V>>.() -> Any)): Any =
-            put(key, MutableSet::class, null, eval)
-
     inline fun <reified V> list(key: String, noinline eval: (Value<MutableList<V>>.() -> Any)): Any =
             put(key, MutableList::class, null, eval)
 
     operator fun invoke(key: String): Any = item(key).third?:error("missing item $key")
-
-    fun <V> set(key: String): MutableSet<V> = invoke(key) as MutableSet<V>
 
     fun <V> list(key: String): MutableList<V> = invoke(key) as MutableList<V>
 }
