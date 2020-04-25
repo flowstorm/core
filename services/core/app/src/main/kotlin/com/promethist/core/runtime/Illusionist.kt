@@ -52,6 +52,8 @@ class Illusionist : Component {
             val deniedAnswers: List<List<String?>?> = listOf(),
             @field:JsonProperty("allowed_answers")
             val allowedAnswers: List<List<String?>?> = listOf(),
-            val n: Int = 3 //number of results ordered by confidence
+            @field:JsonProperty("use_threshold")
+            val useThreshold: Boolean = true,
+            val n: Int = 3 //number of maximum results for each model, ordered by confidence
     )
 }

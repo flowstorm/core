@@ -26,16 +26,14 @@ class DialogueManager : Component {
         return context
     }
 
-    private fun getIrModels(currentFrame: Frame, context: Context): List<IrModel> {
-        val currentDialogue = dialogueFactory.get(currentFrame)
-        val node = currentDialogue.node(currentFrame.nodeId)
-
+    private fun getIntentModels(currentFrame: Frame, context: Context): List<IrModel> {
+        val node = getNode(currentFrame)
         require(node is Dialogue.UserInput)
 
-        val models = mutableListOf(IrModel(currentDialogue.buildId, currentDialogue.name, node.id))
+        val models = mutableListOf(IrModel(node.dialogue.buildId, node.dialogue.name, node.id))
         if (!node.skipGlobalIntents) {
             //current global intents
-            models.add(IrModel(currentDialogue.buildId, currentDialogue.name))
+            models.add(IrModel(node.dialogue.buildId, node.dialogue.name))
             //parents global intents
             context.session.dialogueStack.distinctBy { it.name } .forEach {
                 val dialogue = dialogueFactory.get(it)
@@ -47,17 +45,22 @@ class DialogueManager : Component {
 
     private fun getIntentFrame(models: List<IrModel>, frame: Frame, context: Context): Frame {
         val (modelId, nodeId) = context.input.intent.name.split("#")
-        val dialogueName = models.first { it.id == modelId }.dialogueName
+        val model = models.first { it.id == modelId }
+        val dialogueName = model.dialogueName
 
-        // intent is from current dialogue
-        if (dialogueName == frame.name) {
-            return frame.copy(nodeId = nodeId.toInt())
+        context.logger.info("IR match (model=${model.name}, id=${model.id}, answer=$nodeId, score=${context.input.intent.score}")
+
+        return when {
+            // intent is from current dialogue
+            dialogueName == frame.name -> {
+                frame.copy(nodeId = nodeId.toInt())
+            }
+            //intent is from parent dialogue
+            context.session.dialogueStack.any { it.name == dialogueName } -> {
+                context.session.dialogueStack.first { it.name == dialogueName }.copy(nodeId = nodeId.toInt())
+            }
+            else -> error("Dialogue $dialogueName matched by IR is not on current stack.")
         }
-        //intent is from parent dialogue
-        context.session.dialogueStack.firstOrNull { it.name == dialogueName }?.let {
-            return it.copy(nodeId = nodeId.toInt())
-        }
-        error("Can not find intent dialogue")
     }
 
     private fun getNode(frame: Frame): Dialogue.Node = dialogueFactory.get(frame).node(frame.nodeId)
@@ -82,7 +85,7 @@ class DialogueManager : Component {
                     is Dialogue.UserInput -> {
                         if (processedNodes.size == 1) {
                             //first user input in turn
-                            val irModels = getIrModels(frame, context)
+                            val irModels = getIntentModels(frame, context)
                             context.irModels = irModels
 
                             val transition = node.process(context)

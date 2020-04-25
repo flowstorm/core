@@ -73,8 +73,8 @@ class DialogueSourceCodeBuilder(val name: String, val buildId: String) {
     private val goBacks = mutableListOf<GoBack>()
     private val transitions = mutableMapOf<String, String>()
 
-    data class Intent(val nodeId: Int, val nodeName: String, val utterances: List<String>)
-    data class GlobalIntent(val nodeId: Int, val nodeName: String, val utterances: List<String>)
+    data class Intent(val nodeId: Int, val nodeName: String, val threshold: Float, val utterances: List<String>)
+    data class GlobalIntent(val nodeId: Int, val nodeName: String, val threshold: Float, val utterances: List<String>)
     data class UserInput(val nodeId: Int, val nodeName: String, val intentNames: List<String>, val skipGlobalIntents: Boolean, val transitions: Map<String, String>, val code: CharSequence = "")
     data class Response(val nodeId: Int, val nodeName: String, val repeatable: Boolean, val texts: List<String>)
     data class Function(val nodeId: Int, val nodeName: String, val transitions: Map<String, String>, val code: CharSequence)
@@ -162,7 +162,7 @@ class DialogueSourceCodeBuilder(val name: String, val buildId: String) {
     }
 
     private fun write(intent: Intent) = with(intent) {
-        source.append("\tval $nodeName = Intent($nodeId, \"$nodeName\"")
+        source.append("\tval $nodeName = Intent($nodeId, \"$nodeName\", ${threshold}F")
         utterances.forEach {
             source.append(", ").append('"').append(it.trim().replace("\"", "\\\"")).append('"')
         }
@@ -170,7 +170,7 @@ class DialogueSourceCodeBuilder(val name: String, val buildId: String) {
     }
 
     private fun write(intent: GlobalIntent) = with(intent) {
-        source.append("\tval $nodeName = GlobalIntent($nodeId, \"$nodeName\"")
+        source.append("\tval $nodeName = GlobalIntent($nodeId, \"$nodeName\", ${threshold}F")
         utterances.forEach {
             source.append(", ").append('"').append(it.trim().replace("\"", "\\\"")).append('"')
         }

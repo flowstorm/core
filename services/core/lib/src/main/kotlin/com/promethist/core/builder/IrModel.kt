@@ -10,6 +10,8 @@ data class IrModel(val buildId: String, val dialogueName: String, val nodeId: In
 
     constructor(buildId: String, dialogueName: String) : this(buildId, dialogueName, null)
 
+    override fun toString(): String = "IrModel(name='$name', id='$id')"
+
     companion object {
         private val md = MessageDigest.getInstance("MD5")
         private fun md5(str: String): String = md.digest(str.toByteArray()).toHexString()
