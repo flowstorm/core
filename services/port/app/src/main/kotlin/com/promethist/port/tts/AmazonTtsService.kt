@@ -8,7 +8,9 @@ import com.amazonaws.services.polly.model.OutputFormat
 import com.amazonaws.services.polly.model.SynthesizeSpeechRequest
 import com.amazonaws.services.polly.model.TextType
 import com.promethist.core.model.TtsConfig
+import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.io.FileOutputStream
 
 object AmazonTtsService: TtsService {
 
@@ -22,15 +24,24 @@ object AmazonTtsService: TtsService {
     override fun speak(ttsRequest: TtsRequest): ByteArray {
         val ttsConfig = TtsConfig.forVoice(ttsRequest.voice)
         val buf = ByteArrayOutputStream()
-        val result = client.synthesizeSpeech(
-            SynthesizeSpeechRequest()
+        val request = SynthesizeSpeechRequest()
                 .withText(ttsRequest.text)
                 .withTextType(if (ttsRequest.isSsml) TextType.Ssml else TextType.Text)
                 .withVoiceId(ttsConfig.name)
                 .withOutputFormat(OutputFormat.Mp3)
-        )
+        request.engine = "neural"
+        val result = client.synthesizeSpeech(request)
         result.audioStream.copyTo(buf)
         buf.close()
         return buf.toByteArray()
+    }
+
+    @JvmStatic
+    fun main(args: Array<String>) {
+        val ttsRequest = TtsRequest("Audrey",
+                """<speak><amazon:domain name="news">There has been a concerted effort among aides and allies to get President Donald Trump to stop conducting the daily coronavirus briefings, multiple sources tell CNN.</amazon:domain></speak>""",
+                true
+        )
+        ByteArrayInputStream(speak(ttsRequest)).copyTo(FileOutputStream("/Users/tomas.zajicek/Downloads/test.mp3"))
     }
 }

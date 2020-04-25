@@ -194,7 +194,7 @@ class CoreResourceImpl : CoreResource {
             if (text?.startsWith("admin:DeviceNotFoundException") == true) {
                 val devicePairing = DevicePairing(deviceId = request.sender)
                 pairingResource.createOrUpdateDevicePairing(devicePairing)
-                val pairingCode = devicePairing.pairingCode.replace(Regex(".(?!$)"), "$0, ")
+                val pairingCode = devicePairing.pairingCode.toCharArray().joinToString(", ")
                 if (request.input.locale == czechLocale)
                     add(Response.Item(ttsVoice = TtsConfig.defaultVoice("cs"),
                         text = getMessageResourceString(czechLocale, "PAIRING", listOf(pairingCode))))
