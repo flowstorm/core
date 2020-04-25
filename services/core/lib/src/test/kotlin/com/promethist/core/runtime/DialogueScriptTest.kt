@@ -18,6 +18,11 @@ internal class DialogueScriptTest {
     )
 
     @Test
+    fun `test similarity2`() {
+        println("2001: A Space Odyssey" similarityTo "Space Odyssey")
+    }
+
+    @Test
     fun `test similarity`() {
         val input = Input()
         input.tokens.add(Input.Word("blade"))

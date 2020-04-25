@@ -13,7 +13,7 @@ import javax.ws.rs.core.MediaType
 @Consumes(MediaType.APPLICATION_JSON)
 interface DevicePairingResource {
 
-    @PUT
+    @GET
     @Path("/pair")
     fun pairDevice(@ApiParam(required = true) @QueryParam("pairingCode") pairingCode: String): DevicePairing
 
