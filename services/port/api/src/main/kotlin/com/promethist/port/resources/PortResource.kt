@@ -1,18 +1,18 @@
 package com.promethist.port.resources
 
-import com.promethist.core.model.Message
-import com.promethist.core.resources.BotService
+import com.promethist.core.resources.CoreResource
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
 import io.swagger.annotations.Authorization
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
-import javax.ws.rs.core.Response
+import javax.ws.rs.core.Response as JerseyResponse
 
 @Api(description = "Port resource")
-interface PortResource : BotService {
+interface PortResource : CoreResource {
 
+    /*
     @PUT
     @Path("message/_queue")
     @ApiOperation(value = "Push message to queue")
@@ -27,6 +27,7 @@ interface PortResource : BotService {
     fun messageQueuePop(@ApiParam("App key", required = true) @QueryParam("key") appKey: String,
                         @ApiParam("Recipient", required = true) @QueryParam("recipient") recipient: String,
                         @ApiParam(defaultValue = "1") @QueryParam("limit") limit: Int = 1): List<Message>
+    */
 
     @GET
     @Path("file/{id}")
@@ -36,5 +37,5 @@ interface PortResource : BotService {
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     fun readFile(
             @ApiParam(required = true) @PathParam("id") id: String
-    ): Response
+    ): JerseyResponse
 }

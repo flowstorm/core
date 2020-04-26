@@ -42,8 +42,8 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>ai.promethist.client</groupId>
-            <artifactId>client-app-common</artifactId>
+            <groupId>com.promethist.client</groupId>
+            <artifactId>client-lib</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

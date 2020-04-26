@@ -43,7 +43,6 @@ class CoreResourceImpl : CoreResource {
     @Inject
     lateinit var contextPersister: ContextPersister
 
-    private val czechLocale = Locale.forLanguageTag("cs")
     private val logger by LoggerDelegate()
 
     override fun process(request: Request): Response = with(request) {
@@ -195,19 +194,19 @@ class CoreResourceImpl : CoreResource {
                 val devicePairing = DevicePairing(deviceId = request.sender)
                 pairingResource.createOrUpdateDevicePairing(devicePairing)
                 val pairingCode = devicePairing.pairingCode.toCharArray().joinToString(", ")
-                if (request.input.locale == czechLocale)
+                if (request.input.locale.language == "cs")
                     add(Response.Item(ttsVoice = TtsConfig.defaultVoice("cs"),
-                        text = getMessageResourceString(czechLocale, "PAIRING", listOf(pairingCode))))
+                        text = getMessageResourceString("cs", "PAIRING", listOf(pairingCode))))
                 else
                     add(Response.Item(ttsVoice = TtsConfig.defaultVoice("en"),
-                        text = getMessageResourceString(Locale.ENGLISH, "PAIRING", listOf(pairingCode))))
+                        text = getMessageResourceString("en", "PAIRING", listOf(pairingCode))))
             } else {
-                if (request.input.locale == czechLocale)
+                if (request.input.locale.language == "cs")
                     add(Response.Item(ttsVoice = TtsConfig.defaultVoice("cs"),
-                        text = getMessageResourceString(czechLocale, type, listOf(code))))
+                        text = getMessageResourceString("cs", type, listOf(code))))
                 else
                     add(Response.Item(ttsVoice = TtsConfig.defaultVoice("en"),
-                        text = getMessageResourceString(Locale.ENGLISH, type, listOf(code))))
+                        text = getMessageResourceString("en", type, listOf(code))))
                 if (text != null)
                     add(Response.Item(ttsVoice = TtsConfig.defaultVoice("en"),
                         text = text))
@@ -229,7 +228,7 @@ class CoreResourceImpl : CoreResource {
     private fun updateMetricsValues(session: Session, namespace: String, metrics: PropertyMap) {
         for (item in metrics) {
             if (item.value is Long) {
-                val m = session.metrics.filter { it.namespace == namespace && it.name == item.key }.firstOrNull()
+                val m = session.metrics.firstOrNull { it.namespace == namespace && it.name == item.key }
                 if (m != null) {
                     m.value = item.value as Long
                 } else {
@@ -242,8 +241,8 @@ class CoreResourceImpl : CoreResource {
         }
     }
 
-    private fun getMessageResourceString(locale: Locale, type: String, params: List<Any> = listOf()): String {
-        val resourceBundle = ResourceBundle.getBundle("messages", locale)
+    private fun getMessageResourceString(language: String, type: String, params: List<Any> = listOf()): String {
+        val resourceBundle = ResourceBundle.getBundle("messages", Locale(language))
         val key = if (resourceBundle.containsKey(type)) type else "OTHER"
 
         return resourceBundle.getString(key).replace("\\{(\\d)\\}".toRegex()) {

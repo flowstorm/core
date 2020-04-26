@@ -1,5 +1,6 @@
 package com.promethist.core.runtime
 
+import com.promethist.common.TextConsole
 import com.promethist.common.RestClient
 import com.promethist.core.*
 import com.promethist.core.model.*
@@ -20,7 +21,7 @@ class DialogueRunner(
         val user: User = User(username = "tester@promethist.ai", name = "Tester", surname = "Tester", nickname = "Tester"),
         val profile: Profile = Profile(user_id = user._id),
         private val ir: Component = SimpleIntentRecognition()
-) {
+) : TextConsole() {
     class SimpleIntentRecognition : Component {
 
         lateinit var models: Map<IrModel, Map<Int, List<String>>>
@@ -83,26 +84,24 @@ class DialogueRunner(
     private val loader: Loader = FileResourceLoader(fileResource, "dialogue")
     private val logger by LoggerDelegate()
 
-    fun run(input: BufferedReader, output: PrintStream) {
-        val dm = DialogueManager(loader)
-        val app = Application(name = "test", dialogueName = name, ttsVoice = "Grace",
-                properties = properties)
-        val session = Session(sessionId = "T-E-S-T", user = user, application = app)
-        val turn = Turn(Input(locale, zoneId, Input.Transcript("")))
-        val context = Context(SimplePipeline(LinkedList(listOf(dm, ir))), profile, session, turn, Metrics(listOf()), logger, SimpleCommunityResource())
-        while (true) {
-            context.pipeline.process(context)
-            output.println("> ${context.turn.responseItems}")
-            if (context.sessionEnded)
-                break
-            val text = input.readLine()!!.trim()
-            if (text == "exit")
-                break
-            turn.input = Input(locale, zoneId, Input.Transcript(text))
-            turn.attributes.clear()
-            turn.responseItems.clear()
-            context.pipeline = SimplePipeline(LinkedList(listOf(dm, ir)))
-        }
+    private val dm = DialogueManager(loader)
+    private val app = Application(name = "test", dialogueName = name, ttsVoice = "Grace", properties = properties)
+    private val session = Session(sessionId = "T-E-S-T", user = user, application = app)
+    private val turn = Turn(Input(locale, zoneId, Input.Transcript("")))
+    private val context = Context(SimplePipeline(LinkedList(listOf(dm, ir))), profile, session, turn, Metrics(listOf()), logger, SimpleCommunityResource())
+
+    override fun beforeInput() {
+        context.pipeline.process(context)
+        output.println("> ${context.turn.responseItems}")
+        if (context.sessionEnded)
+            stop = true
+    }
+
+    override fun afterInput(text: String) {
+        turn.input = Input(locale, zoneId, Input.Transcript(text))
+        turn.attributes.clear()
+        turn.responseItems.clear()
+        context.pipeline = SimplePipeline(LinkedList(listOf(dm, ir)))
     }
 
     companion object {
@@ -134,7 +133,7 @@ class DialogueRunner(
                 }, args[1], properties
                 )
                 println("running dialogue ${args[1]} with properties $properties from ${args[0]} [${runner.fileResource}]")
-                runner.run(BufferedReader(InputStreamReader(System.`in`)), System.out)
+                runner.run()
             }
         }
     }

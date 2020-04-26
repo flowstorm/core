@@ -1,14 +1,14 @@
 package com.promethist.port.resources
 
-import com.promethist.core.model.Message
-import com.promethist.core.resources.BotService
+import com.promethist.core.Request
+import com.promethist.core.Response
+import com.promethist.core.resources.CoreResource
 import com.promethist.port.PortService
 import com.promethist.util.LoggerDelegate
 import org.bson.types.ObjectId
-import org.slf4j.LoggerFactory
 import javax.inject.Inject
 import javax.ws.rs.*
-import javax.ws.rs.core.Response
+import javax.ws.rs.core.Response as JerseyResponse
 import javax.ws.rs.core.StreamingOutput
 
 @Path("/")
@@ -21,21 +21,14 @@ class PortResourceImpl : PortResource {
      * @see com.promethist.port.Application constructor
      */
     @Inject
-    lateinit var botService: BotService
+    lateinit var coreResource: CoreResource
 
     @Inject
     lateinit var dataService: PortService
 
-    override fun message(appKey: String, message: Message): Message? {
-        val response = botService.message(appKey, message.apply {
-            sessionId = if (sessionId.isNullOrBlank()) { Message.createId() } else { sessionId }
-        })
-        if (response != null && response._ref == null)
-            response._ref = message._id
+    override fun process(request: Request): Response = coreResource.process(request)
 
-        return response
-    }
-
+    /*
     override fun messageQueuePush(appKey: String, message: Message): Boolean {
         return dataService.pushMessage(appKey, message)
     }
@@ -43,10 +36,11 @@ class PortResourceImpl : PortResource {
     override fun messageQueuePop(appKey: String, recipient: String, limit: Int): List<Message> {
         return dataService.popMessages(appKey, recipient, limit)
     }
+    */
 
-    override fun readFile(id: String): Response {
+    override fun readFile(id: String): JerseyResponse {
         val file = dataService.getResourceFile(ObjectId(id))
-        return Response.ok(
+        return JerseyResponse.ok(
                     StreamingOutput { output ->
                         try {
                             file.download(output)
