@@ -17,7 +17,7 @@ class GoogleSttService(config: SttConfig, callback: SttCallback, expectedPhrases
             .setMaxAlternatives(5)
             .setEnableWordTimeOffsets(true)
             .addSpeechContexts(SpeechContext.newBuilder()
-                    .addAllPhrases(expectedPhrases.map { expectedPhrase: ExpectedPhrase -> expectedPhrase.text })
+                    .addAllPhrases(expectedPhrases.map { it.text })
                     .build())
             .buildPartial()
     //		            .setModel("default")

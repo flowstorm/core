@@ -15,6 +15,5 @@ data:
     app.tracing={{ .Values.app.tracing }}
     slack.enable={{ .Values.slack.enable }}
     apiKey={{ .Values.apiKey }}
-    tts.store=true
     database.url={{ .Values.database.url }}
-    database.name={{ .Values.database.name }}
+

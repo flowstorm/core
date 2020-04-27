@@ -15,7 +15,7 @@ class EntityMapAttributeDelegate<E>(
 
     operator fun getValue(thisRef: Dialogue, property: KProperty<*>): EntityMap<E> {
         val keys = attributeDelegate.getValue(thisRef, property)
-        return object : HashMap<String, E>(), EntityMap<E> {
+        return object : HashMap<String, E>(keys.map { it to entities[it] }.toMap()), EntityMap<E> {
 
             override fun get(key: String): E? = if (keys.contains(key)) entities[key] else null
 

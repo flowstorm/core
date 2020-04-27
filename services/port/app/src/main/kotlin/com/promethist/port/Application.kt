@@ -31,9 +31,9 @@ class Application : JerseyApplication() {
                 bindTo(AppConfig::class.java, AppConfig.instance)
                 bindTo(PortResource::class.java, PortResourceImpl::class.java)
                 bindTo(FileResource::class.java, filestoreUrl)
-                bindTo(MongoDatabase::class.java, KMongo
-                        .createClient(ConnectionString(AppConfig.instance["database.url"]))
-                        .getDatabase(AppConfig.instance["database.name"]))
+                bindTo(MongoDatabase::class.java,
+                        KMongo.createClient(ConnectionString(AppConfig.instance["database.url"]))
+                                .getDatabase(AppConfig.instance["name"] + "-" + AppConfig.instance["namespace"]))
                 bindTo(PortService::class.java)
                 bindTo(CoreResource::class.java, ServiceUrlResolver.getEndpointUrl("core"))
             }
