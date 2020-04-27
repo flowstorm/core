@@ -161,6 +161,15 @@ abstract class Dialogue {
     inline fun <reified E: NamedEntity> userEntityListAttribute(entities: Collection<E>, namespace: String? = null) =
             NamedEntityListAttributeDelegate(entities, ContextualAttributeDelegate.Scope.User) { namespace ?: nameWithoutVersion }
 
+    inline fun <reified E: NamedEntity> turnEntityMapAttribute(entities: Map<String, E>, namespace: String? = null) =
+            EntityMapAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Turn) { namespace ?: nameWithoutVersion }
+
+    inline fun <reified E: NamedEntity> sessionEntityMapAttribute(entities: Map<String, E>, namespace: String? = null) =
+            EntityMapAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Session) { namespace ?: nameWithoutVersion }
+
+    inline fun <reified E: NamedEntity> userEntityMapAttribute(entities: Map<String, E>, namespace: String? = null) =
+            EntityMapAttributeDelegate(entities, ContextualAttributeDelegate.Scope.User) { namespace ?: nameWithoutVersion }
+
     val nameWithoutVersion get() = name.substringBeforeLast("/")
 
     val version get() = name.substringAfterLast("/").toInt()
