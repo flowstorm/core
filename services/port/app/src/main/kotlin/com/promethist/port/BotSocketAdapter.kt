@@ -206,15 +206,23 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
 
     @Throws(IOException::class)
     internal fun sendResponse(response: Response, ttsOnly: Boolean = false) {
-        for (item in response.items) {
+        for (item in response.items.toList()) {
             if (item.text.isNullOrBlank()) {
                 logger.debug("item.text.isNullOrBlank() == true")
                 item.text = ""
             } else {
+                val voice = clientRequirements.ttsVoice?:item.ttsVoice?:TtsConfig.defaultVoice("en")
+                if (voice.startsWith('A')) {
+                    // Amazon Polly synthesis - strip <audio> tag and create audio item
+                    item.ssml = item.ssml?.replace(Regex("<audio.*?src=\"(.*?)\"[^\\>]+>")) {
+                        response.items.add(Response.Item(audio = it.groupValues[1]))
+                        ""
+                    }
+                }
                 val ttsRequest =
                     TtsRequest(
-                        clientRequirements.ttsVoice?:item.ttsVoice?:TtsConfig.defaultVoice("en"),
-                        ((if (item.ssml != null) item.ssml else item.text)?:"").replace(Regex("\\$(\\w+)")) {
+                        voice,
+                        ((if (item.ssml != null) item.ssml else item.text) ?: "").replace(Regex("\\$(\\w+)")) {
                             // command processing
                             when (it.groupValues[1]) {
                                 "version" -> {
@@ -225,21 +233,21 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                             }
                         },
                         item.ssml != null
-                ).apply {
-                    with (response) {
-                        if (attributes.containsKey("speakingRate"))
-                            speakingRate = attributes["speakingRate"].toString().toDouble()
-                        if (attributes.containsKey("speakingPitch"))
-                            speakingPitch = attributes["speakingPitch"].toString().toDouble()
-                        if (attributes.containsKey("speakingVolumeGain"))
-                            speakingVolumeGain = attributes["speakingVolumeGain"].toString().toDouble()
+                    ).apply {
+                        with(response) {
+                            if (attributes.containsKey("speakingRate"))
+                                speakingRate = attributes["speakingRate"].toString().toDouble()
+                            if (attributes.containsKey("speakingPitch"))
+                                speakingPitch = attributes["speakingPitch"].toString().toDouble()
+                            if (attributes.containsKey("speakingVolumeGain"))
+                                speakingVolumeGain = attributes["speakingVolumeGain"].toString().toDouble()
+                        }
                     }
-                }
                 if (clientRequirements.tts != BotClientRequirements.TtsType.None) {
                     val audio = dataService.getTtsAudio(
-                            ttsRequest,
-                            clientRequirements.tts != BotClientRequirements.TtsType.RequiredLinks,
-                            clientRequirements.tts == BotClientRequirements.TtsType.RequiredStreaming
+                        ttsRequest,
+                        clientRequirements.tts != BotClientRequirements.TtsType.RequiredLinks,
+                        clientRequirements.tts == BotClientRequirements.TtsType.RequiredStreaming
                     )
                     when (clientRequirements.tts) {
                         BotClientRequirements.TtsType.RequiredLinks ->
