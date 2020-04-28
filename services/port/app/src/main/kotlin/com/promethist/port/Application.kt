@@ -16,8 +16,6 @@ import javax.ws.rs.NotFoundException
 class Application : JerseyApplication() {
 
     companion object {
-        val filestoreUrl = ServiceUrlResolver.getEndpointUrl("filestore")
-
         fun validateKey(appKey: String) {
             if (AppConfig.instance.get("service.key", "promethist") !=
                     if (appKey.contains(':')) appKey.substring(0, appKey.indexOf(':')) else appKey)
@@ -30,7 +28,7 @@ class Application : JerseyApplication() {
             override fun configure() {
                 bindTo(AppConfig::class.java, AppConfig.instance)
                 bindTo(PortResource::class.java, PortResourceImpl::class.java)
-                bindTo(FileResource::class.java, filestoreUrl)
+                bindTo(FileResource::class.java, ServiceUrlResolver.getEndpointUrl("filestore"))
                 bindTo(MongoDatabase::class.java,
                         KMongo.createClient(ConnectionString(AppConfig.instance["database.url"]))
                                 .getDatabase(AppConfig.instance["name"] + "-" + AppConfig.instance["namespace"]))

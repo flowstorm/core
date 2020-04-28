@@ -5,6 +5,7 @@ import ai.promethist.client.BotEvent
 import ai.promethist.client.BotSocket
 import com.promethist.common.AppConfig
 import com.promethist.common.ObjectUtil
+import com.promethist.common.ServiceUrlResolver
 import com.promethist.core.ExpectedPhrase
 import com.promethist.core.model.TtsConfig
 import com.promethist.core.Input
@@ -242,7 +243,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                     )
                     when (clientRequirements.tts) {
                         BotClientRequirements.TtsType.RequiredLinks ->
-                            item.audio = Application.filestoreUrl + '/' + audio.path // caller must know port URL therefore URI is enough
+                            item.audio = ServiceUrlResolver.getEndpointUrl("filestore", ServiceUrlResolver.RunMode.dist) + '/' + audio.path // caller must know port URL therefore URI is enough
 
                         BotClientRequirements.TtsType.RequiredStreaming ->
                             sendBinaryData(audio.speak().data!!)
