@@ -20,10 +20,6 @@ class ContextPersister {
     fun persist(context: Context) {
         context.turn.log.addAll(dialogueLog.log)
         context.session.turns.add(context.turn)
-        context.session.metrics.apply {
-            clear()
-            addAll(context.metrics.metrics)
-        }
 
         sessionResource.update(context.session)
         profileRepository.save(context.userProfile)

@@ -4,7 +4,6 @@ import com.promethist.core.model.*
 import com.promethist.core.Context
 import com.promethist.core.Input
 import com.promethist.core.Pipeline
-import com.promethist.core.model.metrics.Metrics
 import com.promethist.core.profile.ProfileRepository
 import com.promethist.core.resources.CommunityResource
 import com.promethist.core.runtime.DialogueLog
@@ -30,7 +29,6 @@ class ContextFactory {
                 profile,
                 session,
                 Turn(input = input),
-                Metrics(session.metrics),
                 dialogueLog.logger,
                 communityResource
         )
