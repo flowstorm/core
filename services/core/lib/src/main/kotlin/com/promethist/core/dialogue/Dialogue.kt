@@ -140,6 +140,8 @@ abstract class Dialogue {
 
     inner class StopSession(override val id: Int) : Node(id)
 
+    fun metricValue(metricSpec:String) = MetricDelegate(metricSpec)
+
     inline fun <reified V: Any> turnAttribute(namespace: String? = null, noinline default: (Context.() -> V)? = null) =
             ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.Turn, V::class, { namespace ?: nameWithoutVersion }, default)
 
