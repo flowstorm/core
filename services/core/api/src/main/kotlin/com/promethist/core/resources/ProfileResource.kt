@@ -1,6 +1,7 @@
 package com.promethist.core.resources
 
 import com.promethist.core.model.Profile
+import com.promethist.core.model.User
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiParam
 import org.litote.kmongo.Id
@@ -19,6 +20,12 @@ interface ProfileResource {
     @Path("/{profileId}")
     fun get(
             @ApiParam(required = true) @PathParam("profileId") profileId: Id<Profile>
+    ): Profile
+
+    @GET
+    @Path("/user/{userId}")
+    fun getByUserId(
+            @ApiParam(required = true) @PathParam("userId") userId: Id<User>
     ): Profile
 
     @POST

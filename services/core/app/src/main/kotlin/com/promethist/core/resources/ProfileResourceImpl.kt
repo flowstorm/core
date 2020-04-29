@@ -1,9 +1,11 @@
 package com.promethist.core.resources
 
 import com.mongodb.client.MongoDatabase
+import com.mongodb.client.model.Filters
 import com.promethist.common.query.MongoFiltersFactory
 import com.promethist.common.query.Query
 import com.promethist.core.model.Profile
+import com.promethist.core.model.User
 import org.litote.kmongo.*
 import javax.inject.Inject
 import javax.ws.rs.NotFoundException
@@ -25,6 +27,10 @@ class ProfileResourceImpl : ProfileResource {
 
     override fun get(profileId: Id<Profile>): Profile {
         return profiles.findOneById(profileId) ?: throw NotFoundException("Profile $profileId not found.")
+    }
+
+    override fun getByUserId(userId: Id<User>): Profile {
+        return profiles.findOne(Filters.eq("user_id", userId)) ?: throw NotFoundException("Profile not found.")
     }
 
     override fun create(profile: Profile) {
