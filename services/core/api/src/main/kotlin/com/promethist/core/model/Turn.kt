@@ -27,6 +27,14 @@ data class Turn(
                 image = image, audio = audio, video = video,
                 repeatable = repeatable
         )
+        item.ssml = item.ssml?.replace(Regex("<image.*?src=\"(.*?)\"[^\\>]+>")) {
+            item.audio = it.groupValues[1]
+            ""
+        }
+        item.ssml = item.ssml?.replace(Regex("<video.*?src=\"(.*?)\"[^\\>]+>")) {
+            item.video = it.groupValues[1]
+            ""
+        }
 
         responseItems.add(item)
     }
