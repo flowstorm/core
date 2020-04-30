@@ -18,7 +18,6 @@ class DialogueManager(private val loader: Loader) : Component {
             logger.info("loading model $name")
             val dialogue = loader.newObjectWithArgs<Dialogue>(name, args)
             dialogue.loader = loader
-            dialogue.logger = context.logger
             dialogues[key] = dialogue
             dialogue
         } else {

@@ -24,7 +24,7 @@ abstract class Dialogue {
 
     //runtime dependencies
     lateinit var loader: Loader
-    lateinit var logger: Logger
+    val logger get() = threadContext().context.logger
 
     val nodes: MutableSet<Node> = mutableSetOf()
     var nextId: Int = 0
