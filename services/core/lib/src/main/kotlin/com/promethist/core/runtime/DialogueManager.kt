@@ -3,7 +3,7 @@ package com.promethist.core.runtime
 import com.promethist.core.*
 import com.promethist.core.dialogue.Dialogue
 import com.promethist.core.builder.IrModel
-import com.promethist.core.model.Session
+import com.promethist.core.model.Session.DialogueStackFrame
 import com.promethist.core.type.PropertyMap
 import com.promethist.util.LoggerDelegate
 import kotlin.math.roundToInt
@@ -47,8 +47,32 @@ class DialogueManager(private val loader: Loader) : Component {
         this@DialogueManager.logger.info("starting dialogue ${dialogue.name} with following nodes:\n" + dialogue.describe())
         dialogue.validate()
         set(dialogue.name, context, dialogue)
-        session.dialogueStack.push(Session.DialogueStackFrame(dialogue.name))
+        session.dialogueStack.push(DialogueStackFrame(dialogue.name))
         return proceed(context)
+    }
+
+    private fun getIrModels(currentFrame: DialogueStackFrame, context: Context): List<IrModel> {
+        val currentDialogue = get(currentFrame.name, context)
+        val node = currentDialogue.node(currentFrame.nodeId)
+
+        require(node is Dialogue.UserInput)
+
+        val models = mutableListOf(IrModel(currentDialogue.buildId, currentDialogue.name, node.id))
+        if (!node.skipGlobalIntents) {
+            //current global intents
+            models.add(IrModel(currentDialogue.buildId, currentDialogue.name))
+            //parents global intents
+            context.session.dialogueStack.map { it.name }.distinct().forEach {
+                val dialogue = get(it, context)
+                models.add(IrModel(dialogue.buildId, dialogue.name))
+            }
+        }
+        return models
+    }
+
+    private fun getIntentNode(models: List<IrModel>, context: Context): Dialogue.Intent {
+        val (modelId, nodeId) = context.input.intent.name.split("#")
+        return get(models.first { it.id == modelId }.dialogueName, context).intentNode(nodeId.toInt())
     }
 
     /**
@@ -59,10 +83,8 @@ class DialogueManager(private val loader: Loader) : Component {
         val dialogue = get(frame.name, context)
         var node = dialogue.node(frame.nodeId)
         if (node is Dialogue.UserInput) {
-            val models = mutableListOf(IrModel(dialogue.buildId, dialogue.name, node.id))
-            if (!node.skipGlobalIntents) models.add(IrModel(dialogue.buildId, dialogue.name, null))
-
-            context.irModels = models
+            val irModels = getIrModels(frame, context)
+            context.irModels = irModels
 
             val transition = node.process(context)
             node = if (transition != null) {
@@ -70,7 +92,7 @@ class DialogueManager(private val loader: Loader) : Component {
             } else {
                 // intent recognition
                 processPipeline()
-                dialogue.intentNode(this)
+                getIntentNode(irModels, context)
             }
         }
         var step = 0
@@ -84,7 +106,7 @@ class DialogueManager(private val loader: Loader) : Component {
             when (node) {
                 is Dialogue.UserInput -> {
                     addExpectedPhrases(context, node.intents.asList())
-                    frame.copy(nodeId = node.id).let {
+                    DialogueStackFrame(node.dialogue.name, node.id).let {
                         turn.endFrame = it
                         session.dialogueStack.push(it)
                     }
@@ -92,11 +114,8 @@ class DialogueManager(private val loader: Loader) : Component {
                     inputRequested = true
                 }
                 is Dialogue.Repeat -> {
-                    session.turns.last { it.endFrame!!.name == frame.name }.let { lastTurn ->
-                        lastTurn.responseItems.forEach { if (it.repeatable) turn.responseItems.add(it) }
-                        turn.endFrame = lastTurn.endFrame
-                        session.dialogueStack.push(lastTurn.endFrame)
-                    }
+                    session.turns.last { it.endFrame == context.session.dialogueStack.first }
+                            .responseItems.forEach { if (it.repeatable) turn.responseItems.add(it) }
 
                     inputRequested = true
                 }
@@ -109,17 +128,24 @@ class DialogueManager(private val loader: Loader) : Component {
                     inputRequested = false
                 }
                 is Dialogue.StopDialogue -> {
-                    inputRequested =  if (session.dialogueStack.isEmpty()) false else proceed(context)
+                    inputRequested = if (session.dialogueStack.isEmpty()) false else proceed(context)
                 }
                 is Dialogue.SubDialogue -> {
                     val subDialogue = node.createDialogue(context)
-                    session.dialogueStack.push(frame.copy(nodeId = node.next.id))
+                    session.dialogueStack.push(DialogueStackFrame(node.dialogue.name, node.next.id))
                     inputRequested = start(subDialogue, context)
                 }
                 is Dialogue.TransitNode -> {
-                    if (node is Dialogue.Response) {
-                        val text = node.getText(context)
-                        turn.addResponseItem(text, node.image, node.audio, node.video, repeatable = node.isRepeatable)
+                    when (node) {
+                        is Dialogue.Response -> {
+                            val text = node.getText(context)
+                            turn.addResponseItem(text, node.image, node.audio, node.video, repeatable = node.isRepeatable)
+                        }
+                        is Dialogue.GlobalIntent -> {
+                            session.dialogueStack.push(frame)
+                            session.dialogueStack.push(DialogueStackFrame(node.dialogue.name, node.next.id))
+                            inputRequested = proceed(context)
+                        }
                     }
                     node = node.next
                 }

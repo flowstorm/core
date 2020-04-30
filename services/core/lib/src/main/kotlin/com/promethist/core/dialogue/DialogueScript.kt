@@ -16,7 +16,8 @@ open class DialogueScript {
 
     val clientNamespace = "client"
     val pass: Dialogue.Transition? = null
-    val toIntent get() = with (Dialogue.threadContext()) { Dialogue.Transition(dialogue.intentNode(context)) }
+    @Deprecated("Use pass instead, toIntent will be removed")
+    val toIntent = pass
     val now get() = with (Dialogue.threadContext()) { ZonedDateTime.now(context.turn.input.zoneId) }
     val today get() = now.toDay()
     val tomorrow get() = now.day(1)

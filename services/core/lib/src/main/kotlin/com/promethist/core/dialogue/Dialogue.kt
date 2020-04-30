@@ -34,7 +34,7 @@ abstract class Dialogue {
     var repeat = Repeat(Int.MAX_VALUE - 2)
 
     abstract inner class Node(open val id: Int) {
-
+        val dialogue get() = this@Dialogue
         init { nodes.add(this) }
 
         override fun hashCode(): Int = id
@@ -190,7 +190,7 @@ abstract class Dialogue {
 
     fun node(id: Int): Node = nodes.find { it.id == id }?:error("Node $id not found in $this")
 
-    fun intentNode(context: Context) = node(context.turn.input.intent.name.toInt())
+    fun intentNode(id: Int) = intents.find { it.id == id } ?: error("Intent $id not found in $this")
 
     // implicit attributes
     val location by turnAttribute<Location>(clientNamespace)

@@ -30,7 +30,9 @@ class Illusionist : Component {
         val responses = webTarget.path("/multi_model").request().post(Entity.json(request), object : GenericType<List<Response>>() {})
 
         for (response in responses) {
-            context.turn.input.classes.add(Input.Class(Input.Class.Type.Intent, response.answer, response.confidence))
+            val name = response._id + "#" + response.answer
+
+            context.turn.input.classes.add(Input.Class(Input.Class.Type.Intent, name, response.confidence))
         }
 
         return context.pipeline.process(context)

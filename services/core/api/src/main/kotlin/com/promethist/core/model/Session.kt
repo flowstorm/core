@@ -20,7 +20,7 @@ data class Session(
         val metrics: MutableList<Metric> = mutableListOf(),
         val properties: MutablePropertyMap = mutableMapOf(),
         val attributes: Dynamic = Dynamic(),
-        val dialogueStack: LinkedList<DialogueStackFrame> = LinkedList()
+        val dialogueStack: DialogueStack = LinkedList()
 ) {
 
     data class DialogueStackFrame(
