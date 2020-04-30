@@ -16,7 +16,11 @@ object TtsServiceFactory {
             TtsConfig.Provider.Microsoft -> MicrosoftTtsService
         }
 
-    fun speak(request: TtsRequest): ByteArray = get(TtsConfig.forVoice(request.voice).provider).speak(request)
+    fun speak(request: TtsRequest): ByteArray {
+        if (request.isSsml && !request.text.startsWith("<speak>"))
+            request.text = "<speak>${request.text}</speak>"
+        return get(TtsConfig.forVoice(request.voice).provider).speak(request)
+    }
 
     @JvmStatic
     fun main(args: Array<String>) {
