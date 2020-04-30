@@ -206,7 +206,10 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
 
     @Throws(IOException::class)
     internal fun sendResponse(response: Response, ttsOnly: Boolean = false) {
-        for (item in response.items.toList()) {
+        val items = response.items.toList()
+        var shift = 0
+        for (i in items.indices) {
+            val item = items[i]
             if (item.text.isNullOrBlank()) {
                 logger.debug("item.text.isNullOrBlank() == true")
                 item.text = ""
@@ -215,7 +218,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                 if (voice.startsWith('A')) {
                     // Amazon Polly synthesis - strip <audio> tag and create audio item
                     item.ssml = item.ssml?.replace(Regex("<audio.*?src=\"(.*?)\"[^\\>]+>")) {
-                        response.items.add(Response.Item(audio = it.groupValues[1]))
+                        response.items.add(i + ++shift, Response.Item(audio = it.groupValues[1]))
                         ""
                     }
                 }
