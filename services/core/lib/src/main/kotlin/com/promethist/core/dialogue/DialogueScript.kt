@@ -161,8 +161,8 @@ open class DialogueScript {
     fun String.toLocation() = Location(0F, 0F)
 
     infix fun String.similarityTo(tokens: List<Input.Word>): Float {
-        val theseWords = tokenize().map { it.text }
-        val thoseWords = tokens.map { it.text }
+        val theseWords = tokenize().map { it.text.toLowerCase() }
+        val thoseWords = tokens.map { it.text.toLowerCase() }
         var matches = 0
         for (word in theseWords)
             if (thoseWords.contains(word))
