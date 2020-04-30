@@ -28,7 +28,7 @@ data class Turn(
                 repeatable = repeatable
         )
         item.ssml = item.ssml?.replace(Regex("<image.*?src=\"(.*?)\"[^\\>]+>")) {
-            item.audio = it.groupValues[1]
+            item.image = it.groupValues[1]
             ""
         }
         item.ssml = item.ssml?.replace(Regex("<video.*?src=\"(.*?)\"[^\\>]+>")) {
