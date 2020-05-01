@@ -114,10 +114,12 @@ class DialogueManager(private val loader: Loader) : Component {
                     inputRequested = true
                 }
                 is Dialogue.Repeat -> {
-                    session.turns.last { it.endFrame == context.session.dialogueStack.first }
+                    if (session.dialogueStack.isEmpty()) inputRequested = false
+                    val frame = session.dialogueStack.pop()
+                    val dialogue = get(frame.name, context)
+                    session.turns.last { it.endFrame == frame }
                             .responseItems.forEach { if (it.repeatable) turn.responseItems.add(it) }
-
-                    inputRequested = true
+                    node = dialogue.node(frame.nodeId)
                 }
                 is Dialogue.Function -> {
                     val transition = node.exec(context)
@@ -127,8 +129,16 @@ class DialogueManager(private val loader: Loader) : Component {
                     session.dialogueStack.clear()
                     inputRequested = false
                 }
-                is Dialogue.StopDialogue -> {
-                    inputRequested = if (session.dialogueStack.isEmpty()) false else proceed(context)
+                is Dialogue.GoBack, is Dialogue.StopDialogue -> {
+                    if (session.dialogueStack.isEmpty()) inputRequested = false
+                    val frame = session.dialogueStack.pop()
+                    val dialogue = get(frame.name, context)
+                    if (node is Dialogue.GoBack && node.repeat) {
+                        session.turns.last { it.endFrame == frame }
+                                .responseItems.forEach { if (it.repeatable) turn.responseItems.add(it) }
+                    }
+                    node = dialogue.node(frame.nodeId)
+
                 }
                 is Dialogue.SubDialogue -> {
                     val subDialogue = node.createDialogue(context)
@@ -143,8 +153,6 @@ class DialogueManager(private val loader: Loader) : Component {
                         }
                         is Dialogue.GlobalIntent -> {
                             session.dialogueStack.push(frame)
-                            session.dialogueStack.push(DialogueStackFrame(node.dialogue.name, node.next.id))
-                            inputRequested = proceed(context)
                         }
                     }
                     node = node.next

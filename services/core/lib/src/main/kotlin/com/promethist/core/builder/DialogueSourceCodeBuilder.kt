@@ -48,6 +48,7 @@ class DialogueSourceCodeBuilder(val name: String, val buildId: String) {
         writeClassSignature()
         writeInit()
 
+        goBacks.forEach { write(it) }
         globalIntents.forEach { write(it) }
         intents.forEach { write(it) }
         userInputs.forEach { write(it) }
@@ -72,6 +73,7 @@ class DialogueSourceCodeBuilder(val name: String, val buildId: String) {
     private val responses = mutableListOf<Response>()
     private val functions = mutableListOf<Function>()
     private val subDialogues = mutableListOf<SubDialogue>()
+    private val goBacks = mutableListOf<GoBack>()
     private val transitions = mutableMapOf<String, String>()
 
     data class Intent(val nodeId: Int, val nodeName: String, val utterances: List<String>)
@@ -80,6 +82,7 @@ class DialogueSourceCodeBuilder(val name: String, val buildId: String) {
     data class Response(val nodeId: Int, val nodeName: String, val texts: List<String>, val type: String = "Response")
     data class Function(val nodeId: Int, val nodeName: String, val transitions: Map<String, String>, val code: CharSequence)
     data class SubDialogue(val nodeId: Int, val nodeName: String, val subDialogueName: String, val code: CharSequence = "")
+    data class GoBack(val nodeId: Int, val nodeName: String, val repeat:Boolean)
 
     fun addNode(node: UserInput) = userInputs.add(node)
     fun addNode(node: Intent) = intents.add(node)
@@ -87,6 +90,7 @@ class DialogueSourceCodeBuilder(val name: String, val buildId: String) {
     fun addNode(node: Response) = responses.add(node)
     fun addNode(node: Function) = functions.add(node)
     fun addNode(node: SubDialogue) = subDialogues.add(node)
+    fun addNode(node: GoBack) = goBacks.add(node)
     fun addTransition(transition: Pair<String, String>) = transitions.put(transition.first, transition.second)
 
     private fun writeHeader() {
@@ -154,6 +158,10 @@ class DialogueSourceCodeBuilder(val name: String, val buildId: String) {
             comma = ", "
         }
         source.appendln(") : $parentClass() {")
+    }
+
+    private fun write(goBack: GoBack)  = with(goBack) {
+        source.appendln("\tval $nodeName = GoBack($nodeId, $repeat)")
     }
 
     private fun write(intent: Intent) {
