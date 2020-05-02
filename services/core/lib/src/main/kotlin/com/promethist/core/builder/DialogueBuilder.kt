@@ -140,7 +140,7 @@ class DialogueBuilder(
 
         fun saveClassesWithProperties() {
             classFiles.forEach { classFile ->
-                val path = "$basePath/classes/${classFile.name}"
+                val path = "$basePath/model/${classFile.name}"
                 logger.info("saving dialogue model class $classFile to file resource $path")
                 classFile.inputStream().use { input ->
                     fileResource.writeFile(path, "application/octet-stream", listOf("version:$version"), input)
