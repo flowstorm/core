@@ -47,11 +47,6 @@
             <artifactId>kotlin-script-util</artifactId>
             <version>${kotlin.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-compiler-embeddable</artifactId>
-            <version>${kotlin.version}</version>
-        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
@@ -77,7 +72,6 @@
     <build>
         <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
         <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
-        <finalName>app</finalName>
         <plugins>
             <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>

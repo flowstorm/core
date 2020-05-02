@@ -14,5 +14,6 @@ data:
     app.logging={{ .Values.app.logging }}
     app.tracing={{ .Values.app.tracing }}
     database.url={{ .Values.database.url }}
-    dialogmanager.url=http://helena.{{ .Values.namespace }}.svc.cluster.local/dm
+    loader.useScript={{ .Values.loader.useScript }}
+    helena.url=http://helena.{{ .Values.namespace }}.svc.cluster.local/dm
     illusionist.apiKey={{ .Values.illusionist.apiKey }}

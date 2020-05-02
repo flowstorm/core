@@ -125,7 +125,7 @@ abstract class Dialogue {
     inner class SubDialogue(
             override val id: Int,
             val name: String,
-            val lambda: (Context.(SubDialogue) -> Dialogue)): TransitNode(id) {
+            val lambda: Context.(SubDialogue) -> Dialogue): TransitNode(id) {
 
         fun createDialogue(context: Context): Dialogue =
                 threadContext(context, this@Dialogue) { lambda(context, this) } as Dialogue

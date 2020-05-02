@@ -6,7 +6,11 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 
-class FileResourceLoader(private val fileResource: FileResource, val basePath: String, override val noCache: Boolean = false) : AbstractLoader(noCache) {
+class FileResourceLoader(
+        private val fileResource: FileResource,
+        private val basePath: String,
+        override val noCache: Boolean = false,
+        override val useScript: Boolean = false) : AbstractLoader(noCache, useScript) {
 
     override fun getInputStream(name: String): InputStream {
         logger.info("loading file resource $name")
