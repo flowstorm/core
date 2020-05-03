@@ -1,5 +1,6 @@
 package com.promethist.core.runtime
 
+import com.promethist.core.model.FileObject
 import com.promethist.core.resources.FileResource
 import com.promethist.core.provider.LocalFileStorage
 import java.io.ByteArrayInputStream
@@ -27,8 +28,8 @@ class FileResourceLoader(
         }
     }
 
-    override fun getLastModified(name: String): Long {
+    override fun getFileObject(name: String): FileObject {
         logger.info("checking file resource $name")
-        return fileResource.getFile("$basePath/$name").updateTime
+        return fileResource.getFile("$basePath/$name")
     }
 }

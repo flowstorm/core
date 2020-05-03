@@ -1,5 +1,6 @@
 package com.promethist.core.builder
 
+import com.promethist.common.AppConfig
 import com.promethist.core.dialogue.Dialogue
 import com.promethist.core.resources.FileResource
 import com.promethist.core.runtime.DialogueClassLoader
@@ -10,6 +11,8 @@ import java.io.*
 import java.net.URLClassLoader
 import java.security.MessageDigest
 import java.util.*
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 import javax.inject.Inject
 import kotlin.jvm.internal.Reflection
 
@@ -43,9 +46,18 @@ class DialogueBuilder(
         val classFiles = mutableListOf<File>()
         val resources: MutableList<Resource> = mutableListOf()
         val basePath = "dialogue/${name}/"
-        val propertiesAsString get() = """
-                buildId=${buildId}
-                classes=${classFiles.joinToString(",") { it.nameWithoutExtension }}
+        val manifest get() = """
+            Manifest-Version: 1.0
+            Package: model.$buildId
+            Created-By: promethist
+            Name: model/$buildId/
+            Sealed: true
+            Specification-Title: "Promethist Dialogue Model" 
+            Specification-Version: "${AppConfig.instance.get("git.ref", "unknown")}"
+            Specification-Vendor: "PromethistAI a.s.".
+            Implementation-Title: "Dialogue Model $name" 
+            Implementation-Version: "$version"
+            Implementation-Vendor: "(vendor)"
             """.trimIndent()
 
         fun addResource(resource: Resource) = resources.add(resource)
@@ -65,11 +77,11 @@ class DialogueBuilder(
                     byteCodeClassLoader.loadClass(className, it.readBytes())
                 }
                 val time2 = System.currentTimeMillis()
-                val modelJavaClass = byteCodeClassLoader.loadClass("model.$buildId.Model")
+                val javaClass = byteCodeClassLoader.loadClass("model.$buildId.Model")
                 //println(modelClass.isKotlinClass())
-                val modelKotlinClass = Reflection.createKotlinClass(modelJavaClass)
+                val kotlinClass = Reflection.createKotlinClass(javaClass)
                 //val dialogue = modelClass.getDeclaredConstructor().newInstance() as Dialogue
-                val dialogue = Kotlin.newObjectWithArgs(modelKotlinClass, source.parameters) as Dialogue
+                val dialogue = Kotlin.newObjectWithArgs(kotlinClass, source.parameters) as Dialogue
                 logger.info("dialogue model classes loaded in ${time2 - time1} ms, instantiated in ${System.currentTimeMillis() - time2} ms")
                 dialogue
             }
@@ -84,7 +96,7 @@ class DialogueBuilder(
             logger.info("start saving dialogue model $name")
             saveSourceCode()
             saveResources()
-            saveClassesWithProperties()
+            saveJavaArchive()
             buildIntentModels(dialogue)
             logger.info("finished saving dialogue model $name")
         }
@@ -138,15 +150,24 @@ class DialogueBuilder(
             fileResource.writeFile(path, "text/kotlin", listOf("version:$version", "buildId:$buildId"), stream)
         }
 
-        fun saveClassesWithProperties() {
+        fun saveJavaArchive(jar: OutputStream? = null) {
+            val buf = ByteArrayOutputStream()
+            val zip = ZipOutputStream(buf)
             classFiles.forEach { classFile ->
-                val path = basePath + "model/${classFile.name}"
-                logger.info("saving dialogue model class $classFile to file resource $path")
-                classFile.inputStream().use { input ->
-                    fileResource.writeFile(path, "application/octet-stream", listOf("version:$version"), input)
-                }
+                val path = "model/$buildId/${classFile.name}"
+                logger.info("saving dialogue model class $classFile to JAR resource $path")
+                zip.putNextEntry(ZipEntry(path))
+                classFile.inputStream().use { it.copyTo(zip) }
             }
-            fileResource.writeFile(basePath + "model.properties", "text/plain", listOf("version:$version"), propertiesAsString.byteInputStream())
+            zip.putNextEntry(ZipEntry("META-INF/MANIFEST.MF"))
+            manifest.byteInputStream().copyTo(zip)
+            zip.closeEntry()
+            zip.close()
+            ByteArrayInputStream(buf.toByteArray()).let {
+                jar?.use { out -> it.copyTo(out) } ?:
+                    fileResource.writeFile(basePath + "model.jar", "application/java-archive",
+                            listOf("version:$version", "buildId:$buildId"), it)
+            }
         }
 
         fun saveResources() {
@@ -182,5 +203,17 @@ class DialogueBuilder(
         private val md = MessageDigest.getInstance("MD5")
 
         fun md5(str: String): String = md.digest(str.toByteArray()).toHexString()
+
+        @JvmStatic
+        fun main(args: Array<String>) {
+            val classLoader = URLClassLoader(arrayOf(File("/Users/tomas.zajicek/Downloads/model.jar").toURI().toURL()), this::class.java.classLoader)
+            val className = "model.id5a5282249eb7f3297764357710a94559.Model"
+            //val javaClass = Class.forName(className, true, classLoader)
+            val javaClass = classLoader.loadClass(className)
+            val kotlinClass = Reflection.createKotlinClass(javaClass)
+            //val dialogue = modelClass.getDeclaredConstructor().newInstance() as Dialogue
+            val dialogue = Kotlin.newObjectWithArgs(kotlinClass, mapOf("str" to "bla", "num" to 123, "chk" to true)) as Dialogue
+            println(dialogue.nodes)
+        }
     }
 }

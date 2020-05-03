@@ -1,27 +1,31 @@
 package com.promethist.core.runtime
 
 import com.fasterxml.jackson.core.type.TypeReference
+import com.promethist.core.model.FileObject
 import com.promethist.core.type.PropertyMap
 import com.promethist.common.ObjectUtil.defaultMapper as mapper
 import com.promethist.util.LoggerDelegate
+import java.io.File
+import java.io.FileOutputStream
 import java.io.InputStream
 import java.io.InputStreamReader
+import java.net.URLClassLoader
 import java.util.*
 import kotlin.jvm.internal.Reflection
 import kotlin.reflect.KClass
 
 abstract class AbstractLoader(open val noCache: Boolean, open val useScript: Boolean) : Loader {
 
-    data class CacheItem(val item: Any, val lastModified: Long)
+    data class CacheItem(val item: Any, val fileObject: FileObject)
 
     protected val logger by LoggerDelegate()
     private val cache: MutableMap<String, CacheItem> = mutableMapOf()
     private val byteCodeClassLoader = DialogueClassLoader(this::class.java.classLoader)
 
-    private fun <T: Any> cache(name: String, load: () -> T): T {
-        val lastModified = getLastModified(name)
-        if (noCache || !cache.containsKey(name) || (cache[name]!!.lastModified < lastModified)) {
-            cache[name] = CacheItem(load(), lastModified)
+    private fun <T: Any> cache(name: String, load: (FileObject) -> T): T {
+        val fileObject = getFileObject(name)
+        if (noCache || !cache.containsKey(name) || (cache[name]!!.fileObject.updateTime < fileObject.updateTime)) {
+            cache[name] = CacheItem(load(fileObject), fileObject)
         }
         @Suppress("UNCHECKED_CAST")
         return cache[name]!!.item as T
@@ -29,7 +33,7 @@ abstract class AbstractLoader(open val noCache: Boolean, open val useScript: Boo
 
     abstract fun getInputStream(name: String): InputStream
 
-    abstract fun getLastModified(name: String): Long
+    abstract fun getFileObject(name: String): FileObject
 
     override fun <T : Any> loadClass(name: String): KClass<T> = if (useScript) {
         cache("$name.kts") {
@@ -37,18 +41,17 @@ abstract class AbstractLoader(open val noCache: Boolean, open val useScript: Boo
             Kotlin.loadClass<T>(InputStreamReader(getInputStream("$name.kts")))
         }
     } else {
-        cache("$name.properties") {
-            logger.info("loading class $name from $name/*.class file(s)")
-            val properties = Properties()
-            properties.load(getInputStream("$name.properties"))
-            val buildId = properties.getProperty("buildId")
-            properties.getProperty("classes").split(",").forEach { simpleName ->
-                val className = "model.$buildId.$simpleName"
-                val classPath = "$name/$simpleName.class"
-                logger.info("loading java class $className from $classPath")
-                byteCodeClassLoader.loadClass(className, getInputStream(classPath).readBytes())
+        cache("$name.jar") {
+            logger.info("loading class $name from $name.jar file")
+            val buildId = it.metadata?.get("buildId") ?: error("missing buildId meta in $name.jar")
+            val jarFile = File(System.getProperty("java.io.tmpdir"), "model.$buildId.jar")
+            getInputStream("$name.jar").use { input ->
+                FileOutputStream(jarFile).use { output ->
+                    input.copyTo(output)
+                }
             }
-            val javaClass = byteCodeClassLoader.loadClass("model.$buildId.Model")
+            val classLoader = URLClassLoader(arrayOf(jarFile.toURI().toURL()), this::class.java.classLoader)
+            val javaClass = classLoader.loadClass("model.$buildId.Model")
             Reflection.createKotlinClass(javaClass) as KClass<T>
         }
     }

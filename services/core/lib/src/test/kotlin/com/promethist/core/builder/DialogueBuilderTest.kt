@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test
 
 import org.junit.jupiter.api.TestInstance
 import java.io.ByteArrayInputStream
+import java.io.FileOutputStream
 import java.io.InputStream
 import java.util.*
 import kotlin.reflect.KClass
@@ -48,6 +49,7 @@ internal class DialogueBuilderTest {
 
             })
             //val dialogue = build()
+            //saveJavaArchive(FileOutputStream("/Users/tomas.zajicek/Downloads/model.jar"))
             //println(dialogue.nodes)
             //println(propertiesAsString)
         }
