@@ -42,7 +42,7 @@ class DialogueBuilder(
         val source = DialogueSourceCodeBuilder(name, buildId)
         val classFiles = mutableListOf<File>()
         val resources: MutableList<Resource> = mutableListOf()
-        val basePath = "model/${name}/"
+        val basePath = "dialogue/${name}/"
         val propertiesAsString get() = """
                 buildId=${buildId}
                 classes=${classFiles.joinToString(",") { it.nameWithoutExtension }}
@@ -140,7 +140,7 @@ class DialogueBuilder(
 
         fun saveClassesWithProperties() {
             classFiles.forEach { classFile ->
-                val path = "$basePath/model/${classFile.name}"
+                val path = basePath + "model/${classFile.name}"
                 logger.info("saving dialogue model class $classFile to file resource $path")
                 classFile.inputStream().use { input ->
                     fileResource.writeFile(path, "application/octet-stream", listOf("version:$version"), input)
