@@ -10,7 +10,6 @@ import java.io.FileOutputStream
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.net.URLClassLoader
-import java.util.*
 import kotlin.jvm.internal.Reflection
 import kotlin.reflect.KClass
 
@@ -20,7 +19,6 @@ abstract class AbstractLoader(open val noCache: Boolean, open val useScript: Boo
 
     protected val logger by LoggerDelegate()
     private val cache: MutableMap<String, CacheItem> = mutableMapOf()
-    private val byteCodeClassLoader = DialogueClassLoader(this::class.java.classLoader)
 
     private fun <T: Any> cache(name: String, load: (FileObject) -> T): T {
         val fileObject = getFileObject(name)
@@ -37,12 +35,12 @@ abstract class AbstractLoader(open val noCache: Boolean, open val useScript: Boo
 
     override fun <T : Any> loadClass(name: String): KClass<T> = if (useScript) {
         cache("$name.kts") {
-            logger.info("loading class $name from $name.kts file")
+            logger.info("loading class $name from resource file $name.kts")
             Kotlin.loadClass<T>(InputStreamReader(getInputStream("$name.kts")))
         }
     } else {
         cache("$name.jar") {
-            logger.info("loading class $name from $name.jar file")
+            logger.info("loading class $name from resource file $name.jar")
             val buildId = it.metadata?.get("buildId") ?: error("missing buildId meta in $name.jar")
             val jarFile = File(System.getProperty("java.io.tmpdir"), "model.$buildId.jar")
             getInputStream("$name.jar").use { input ->

@@ -145,9 +145,11 @@ class DialogueBuilder(
 
         fun saveSourceCode() {
             val path = basePath + "model.kts"
-            logger.info("saving dialogue model script $name to file resource $path")
-            val stream = ByteArrayInputStream(source.scriptCode.toByteArray())
-            fileResource.writeFile(path, "text/kotlin", listOf("version:$version", "buildId:$buildId"), stream)
+            logger.info("saving dialogue model file $name to resource $path")
+            ByteArrayInputStream(source.scriptCode.toByteArray()).let {
+                fileResource.writeFile(path, "text/kotlin",
+                        listOf("version:$version", "buildId:$buildId"), it)
+            }
         }
 
         fun saveJavaArchive(jar: OutputStream? = null) {
@@ -163,9 +165,11 @@ class DialogueBuilder(
             manifest.byteInputStream().copyTo(zip)
             zip.closeEntry()
             zip.close()
+            val path = basePath + "model.jar"
+            logger.info("saving dialogue model file $name to resource $path")
             ByteArrayInputStream(buf.toByteArray()).let {
                 jar?.use { out -> it.copyTo(out) } ?:
-                    fileResource.writeFile(basePath + "model.jar", "application/java-archive",
+                    fileResource.writeFile(path, "application/java-archive",
                             listOf("version:$version", "buildId:$buildId"), it)
             }
         }
