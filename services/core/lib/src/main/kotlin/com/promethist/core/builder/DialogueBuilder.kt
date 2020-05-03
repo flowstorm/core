@@ -146,7 +146,7 @@ class DialogueBuilder(
                     fileResource.writeFile(path, "application/octet-stream", listOf("version:$version"), input)
                 }
             }
-            fileResource.writeFile("$basePath/model.properties", "text/plain", listOf("version:$version"), propertiesAsString.byteInputStream())
+            fileResource.writeFile(basePath + "model.properties", "text/plain", listOf("version:$version"), propertiesAsString.byteInputStream())
         }
 
         fun saveResources() {
