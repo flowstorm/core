@@ -6,6 +6,8 @@ import com.promethist.common.ObjectUtil.defaultMapper as mapper
 import com.promethist.core.runtime.Loader
 import com.promethist.core.type.Location
 import com.promethist.core.type.NamedEntity
+import com.promethist.core.type.PropertyMap
+import jdk.nashorn.internal.runtime.Property
 import org.slf4j.Logger
 import java.io.File
 import java.io.FileInputStream
@@ -129,13 +131,12 @@ abstract class Dialogue {
     inner class SubDialogue(
             override val id: Int,
             val name: String,
-            val lambda: Context.(SubDialogue) -> Dialogue): TransitNode(id) {
+            val lambda: Context.(SubDialogue) -> PropertyMap): TransitNode(id) {
 
-        fun createDialogue(context: Context): Dialogue =
-                threadContext(context, this@Dialogue) { lambda(context, this) } as Dialogue
+        fun getConstructorArgs(context: Context): PropertyMap =
+                threadContext(context, this@Dialogue) { lambda(context, this) } as PropertyMap
 
-        fun create(vararg args: Pair<String, Any>) =
-                loader.newObjectWithArgs<Dialogue>("$name/model", mapOf(*args)).apply { loader = this@Dialogue.loader }
+        fun create(vararg args: Pair<String, Any>): PropertyMap = args.toMap()
     }
 
     inner class StartDialogue(override val id: Int) : TransitNode(id)

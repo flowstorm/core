@@ -4,6 +4,7 @@ import com.promethist.core.Response
 import com.promethist.core.model.metrics.Metric
 import com.promethist.core.type.Dynamic
 import com.promethist.core.type.MutablePropertyMap
+import com.promethist.core.type.PropertyMap
 import org.litote.kmongo.Id
 import org.litote.kmongo.newId
 import com.promethist.core.model.Message as CoreMessage
@@ -25,6 +26,7 @@ data class Session(
 
     data class DialogueStackFrame(
             val name: String,
+            val args: PropertyMap,
             val nodeId: Int = 0
     )
 

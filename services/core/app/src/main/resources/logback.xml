@@ -9,6 +9,6 @@
     <root level="info">
         <appender-ref ref="STDOUT" />
     </root>
-    <logger name="org.mongodb" level="info"/>
+    <logger name="org.mongodb" level="warn"/>
     <logger name="DialogueLog" level="info"/>
 </configuration>

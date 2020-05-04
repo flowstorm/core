@@ -43,8 +43,11 @@ object DialogueLoadTest {
         println("calling $func:")
         println(func.exec(context))
 
-        val subDialogue = dialogue.subDialogues.first().createDialogue(context)
-        println("sub-dialogue: $subDialogue")
-        println(subDialogue.describe())
+        dialogue.subDialogues.first().apply {
+            val args = getConstructorArgs(context)
+            val subDialogue = loader.newObjectWithArgs<Dialogue>("${this.name}/model", args)
+            println("sub-dialogue: $subDialogue")
+            println(subDialogue.describe())
+        }
     }
 }

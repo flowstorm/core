@@ -83,7 +83,9 @@ class DialogueRunner(
     private val loader: Loader = FileResourceLoader(fileResource, "dialogue", useScript = true)
     private val logger by LoggerDelegate()
 
-    private val dm = DialogueManager(loader)
+    private val dm = DialogueManager().apply {
+        dialogueFactory = DialogueFactory(loader)
+    }
     private val app = Application(name = "test", dialogueName = name, ttsVoice = "Grace", properties = properties)
     private val session = Session(sessionId = "T-E-S-T", user = user, application = app)
     private val turn = Turn(Input(locale, zoneId, Input.Transcript("")))
