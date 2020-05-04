@@ -26,7 +26,7 @@ class DialogueSourceCodeBuilder(val name: String, val buildId: String) {
             if (field.isEmpty()) error("Code has not been build yet.")
             return field
         }
-    val scriptCode get() = "$code\n$className::class\n"
+    val scriptCode get() = "$code\n//--export-class\n$className::class\n"
     val source = StringBuilder()
 
     private val logger by LoggerDelegate()

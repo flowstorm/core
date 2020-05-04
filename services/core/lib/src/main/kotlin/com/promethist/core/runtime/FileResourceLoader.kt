@@ -23,7 +23,6 @@ class FileResourceLoader(
             ByteArrayInputStream(buf.toByteArray())
         } else {
             val buf = fileResource.readFile(path).readEntity(ByteArray::class.java)
-            println(String(buf))
             ByteArrayInputStream(buf)
         }
     }

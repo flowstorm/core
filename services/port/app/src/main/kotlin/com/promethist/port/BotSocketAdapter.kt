@@ -214,13 +214,22 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                 logger.debug("item.text.isNullOrBlank() == true")
                 item.text = ""
             } else {
-                val voice = clientRequirements.ttsVoice?:item.ttsVoice?:TtsConfig.defaultVoice("en")
+                var voice = clientRequirements.ttsVoice ?: item.ttsVoice ?: TtsConfig.defaultVoice("en")
                 if (voice.startsWith('A')) {
                     // Amazon Polly synthesis - strip <audio> tag and create audio item
                     item.ssml = item.ssml?.replace(Regex("<audio.*?src=\"(.*?)\"[^\\>]+>")) {
                         response.items.add(i + ++shift, Response.Item(audio = it.groupValues[1]))
                         ""
                     }
+                }
+                // set voice by <voice> tag
+                item.ssml = item.ssml?.replace(Regex("<voice.*?name=\"(.*?)\">(.*)</voice>")) {
+                    val name = it.groupValues[1]
+                    TtsConfig.values.forEach { config ->
+                        if (name == config.name || name == config.voice)
+                            voice = config.voice
+                    }
+                    it.groupValues[2]
                 }
                 val ttsRequest =
                     TtsRequest(
