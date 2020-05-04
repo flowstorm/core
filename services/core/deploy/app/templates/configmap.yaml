@@ -15,5 +15,5 @@ data:
     app.tracing={{ .Values.app.tracing }}
     database.url={{ .Values.database.url }}
     loader.useScript={{ .Values.loader.useScript }}
-    helena.url=http://helena.{{ .Values.namespace }}.svc.cluster.local/dm
+    helena.url=http://helena.{{ .Values.namespace }}.svc.cluster.local
     illusionist.apiKey={{ .Values.illusionist.apiKey }}
