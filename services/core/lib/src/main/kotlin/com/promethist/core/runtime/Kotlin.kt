@@ -10,8 +10,10 @@ import kotlin.reflect.full.primaryConstructor
 
 object Kotlin {
 
-    val engine = ScriptEngineManager().getEngineByExtension("kts")
-            ?: error("Kotlin script engine not available (check program resources)")
+    val engine by lazy {
+        ScriptEngineManager().getEngineByExtension("kts")
+                ?: error("Kotlin script engine not available (check program resources)")
+    }
 
     fun <T : Any> loadClass(reader: Reader): KClass<T> {
         val clazz = engine.eval(reader)

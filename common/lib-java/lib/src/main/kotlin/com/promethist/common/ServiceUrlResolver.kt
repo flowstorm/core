@@ -22,10 +22,7 @@ object ServiceUrlResolver {
     enum class RunMode { local, docker, dist, detect }
 
     fun getEndpointUrl(serviceName: String): String {
-        val runMode = RunMode.valueOf(AppConfig.instance.get("$serviceName.runmode",
-                AppConfig.instance.get("runmode", "dist")
-        ))
-
+        val runMode = RunMode.valueOf(AppConfig.instance.get("$serviceName.runmode", AppConfig.instance.get("runmode", "dist")))
         return AppConfig.instance.get("$serviceName.url", getEndpointUrl(serviceName, runMode)).also {
             logger.info("Resolved $serviceName = $it")
         }

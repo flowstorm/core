@@ -80,7 +80,7 @@ class DialogueRunner(
     var locale = Defaults.locale
     var zoneId = Defaults.zoneId
 
-    private val loader: Loader = FileResourceLoader(fileResource, "dialogue")
+    private val loader: Loader = FileResourceLoader(fileResource, "dialogue", useScript = true)
     private val logger by LoggerDelegate()
 
     private val dm = DialogueManager(loader)

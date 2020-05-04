@@ -52,7 +52,9 @@ class Application : JerseyApplication() {
                 bind(illusionist).to(Component::class.java).named("illusionist")
 
                 // DM component (third - dialog user input decides whether to process the rest of pipeline or not)
-                val dm = DialogueManager(FileResourceLoader(filestore, "dialogue"))
+                val dm = DialogueManager(FileResourceLoader(filestore, "dialogue",
+                    AppConfig.instance.get("loader.noCache", "false") == "true",
+                    AppConfig.instance.get("loader.useScript", "false") == "true"))
                 bind(dm).to(Component::class.java).named("dm")
 
                 // NER component (second)

@@ -20,15 +20,15 @@ class DialogueSourceCodeBuilder(val name: String, val buildId: String) {
     var initCode: CharSequence = ""
     var extensionCode: CharSequence = ""
     var parentClass: String = "Dialogue"
-
+    val className: String
     var code: String = ""
         get() {
             if (field.isEmpty()) error("Code has not been build yet.")
             return field
         }
+    val scriptCode get() = "$code\n//--export-class\n$className::class\n"
+    val source = StringBuilder()
 
-    private val source = StringBuilder()
-    private val className: String
     private val logger by LoggerDelegate()
     private val names: MutableList<String>
 
@@ -36,7 +36,7 @@ class DialogueSourceCodeBuilder(val name: String, val buildId: String) {
         if (!name.matches(Regex("([\\w\\-]+)/([\\w\\-]+)/(\\d+)")))
             error("dialogue name $name does not conform to naming convention (product-name/dialogue-name/dialogue-version)")
         names = name.split("/").toMutableList()
-        className = "Model" + names.removeAt(names.size - 1)
+        className = "Model"// + names.removeAt(names.size - 1)
     }
 
     fun build() {
@@ -61,7 +61,6 @@ class DialogueSourceCodeBuilder(val name: String, val buildId: String) {
         if (extensionCode.isNotBlank()) {
             source.append(extensionCode)
         }
-        source.appendln("$className::class")
         logger.info("built source code for $name")
 
         code = source.toString()
@@ -93,7 +92,7 @@ class DialogueSourceCodeBuilder(val name: String, val buildId: String) {
     private fun writeHeader() {
         source
                 .appendln("//--dialogue-model;name:$name;time:" + LocalDateTime.now())
-                .append("package " + names.joinToString(".") { "`$it`" }).appendln(".`$buildId`")
+                .append("package model.$buildId")
                 .appendln()
                 .appendln("import com.promethist.core.*")
                 .appendln("import com.promethist.core.type.*")
