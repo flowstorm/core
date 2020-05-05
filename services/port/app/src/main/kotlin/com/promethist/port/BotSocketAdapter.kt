@@ -232,7 +232,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                 }
                 it.groupValues[2]
             }
-            if (item.audio == null) {
+            if (item.audio == null && !item.text.isNullOrBlank()) {
                 val ttsRequest =
                     TtsRequest(
                         voice,
