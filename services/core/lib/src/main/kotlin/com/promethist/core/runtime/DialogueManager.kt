@@ -152,6 +152,7 @@ class DialogueManager : Component {
     }
 
     private fun logNodes(nodes: List<Dialogue.Node>, logger:Logger) {
+        if (nodes.isEmpty()) return
         var dialogueNodes = listOf<Dialogue.Node>()
         var rest = nodes
         do {
