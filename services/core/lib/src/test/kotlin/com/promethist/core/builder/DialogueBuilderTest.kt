@@ -27,11 +27,11 @@ internal class DialogueBuilderTest {
                 initCode = "data class Test(val i: Int)\nfun time() = System.currentTimeMillis()\nval i = 1"
 
                 var nodeId = 0
-                addNode(Response(--nodeId, "response1", listOf("hello, say some animal", "hi, say some animal")))
+                addNode(Response(--nodeId, "response1", true, listOf("hello, say some animal", "hi, say some animal")))
                 addNode(Intent(--nodeId, "intent1", listOf("no", "nope", "quit", "stop")))
                 addNode(Intent(--nodeId, "intent2", listOf("dog", "cat", "tiger")))
                 addNode(Function(--nodeId, "function1", mapOf("trans1" to "stop"), "println(trans1)\ntrans1"))
-                addNode(Response(--nodeId, "response2", listOf("Your response was \${input.transcript.text}. Intent node \${input.intent.name}.")))
+                addNode(Response(--nodeId, "response2", true, listOf("Your response was \${input.transcript.text}. Intent node \${input.intent.name}.")))
                 addNode(UserInput(--nodeId, "input1", listOf("intent1", "intent2"), false, mapOf(), ""))
 
                 addTransition("start" to "response1")

@@ -79,7 +79,7 @@ class DialogueSourceCodeBuilder(val name: String, val buildId: String) {
     data class Intent(val nodeId: Int, val nodeName: String, val utterances: List<String>)
     data class GlobalIntent(val nodeId: Int, val nodeName: String, val utterances: List<String>)
     data class UserInput(val nodeId: Int, val nodeName: String, val intentNames: List<String>, val skipGlobalIntents: Boolean, val transitions: Map<String, String>, val code: CharSequence = "")
-    data class Response(val nodeId: Int, val nodeName: String, val texts: List<String>, val type: String = "Response")
+    data class Response(val nodeId: Int, val nodeName: String, val repeatable: Boolean, val texts: List<String>)
     data class Function(val nodeId: Int, val nodeName: String, val transitions: Map<String, String>, val code: CharSequence)
     data class SubDialogue(val nodeId: Int, val nodeName: String, val subDialogueName: String, val code: CharSequence = "")
     data class GoBack(val nodeId: Int, val nodeName: String, val repeat:Boolean)
@@ -202,8 +202,8 @@ class DialogueSourceCodeBuilder(val name: String, val buildId: String) {
     }
 
     private fun write(response: Response) {
-        val (nodeId, nodeName, texts, type) = response
-        source.append("\tval $nodeName = $type($nodeId")
+        val (nodeId, nodeName, repeatable, texts) = response
+        source.append("\tval $nodeName = Response($nodeId, $repeatable")
         texts.forEach {
             source.append(", { \"\"\"").append(it).append("\"\"\" }")
         }
