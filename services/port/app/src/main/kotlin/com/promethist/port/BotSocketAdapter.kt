@@ -210,27 +210,29 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
         var shift = 0
         for (i in items.indices) {
             val item = items[i]
-            if (item.text.isNullOrBlank()) {
-                logger.debug("item.text.isNullOrBlank() == true")
+            if (item.text == null)
                 item.text = ""
-            } else {
-                var voice = clientRequirements.ttsVoice ?: item.ttsVoice ?: TtsConfig.defaultVoice("en")
-                if (voice.startsWith('A')) {
-                    // Amazon Polly synthesis - strip <audio> tag and create audio item
-                    item.ssml = item.ssml?.replace(Regex("<audio.*?src=\"(.*?)\"[^\\>]+>")) {
+            var voice = clientRequirements.ttsVoice ?: item.ttsVoice ?: TtsConfig.defaultVoice("en")
+            if (voice.startsWith('A')) {
+                // Amazon Polly synthesis - strip <audio> tag and create audio item
+                item.ssml = item.ssml?.replace(Regex("<audio.*?src=\"(.*?)\"[^\\>]+>")) {
+                    if (item.text!!.isBlank())
+                        item.audio = it.groupValues[1]
+                    else
                         response.items.add(i + ++shift, Response.Item(audio = it.groupValues[1]))
-                        ""
-                    }
+                    ""
                 }
-                // set voice by <voice> tag
-                item.ssml = item.ssml?.replace(Regex("<voice.*?name=\"(.*?)\">(.*)</voice>")) {
-                    val name = it.groupValues[1]
-                    TtsConfig.values.forEach { config ->
-                        if (name == config.name || name == config.voice)
-                            voice = config.voice
-                    }
-                    it.groupValues[2]
+            }
+            // set voice by <voice> tag
+            item.ssml = item.ssml?.replace(Regex("<voice.*?name=\"(.*?)\">(.*)</voice>")) {
+                val name = it.groupValues[1]
+                TtsConfig.values.forEach { config ->
+                    if (name == config.name || name == config.voice)
+                        voice = config.voice
                 }
+                it.groupValues[2]
+            }
+            if (item.audio == null) {
                 val ttsRequest =
                     TtsRequest(
                         voice,
@@ -257,13 +259,13 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                     }
                 if (clientRequirements.tts != BotClientRequirements.TtsType.None) {
                     val audio = dataService.getTtsAudio(
-                        ttsRequest,
-                        clientRequirements.tts != BotClientRequirements.TtsType.RequiredLinks,
-                        clientRequirements.tts == BotClientRequirements.TtsType.RequiredStreaming
+                            ttsRequest,
+                            clientRequirements.tts != BotClientRequirements.TtsType.RequiredLinks,
+                            clientRequirements.tts == BotClientRequirements.TtsType.RequiredStreaming
                     )
                     when (clientRequirements.tts) {
                         BotClientRequirements.TtsType.RequiredLinks ->
-                            item.audio = ServiceUrlResolver.getEndpointUrl("filestore", ServiceUrlResolver.RunMode.dist) + '/' + audio.path // caller must know port URL therefore URI is enough
+                            item.audio = ServiceUrlResolver.getEndpointUrl("filestore", ServiceUrlResolver.RunMode.dist) + '/' + audio.path
 
                         BotClientRequirements.TtsType.RequiredStreaming ->
                             sendBinaryData(audio.speak().data!!)
