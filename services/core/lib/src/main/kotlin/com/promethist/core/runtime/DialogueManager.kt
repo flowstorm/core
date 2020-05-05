@@ -19,9 +19,8 @@ class DialogueManager : Component {
         this@DialogueManager.logger.info("processing DM")
         if (session.dialogueStack.isEmpty()) {
             session.dialogueStack.push(
-                    Frame(session.application.dialogueName, context.application.properties, 0))
+                    Frame(application.dialogueName, session.sessionId, application.properties, 0))
         }
-
         proceed(context)
 
         return context
@@ -129,7 +128,7 @@ class DialogueManager : Component {
                     is Dialogue.SubDialogue -> {
                         val args = node.getConstructorArgs(context)
                         session.dialogueStack.push(frame.copy(nodeId = node.next.id))
-                        frame = Frame(node.name, args, 0)
+                        frame = Frame(node.name, session.sessionId, args, 0)
                     }
                     is Dialogue.TransitNode -> {
                         when (node) {

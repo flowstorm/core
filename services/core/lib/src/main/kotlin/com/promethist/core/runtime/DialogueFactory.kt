@@ -8,7 +8,7 @@ import com.promethist.util.LoggerDelegate
 class DialogueFactory(private val loader: Loader) {
 
     private val logger by LoggerDelegate()
-    private val dialogues: MutableMap<Pair<String, PropertyMap>, Dialogue> = mutableMapOf()
+    private val dialogues: MutableMap<Triple<String, String, PropertyMap>, Dialogue> = mutableMapOf()
 
     private fun create(name: String, args: PropertyMap): Dialogue {
         logger.info("creating new instance $name $args")
@@ -18,11 +18,11 @@ class DialogueFactory(private val loader: Loader) {
         return dialogue
     }
 
-    fun get(name: String, args: PropertyMap): Dialogue {
+    fun get(name: String, buildId:String, args: PropertyMap): Dialogue {
         logger.info("loading instance $name $args")
-        val pair = Pair(name, args)
-        return dialogues.getOrPut(pair) {create(pair.first, pair.second)}
+        val triple = Triple(name, buildId,  args)
+        return dialogues.getOrPut(triple) {create(triple.first, triple.third)}
     }
 
-    fun get(frame: DialogueStackFrame): Dialogue = get(frame.name, frame.args)
+    fun get(frame: DialogueStackFrame): Dialogue = get(frame.name, frame.buildId,  frame.args)
 }

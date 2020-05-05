@@ -26,6 +26,7 @@ data class Session(
 
     data class DialogueStackFrame(
             val name: String,
+            val buildId: String,
             val args: PropertyMap,
             val nodeId: Int = 0
     )
