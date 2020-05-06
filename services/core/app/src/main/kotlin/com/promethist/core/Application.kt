@@ -32,7 +32,6 @@ class Application : JerseyApplication() {
 
                 // filestore
                 val filestoreUrl = ServiceUrlResolver.getEndpointUrl("filestore")
-                println("filestore url = $filestoreUrl")
                 val filestore = RestClient.instance(FileResource::class.java, filestoreUrl)
                 bind(filestore).to(FileResource::class.java)
 
@@ -44,7 +43,6 @@ class Application : JerseyApplication() {
 
                 // IR component
                 val illusionistUrl = ServiceUrlResolver.getEndpointUrl("illusionist")
-                println("illusionist url = $illusionistUrl")
                 val illusionist = Illusionist()
                 illusionist.webTarget = RestClient.webTarget(illusionistUrl)
                         .path("/query")
@@ -60,7 +58,6 @@ class Application : JerseyApplication() {
 
                 // NER component (second)
                 val cassandraUrl = ServiceUrlResolver.getEndpointUrl("cassandra")
-                println("cassandra url = $cassandraUrl")
                 val cassandra = Cassandra()
                 cassandra.webTarget = RestClient.webTarget(cassandraUrl)
                         .path("/query")
@@ -99,7 +96,6 @@ class Application : JerseyApplication() {
                 bind(QueryInjectionResolver::class.java)
                         .to(object: TypeLiteral<InjectionResolver<QueryParams>>() {})
                         .`in`(Singleton::class.java)
-
             }
         })
     }
