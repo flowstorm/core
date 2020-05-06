@@ -72,7 +72,7 @@ object DataConverter {
         input.copyTo(output)
     }
 
-    fun valueFromString(name: String, type: String, str: String) = when (type) {
+    fun valueFromString(name: String, type: String, str: String): Any = when (type) {
         Int::class.simpleName -> str.toInt()
         Long::class.simpleName -> str.toLong()
         Float::class.simpleName -> str.toFloat()

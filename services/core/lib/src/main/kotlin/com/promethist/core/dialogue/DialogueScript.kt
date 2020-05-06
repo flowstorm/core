@@ -109,7 +109,7 @@ open class DialogueScript {
 
     fun lemma(word: String) = word
 
-    fun plural(subject: String, cond: (() -> Boolean)? = null) = with (Dialogue.threadContext()) {
+    fun plural(subject: String, cond: (() -> Boolean)? = null): Any = with (Dialogue.threadContext()) {
         if (cond == null || cond())
             when (dialogue.language) {
                 "en" -> if (subject.endsWith("s")) subject else subject + "s"
