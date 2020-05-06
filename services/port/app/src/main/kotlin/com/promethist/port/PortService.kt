@@ -27,7 +27,7 @@ class PortService {
     @Inject
     lateinit var config: AppConfig
 
-    inner class ResourceFile(val objectId: ObjectId?, val type: String, val name: String?) {
+    inner class ResourceFile(val objectId: ObjectId, val type: String, val name: String?) {
 
         val bucket = GridFSBuckets.create(database)
 
@@ -128,9 +128,6 @@ class PortService {
 
     fun pushMessage(appKey: String, message: Message): Boolean {
         logger.info("pushMessage(appKey = $appKey, message = $message)")
-
-        if (message._id == null)
-            message._id = ObjectId.get().toHexString()
 
         val col = database.getCollection("message-queue", Message::class.java)
         col.insertOne(message)

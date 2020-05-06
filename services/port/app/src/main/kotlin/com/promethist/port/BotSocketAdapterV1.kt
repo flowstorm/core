@@ -199,7 +199,7 @@ class BotSocketAdapterV1 : BotSocket, WebSocketAdapter() {
         } else {
             sessionId = message.sessionId
         }
-        val request = Request(event.appKey!!, message.sender, sessionId?:error("Session ID not set"), input)
+        val request = Request(event.appKey, message.sender, sessionId?:error("Session ID not set"), input)
         coreResource.process(request).let {
             val response = message.response(it.items)
             response.sessionEnded = it.sessionEnded
