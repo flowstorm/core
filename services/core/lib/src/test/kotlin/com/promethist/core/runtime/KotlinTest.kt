@@ -36,6 +36,6 @@ internal class KotlinTest {
 
     class TestClass1(val a: Int, val b: Int = 2)
     class TestClass2 {
-        constructor(a: Int)
+        constructor(@Suppress("UNUSED_PARAMETER") a: Int)
     }
 }

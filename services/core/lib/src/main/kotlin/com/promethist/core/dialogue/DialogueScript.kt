@@ -89,9 +89,9 @@ open class DialogueScript {
         }
     }
 
-    fun describeMore(value: Any?) = describe(1)
+    fun describeMore(value: Any?) = describe(value, 1)
 
-    fun describeDetailed(value: Any?) = describe(2)
+    fun describeDetailed(value: Any?) = describe(value, 2)
 
     fun enumerate(map: Map<String, Number>): String = enumerate(mutableListOf<String>().apply {
         map.forEach {

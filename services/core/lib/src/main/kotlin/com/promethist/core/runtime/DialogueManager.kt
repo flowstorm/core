@@ -156,7 +156,7 @@ class DialogueManager : Component {
 
     private fun logNodes(nodes: List<Dialogue.Node>, logger:Logger) {
         if (nodes.isEmpty()) return
-        var dialogueNodes = listOf<Dialogue.Node>()
+        var dialogueNodes: List<Dialogue.Node>
         var rest = nodes
         do {
             dialogueNodes = rest.takeWhile { it.dialogue.name == rest.first().dialogue.name }
