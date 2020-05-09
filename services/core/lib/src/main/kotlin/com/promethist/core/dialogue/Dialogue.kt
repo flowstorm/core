@@ -7,8 +7,6 @@ import com.promethist.core.runtime.Loader
 import com.promethist.core.type.Location
 import com.promethist.core.type.NamedEntity
 import com.promethist.core.type.PropertyMap
-import jdk.nashorn.internal.runtime.Property
-import org.slf4j.Logger
 import java.io.File
 import java.io.FileInputStream
 import java.net.URL
