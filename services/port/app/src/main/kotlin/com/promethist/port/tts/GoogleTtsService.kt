@@ -19,7 +19,7 @@ object GoogleTtsService: TtsService {
         val config = TtsConfig.forVoice(ttsRequest.voice)
         val voice = VoiceSelectionParams.newBuilder()
                 .setName(config.name)
-                .setLanguageCode(config.language)
+                .setLanguageCode(config.locale.toLanguageTag())
                 //.setSsmlGender(SsmlVoiceGender.MALE)
                 .build()
 

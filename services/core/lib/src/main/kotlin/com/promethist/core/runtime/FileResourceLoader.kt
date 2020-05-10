@@ -6,6 +6,7 @@ import com.promethist.core.provider.LocalFileStorage
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
+import javax.ws.rs.WebApplicationException
 
 class FileResourceLoader(
         private val fileResource: FileResource,
@@ -22,7 +23,10 @@ class FileResourceLoader(
             fileResource.readFile(path, buf)
             ByteArrayInputStream(buf.toByteArray())
         } else {
-            val buf = fileResource.readFile(path).readEntity(ByteArray::class.java)
+            val res = fileResource.readFile(path)
+            if (res.status >= 400)
+                throw WebApplicationException(res.status)
+            val buf = res.readEntity(ByteArray::class.java)
             ByteArrayInputStream(buf)
         }
     }

@@ -51,7 +51,7 @@ object MicrosoftTtsService: TtsService {
                 if (!speak.hasAttribute("xmlns"))
                     speak.setAttribute("xmlns", "https://www.w3.org/2001/10/synthesis")
                 if (!speak.hasAttribute("xml:lang"))
-                    speak.setAttribute("xml:lang", ttsConfig.language)
+                    speak.setAttribute("xml:lang", ttsConfig.locale.toLanguageTag())
                 if (speak.getElementsByTagName("voice").length == 0) {
                     val voice = ssml.createElement("voice")
                     voice.setAttribute("name", ttsConfig.name)
