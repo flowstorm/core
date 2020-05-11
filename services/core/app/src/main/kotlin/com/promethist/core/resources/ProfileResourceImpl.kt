@@ -29,10 +29,6 @@ class ProfileResourceImpl : ProfileResource {
         return profiles.findOneById(profileId) ?: throw NotFoundException("Profile $profileId not found.")
     }
 
-    override fun getByUserId(userId: Id<User>): Profile {
-        return profiles.findOne(Filters.eq("user_id", userId)) ?: throw NotFoundException("Profile not found.")
-    }
-
     override fun create(profile: Profile) {
         profiles.insertOne(profile)
     }

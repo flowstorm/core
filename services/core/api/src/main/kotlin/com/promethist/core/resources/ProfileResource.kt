@@ -22,12 +22,6 @@ interface ProfileResource {
             @ApiParam(required = true) @PathParam("profileId") profileId: Id<Profile>
     ): Profile
 
-    @GET
-    @Path("/user/{userId}")
-    fun getByUserId(
-            @ApiParam(required = true) @PathParam("userId") userId: Id<User>
-    ): Profile
-
     @POST
     fun create(
             @ApiParam(required = true) profile: Profile
