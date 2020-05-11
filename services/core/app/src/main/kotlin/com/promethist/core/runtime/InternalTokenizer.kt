@@ -9,7 +9,7 @@ import com.promethist.util.LoggerDelegate
 class InternalTokenizer : Component {
 
     companion object {
-        const val DEFAULT_MAX_WORDS = 8
+        const val DEFAULT_MAX_WORDS = 12
 
     }
     private val logger by LoggerDelegate()
