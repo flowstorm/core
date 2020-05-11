@@ -121,7 +121,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
             if (isDetectingAudio(payload, offset, length))
                 inputAudioTime = System.currentTimeMillis()
             if (inputAudioTime + 10000 < System.currentTimeMillis()) {
-                val text = "\$noaudio"
+                val text = "#noaudio"
                 inputAudioClose(true)
                 sendEvent(BotEvent.Recognized(text))
                 onRequest(createRequest(Input(clientRequirements.locale, clientRequirements.zoneId, Input.Transcript(text))))
@@ -236,7 +236,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                 val ttsRequest =
                     TtsRequest(
                         voice,
-                        ((if (item.ssml != null) item.ssml else item.text) ?: "").replace(Regex("\\$(\\w+)")) {
+                        ((if (item.ssml != null) item.ssml else item.text) ?: "").replace(Regex("#(\\w+)")) {
                             // command processing
                             when (it.groupValues[1]) {
                                 "version" -> {

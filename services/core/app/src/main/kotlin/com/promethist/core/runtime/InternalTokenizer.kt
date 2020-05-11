@@ -25,7 +25,7 @@ class InternalTokenizer : Component {
                 logger.info("processing tokenization - nothing to do")
             }
             if (words.size > DEFAULT_MAX_WORDS)
-                transcript = Input.Transcript("#toomuchwords")
+                transcript = Input.Transcript("#toomanywords")
         }
         return context.pipeline.process(context)
     }
