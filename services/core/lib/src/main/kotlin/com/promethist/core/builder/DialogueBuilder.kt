@@ -45,8 +45,10 @@ class DialogueBuilder(
         val source = SourceCodeBuilder(name, buildId)
         val classFiles = mutableListOf<File>()
         val resources: MutableList<Resource> = mutableListOf()
-        val basePath = "dialogue/${name}/"
-        val manifest get() = """
+        val basePath = "dialogue/$name/"
+        val buildPath = "dialogue/$name/builds/$buildId/"
+        val manifest
+            get() = """
             Manifest-Version: 1.0
             Package: model.$buildId
             Created-By: promethist
@@ -62,9 +64,28 @@ class DialogueBuilder(
 
         fun addResource(resource: Resource) = resources.add(resource)
 
-        fun build(): Dialogue {
+        /**
+         * Builds and stores dialogue model with intent model and included files using file resource.
+         */
+        fun build() {
             logger.info("start building dialogue model $name")
             source.build()
+            saveSourceCode(buildPath)
+            val dialogue = createInstance()
+            saveResources(buildPath)
+            saveJavaArchive(buildPath)
+            buildIntentModels(dialogue)
+            logger.info("finished building dialogue model $name")
+        }
+
+        fun deploy() {
+            saveSourceCode(basePath)
+            saveResources(basePath)
+            saveJavaArchive(basePath)
+        }
+
+        private fun createInstance(): Dialogue {
+            logger.info("start building dialogue model $name")
             val dialogue = if (sourceOnly) {
                 //todo remove args?
                 Kotlin.newObjectWithArgs(Kotlin.loadClass(StringReader(source.scriptCode)), source.parameters)
@@ -85,27 +106,11 @@ class DialogueBuilder(
                 logger.info("dialogue model classes loaded in ${time2 - time1} ms, instantiated in ${System.currentTimeMillis() - time2} ms")
                 dialogue
             }
-            validate(dialogue)
+            dialogue.validate()
             return dialogue
         }
-        /**
-         * Builds and stores dialogue model with intent model and included files using file resource.
-         */
-        fun buildAndSave() {
-            val dialogue = build()
-            logger.info("start saving dialogue model $name")
-            saveSourceCode()
-            saveResources()
-            saveJavaArchive()
-            buildIntentModels(dialogue)
-            logger.info("finished saving dialogue model $name")
-        }
 
-        fun validate(dialogue: Dialogue) {
-            dialogue.validate()
-        }
-
-        fun compileByteCode() {
+        private fun compileByteCode() {
             val classLoader = javaClass.classLoader
             val classPath = if (classLoader is URLClassLoader) {
                 classLoader.urLs.map { it.toString() }.joinToString(":")
@@ -143,8 +148,8 @@ class DialogueBuilder(
             }
         }
 
-        fun saveSourceCode() {
-            val path = basePath + "model.kts"
+        private fun saveSourceCode(dir: String) {
+            val path = dir + "model.kts"
             logger.info("saving dialogue model file $name to resource $path")
             ByteArrayInputStream(source.scriptCode.toByteArray()).let {
                 fileResource.writeFile(path, "text/kotlin",
@@ -152,7 +157,7 @@ class DialogueBuilder(
             }
         }
 
-        fun saveJavaArchive(jar: OutputStream? = null) {
+        private fun saveJavaArchive(dir: String, jar: OutputStream? = null) {
             val buf = ByteArrayOutputStream()
             val zip = ZipOutputStream(buf)
             classFiles.forEach { classFile ->
@@ -165,7 +170,7 @@ class DialogueBuilder(
             manifest.byteInputStream().copyTo(zip)
             zip.closeEntry()
             zip.close()
-            val path = basePath + "model.jar"
+            val path = dir + "model.jar"
             logger.info("saving dialogue model file $name to resource $path")
             ByteArrayInputStream(buf.toByteArray()).let {
                 jar?.use { out -> it.copyTo(out) } ?:
@@ -174,15 +179,16 @@ class DialogueBuilder(
             }
         }
 
-        fun saveResources() {
+        private fun saveResources(dir: String) {
             resources.forEach {
-                val path = "${basePath}resources/${it.filename}"
+                it.stream.reset()
+                val path = "${dir}resources/${it.filename}"
                 logger.info("saving resource file ${it.filename}")
                 fileResource.writeFile(path, "text/json", listOf(), it.stream)
             }
         }
 
-        fun buildIntentModels(dialogue: Dialogue) {
+        private fun buildIntentModels(dialogue: Dialogue) {
             logger.info("building intent models for dialogue model $name")
             val irModels = mutableListOf<IrModel>()
             val language = Locale(dialogue.language)
