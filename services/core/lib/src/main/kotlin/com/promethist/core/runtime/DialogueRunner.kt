@@ -34,21 +34,22 @@ class DialogueRunner(
 
             // select requested models
             val requestedModels = models.filter { it.key.id in context.irModels.map { it.id } }
-            //merge models
-            val mergedModels = requestedModels.map { it.value }.reduce { acc, map -> acc + map }
-            //find matching intent ids
-            val intentIds = mergedModels.filter { it.value.filter { it.contains(text, true) }.isNotEmpty() }.keys
 
-            val intentId = when (intentIds.size) {
+            val matches = mutableListOf<Pair<String, Int>>()
+            for (model in requestedModels) {
+                matches.addAll(model.value.filter { it.value.filter { it.contains(text, true) }.isNotEmpty() }.keys.map { model.key.id to it })
+            }
+
+            val match = when (matches.size) {
                 0 -> error("no intent model ${context.irModels.map { it.name }} matching text \"$text\"")
-                1 -> intentIds.first()
+                1 -> matches.first()
                 else -> {
-                    context.logger.warn("multiple intents $intentIds matched text \"$text\"")
-                    intentIds.first()
+                    context.logger.warn("multiple intents $matches matched text \"$text\"")
+                    matches.first()
                 }
             }
 
-            context.turn.input.classes.add(Input.Class(Input.Class.Type.Intent, intentId.toString()))
+            context.turn.input.classes.add(Input.Class(Input.Class.Type.Intent, match.first + "#" + match.second.toString()))
 
             return context
         }
