@@ -9,7 +9,7 @@ import java.net.URL
 import java.nio.charset.StandardCharsets
 import java.time.LocalDateTime
 
-class DialogueSourceCodeBuilder(val name: String, val buildId: String) {
+class SourceCodeBuilder(val name: String, val buildId: String) {
 
     // builder configuration:
     var parameters: PropertyMap = mapOf()

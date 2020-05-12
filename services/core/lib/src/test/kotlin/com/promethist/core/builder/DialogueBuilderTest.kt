@@ -1,15 +1,11 @@
 package com.promethist.core.builder
 
-import com.promethist.core.builder.DialogueSourceCodeBuilder.*
+import com.promethist.core.builder.SourceCodeBuilder.*
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
 
 import org.junit.jupiter.api.TestInstance
-import java.io.ByteArrayInputStream
-import java.io.FileOutputStream
 import java.io.InputStream
-import java.util.*
-import kotlin.reflect.KClass
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class DialogueBuilderTest {

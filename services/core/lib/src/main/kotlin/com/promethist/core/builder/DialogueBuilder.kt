@@ -42,7 +42,7 @@ class DialogueBuilder(
     inner class Builder(val name: String) {
 
         val buildId = "id" + md5(random.nextLong().toString())
-        val source = DialogueSourceCodeBuilder(name, buildId)
+        val source = SourceCodeBuilder(name, buildId)
         val classFiles = mutableListOf<File>()
         val resources: MutableList<Resource> = mutableListOf()
         val basePath = "dialogue/${name}/"
