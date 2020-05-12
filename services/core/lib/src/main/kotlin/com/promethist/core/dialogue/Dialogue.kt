@@ -17,6 +17,8 @@ import kotlin.reflect.full.isSubtypeOf
 
 abstract class Dialogue {
 
+    val clientNamespace = "client"
+
     //dialogue config - must/may be overrided
     abstract val name: String
     open val buildId: String = "unknown" // used for generated classes, others are unknown
@@ -257,7 +259,7 @@ abstract class Dialogue {
 
     class ThreadContext(val dialogue: Dialogue, val context: Context)
 
-    companion object : DialogueScript() {
+    companion object {
 
         private val threadContext = ThreadLocal<ThreadContext>()
 
@@ -271,4 +273,5 @@ abstract class Dialogue {
                     threadContext.remove()
                 }
     }
+
 }

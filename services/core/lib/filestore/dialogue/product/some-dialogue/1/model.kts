@@ -9,7 +9,7 @@ data class Model1(
         val math_max: Int = 10,
         val do_math: Boolean = true
 
-) : Dialogue() {
+) : BasicDialogue() {
     override val name: String = "product/some-dialogue/1/model"
 
     //val movies by loader<List<Movie>>("file:///Users/tomas.zajicek/Projects/promethist-main/local/movies.json")

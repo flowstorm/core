@@ -1,6 +1,6 @@
 package com.promethist.core.dialogue
 
-abstract class BasicEnglishDialogue() : Dialogue() {
+abstract class BasicEnglishDialogue() : BasicDialogue() {
 
     var basicId = 1
     val basicVersionGlobalIntent = GlobalIntent(basicId++, "basicVolumeUpGlobalIntent", "version")

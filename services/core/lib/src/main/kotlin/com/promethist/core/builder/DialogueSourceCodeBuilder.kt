@@ -16,7 +16,7 @@ class DialogueSourceCodeBuilder(val name: String, val buildId: String) {
     var config: PropertyMap = mapOf()
     var initCode: CharSequence = ""
     var extensionCode: CharSequence = ""
-    var parentClass: String = "Dialogue"
+    var parentClass: String = "BasicDialogue"
     val className: String
     var code: String = ""
         get() {

@@ -1,7 +1,7 @@
 package com.promethist.core.runtime
 
 import com.promethist.core.Input
-import com.promethist.core.dialogue.Dialogue.Companion.similarityTo
+import com.promethist.core.dialogue.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 
