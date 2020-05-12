@@ -63,7 +63,7 @@ class CoreResourceImpl : CoreResource {
                 "helena" -> getHelenaResponse(appKey, sender, session, input)
                 "core" -> {
                     val pipeline = pipelineFactory.createPipeline()
-                    val context = contextFactory.createContext(pipeline, session, input)
+                    val context = contextFactory.createContext(pipeline, session, request)
                     with (processPipeline(context)) {
                         // client attributes
                         listOf("speakingRate", "speakingPitch", "speakingVolumeGain").forEach {

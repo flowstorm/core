@@ -245,7 +245,7 @@ class BotSocketAdapterV1 : BotSocket, WebSocketAdapter() {
                                     // command processing
                                     when (it.groupValues[1]) {
                                         "version" -> {
-                                            item.text = "Client version ${clientRequirements.clientVersion}, port version ${AppConfig.version}, environment ${AppConfig.instance.get("namespace", "unknown")}."
+                                            item.text = "Server version ${AppConfig.version}, environment ${AppConfig.instance.get("namespace", "unknown")}."
                                             item.text!!
                                         }
                                         else -> ""

@@ -12,9 +12,9 @@ class Dynamic : LinkedHashMap<String, Any>, MutablePropertyMap {
     constructor() : super()
     constructor(dynamic: Dynamic) : super(dynamic)
     constructor(map: PropertyMap) { putAll(map) }
+    constructor(vararg pairs: Pair<String, Any>) { putAll(pairs) }
 
     companion object {
-
         val EMPTY = Dynamic()
         val ZERO_TIME = ZonedDateTime.of(0, 1, 1, 0, 0, 0, 0, Defaults.zoneId)
 
