@@ -121,7 +121,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
             if (isDetectingAudio(payload, offset, length))
                 inputAudioTime = System.currentTimeMillis()
             if (inputAudioTime + 10000 < System.currentTimeMillis()) {
-                val text = "#noaudio"
+                val text = "#silence"
                 inputAudioClose(true)
                 sendEvent(BotEvent.Recognized(text))
                 onRequest(createRequest(Input(clientRequirements.locale, clientRequirements.zoneId, Input.Transcript(text))))
