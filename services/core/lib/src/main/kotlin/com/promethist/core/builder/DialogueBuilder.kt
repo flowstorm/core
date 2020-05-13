@@ -68,20 +68,39 @@ class DialogueBuilder(
          * Builds and stores dialogue model with intent model and included files using file resource.
          */
         fun build() {
-            logger.info("start building dialogue model $name")
-            source.build()
-            saveSourceCode(buildPath)
-            val dialogue = createInstance()
-            saveResources(buildPath)
-            saveJavaArchive(buildPath)
-            buildIntentModels(dialogue)
-            logger.info("finished building dialogue model $name")
+            try {
+                logger.info("start building dialogue model $name")
+                source.build()
+                saveSourceCode(buildPath)
+                val dialogue = createInstance()
+                saveResources(buildPath)
+                saveJavaArchive(buildPath)
+                buildIntentModels(dialogue)
+                logger.info("finished building dialogue model $name")
+            } finally {
+                saveBuildLog(buildPath)
+            }
         }
 
         fun deploy() {
             saveSourceCode(basePath)
             saveResources(basePath)
             saveJavaArchive(basePath)
+        }
+
+        private fun saveBuildLog(dir: String) {
+            val threadName = Thread.currentThread().name
+            val logs = BuildLogAppender.getEvents(threadName)
+            BuildLogAppender.clearEvents(threadName)
+            val log = StringBuilder()
+
+            logs.forEach {
+                log.appendln(it)
+            }
+
+            val path = dir + "build.log"
+            fileResource.writeFile(path, "text/plain",
+                    listOf("version:$version", "buildId:$buildId"), log.toString().byteInputStream())
         }
 
         private fun createInstance(): Dialogue {
@@ -120,7 +139,6 @@ class DialogueBuilder(
             val sourceFile = File(workDir, "${source.buildId}.kt")
             sourceFile.writeText(source.code)
             logger.info("compiling source file ${sourceFile.absolutePath} to $workDir")
-            logger.info("classPath = $classPath")
             ProcessBuilder(
                     "/usr/local/bin/kotlinc",
                     "-cp", classPath,
@@ -140,6 +158,7 @@ class DialogueBuilder(
                 }
                 if (proc.waitFor() != 0)
                     error(buf)
+                logger.debug("Kotlin compiler output:\n$buf")
                 File(workDir, "model/$buildId").apply {
                     list { _, name -> name.endsWith(".class") }.forEach {
                         classFiles.add(File(this, it))
