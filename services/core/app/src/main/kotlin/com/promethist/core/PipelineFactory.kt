@@ -1,5 +1,6 @@
 package com.promethist.core
 
+import com.promethist.core.Pipeline.PipelineComponentFailed
 import com.promethist.util.LoggerDelegate
 import org.glassfish.hk2.api.IterableProvider
 import java.util.*
@@ -20,13 +21,13 @@ class PipelineFactory {
                 try {
                     processedContext = component.process(processedContext)
                 } catch (e: Throwable) {
-                    throw Exception("NLP component failed: ${component::class.simpleName}: ${e.message}", e)
+                    if (e is PipelineComponentFailed) throw e
+                    throw PipelineComponentFailed(component, e)
                 }
             }
             return processedContext
         }
     }
-
     @Inject
     lateinit var bindedComponents: IterableProvider<Component>
 

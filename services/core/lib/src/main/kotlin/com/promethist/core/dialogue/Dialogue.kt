@@ -71,7 +71,7 @@ abstract class Dialogue {
                 this(nextId--, false, intents, lambda)
 
         fun process(context: Context): Transition? =
-                threadContext(context, this@Dialogue) { lambda(context, this) } as Transition?
+                threadContext(context, this) { lambda(context, this) } as Transition?
     }
 
     open inner class Intent(
@@ -111,7 +111,7 @@ abstract class Dialogue {
 
         constructor(vararg text: (Context.(Response) -> String)) : this(nextId--, true, *text)
 
-        fun getText(context: Context, index: Int = -1) = threadContext(context, this@Dialogue) {
+        fun getText(context: Context, index: Int = -1) = threadContext(context,  this) {
             texts[if (index < 0) Random.nextInt(texts.size) else index](context, this)
         } as String
     }
@@ -125,7 +125,7 @@ abstract class Dialogue {
     ): Node(id) {
         constructor(lambda: (Context.(Function) -> Transition)) : this(nextId--, lambda)
         fun exec(context: Context): Transition =
-                threadContext(context, this@Dialogue) { lambda(context, this) } as Transition
+                threadContext(context, this) { lambda(context, this) } as Transition
     }
 
     inner class SubDialogue(
@@ -134,7 +134,7 @@ abstract class Dialogue {
             val lambda: Context.(SubDialogue) -> PropertyMap): TransitNode(id) {
 
         fun getConstructorArgs(context: Context): PropertyMap =
-                threadContext(context, this@Dialogue) { lambda(context, this) } as PropertyMap
+                threadContext(context, this) { lambda(context, this) } as PropertyMap
 
         fun create(vararg args: Pair<String, Any>): PropertyMap = args.toMap()
     }
@@ -259,19 +259,22 @@ abstract class Dialogue {
 
     class ThreadContext(val dialogue: Dialogue, val context: Context)
 
+    class DialogueScriptException(node: Node, cause: Throwable) : Throwable("DialogueScript failed at ${node.dialogue.name}#${node.id}", cause)
+
     companion object {
 
         private val threadContext = ThreadLocal<ThreadContext>()
 
         fun threadContext() = threadContext.get() ?: error("out of thread context")
 
-        fun threadContext(context: Context, dialogue: Dialogue, block: () -> Any?): Any? =
+        fun threadContext(context: Context, node: Node, block: () -> Any?): Any? =
                 try {
-                    threadContext.set(ThreadContext(dialogue, context))
+                    threadContext.set(ThreadContext(node.dialogue, context))
                     block()
+                } catch (e: Throwable) {
+                    throw DialogueScriptException(node, e)
                 } finally {
                     threadContext.remove()
                 }
     }
-
 }

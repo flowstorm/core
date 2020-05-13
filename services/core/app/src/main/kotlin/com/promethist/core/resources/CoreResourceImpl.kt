@@ -79,7 +79,7 @@ class CoreResourceImpl : CoreResource {
                 }
                 else -> error("Unknown dialogue engine (${session.application.dialogueEngine})")
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             processException(request, e)
         }
 
@@ -87,7 +87,7 @@ class CoreResourceImpl : CoreResource {
             session.addMessage(Session.Message(Date(), sender, null, response.items))
             sessionResource.update(session)
             response
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             return processException(request, e)
         }
     }
@@ -169,7 +169,7 @@ class CoreResourceImpl : CoreResource {
         message.attributes["username"] = user.nickname
     }
 
-    private fun processException(request: Request, e: Exception): Response {
+    private fun processException(request: Request, e: Throwable): Response {
         val type = e::class.simpleName!!
         var code = 1
         val text: String?
@@ -185,9 +185,15 @@ class CoreResourceImpl : CoreResource {
             else ->
                 text = (e.cause?:e).message
         }
-        val logText = "class = ${e.javaClass}, type = $type, code = $code, text = $text"
-        logger.warn("getErrorMessageResponse($logText)")
-        dialogueLog.logger.error(logText)
+        val messages = mutableListOf<String>()
+
+        var c: Throwable? = e
+        while (c != null) {
+            messages.add(c::class.simpleName + ":" + c.message?:"")
+            c = c.cause
+        }
+
+        dialogueLog.logger.error(messages.joinToString("\nCAUSED BY: "))
 
         return Response(mutableListOf<Response.Item>().apply {
             if (text?.startsWith("admin:DeviceNotFoundException") == true) {
