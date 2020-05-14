@@ -197,8 +197,10 @@ class SourceCodeBuilder(val name: String, val buildId: String) {
 
     private fun write(response: Response) = with(response) {
         source.append("\tval $nodeName = Response($nodeId, $repeatable")
-        texts.forEach {
-            source.append(", { \"\"\"").append(it).append("\"\"\" }")
+        texts.forEach { text ->
+            source.append(", { \"\"\"").append(text.replace(Regex("\\$\\{(.+)\\}")) {
+                "\${enumerate(${it.groupValues[1]})}"
+            }).append("\"\"\" }")
         }
         source.appendln(')')
     }

@@ -29,16 +29,16 @@ internal class DialogueScriptTest {
         //input.tokens.add(Input.Word("runner"))
 
         println(
-        movies.filter { it.name similarityTo input >= 0.5 }
-            .maxBy { it.name similarityTo input }
-                .let { movie ->
-                    if (movie != null) {
-                        val favoriteMovie = movie.name
-                        println("So you like $favoriteMovie. Did you know that the movie was shot by director ${movie.director}?")
-                    } else {
-                        println("Unfortunately I don't know such movie.")
-                    }
-                }
+                movies.filter { it.name similarityTo input >= 0.5 }
+                        .maxBy { it.name similarityTo input }
+                        .let { movie ->
+                            if (movie != null) {
+                                val favoriteMovie = movie.name
+                                println("So you like $favoriteMovie. Did you know that the movie was shot by director ${movie.director}?")
+                            } else {
+                                println("Unfortunately I don't know such movie.")
+                            }
+                        }
         )
 
         println(movies.maxBy { it.name similarityTo input }) // movie with highest similarity of name
@@ -46,5 +46,30 @@ internal class DialogueScriptTest {
 
         println(movies.map { it.name similarityTo input })
         println(movies.find { it.name similarityTo input >= 0.5 })
+    }
+
+    @Test
+    fun `test other`() {
+        object : BasicDialogue() {
+            override val dialogueName = "test"
+
+            init {
+                //println(+"x")
+                println(movies.list { name })
+
+                println(enumerate(1 of "point+ for math", 2 of "another point+ for history", 3 of "other point"))
+                println(enumerate("point+ for math" to 3))
+                println(enumerate("a", "b", "c", conj = "or", subj = "movie"))
+                println(enumerate(movies.list { name }, {
+                    when (it) {
+                        0 -> "movie is none"
+                        1 -> "movie is"
+                        else -> "movies are"
+                    }
+                }, before = true))
+                println("i like ${movies.list { name }}")
+                println("i like ${movies.list { name } of "movie"}")
+            }
+        }
     }
 }

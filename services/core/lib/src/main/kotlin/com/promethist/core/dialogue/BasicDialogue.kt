@@ -1,6 +1,7 @@
 package com.promethist.core.dialogue
 
 import com.promethist.core.Input
+import com.promethist.core.language.English
 import com.promethist.core.type.DateTime
 import com.promethist.core.type.Dynamic
 import com.promethist.core.type.Location
@@ -63,31 +64,72 @@ abstract class BasicDialogue : Dialogue() {
         throw error("${stackTraceElement.className}.${stackTraceElement.methodName} does not support language ${language} of dialogue ${dialogueName}")
     }
 
-    fun enumerate(col: Collection<String>, subject: String = "", article: Article = Article.None): String {
-        val list = if (col is List<String>) col else col.toList()
-        when {
-            list.isEmpty() ->
-                return empty(subject)
-            list.size == 1 ->
-                return article(list.first(), article) + (if (subject.isNotEmpty()) " $subject" else "")
-            else -> {
-                val and = mapOf("en" to "and", "de" to "und", "cs" to "a")[language] ?: unsupportedLanguage()
-                val str = StringBuilder()
-                for (i in list.indices) {
-                    if (i > 0)
-                        str.append(if (i == list.size - 1) ", $and " else ", ")
-                    str.append(article(list[i], article))
+    // subjive
+
+    fun empty(subj: String) =
+            when (language) {
+                "en" -> "no"
+                "de" -> "kein" //TODO male vs. female
+                else -> unsupportedLanguage()
+            } + " $subj"
+
+    fun lemma(word: String) = word
+
+    fun plural(word: String) =
+            when (language) {
+                "en" -> English.irregularPlurals.getOrElse(word) {
+                    when {
+                        word.endsWith("y") ->
+                            word.substring(0, word.length - 1) + "ies"
+                        word.endsWith(listOf("s", "sh", "ch", "x", "z", "o")) ->
+                            word + "es"
+                        else ->
+                            word + "s"
+                    }
                 }
-                if (subject.isNotEmpty())
-                    str.append(' ').append(plural(subject))
-                return str.toString()
+                else -> unsupportedLanguage()
             }
-        }
-    }
 
-    fun enumerateWithArticle(col: Collection<String>, subject: String = "") = enumerate(col, subject, Article.Indefinite)
+    fun article(subj: String, article: Article = Article.Indefinite) =
+            when (language) {
+                "en" -> when (article) {
+                    Article.Indefinite -> (if (subj.startsWithVowel()) "an " else "a ") + subj
+                    Article.Definite -> "the $subj"
+                    else -> subj
+                }
+                else -> subj
+            }
 
-    fun enumerateWithDefiniteArticle(col: Collection<String>, subject: String = "") = enumerate(col, subject, Article.Definite)
+    fun definiteArticle(subj: String) = article(subj, Article.Definite)
+
+    fun indent(value: Any?) = (value?.let { " " + describe(value) } ?: "")
+
+    fun greeting(name: String? = null) = (
+        if (now.hour >= 18 || now.hour < 3)
+            mapOf(
+                    "en" to "good evening",
+                    "de" to "guten abend",
+                    "cs" to "dobrý večer",
+                    "fr" to "bonsoir"
+            )[language] ?: unsupportedLanguage()
+        else if (now.hour < 12)
+            mapOf(
+                    "en" to "good morning",
+                    "de" to "guten morgen",
+                    "cs" to "dobré ráno",
+                    "fr" to "bonjour"
+            )[language] ?: unsupportedLanguage()
+        else
+            mapOf(
+                    "en" to "good afternoon",
+                    "de" to "guten tag",
+                    "cs" to "dobré odpoledne",
+                    "fr" to "bonne après-midi"
+            )[language] ?: unsupportedLanguage()
+        ) + indent(name)
+
+
+    // descriptive
 
     fun describe(map: Map<String, Any>): String {
         val list = mutableListOf<String>()
@@ -120,80 +162,74 @@ abstract class BasicDialogue : Dialogue() {
 
     fun describeDetailed(value: Any?) = describe(value, 2)
 
-    fun enumerate(map: Map<String, Number>): String = enumerate(mutableListOf<String>().apply {
-        map.forEach {
-            add(it.value of it.key)
+    // quantitative
+
+    infix fun Number.of(subj: String) =
+            when (this) {
+                0 -> empty(subj.replace("+", ""))
+                1 -> describe(this) + " " + subj.replace("+", "")
+                else -> describe(this) + " " + (if (subj.indexOf('+') < 0) "$subj+" else subj)
+                        .split(" ")
+                        .joinToString(" ") {
+                            if (it.endsWith("+")) plural(it.substring(0, it.length - 1)) else it
+                        }
+            }
+
+    infix fun Array<*>.of(subj: String) = size of subj
+
+    infix fun Map<*, *>.of(subj: String) = size of subj
+
+    // enumerative
+
+    infix fun Collection<String>.of(subj: String) = enumerate(this, subj)
+
+    fun enumerate(vararg value: Any?, subjBlock: (Int) -> String, before: Boolean = false, conj: String = "") =
+            enumerate(value.asList().map { describe(it) }, subjBlock, before, conj)
+
+    fun enumerate(vararg value: Any?, subj: String = "", before: Boolean = false, conj: String = "") =
+            enumerate(value.asList().map { describe(it) }, subj, before, conj)
+
+    fun enumerate(col: Collection<String>, subjBlock: (Int) -> String, before: Boolean = false, conj: String = ""): String {
+        val list = if (col is List<String>) col else col.toList()
+        val subj = subjBlock(list.size)
+        when {
+            list.isEmpty() ->
+                return empty(subj)
+            list.size == 1 ->
+                return (if (before && subj.isNotEmpty()) "$subj " else "") +
+                        list.first() +
+                        (if (!before && subj.isNotEmpty()) " $subj" else "")
+            else -> {
+                val op = if (conj == "")
+                    mapOf("en" to "and", "de" to "und", "cs" to "a")[language] ?: unsupportedLanguage()
+                else
+                    conj
+                val str = StringBuilder()
+                if (before && subj.isNotEmpty())
+                    str.append(subj).append(' ')
+                for (i in list.indices) {
+                    if (i > 0)
+                        str.append(if (i == list.size - 1) ", $op " else ", ")
+                    str.append(list[i])
+                }
+                if (!before && subj.isNotEmpty())
+                    str.append(' ').append(subj)
+                return str.toString()
+            }
         }
+    }
+
+    fun enumerate(subjBlock: (Int) -> String, col: Collection<String>, conj: String = "") =
+            enumerate(col, subjBlock, true, conj)
+
+    fun enumerate(col: Collection<String>, subj: String = "", before: Boolean = false, conj: String = "") =
+            enumerate(col, { if (subj.isNotEmpty() && it > 1) plural(subj) else subj }, before, conj)
+
+    fun enumerate(map: Map<String, Number>): String = enumerate(mutableListOf<String>().apply {
+        map.forEach { add(it.value of it.key) }
     })
 
-    fun empty(subject: String) =
-        when (language) {
-            "en" -> "no"
-            "de" -> "kein" //TODO male vs. female
-            else -> unsupportedLanguage()
-        } + " $subject"
-
-    fun lemma(word: String) = word
-
-    fun plural(subject: String, cond: (() -> Boolean)? = null) =
-        if (cond == null || cond())
-            when (language) {
-                "en" -> if (subject.endsWith("s")) subject else subject + "s"
-                else -> unsupportedLanguage()
-            }
-        else this
-
-    fun article(subject: String, article: Article = Article.None) =
-        when (language) {
-            "en" -> when (article) {
-                Article.Indefinite -> (if (subject.startsWithVowel()) "an " else "a ") + subject
-                Article.Definite -> "the $subject"
-                else -> subject
-            }
-            else -> subject
-        }
-
-    fun indent(value: Any?) = (value?.let { " " + describe(value) } ?: "")
-
-    fun greeting(name: String? = null) =
-        (
-                if (now.hour >= 18 || now.hour < 3)
-                    mapOf(
-                            "en" to "good evening",
-                            "de" to "guten abend",
-                            "cs" to "dobrý večer",
-                            "fr" to "bonsoir"
-                    )[language] ?: unsupportedLanguage()
-                else if (now.hour < 12)
-                    mapOf(
-                            "en" to "good morning",
-                            "de" to "guten morgen",
-                            "cs" to "dobré ráno",
-                            "fr" to "bonjour"
-                    )[language] ?: unsupportedLanguage()
-                else
-                    mapOf(
-                            "en" to "good afternoon",
-                            "de" to "guten tag",
-                            "cs" to "dobré odpoledne",
-                            "fr" to "bonne après-midi"
-                    )[language] ?: unsupportedLanguage()
-                ) + indent(name)
-
-    fun definiteArticle(subject: String) = article(subject, Article.Definite)
-
-    infix fun Number.of(subject: String) =
-            when (this) {
-                0 -> empty(subject)
-                1 -> "$this $subject"
-                else -> "$this " + plural(subject)
-            }
-
-    infix fun Array<*>.of(subject: String) = size of subject
-
-    infix fun Collection<*>.of(subject: String) = size of subject
-
-    infix fun Map<*, *>.of(subject: String) = size of subject
+    fun enumerate(vararg pairs: Pair<String, Number>) = enumerate(pairs.toMap())
 }
 
 fun String.startsWithVowel() = Regex("[aioy].*").matches(this)
