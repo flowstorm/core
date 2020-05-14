@@ -19,7 +19,7 @@ class DialogueFactory(private val loader: Loader) {
     }
 
     fun get(name: String, buildId:String, args: PropertyMap): Dialogue {
-        logger.info("loading instance $name $args")
+        logger.debug("getting instance $name $args")
         val triple = Triple(name, buildId,  args)
         return dialogues.getOrPut(triple) {create(triple.first, triple.third)}
     }

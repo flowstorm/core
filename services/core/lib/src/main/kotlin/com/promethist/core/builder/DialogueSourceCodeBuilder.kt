@@ -106,7 +106,7 @@ class DialogueSourceCodeBuilder(val name: String, val buildId: String) {
     }
 
     private fun writeInit() {
-        source.appendln("\toverride val name = \"$name\"")
+        source.appendln("\toverride val dialogueName = \"$name\"")
         source.appendln("\toverride val buildId = \"$buildId\"")
 
         config.forEach {

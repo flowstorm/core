@@ -57,11 +57,11 @@ class DialogueRunner(
         private fun initModels(dialogue: Dialogue) {
             val map = mutableMapOf<IrModel, Map<Int, List<String>>>()
 
-            map.put(com.promethist.core.builder.IrModel(dialogue.buildId, dialogue.name, null),
+            map.put(com.promethist.core.builder.IrModel(dialogue.buildId, dialogue.dialogueName, null),
                     dialogue.globalIntents.map { it.id to it.utterances.toList() }.toMap())
 
             dialogue.userInputs.forEach {
-                map.put(com.promethist.core.builder.IrModel(dialogue.buildId, dialogue.name, it.id),
+                map.put(com.promethist.core.builder.IrModel(dialogue.buildId, dialogue.dialogueName, it.id),
                         it.intents.map { it.id to it.utterances.toList() }.toMap())
             }
 

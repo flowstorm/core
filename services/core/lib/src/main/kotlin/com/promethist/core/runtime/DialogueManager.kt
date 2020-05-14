@@ -30,14 +30,14 @@ class DialogueManager : Component {
         val node = getNode(currentFrame)
         require(node is Dialogue.UserInput)
 
-        val models = mutableListOf(IrModel(node.dialogue.buildId, node.dialogue.name, node.id))
+        val models = mutableListOf(IrModel(node.dialogue.buildId, node.dialogue.dialogueName, node.id))
         if (!node.skipGlobalIntents) {
             //current global intents
-            models.add(IrModel(node.dialogue.buildId, node.dialogue.name))
+            models.add(IrModel(node.dialogue.buildId, node.dialogue.dialogueName))
             //parents global intents
             context.session.dialogueStack.distinctBy { it.name } .forEach {
                 val dialogue = dialogueFactory.get(it)
-                models.add(IrModel(dialogue.buildId, dialogue.name))
+                models.add(IrModel(dialogue.buildId, dialogue.dialogueName))
             }
         }
         return models
@@ -159,8 +159,8 @@ class DialogueManager : Component {
         var dialogueNodes: List<Dialogue.Node>
         var rest = nodes
         do {
-            dialogueNodes = rest.takeWhile { it.dialogue.name == rest.first().dialogue.name }
-            logger.info("passed nodes ${dialogueNodes.first().dialogue.name} >> " +
+            dialogueNodes = rest.takeWhile { it.dialogue.dialogueName == rest.first().dialogue.dialogueName }
+            logger.info("passed nodes ${dialogueNodes.first().dialogue.dialogueName} >> " +
                     dialogueNodes.map { it.toString() }.reduce { acc, s -> "$acc > $s" })
             rest = rest.drop(dialogueNodes.size)
         } while (rest.isNotEmpty())

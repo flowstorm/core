@@ -10,13 +10,13 @@ data class Model1(
         val do_math: Boolean = true
 
 ) : BasicDialogue() {
-    override val name: String = "product/some-dialogue/1/model"
+    override val dialogueName: String = "product/some-dialogue/1/model"
 
     //val movies by loader<List<Movie>>("file:///Users/tomas.zajicek/Projects/promethist-main/local/movies.json")
     val movies by loader<List<PropertyMap>>("https://raw.githubusercontent.com/vega/vega/master/docs/data/movies.json")
 
     // dialogue functions and local values (declared in editor dialogue init section)
-    val data by loader<Map<String, Number>>("$name/data")
+    val data by loader<Map<String, Number>>("$dialogueName/data")
 
     var testx0 by sessionAttribute<Int>() // default value will be 0
     var testx1 by sessionAttribute { 1 } // specific default value (not 0)
@@ -28,7 +28,7 @@ data class Model1(
     // dialogue nodes (always val named by editor elements)
     val globalIntent1 = GlobalIntent(nextId--, "globalIntent1", "volume up")
     val globalIntent2 = GlobalIntent(nextId--, "globalIntent2", "volume down")
-    val response0 = Response(nextId--, { """Hi, this is Jarmila defined by ${name}""" })
+    val response0 = Response(nextId--, { """Hi, this is Jarmila defined by ${dialogueName}""" })
     val intent1 = Intent(nextId--, "intent1","yes", "okay")
     val intent2 = Intent(nextId--, "intent2", "no", "nope")
     val input1 = UserInput(nextId--, arrayOf(intent1, intent2)) {
@@ -66,7 +66,7 @@ data class Model1(
         testx3++
         println("session.attributes = ${session.attributes}")
         it.let {
-            println("function.id = ${it.id}, dialogue.name = $name")
+            println("function.id = ${it.id}, dialogue.name = $dialogueName")
         }
         if (do_math)
             trans1

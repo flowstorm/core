@@ -20,7 +20,7 @@ abstract class Dialogue {
     val clientNamespace = "client"
 
     //dialogue config - must/may be overrided
-    abstract val name: String
+    abstract val dialogueName: String
     open val buildId: String = "unknown" // used for generated classes, others are unknown
     open val language = "en"
 
@@ -151,38 +151,44 @@ abstract class Dialogue {
     fun metricValue(metricSpec:String) = MetricDelegate(metricSpec)
 
     inline fun <reified V: Any> turnAttribute(namespace: String? = null, noinline default: (Context.() -> V)? = null) =
-            ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.Turn, V::class, { namespace ?: nameWithoutVersion }, default)
+            ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.Turn, V::class, { namespace ?: dialogueNameWithoutVersion }, default)
 
     inline fun <reified V: Any> sessionAttribute(namespace: String? = null, noinline default: (Context.() -> V)? = null) =
-            ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.Session, V::class, { namespace ?: nameWithoutVersion }, default)
+            ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.Session, V::class, { namespace ?: dialogueNameWithoutVersion }, default)
 
     inline fun <reified V: Any> userAttribute(namespace: String? = null, noinline default: (Context.() -> V)? = null) =
-            ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.User, V::class, { namespace ?: nameWithoutVersion }, default)
+            ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.User, V::class, { namespace ?: dialogueNameWithoutVersion }, default)
 
     inline fun <reified V: Any> communityAttribute(communityName: String, namespace: String? = null, noinline default: (Context.() -> V)? = null) =
-            CommunityAttributeDelegate(V::class, communityName, { namespace?:nameWithoutVersion }, default)
+            CommunityAttributeDelegate(V::class, communityName, { namespace?:dialogueNameWithoutVersion }, default)
 
     inline fun <reified E: NamedEntity> turnEntityListAttribute(entities: Collection<E>, namespace: String? = null) =
-            NamedEntityListAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Turn) { namespace ?: nameWithoutVersion }
+            NamedEntityListAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Turn) { namespace ?: dialogueNameWithoutVersion }
 
     inline fun <reified E: NamedEntity> sessionEntityListAttribute(entities: Collection<E>, namespace: String? = null) =
-            NamedEntityListAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Session) { namespace ?: nameWithoutVersion }
+            NamedEntityListAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Session) { namespace ?: dialogueNameWithoutVersion }
 
     inline fun <reified E: NamedEntity> userEntityListAttribute(entities: Collection<E>, namespace: String? = null) =
-            NamedEntityListAttributeDelegate(entities, ContextualAttributeDelegate.Scope.User) { namespace ?: nameWithoutVersion }
+            NamedEntityListAttributeDelegate(entities, ContextualAttributeDelegate.Scope.User) { namespace ?: dialogueNameWithoutVersion }
 
     inline fun <reified E: NamedEntity> turnEntityMapAttribute(entities: Map<String, E>, namespace: String? = null) =
-            EntityMapAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Turn) { namespace ?: nameWithoutVersion }
+            EntityMapAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Turn) { namespace ?: dialogueNameWithoutVersion }
 
     inline fun <reified E: NamedEntity> sessionEntityMapAttribute(entities: Map<String, E>, namespace: String? = null) =
-            EntityMapAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Session) { namespace ?: nameWithoutVersion }
+            EntityMapAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Session) { namespace ?: dialogueNameWithoutVersion }
 
     inline fun <reified E: NamedEntity> userEntityMapAttribute(entities: Map<String, E>, namespace: String? = null) =
-            EntityMapAttributeDelegate(entities, ContextualAttributeDelegate.Scope.User) { namespace ?: nameWithoutVersion }
+            EntityMapAttributeDelegate(entities, ContextualAttributeDelegate.Scope.User) { namespace ?: dialogueNameWithoutVersion }
 
-    val nameWithoutVersion get() = name.substringBeforeLast("/")
+    val dialogueNameWithoutVersion get() = dialogueName.substringBeforeLast("/")
 
-    val version get() = name.substringAfterLast("/").toInt()
+    @Deprecated("Use dialogueName instead", ReplaceWith("dialogueName"))
+    val name get() = dialogueName
+
+    @Deprecated("Use dialogueNameWithoutVersion instead", ReplaceWith("dialogueNameWithoutVersion"))
+    val nameWithoutVersion get() = dialogueNameWithoutVersion
+
+    val version get() = dialogueName.substringAfterLast("/").toInt()
 
     val intents: List<Intent> get() = nodes.filterIsInstance<Intent>()
 
@@ -251,7 +257,7 @@ abstract class Dialogue {
                     mapper.readValue<T>(it, typeRef)
                 }
             path.startsWith("./") ->
-                loader.loadObject(name + path.substring(1).substringBeforeLast(".json"), typeRef)
+                loader.loadObject(dialogueName + path.substring(1).substringBeforeLast(".json"), typeRef)
             else ->
                 loader.loadObject(path.substringBeforeLast(".json"), typeRef)
         }
@@ -259,7 +265,7 @@ abstract class Dialogue {
 
     class ThreadContext(val dialogue: Dialogue, val context: Context)
 
-    class DialogueScriptException(node: Node, cause: Throwable) : Throwable("DialogueScript failed at ${node.dialogue.name}#${node.id}", cause)
+    class DialogueScriptException(node: Node, cause: Throwable) : Throwable("DialogueScript failed at ${node.dialogue.dialogueName}#${node.id}", cause)
 
     companion object {
 

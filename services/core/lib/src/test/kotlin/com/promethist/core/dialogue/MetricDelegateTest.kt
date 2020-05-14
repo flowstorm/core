@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test
 internal class MetricDelegateTest {
 
     class SampleDialogue : Dialogue() {
-        override val name = "product/dialog/1"
+        override val dialogueName = "product/dialog/1"
         var metric by MetricDelegate("namespace.name")
     }
 

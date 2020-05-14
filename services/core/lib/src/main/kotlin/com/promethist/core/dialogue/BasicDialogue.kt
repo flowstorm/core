@@ -49,18 +49,18 @@ abstract class BasicDialogue : Dialogue() {
                 (year * 12 + monthValue) - (dateTime.year * 12 + dateTime.monthValue)
     }
 
-    val turnAttributes get() = with (threadContext()) { context.turn.attributes(nameWithoutVersion) }
+    val turnAttributes get() = with (threadContext()) { context.turn.attributes(dialogueNameWithoutVersion) }
 
-    val sessionAttributes get() = with (threadContext()) { context.session.attributes(nameWithoutVersion) }
+    val sessionAttributes get() = with (threadContext()) { context.session.attributes(dialogueNameWithoutVersion) }
 
-    val userAttributes get() = with (threadContext()) { context.userProfile.attributes(nameWithoutVersion) }
+    val userAttributes get() = with (threadContext()) { context.userProfile.attributes(dialogueNameWithoutVersion) }
 
     fun communityAttributes(communityName: String) = with (threadContext()) { context.communityResource.get(communityName)?.attributes ?: Dynamic.EMPTY }
 
 
     private inline fun unsupportedLanguage(): Nothing {
         val stackTraceElement = Thread.currentThread().stackTrace[1]
-        throw error("${stackTraceElement.className}.${stackTraceElement.methodName} does not support language ${language} of dialogue ${name}")
+        throw error("${stackTraceElement.className}.${stackTraceElement.methodName} does not support language ${language} of dialogue ${dialogueName}")
     }
 
     fun enumerate(col: Collection<String>, subject: String = "", article: Article = Article.None): String {
