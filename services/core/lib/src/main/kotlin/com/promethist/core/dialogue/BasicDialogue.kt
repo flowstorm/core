@@ -75,20 +75,21 @@ abstract class BasicDialogue : Dialogue() {
 
     fun lemma(word: String) = word
 
-    fun plural(word: String) =
-            when (language) {
-                "en" -> English.irregularPlurals.getOrElse(word) {
-                    when {
-                        word.endsWith("y") ->
-                            word.substring(0, word.length - 1) + "ies"
-                        word.endsWith(listOf("s", "sh", "ch", "x", "z", "o")) ->
-                            word + "es"
-                        else ->
-                            word + "s"
-                    }
+    fun plural(word: String) = word.split(" ").joinToString(" ") {
+        when (language) {
+            "en" -> English.irregularPlurals.getOrElse(it) {
+                when {
+                    it.endsWith("y") ->
+                        it.substring(0, it.length - 1) + "ies"
+                    it.endsWith(listOf("s", "sh", "ch", "x", "z", "o")) ->
+                        it + "es"
+                    else ->
+                        it + "s"
                 }
-                else -> unsupportedLanguage()
             }
+            else -> unsupportedLanguage()
+        }
+    }
 
     fun article(subj: String, article: Article = Article.Indefinite) =
             when (language) {

@@ -195,12 +195,36 @@ class SourceCodeBuilder(val name: String, val buildId: String) {
         source.appendln("//--code-end;type:userInput;name:$nodeName").appendln("\t}")
     }
 
+    private fun wrapExpressions(s: String, fn: String = "enumerate"): String {
+        var i = 0
+        var l = 0
+        val b = StringBuilder()
+        while (++i < s.length) {
+            if (s[i - 1] == '$' && s[i] == '{') {
+                b.append(s.substring(l, i))
+                l = i + 1
+                var c = 1
+                while (c > 0 && ++i < s.length) {
+                    if (s[i - 1] != '\\') {
+                        if (s[i] == '{')
+                            c++
+                        if (s[i] == '}')
+                            c--
+                    }
+                }
+                b.append("{$fn(").append(s.substring(l, i)).append(")}")
+                l = ++i
+            }
+        }
+        if (l < s.length)
+            b.append(s.substring(l, s.length))
+        return b.toString()
+    }
+
     private fun write(response: Response) = with(response) {
         source.append("\tval $nodeName = Response($nodeId, $repeatable")
         texts.forEach { text ->
-            source.append(", { \"\"\"").append(text.replace(Regex("\\$\\{(.+)\\}")) {
-                "\${enumerate(${it.groupValues[1]})}"
-            }).append("\"\"\" }")
+            source.append(", { \"\"\"").append(wrapExpressions(text)).append("\"\"\" }")
         }
         source.appendln(')')
     }

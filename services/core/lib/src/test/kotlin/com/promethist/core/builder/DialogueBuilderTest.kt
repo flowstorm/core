@@ -44,6 +44,8 @@ internal class DialogueBuilderTest {
                     get() = "data.json"
 
             })
+            source.build()
+            println(source.code)
             //val dialogue = build()
             //saveJavaArchive(FileOutputStream("/Users/tomas.zajicek/Downloads/model.jar"))
             //println(dialogue.nodes)
