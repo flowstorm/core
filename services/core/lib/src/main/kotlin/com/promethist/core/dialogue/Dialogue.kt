@@ -182,6 +182,12 @@ abstract class Dialogue {
 
     val dialogueNameWithoutVersion get() = dialogueName.substringBeforeLast("/")
 
+    @Deprecated("Use dialogueName instead", ReplaceWith("dialogueName"))
+    open val name get() = dialogueName
+
+    @Deprecated("Use dialogueNameWithoutVersion instead", ReplaceWith("dialogueNameWithoutVersion"))
+    val nameWithoutVersion get() = dialogueNameWithoutVersion
+
     val version get() = dialogueName.substringAfterLast("/").toInt()
 
     val intents: List<Intent> get() = nodes.filterIsInstance<Intent>()
