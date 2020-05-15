@@ -27,7 +27,7 @@ class DialogueManager : Component {
     }
 
     private fun getIntentModels(currentFrame: Frame, context: Context): List<IrModel> {
-        val node = getNode(currentFrame)
+        val node = getNode(currentFrame, context)
         require(node is Dialogue.UserInput)
 
         val models = mutableListOf(IrModel(node.dialogue.buildId, node.dialogue.dialogueName, node.id))
@@ -63,7 +63,8 @@ class DialogueManager : Component {
         }
     }
 
-    private fun getNode(frame: Frame): Dialogue.Node = dialogueFactory.get(frame).node(frame.nodeId)
+    private fun getNode(frame: Frame, context: Context): Dialogue.Node =
+            dialogueFactory.get(frame).apply { context.locale = locale }.node(frame.nodeId)
 
     /**
      * @return true if next user input requested, false if session ended
@@ -78,7 +79,7 @@ class DialogueManager : Component {
             while (inputRequested == null) {
                 if (processedNodes.size > 20) error("Too much steps in processing dialogue (infinite loop?)")
 
-                node = getNode(frame)
+                node = getNode(frame, context)
                 processedNodes.add(node)
 
                 when (node) {

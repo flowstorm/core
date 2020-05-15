@@ -54,7 +54,6 @@ internal class DialogueScriptTest {
             override val dialogueName = "test"
 
             init {
-                //println(+"x")
                 println(plural("this mouse"))
                 println(movies.list { name })
                 println(enumerate(movies.random(2).list { name }, subj = "My favourite movie+ is+", before = true))

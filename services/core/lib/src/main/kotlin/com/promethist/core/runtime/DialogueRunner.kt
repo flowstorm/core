@@ -90,7 +90,7 @@ class DialogueRunner(
     private val app = Application(name = "test", dialogueName = name, ttsVoice = "Grace", properties = properties)
     private val session = Session(sessionId = "T-E-S-T", user = user, application = app)
     private val turn = Turn(Input(locale, zoneId, Input.Transcript("")))
-    private val context = Context(SimplePipeline(LinkedList(listOf(dm, ir))), profile, session, turn, logger, SimpleCommunityResource())
+    private val context = Context(SimplePipeline(LinkedList(listOf(dm, ir))), profile, session, turn, logger, locale, SimpleCommunityResource())
 
     override fun beforeInput() {
         context.pipeline.process(context)

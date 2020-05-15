@@ -6,6 +6,7 @@ import java.util.*
 
 //TODO after removing Message class, change atrributes type to PropertyMap
 open class Response(
+        open var locale: Locale? = null,
         open var items: MutableList<Item>,
         open var logs: MutableList<LogEntry>,
         open val attributes: MutableMap<String, *>, //TODO after removing Message class, change atrributes type to PropertyMap

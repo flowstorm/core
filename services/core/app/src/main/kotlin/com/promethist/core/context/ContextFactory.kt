@@ -31,6 +31,7 @@ class ContextFactory {
                 session,
                 Turn(input = request.input, attributes = request.attributes),
                 dialogueLog.logger,
+                request.input.locale,
                 communityResource
         )
     }

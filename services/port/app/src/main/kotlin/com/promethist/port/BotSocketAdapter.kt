@@ -61,7 +61,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
     private lateinit var appKey: String
     private lateinit var sender: String
     private var sessionId: String? = null
-    private var language: Locale? = null // deprecated - version 1 only, remove in version 3
+    private var locale: Locale? = null
     private lateinit var clientRequirements: BotClientRequirements
 
     // STT
@@ -146,7 +146,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                 is BotEvent.Request -> onRequest(event.request)
                 is BotEvent.InputAudioStreamOpen -> {
                     inputAudioClose(false)
-                    val sttConfig = SttConfig(clientRequirements.locale, clientRequirements.zoneId, clientRequirements.sttSampleRate)
+                    val sttConfig = SttConfig(locale ?: clientRequirements.locale, clientRequirements.zoneId, clientRequirements.sttSampleRate)
                     sttService = SttServiceFactory.create("Google", sttConfig, this.expectedPhrases, BotSttCallback())
                     sttStream = sttService?.createStream()
                     inputAudioTime = System.currentTimeMillis()
@@ -184,6 +184,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
             expectedPhrases = response.expectedPhrases!!
             response.expectedPhrases = null
         }
+        locale = response.locale
         sendResponse(response)
         if (response.sessionEnded) {
             sendEvent(BotEvent.SessionEnded())
@@ -212,7 +213,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
             val item = items[i]
             if (item.text == null)
                 item.text = ""
-            var voice = clientRequirements.ttsVoice ?: item.ttsVoice ?: TtsConfig.defaultVoice("en")
+            var voice = clientRequirements.ttsVoice ?: item.ttsVoice ?: TtsConfig.defaultVoice(response.locale?.language ?: "en")
             if (voice.startsWith('A')) {
                 // Amazon Polly synthesis - strip <audio> tag and create audio item
                 item.ssml = item.ssml?.replace(Regex("<audio.*?src=\"(.*?)\"[^\\>]+>")) {

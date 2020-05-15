@@ -68,7 +68,7 @@ data class Message(
         override val attributes: PropertyMap = PropertyMap(),
 
         override var logs: MutableList<LogEntry> = mutableListOf()
-) : Response(items, logs, attributes, expectedPhrases, sessionEnded) {
+) : Response(language, items, logs, attributes, expectedPhrases, sessionEnded) {
 
     @JsonDeserialize(using = PropertyMap.Deserializer::class)
     class PropertyMap : DataObject() {

@@ -73,8 +73,10 @@ class CoreResourceImpl : CoreResource {
                                     turn.attributes[it] = value
                             }
                         }
-                        turn.responseItems.forEach { it.ttsVoice = it.ttsVoice ?: session.application.ttsVoice }
-                        Response(turn.responseItems, dialogueLog.log, turn.attributes, expectedPhrases, sessionEnded)
+                        turn.responseItems.forEach {
+                            it.ttsVoice = it.ttsVoice ?: session.application.ttsVoice ?: TtsConfig.defaultVoice(locale?.language ?: "en")
+                        }
+                        Response(context.locale, turn.responseItems, dialogueLog.log, turn.attributes, expectedPhrases, sessionEnded)
                     }
                 }
                 else -> error("Unknown dialogue engine (${session.application.dialogueEngine})")
@@ -111,8 +113,9 @@ class CoreResourceImpl : CoreResource {
         logger.info(requestMessage.toString())
         val responseMessage = dialogueResouce.message(key, requestMessage)!!
         logger.info(responseMessage.toString())
-        responseMessage.apply { this.items.forEach { it.ttsVoice = it.ttsVoice ?: session.application.ttsVoice } }
-
+        responseMessage.items.forEach {
+            it.ttsVoice = it.ttsVoice ?: session.application.ttsVoice ?: TtsConfig.defaultVoice(responseMessage.language?.language ?: "en")
+        }
         val metrics = if (responseMessage.attributes.containsKey("metrics"))
             @Suppress("UNCHECKED_CAST") //suppressed, will be removed anyway
             responseMessage.attributes["metrics"] as PropertyMap
@@ -121,7 +124,7 @@ class CoreResourceImpl : CoreResource {
 
         dialogueLog.logger.info("passed nodes " + responseMessage.attributes["passedNodes"])
 
-        return Response(responseMessage.items, dialogueLog.log,
+        return Response(responseMessage.language, responseMessage.items, dialogueLog.log,
                 responseMessage.attributes, responseMessage.expectedPhrases, responseMessage.sessionEnded)
     }
 
@@ -195,7 +198,7 @@ class CoreResourceImpl : CoreResource {
 
         dialogueLog.logger.error(messages.joinToString("\nCAUSED BY: "))
 
-        return Response(mutableListOf<Response.Item>().apply {
+        return Response(request.input.locale, mutableListOf<Response.Item>().apply {
             if (text?.startsWith("admin:DeviceNotFoundException") == true) {
                 val devicePairing = DevicePairing(deviceId = request.sender)
                 pairingResource.createOrUpdateDevicePairing(devicePairing)

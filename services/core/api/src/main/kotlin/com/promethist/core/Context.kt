@@ -6,6 +6,7 @@ import com.promethist.core.model.Turn
 import com.promethist.core.model.Session
 import com.promethist.core.resources.CommunityResource
 import org.slf4j.Logger
+import java.util.*
 
 data class Context(
         var pipeline: Pipeline,
@@ -13,6 +14,7 @@ data class Context(
         val session: Session,
         val turn: Turn,
         val logger: Logger,
+        var locale: Locale? = null,
         val communityResource: CommunityResource,
         var irModels: List<IrModel> = listOf()
 ) {

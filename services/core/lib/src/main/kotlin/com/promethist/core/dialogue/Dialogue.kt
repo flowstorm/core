@@ -10,6 +10,7 @@ import com.promethist.core.type.PropertyMap
 import java.io.File
 import java.io.FileInputStream
 import java.net.URL
+import java.util.*
 import kotlin.random.Random
 import kotlin.reflect.KProperty
 import kotlin.reflect.full.createType
@@ -23,6 +24,7 @@ abstract class Dialogue {
     abstract val dialogueName: String
     open val buildId: String = "unknown" // used for generated classes, others are unknown
     open val language = "en"
+    val locale by lazy { Locale(language) }
 
     //runtime dependencies
     lateinit var loader: Loader
