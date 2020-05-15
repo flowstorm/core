@@ -57,7 +57,7 @@ internal class DialogueScriptTest {
                 //println(+"x")
                 println(plural("this mouse"))
                 println(movies.list { name })
-
+                println(enumerate(movies.random(2).list { name }, subj = "My favourite movie+ is+", before = true))
                 println(enumerate(1 of "point+ for math", 2 of "another point+ for history", 3 of "other point"))
                 println(enumerate("point+ for math" to 3))
                 println(enumerate("a", "b", "c", conj = "or", subj = "movie"))

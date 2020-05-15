@@ -58,6 +58,9 @@ abstract class BasicDialogue : Dialogue() {
 
     fun communityAttributes(communityName: String) = with (threadContext()) { context.communityResource.get(communityName)?.attributes ?: Dynamic.EMPTY }
 
+    fun addResponseItem(vararg value: Any, image: String? = null, audio: String? = null, video: String? = null, repeatable: Boolean = true) = with (threadContext()) {
+        context.turn.addResponseItem(enumerate(value), image, audio, video, repeatable)
+    }
 
     private inline fun unsupportedLanguage(): Nothing {
         val stackTraceElement = Thread.currentThread().stackTrace[1]
@@ -192,7 +195,10 @@ abstract class BasicDialogue : Dialogue() {
 
     fun enumerate(col: Collection<String>, subjBlock: (Int) -> String, before: Boolean = false, conj: String = ""): String {
         val list = if (col is List<String>) col else col.toList()
-        val subj = subjBlock(list.size)
+        val subj = subjBlock(list.size).split(" ")
+                .joinToString(" ") {
+                    if (it.endsWith("+")) plural(it.substring(0, it.length - 1)) else it
+                }
         when {
             list.isEmpty() ->
                 return empty(subj)
@@ -224,7 +230,7 @@ abstract class BasicDialogue : Dialogue() {
             enumerate(col, subjBlock, true, conj)
 
     fun enumerate(col: Collection<String>, subj: String = "", before: Boolean = false, conj: String = "") =
-            enumerate(col, { if (subj.isNotEmpty() && it > 1) plural(subj) else subj }, before, conj)
+            enumerate(col, { subj }, before, conj)
 
     fun enumerate(map: Map<String, Number>): String = enumerate(mutableListOf<String>().apply {
         map.forEach { add(it.value of it.key) }

@@ -28,4 +28,4 @@ infix fun String.similarityTo(text: String) = similarityTo(text.tokenize())
 
 fun <T> Collection<T>.list(transform: T.() -> String) = map { transform(it) }
 
-fun Collection<*>.random(a: Int): Collection<*> = shuffled().take(a)
+fun <T> Collection<T>.random(a: Int): Collection<T> = shuffled().take(a)
