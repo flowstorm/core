@@ -59,7 +59,7 @@ abstract class BasicDialogue : Dialogue() {
     fun communityAttributes(communityName: String) = with (threadContext()) { context.communityResource.get(communityName)?.attributes ?: Dynamic.EMPTY }
 
     fun addResponseItem(vararg value: Any, image: String? = null, audio: String? = null, video: String? = null, repeatable: Boolean = true) = with (threadContext()) {
-        context.turn.addResponseItem(enumerate(value), image, audio, video, repeatable)
+        context.turn.addResponseItem(enumerate(*value), image, audio, video, repeatable)
     }
 
     private inline fun unsupportedLanguage(): Nothing {
@@ -67,7 +67,7 @@ abstract class BasicDialogue : Dialogue() {
         throw error("${stackTraceElement.className}.${stackTraceElement.methodName} does not support language ${language} of dialogue ${dialogueName}")
     }
 
-    // subjive
+    // subjective
 
     fun empty(subj: String) =
             when (language) {
