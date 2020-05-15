@@ -135,7 +135,7 @@ abstract class BasicDialogue : Dialogue() {
 
     // descriptive
 
-    fun describe(map: Map<String, Any>): String {
+    fun describe(data: Map<String, Any>): String {
         val list = mutableListOf<String>()
         val isWord = when (language) {
             "en" -> "is"
@@ -143,28 +143,28 @@ abstract class BasicDialogue : Dialogue() {
             "cs" -> "je"
             else -> unsupportedLanguage()
         }
-        map.forEach {
+        data.forEach {
             list.add("${it.key} $isWord " + describe(it.value))
         }
         return enumerate(list)
     }
 
-    fun describe(col: Collection<String>) = enumerate(col)
+    fun describe(data: Collection<String>) = enumerate(data)
 
-    fun describe(tm: TimeValue<*>) = describe(tm.value) + indent(describe(tm.time, 2))
+    fun describe(data: TimeValue<*>) = describe(data.value) + indent(describe(data.time, 2))
 
-    fun describe(value: Any?, detailLevel: Int = 0) =
-        when (value) {
-            is Location -> "latitude ${value.latitude}, longitude ${value.longitude}"
-            is DateTime -> value.toString()
-            is String -> value
+    fun describe(data: Any?, detail: Int = 0) =
+        when (data) {
+            is Location -> "latitude is ${data.latitude}, longitude is ${data.longitude}"
+            is DateTime -> data.toString()
+            is String -> data
             null -> "unknown"
-            else -> value.toString()
+            else -> data.toString()
         }
 
-    fun describeMore(value: Any?) = describe(value, 1)
+    fun describeMore(data: Any?) = describe(data, 1)
 
-    fun describeDetailed(value: Any?) = describe(value, 2)
+    fun describeMost(data: Any?) = describe(data, 2)
 
     // quantitative
 
@@ -187,14 +187,14 @@ abstract class BasicDialogue : Dialogue() {
 
     infix fun Collection<String>.of(subj: String) = enumerate(this, subj)
 
-    fun enumerate(vararg value: Any?, subjBlock: (Int) -> String, before: Boolean = false, conj: String = "") =
-            enumerate(value.asList().map { describe(it) }, subjBlock, before, conj)
+    fun enumerate(vararg data: Any?, subjBlock: (Int) -> String, before: Boolean = false, conj: String = "", detail: Int = 0) =
+            enumerate(data.asList().map { describe(it, detail) }, subjBlock, before, conj)
 
-    fun enumerate(vararg value: Any?, subj: String = "", before: Boolean = false, conj: String = "") =
-            enumerate(value.asList().map { describe(it) }, subj, before, conj)
+    fun enumerate(vararg data: Any?, subj: String = "", before: Boolean = false, conj: String = "", detail: Int = 0) =
+            enumerate(data.asList().map { describe(it, detail) }, subj, before, conj)
 
-    fun enumerate(col: Collection<String>, subjBlock: (Int) -> String, before: Boolean = false, conj: String = ""): String {
-        val list = if (col is List<String>) col else col.toList()
+    fun enumerate(data: Collection<String>, subjBlock: (Int) -> String, before: Boolean = false, conj: String = ""): String {
+        val list = if (data is List<String>) data else data.toList()
         val subj = subjBlock(list.size).split(" ")
                 .joinToString(" ") {
                     if (it.endsWith("+")) plural(it.substring(0, it.length - 1)) else it
@@ -226,11 +226,14 @@ abstract class BasicDialogue : Dialogue() {
         }
     }
 
-    fun enumerate(subjBlock: (Int) -> String, col: Collection<String>, conj: String = "") =
-            enumerate(col, subjBlock, true, conj)
+    fun enumerate(subjBlock: (Int) -> String, data: Collection<String>, conj: String = "") =
+            enumerate(data, subjBlock, true, conj)
 
-    fun enumerate(col: Collection<String>, subj: String = "", before: Boolean = false, conj: String = "") =
-            enumerate(col, { subj }, before, conj)
+    fun enumerate(subj: String, data: Collection<String>, conj: String = "") =
+            enumerate(data, subj, true, conj)
+    
+    fun enumerate(data: Collection<String>, subj: String = "", before: Boolean = false, conj: String = "") =
+            enumerate(data, { subj }, before, conj)
 
     fun enumerate(map: Map<String, Number>): String = enumerate(mutableListOf<String>().apply {
         map.forEach { add(it.value of it.key) }

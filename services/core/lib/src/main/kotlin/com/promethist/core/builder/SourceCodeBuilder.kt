@@ -195,13 +195,13 @@ class SourceCodeBuilder(val name: String, val buildId: String) {
         source.appendln("//--code-end;type:userInput;name:$nodeName").appendln("\t}")
     }
 
-    private fun wrapExpressions(s: String, fn: String = "enumerate"): String {
+    fun enumerateExpressions(s: String): String {
         var i = 0
         var l = 0
         val b = StringBuilder()
         while (++i < s.length) {
-            if (s[i - 1] == '$' && s[i] == '{') {
-                b.append(s.substring(l, i))
+            if (s[i - 1] == '#' && s[i] == '{') {
+                b.append(s.substring(l, i - 1))
                 l = i + 1
                 var c = 1
                 while (c > 0 && ++i < s.length) {
@@ -212,7 +212,7 @@ class SourceCodeBuilder(val name: String, val buildId: String) {
                             c--
                     }
                 }
-                b.append("{$fn(").append(s.substring(l, i)).append(")}")
+                b.append("\${enumerate(").append(s.substring(l, i)).append(")}")
                 l = ++i
             }
         }
@@ -224,7 +224,7 @@ class SourceCodeBuilder(val name: String, val buildId: String) {
     private fun write(response: Response) = with(response) {
         source.append("\tval $nodeName = Response($nodeId, $repeatable")
         texts.forEach { text ->
-            source.append(", { \"\"\"").append(wrapExpressions(text)).append("\"\"\" }")
+            source.append(", { \"\"\"").append(enumerateExpressions(text)).append("\"\"\" }")
         }
         source.appendln(')')
     }
