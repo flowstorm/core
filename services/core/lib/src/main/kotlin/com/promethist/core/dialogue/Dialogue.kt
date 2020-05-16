@@ -273,7 +273,7 @@ abstract class Dialogue {
 
         private val threadContext = ThreadLocal<ThreadContext>()
 
-        fun threadContext() = threadContext.get() ?: error("out of thread context")
+        fun threadContext() = threadContext.get() ?: error("out of dialogue thread context")
 
         fun threadContext(context: Context, node: Node, block: () -> Any?): Any? =
                 try {

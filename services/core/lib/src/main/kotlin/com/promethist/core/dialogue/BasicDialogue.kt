@@ -17,37 +17,27 @@ abstract class BasicDialogue : Dialogue() {
 
     companion object {
 
+        const val LOW = 0
+        const val MEDIUM = 1
+        const val HIGH = 2
+
         val pass: Transition? = null
         @Deprecated("Use pass instead, toIntent will be removed")
         val toIntent = pass
+
         val now: DateTime get() = with (threadContext()) { DateTime.now(context.turn.input.zoneId) }
-        val today get() = now.toDay()
-        val tomorrow get() = now.day(1)
-        val yesterday get() = now.day(-1)
-
-        infix fun DateTime.isSameDateAs(to: DateTime) = true
-
-        fun DateTime.day(dayCount: Long): DateTime =
-                plus(dayCount, ChronoUnit.DAYS).with(LocalTime.of(0, 0, 0, 0))
-
-        fun DateTime.toDay() = day(0)
-
-        fun DateTime.isDay(from: Long, to: Long = from): Boolean {
-            val thisDay = day(0)
-            return now.day(from) <= thisDay && thisDay < now.day(to + 1)
-        }
-
-        fun DateTime.isToday() = isDay(0, 0)
-        fun DateTime.isTomorrow() = isDay(1, 1)
-        fun DateTime.isYesterday() = isDay(-1, -1)
-        fun DateTime.isWeekend() = now.let { it.dayOfWeek == DayOfWeek.SATURDAY || it.dayOfWeek == DayOfWeek.SUNDAY }
-        fun DateTime.isHoliday() = isWeekend()
-        infix fun DateTime.differsInDaysFrom(dateTime: DateTime) =
-                (year * 366 * 24 + hour) - (dateTime.year * 366 * 24 + dateTime.hour)
-        infix fun DateTime.differsInHoursFrom(dateTime: DateTime) =
-                (year * 366 * 24 + hour) - (dateTime.year * 366 * 24 + dateTime.hour)
-        infix fun DateTime.differsInMonthsFrom(dateTime: DateTime) =
-                (year * 12 + monthValue) - (dateTime.year * 12 + dateTime.monthValue)
+        val today get() = now.day
+        val tomorrow get() = now + 1
+        val yesterday get() = now - 1
+        val DateTime.isToday get() = this isDay 0..0
+        val DateTime.isTomorrow get() = this isDay 1..1
+        val DateTime.isYesterday get() = this isDay -1..-1
+        val DateTime.isHoliday get() = isWeekend
+        val DateTime.monthName get() = month.name //TODO localize
+        val DateTime.dayOfWeekName get() = dayOfWeek.name //TODO localize
+        infix fun DateTime.isDay(range: IntRange) =
+                day(range.first.toLong()) >= today && today < day(range.last.toLong() + 1)
+        infix fun DateTime.isDay(day: Int) = this isDay day..day
     }
 
     val turnAttributes get() = with (threadContext()) { context.turn.attributes(dialogueNameWithoutVersion) }
@@ -78,21 +68,36 @@ abstract class BasicDialogue : Dialogue() {
 
     fun lemma(word: String) = word
 
-    fun plural(word: String) = word.split(" ").joinToString(" ") {
-        when (language) {
-            "en" -> English.irregularPlurals.getOrElse(it) {
-                when {
-                    it.endsWith("y") ->
-                        it.substring(0, it.length - 1) + "ies"
-                    it.endsWith(listOf("s", "sh", "ch", "x", "z", "o")) ->
-                        it + "es"
-                    else ->
-                        it + "s"
+    fun plural(input: String, count: Int) =
+        if (input.isBlank()) {
+            input
+        } else with (if (input.indexOf('+') > 0) input else "$input+") {
+            split(" ").joinToString(" ") {
+                val word = if (it[it.length - 1] == '+' || it[it.length - 1] == '?')
+                    it.substring(0, it.length - 1)
+                else
+                    it
+                if (count < 1 && it.endsWith('?')) {
+                    ""
+                } else if (count > 1 && it.endsWith('+')) {
+                    when (language) {
+                        "en" -> English.irregularPlurals.getOrElse(word) {
+                            when {
+                                word.endsWith("y") ->
+                                    word.substring(0, word.length - 1) + "ies"
+                                word.endsWith(listOf("s", "sh", "ch", "x", "z", "o")) ->
+                                    word + "es"
+                                else ->
+                                    word + "s"
+                            }
+                        }
+                        else -> unsupportedLanguage()
+                    }
+                } else {
+                    word
                 }
             }
-            else -> unsupportedLanguage()
         }
-    }
 
     fun article(subj: String, article: Article = Article.Indefinite) =
             when (language) {
@@ -106,7 +111,7 @@ abstract class BasicDialogue : Dialogue() {
 
     fun definiteArticle(subj: String) = article(subj, Article.Definite)
 
-    fun indent(value: Any?) = (value?.let { " " + describe(value) } ?: "")
+    fun indent(value: Any?, separator: String = " ") = (value?.let { separator + describe(value) } ?: "")
 
     fun greeting(name: String? = null) = (
         if (now.hour >= 18 || now.hour < 3)
@@ -130,8 +135,24 @@ abstract class BasicDialogue : Dialogue() {
                     "cs" to "dobré odpoledne",
                     "fr" to "bonne après-midi"
             )[language] ?: unsupportedLanguage()
-        ) + indent(name)
+        ) + indent(name, ", ")
 
+    fun farewell(name: String? = null) = (
+            if (now.hour >= 21 || now.hour < 3)
+                mapOf(
+                        "en" to "good night",
+                        "de" to "gute nacht",
+                        "cs" to "dobrou noc",
+                        "fr" to "bonne nuit"
+                )[language] ?: unsupportedLanguage()
+            else
+                mapOf(
+                        "en" to "good bye",
+                        "de" to "auf wiedersehen",
+                        "cs" to "nashledanou",
+                        "fr" to "au revoir"
+                )[language] ?: unsupportedLanguage()
+            ) + indent(name, ", ")
 
     // descriptive
 
@@ -151,7 +172,7 @@ abstract class BasicDialogue : Dialogue() {
 
     fun describe(data: Collection<String>) = enumerate(data)
 
-    fun describe(data: TimeValue<*>) = describe(data.value) + indent(describe(data.time, 2))
+    fun describe(data: TimeValue<*>) = describe(data.value) + indent(describe(data.time, HIGH))
 
     fun describe(data: Any?, detail: Int = 0) =
         when (data) {
@@ -162,22 +183,13 @@ abstract class BasicDialogue : Dialogue() {
             else -> data.toString()
         }
 
-    fun describeMore(data: Any?) = describe(data, 1)
-
-    fun describeMost(data: Any?) = describe(data, 2)
-
     // quantitative
 
     infix fun Number.of(subj: String) =
-            when (this) {
-                0 -> empty(subj.replace("+", ""))
-                1 -> describe(this) + " " + subj.replace("+", "")
-                else -> describe(this) + " " + (if (subj.indexOf('+') < 0) "$subj+" else subj)
-                        .split(" ")
-                        .joinToString(" ") {
-                            if (it.endsWith("+")) plural(it.substring(0, it.length - 1)) else it
-                        }
-            }
+            if (this == 0)
+                empty(plural(subj, 0))
+            else
+                describe(this) + " " + plural(subj, this.toInt())
 
     infix fun Array<*>.of(subj: String) = size of subj
 
@@ -195,10 +207,7 @@ abstract class BasicDialogue : Dialogue() {
 
     fun enumerate(data: Collection<String>, subjBlock: (Int) -> String, before: Boolean = false, conj: String = ""): String {
         val list = if (data is List<String>) data else data.toList()
-        val subj = subjBlock(list.size).split(" ")
-                .joinToString(" ") {
-                    if (it.endsWith("+")) plural(it.substring(0, it.length - 1)) else it
-                }
+        val subj = subjBlock(list.size)
         when {
             list.isEmpty() ->
                 return empty(subj)
@@ -233,10 +242,17 @@ abstract class BasicDialogue : Dialogue() {
             enumerate(data, subj, true, conj)
     
     fun enumerate(data: Collection<String>, subj: String = "", before: Boolean = false, conj: String = "") =
-            enumerate(data, { subj }, before, conj)
+            enumerate(data, { plural(subj, data.size) }, before, conj)
 
-    fun enumerate(map: Map<String, Number>): String = enumerate(mutableListOf<String>().apply {
-        map.forEach { add(it.value of it.key) }
+    fun enumerate(data: Map<String, Number>): String = enumerate(mutableListOf<String>().apply {
+        data.forEach { add(it.value of it.key) }
+    })
+
+    fun enumerate(data: Dynamic) = enumerate(mutableListOf<String>().apply {
+        data.forEach {
+            if (it.value is Number)
+                add(it.value as Number of it.key)
+        }
     })
 
     fun enumerate(vararg pairs: Pair<String, Number>) = enumerate(pairs.toMap())

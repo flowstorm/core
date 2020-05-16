@@ -2,6 +2,8 @@ package com.promethist.core.runtime
 
 import com.promethist.core.Input
 import com.promethist.core.dialogue.*
+import com.promethist.core.type.DateTime
+import com.promethist.core.type.Dynamic
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 
@@ -20,6 +22,14 @@ internal class DialogueScriptTest {
     @Test
     fun `test similarity2`() {
         println("2001: A Space Odyssey" similarityTo "Space Odyssey")
+    }
+
+    @Test
+    fun `test datetime`() {
+        val now = DateTime.now()
+        val yesterday = now - 1
+        println(yesterday)
+        println(now + 1)
     }
 
     @Test
@@ -53,11 +63,20 @@ internal class DialogueScriptTest {
         object : BasicDialogue() {
             override val dialogueName = "test"
 
+            //val movieSeen by userAttribute<Dynamic>()
+
             init {
-                println(plural("this mouse"))
+                val v = Dynamic()
+                v("a", 1)
+                v("b", 2)
+                println(enumerate(v))
+
+                println(indent("hola", ", "))
+                println(plural("this+ mouse+ is+", 2))
+                println(3 of "other point")
                 println(movies.list { name })
                 println(enumerate(movies.random(2).list { name }, subj = "My favourite movie+ is+", before = true))
-                println(enumerate(1 of "point+ for math", 2 of "another point+ for history", 3 of "other point"))
+                println(enumerate(1 of "point+ for math", 2 of "another? point+ for history", 3 of "more? other point"))
                 println(enumerate("point+ for math" to 3))
                 println(enumerate("a", "b", "c", conj = "or", subj = "movie"))
                 println(enumerate(movies.list { name }, {
@@ -67,8 +86,7 @@ internal class DialogueScriptTest {
                         else -> "movies are"
                     }
                 }, before = true))
-                println("i like ${movies.list { name }}")
-                println("i like ${movies.list { name } of "movie"}")
+                println("i like ${movies.list { name } of "cool movie"}")
             }
         }
     }
