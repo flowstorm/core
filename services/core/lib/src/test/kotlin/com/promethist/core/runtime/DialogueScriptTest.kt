@@ -2,8 +2,7 @@ package com.promethist.core.runtime
 
 import com.promethist.core.Input
 import com.promethist.core.dialogue.*
-import com.promethist.core.type.DateTime
-import com.promethist.core.type.Dynamic
+import com.promethist.core.type.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 
@@ -30,6 +29,8 @@ internal class DialogueScriptTest {
         val yesterday = now - 1
         println(yesterday)
         println(now + 1)
+
+
     }
 
     @Test
@@ -87,6 +88,16 @@ internal class DialogueScriptTest {
                     }
                 }, before = true))
                 println("i like ${movies.list { name } of "cool movie"}")
+
+                val t = DateTime.now()
+                val animals = Dynamic()
+
+                animals.list<DateTime>("cat") { value.add(t) }
+                animals.list<DateTime>("dog") { value.add(t) }
+                animals.list<DateTime>("dog") { value.add(t) }
+
+                println(animals.list { (value as List<DateTime>).run { key + " " + (size of "time") }})
+                println(animals.list { (value as List<DateTime>).run { key + " " + describe(last()) + (if (size > 1) " last time" else "") }})
             }
         }
     }
