@@ -71,6 +71,7 @@ internal class DialogueScriptTest {
                 v("a", 1)
                 v("b", 2)
                 println(enumerate(v))
+                println(plural("science fiction"))
 
                 println(indent("hola", ", "))
                 println(plural("this+ mouse+ is+", 2))

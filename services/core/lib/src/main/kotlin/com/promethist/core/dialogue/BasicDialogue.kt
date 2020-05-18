@@ -32,7 +32,8 @@ abstract class BasicDialogue : Dialogue() {
         val DateTime.isToday get() = this isDay 0..0
         val DateTime.isTomorrow get() = this isDay 1..1
         val DateTime.isYesterday get() = this isDay -1..-1
-        val DateTime.isHoliday get() = isWeekend
+        val DateTime.isHoliday get() = isWeekend // && TODO check holidays in context.turn.input.locale.country
+        val DateTime.holidayName get() = null // && TODO check holidays in context.turn.input.locale.country
         val DateTime.monthName get() = English.months[month.value - 1] //TODO localize
         val DateTime.dayOfWeekName get() = English.weekDays[dayOfWeek.value - 1] //TODO localize
         infix fun DateTime.isDay(range: IntRange) =
@@ -68,7 +69,7 @@ abstract class BasicDialogue : Dialogue() {
 
     fun lemma(word: String) = word
 
-    fun plural(input: String, count: Int) =
+    fun plural(input: String, count: Int = 2) =
         if (input.isBlank()) {
             input
         } else with (if (input.indexOf('+') > 0) input else "$input+") {
@@ -98,6 +99,8 @@ abstract class BasicDialogue : Dialogue() {
                 }
             }
         }
+
+    fun plural(data: Collection<String>, count: Int = 2) = enumerate(data.map { plural(it, count) })
 
     fun article(subj: String, article: Article = Article.Indefinite) =
             when (language) {
