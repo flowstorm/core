@@ -122,11 +122,14 @@ class DialogueManager : Component {
                         inputRequested = false
                     }
                     is Dialogue.GoBack, is Dialogue.StopDialogue -> {
-                        if (session.dialogueStack.isEmpty()) inputRequested = false
-                        frame = session.dialogueStack.pop()
-                        if (node is Dialogue.GoBack && node.repeat) {
-                            session.turns.last { it.endFrame == frame }
-                                    .responseItems.forEach { if (it.repeatable) turn.responseItems.add(it) }
+                        if (session.dialogueStack.isEmpty()) {
+                            inputRequested = false
+                        } else {
+                            frame = session.dialogueStack.pop()
+                            if (node is Dialogue.GoBack && node.repeat) {
+                                session.turns.last { it.endFrame == frame }
+                                        .responseItems.forEach { if (it.repeatable) turn.responseItems.add(it) }
+                            }
                         }
                     }
                     is Dialogue.SubDialogue -> {
