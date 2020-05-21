@@ -1,19 +1,19 @@
 package com.promethist.core.dialogue
 
 import com.promethist.core.type.NamedEntity
-import com.promethist.core.type.StringMutableList
+import com.promethist.core.type.StringMutableSet
 import kotlin.reflect.KProperty
 
-class NamedEntityListAttributeDelegate<E: NamedEntity>(
+class NamedEntitySetAttributeDelegate<E: NamedEntity>(
         val entities: Collection<E>,
         scope: ContextualAttributeDelegate.Scope,
         namespace: (() -> String)? = null
 ) {
-    private val attributeDelegate = ContextualAttributeDelegate<StringMutableList>(scope, StringMutableList::class, namespace, null)
+    private val attributeDelegate = ContextualAttributeDelegate<StringMutableSet>(scope, StringMutableSet::class, namespace, null)
 
-    operator fun getValue(thisRef: Dialogue, property: KProperty<*>): MutableList<E> {
+    operator fun getValue(thisRef: Dialogue, property: KProperty<*>): MutableSet<E> {
         val names = attributeDelegate.getValue(thisRef, property)
-        return object : ArrayList<E>(names.mapNotNull { name -> entities.find { it.name == name } }) {
+        return object : LinkedHashSet<E>(names.mapNotNull { name -> entities.find { it.name == name } }) {
             override fun add(entity: E): Boolean {
                 names.add(entity.name)
                 attributeDelegate.setValue(thisRef, property, names)

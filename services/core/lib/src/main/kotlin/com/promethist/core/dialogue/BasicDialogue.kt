@@ -1,15 +1,15 @@
 package com.promethist.core.dialogue
 
+import com.fasterxml.jackson.core.type.TypeReference
+import com.promethist.common.ObjectUtil
+import com.promethist.core.Context
 import com.promethist.core.Input
 import com.promethist.core.language.English
-import com.promethist.core.type.DateTime
-import com.promethist.core.type.Dynamic
-import com.promethist.core.type.Location
-import com.promethist.core.type.TimeValue
-import java.time.DayOfWeek
-import java.time.LocalTime
-import java.time.temporal.ChronoUnit
-import java.util.*
+import com.promethist.core.type.*
+import java.io.File
+import java.io.FileInputStream
+import java.net.URL
+import java.util.StringTokenizer
 
 abstract class BasicDialogue : Dialogue() {
 
@@ -41,11 +41,78 @@ abstract class BasicDialogue : Dialogue() {
         infix fun DateTime.isDay(day: Int) = this isDay day..day
     }
 
-    val turnAttributes get() = with (threadContext()) { context.turn.attributes(dialogueNameWithoutVersion) }
+    val location by turnAttribute<Location>(clientNamespace)
 
-    val sessionAttributes get() = with (threadContext()) { context.session.attributes(dialogueNameWithoutVersion) }
+    var turnSpeakingRate by turnAttribute(clientNamespace) { 1.0 }
+    var sessionSpeakingRate by sessionAttribute(clientNamespace) { 1.0 }
+    var userSpeakingRate by userAttribute(clientNamespace) { 1.0 }
 
-    val userAttributes get() = with (threadContext()) { context.userProfile.attributes(dialogueNameWithoutVersion) }
+    var turnSpeakingPitch by turnAttribute(clientNamespace) { 0.0 }
+    var sessionSpeakingPitch by sessionAttribute(clientNamespace) { 0.0 }
+    var userSpeakingPitch by userAttribute(clientNamespace) { 0.0 }
+
+    var turnSpeakingVolumeGain by turnAttribute(clientNamespace) { 1.0 }
+    var sessionSpeakingVolumeGain by sessionAttribute(clientNamespace) { 1.0 }
+    var userSpeakingVolumeGain by userAttribute(clientNamespace) { 1.0 }
+
+    inline fun <reified V: Any> turnAttribute(namespace: String? = null, noinline default: (Context.() -> V)? = null) =
+            ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.Turn, V::class, { namespace ?: dialogueNameWithoutVersion }, default)
+
+    inline fun <reified V: Any> sessionAttribute(namespace: String? = null, noinline default: (Context.() -> V)? = null) =
+            ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.Session, V::class, { namespace ?: dialogueNameWithoutVersion }, default)
+
+    inline fun <reified V: Any> userAttribute(namespace: String? = null, noinline default: (Context.() -> V)? = null) =
+            ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.User, V::class, { namespace ?: dialogueNameWithoutVersion }, default)
+
+    inline fun <reified V: Any> communityAttribute(communityName: String, namespace: String? = null, noinline default: (Context.() -> V)? = null) =
+            CommunityAttributeDelegate(V::class, communityName, { namespace?:dialogueNameWithoutVersion }, default)
+
+    inline fun <reified E: NamedEntity> turnEntityListAttribute(entities: Collection<E>, namespace: String? = null) =
+            NamedEntityListAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Turn) { namespace ?: dialogueNameWithoutVersion }
+
+    inline fun <reified E: NamedEntity> sessionEntityListAttribute(entities: Collection<E>, namespace: String? = null) =
+            NamedEntityListAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Session) { namespace ?: dialogueNameWithoutVersion }
+
+    inline fun <reified E: NamedEntity> userEntityListAttribute(entities: Collection<E>, namespace: String? = null) =
+            NamedEntityListAttributeDelegate(entities, ContextualAttributeDelegate.Scope.User) { namespace ?: dialogueNameWithoutVersion }
+
+    inline fun <reified E: NamedEntity> turnEntitySetAttribute(entities: Collection<E>, namespace: String? = null) =
+            NamedEntitySetAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Turn) { namespace ?: dialogueNameWithoutVersion }
+
+    inline fun <reified E: NamedEntity> sessionEntitySetAttribute(entities: Collection<E>, namespace: String? = null) =
+            NamedEntitySetAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Session) { namespace ?: dialogueNameWithoutVersion }
+
+    inline fun <reified E: NamedEntity> userEntitySetAttribute(entities: Collection<E>, namespace: String? = null) =
+            NamedEntitySetAttributeDelegate(entities, ContextualAttributeDelegate.Scope.User) { namespace ?: dialogueNameWithoutVersion }
+
+    inline fun <reified E: NamedEntity> turnEntityMapAttribute(entities: Map<String, E>, namespace: String? = null) =
+            EntityMapAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Turn) { namespace ?: dialogueNameWithoutVersion }
+
+    inline fun <reified E: NamedEntity> sessionEntityMapAttribute(entities: Map<String, E>, namespace: String? = null) =
+            EntityMapAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Session) { namespace ?: dialogueNameWithoutVersion }
+
+    inline fun <reified E: NamedEntity> userEntityMapAttribute(entities: Map<String, E>, namespace: String? = null) =
+            EntityMapAttributeDelegate(entities, ContextualAttributeDelegate.Scope.User) { namespace ?: dialogueNameWithoutVersion }
+
+    fun metricValue(metricSpec: String) = MetricDelegate(metricSpec)
+
+    inline fun <reified T: Any> loader(path: String): Lazy<T> = lazy {
+        val typeRef = object : TypeReference<T>() {}
+        when {
+            path.startsWith("file:///") ->
+                FileInputStream(File(path.substring(7))).use {
+                    ObjectUtil.defaultMapper.readValue<T>(it, typeRef)
+                }
+            path.startsWith("http") ->
+                URL(path).openStream().use {
+                    ObjectUtil.defaultMapper.readValue<T>(it, typeRef)
+                }
+            path.startsWith("./") ->
+                loader.loadObject(dialogueName + path.substring(1).substringBeforeLast(".json"), typeRef)
+            else ->
+                loader.loadObject(path.substringBeforeLast(".json"), typeRef)
+        }
+    }
 
     fun communityAttributes(communityName: String) = with (threadContext()) { context.communityResource.get(communityName)?.attributes ?: Dynamic.EMPTY }
 
@@ -175,7 +242,7 @@ abstract class BasicDialogue : Dialogue() {
 
     fun describe(data: Collection<String>) = enumerate(data)
 
-    fun describe(data: TimeValue<*>) = describe(data.value) + indent(describe(data.time, HIGH))
+    fun describe(data: Value<*>) = describe(data.value) + indent(describe(data.time, HIGH))
 
     fun describe(data: Any?, detail: Int = 0) =
         when (data) {

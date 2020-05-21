@@ -1,5 +1,7 @@
 package com.promethist.core.type
 
+import com.promethist.common.AppConfig
+import com.promethist.common.ObjectUtil.defaultMapper as mapper
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -72,4 +74,5 @@ class DynamicTest {
         assertTrue(mem.list<Int>("list").contains(1))
         assertTrue(mem.list<Int>("list").contains(2))
     }
+
 }

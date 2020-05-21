@@ -2,7 +2,7 @@ package com.promethist.core.model
 
 import com.promethist.core.Response
 import com.promethist.core.model.metrics.Metric
-import com.promethist.core.type.Dynamic
+import com.promethist.core.type.Attributes
 import com.promethist.core.type.MutablePropertyMap
 import com.promethist.core.type.PropertyMap
 import org.litote.kmongo.Id
@@ -20,7 +20,7 @@ data class Session(
         val messages: MutableList<Message> = mutableListOf(),
         val metrics: MutableList<Metric> = mutableListOf(),
         val properties: MutablePropertyMap = mutableMapOf(),
-        val attributes: Dynamic = Dynamic(),
+        val attributes: Attributes = Attributes(),
         val dialogueStack: DialogueStack = LinkedList()
 ) {
 

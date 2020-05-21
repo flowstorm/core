@@ -1,15 +1,8 @@
 package com.promethist.core.dialogue
 
-import com.fasterxml.jackson.core.type.TypeReference
 import com.promethist.core.Context
-import com.promethist.common.ObjectUtil.defaultMapper as mapper
 import com.promethist.core.runtime.Loader
-import com.promethist.core.type.Location
-import com.promethist.core.type.NamedEntity
 import com.promethist.core.type.PropertyMap
-import java.io.File
-import java.io.FileInputStream
-import java.net.URL
 import java.util.*
 import kotlin.random.Random
 import kotlin.reflect.KProperty
@@ -150,38 +143,6 @@ abstract class Dialogue {
 
     inner class StopSession(override val id: Int) : Node(id)
 
-    fun metricValue(metricSpec:String) = MetricDelegate(metricSpec)
-
-    inline fun <reified V: Any> turnAttribute(namespace: String? = null, noinline default: (Context.() -> V)? = null) =
-            ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.Turn, V::class, { namespace ?: dialogueNameWithoutVersion }, default)
-
-    inline fun <reified V: Any> sessionAttribute(namespace: String? = null, noinline default: (Context.() -> V)? = null) =
-            ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.Session, V::class, { namespace ?: dialogueNameWithoutVersion }, default)
-
-    inline fun <reified V: Any> userAttribute(namespace: String? = null, noinline default: (Context.() -> V)? = null) =
-            ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.User, V::class, { namespace ?: dialogueNameWithoutVersion }, default)
-
-    inline fun <reified V: Any> communityAttribute(communityName: String, namespace: String? = null, noinline default: (Context.() -> V)? = null) =
-            CommunityAttributeDelegate(V::class, communityName, { namespace?:dialogueNameWithoutVersion }, default)
-
-    inline fun <reified E: NamedEntity> turnEntityListAttribute(entities: Collection<E>, namespace: String? = null) =
-            NamedEntityListAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Turn) { namespace ?: dialogueNameWithoutVersion }
-
-    inline fun <reified E: NamedEntity> sessionEntityListAttribute(entities: Collection<E>, namespace: String? = null) =
-            NamedEntityListAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Session) { namespace ?: dialogueNameWithoutVersion }
-
-    inline fun <reified E: NamedEntity> userEntityListAttribute(entities: Collection<E>, namespace: String? = null) =
-            NamedEntityListAttributeDelegate(entities, ContextualAttributeDelegate.Scope.User) { namespace ?: dialogueNameWithoutVersion }
-
-    inline fun <reified E: NamedEntity> turnEntityMapAttribute(entities: Map<String, E>, namespace: String? = null) =
-            EntityMapAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Turn) { namespace ?: dialogueNameWithoutVersion }
-
-    inline fun <reified E: NamedEntity> sessionEntityMapAttribute(entities: Map<String, E>, namespace: String? = null) =
-            EntityMapAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Session) { namespace ?: dialogueNameWithoutVersion }
-
-    inline fun <reified E: NamedEntity> userEntityMapAttribute(entities: Map<String, E>, namespace: String? = null) =
-            EntityMapAttributeDelegate(entities, ContextualAttributeDelegate.Scope.User) { namespace ?: dialogueNameWithoutVersion }
-
     val dialogueNameWithoutVersion get() = dialogueName.substringBeforeLast("/")
 
     @Deprecated("Use dialogueName instead", ReplaceWith("dialogueName"))
@@ -208,21 +169,6 @@ abstract class Dialogue {
 
     fun intentNode(id: Int) = intents.find { it.id == id } ?: error("Intent $id not found in $this")
 
-    // implicit attributes
-    val location by turnAttribute<Location>(clientNamespace)
-
-    var turnSpeakingRate by turnAttribute(clientNamespace) { 1.0 }
-    var sessionSpeakingRate by sessionAttribute(clientNamespace) { 1.0 }
-    var userSpeakingRate by userAttribute(clientNamespace) { 1.0 }
-
-    var turnSpeakingPitch by turnAttribute(clientNamespace) { 0.0 }
-    var sessionSpeakingPitch by sessionAttribute(clientNamespace) { 0.0 }
-    var userSpeakingPitch by userAttribute(clientNamespace) { 0.0 }
-
-    var turnSpeakingVolumeGain by turnAttribute(clientNamespace) { 1.0 }
-    var sessionSpeakingVolumeGain by sessionAttribute(clientNamespace) { 1.0 }
-    var userSpeakingVolumeGain by userAttribute(clientNamespace) { 1.0 }
-
     val nodeMap: Map<String, Node> by lazy {
         javaClass.kotlin.members.filter {
             it is KProperty && it.returnType.isSubtypeOf(Node::class.createType())
@@ -245,24 +191,6 @@ abstract class Dialogue {
             sb.append(it.key).append(" = ").appendln(it.value)
         }
         return sb.toString()
-    }
-
-    inline fun <reified T: Any> loader(path: String): Lazy<T> = lazy {
-        val typeRef = object : TypeReference<T>() {}
-        when {
-            path.startsWith("file:///") ->
-                FileInputStream(File(path.substring(7))).use {
-                    mapper.readValue<T>(it, typeRef)
-                }
-            path.startsWith("http") ->
-                URL(path).openStream().use {
-                    mapper.readValue<T>(it, typeRef)
-                }
-            path.startsWith("./") ->
-                loader.loadObject(dialogueName + path.substring(1).substringBeforeLast(".json"), typeRef)
-            else ->
-                loader.loadObject(path.substringBeforeLast(".json"), typeRef)
-        }
     }
 
     class ThreadContext(val dialogue: Dialogue, val context: Context)

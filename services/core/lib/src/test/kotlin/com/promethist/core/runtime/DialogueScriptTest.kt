@@ -90,6 +90,9 @@ internal class DialogueScriptTest {
                 }, before = true))
                 println("i like ${movies.list { name } of "cool movie"}")
 
+
+                val visitTimes = mutableListOf<DateTime>()
+                println(visitTimes.filter { it isDay -5..0 }.size)
                 val t = DateTime.now()
                 val animals = Dynamic()
 

@@ -38,9 +38,46 @@ fun Map<String, Any>.list(transform: Map.Entry<String, Any>.() -> String) = map 
 
 fun <T> Collection<T>.random(a: Int): Collection<T> = shuffled().take(a)
 
+fun <T> Collection<T>.similarTo(tokens: List<Input.Word>, transform: (T) -> String, n: Int, minSimilarity: Float = .0F) =
+        filter { minSimilarity == .0F || transform(it) similarityTo tokens >= minSimilarity }
+                .sortedBy { transform(it) similarityTo tokens }.take(n)
+
+fun <T> Collection<T>.similarTo(input: Input, transform: (T) -> String, n: Int, minSimilarity: Float = .0F) =
+        similarTo(input.words, transform, n, minSimilarity)
+
+fun <T> Collection<T>.similarTo(text: String, transform: (T) -> String, n: Int, minSimilarity: Float = .0F) =
+        similarTo(text.tokenize(), transform, n, minSimilarity)
+
+fun <T> Collection<T>.similarTo(tokens: List<Input.Word>, transform: (T) -> String, minSimilarity: Float = .0F) =
+        similarTo(tokens, transform, 1, minSimilarity).firstOrNull()
+
+fun <T> Collection<T>.similarTo(input: Input, transform: (T) -> String, minSimilarity: Float = .0F) =
+        similarTo(input, transform, 1, minSimilarity).firstOrNull()
+
+fun <T> Collection<T>.similarTo(text: String, transform: (T) -> String, minSimilarity: Float = .0F) =
+        similarTo(text, transform, 1, minSimilarity).firstOrNull()
+
+fun Collection<String>.similarTo(tokens: List<Input.Word>, n: Int, minSimilarity: Float = .0F) =
+        similarTo(tokens, {it}, n, minSimilarity)
+
+fun Collection<String>.similarTo(input: Input, n: Int, minSimilarity: Float = .0F) =
+        similarTo(input, {it}, n, minSimilarity)
+
+fun Collection<String>.similarTo(text: String, n: Int, minSimilarity: Float = .0F) =
+        similarTo(text, {it}, n, minSimilarity)
+
+fun Collection<String>.similarTo(tokens: List<Input.Word>, minSimilarity: Float = .0F) =
+        similarTo(tokens, {it}, minSimilarity)
+
+fun Collection<String>.similarTo(input: Input, minSimilarity: Float = .0F) =
+        similarTo(input, {it}, minSimilarity)
+
+fun Collection<String>.similarTo(text: String, minSimilarity: Float = .0F) =
+        similarTo(text, {it}, minSimilarity)
+
 // date time
 
-val DateTime.day get() = this + 0
+val DateTime.day get() = day(0)
 val DateTime.isWeekend get() = dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY
 
 infix fun DateTime.differsInDaysFrom(dateTime: DateTime) =
