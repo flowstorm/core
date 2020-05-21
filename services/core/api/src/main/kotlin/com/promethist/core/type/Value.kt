@@ -97,16 +97,7 @@ open class Value<V: Any>(
             Double::class -> 0.0
             BigDecimal::class -> BigDecimal(0)
             DateTime::class -> ZERO_TIME
-/*
-            BooleanValue::class -> BooleanValue()
-            StringValue::class -> StringValue()
-            IntValue::class -> IntValue()
-            LongValue::class -> LongValue()
-            FloatValue::class -> FloatValue()
-            DoubleValue::class -> DoubleValue()
-            BigDecimalValue::class -> BigDecimalValue()
-            DateTimeValue::class -> DateTimeValue()
-*/
+
             BooleanMutableList::class -> BooleanMutableList()
             StringMutableList::class -> StringMutableList()
             IntMutableList::class -> IntMutableList()

@@ -18,10 +18,10 @@ data class Model1(
     // dialogue functions and local values (declared in editor dialogue init section)
     val data by loader<Map<String, Number>>("$dialogueName/data")
 
-    var testx0 by sessionAttribute<Int>() // default value will be 0
+    var testx0 by sessionAttribute { 0 } // default value will be 0
     var testx1 by sessionAttribute { 1 } // specific default value (not 0)
     var testx2 by sessionAttribute { "Samuel" } // example of specific string default value
-    var testx3 by sessionAttribute<Int>("appname") // app counter (used by multiple dialogues)
+    var testx3 by sessionAttribute("appname") { 0 }// app counter (used by multiple dialogues)
 
     fun someUsefulFunction(intent: Intent): Intent = intent
 

@@ -7,50 +7,40 @@ typealias DateTime = ZonedDateTime
 typealias PropertyMap = Map<String, Any>
 typealias MutablePropertyMap = MutableMap<String, Any>
 
-/*
-class BooleanValue(value: Boolean = create()) : Value<Boolean>(value)
-class StringValue(value: String = create()) : Value<String>(value)
-class IntValue(value: Int = create()) : Value<Int>(value)
-class LongValue(value: Long = create()) : Value<Long>(value)
-class FloatValue(value: Float = create()) : Value<Float>(value)
-class DoubleValue(value: Double = create()) : Value<Double>(value)
-class BigDecimalValue(value: BigDecimal = create()) : Value<BigDecimal>(value)
-class DateTimeValue(value: DateTime = create()) : Value<DateTime>(value)
-*/
 interface ValueCollection
 
-class BooleanMutableList : ArrayList<Boolean>(), ValueCollection
-class StringMutableList : ArrayList<String>(), ValueCollection
-class IntMutableList : ArrayList<Int>(), ValueCollection
-class LongMutableList : ArrayList<Long>(), ValueCollection
-class FloatMutableList : ArrayList<Float>(), ValueCollection
-class DoubleMutableList : ArrayList<Double>(), ValueCollection
-class BigDecimalMutableList : ArrayList<BigDecimal>(), ValueCollection
-class DateTimeMutableList : ArrayList<DateTime>(), ValueCollection
+class BooleanMutableList(vararg values: Boolean) : ArrayList<Boolean>(values.asList()), ValueCollection
+class StringMutableList(vararg values: String) : ArrayList<String>(values.asList()), ValueCollection
+class IntMutableList(vararg values: Int) : ArrayList<Int>(values.asList()), ValueCollection
+class LongMutableList(vararg values: Long) : ArrayList<Long>(values.asList()), ValueCollection
+class FloatMutableList(vararg values: Float) : ArrayList<Float>(values.asList()), ValueCollection
+class DoubleMutableList(vararg values: Double) : ArrayList<Double>(values.asList()), ValueCollection
+class BigDecimalMutableList(vararg values: BigDecimal) : ArrayList<BigDecimal>(values.asList()), ValueCollection
+class DateTimeMutableList(vararg values: DateTime) : ArrayList<DateTime>(values.asList()), ValueCollection
 
-class BooleanValueMutableList : ArrayList<Value<Boolean>>(), ValueCollection
-class StringValueMutableList : ArrayList<Value<String>>(), ValueCollection
-class IntValueMutableList : ArrayList<Value<Int>>(), ValueCollection
-class LongValueMutableList : ArrayList<Value<Long>>(), ValueCollection
-class FloatValueMutableList : ArrayList<Value<Float>>(), ValueCollection
-class DoubleValueMutableList : ArrayList<Value<Double>>(), ValueCollection
-class BigDecimalValueMutableList : ArrayList<Value<BigDecimal>>(), ValueCollection
-class DateTimeValueMutableList : ArrayList<Value<DateTime>>(), ValueCollection
+class BooleanValueMutableList(vararg values: Value<Boolean>) : ArrayList<Value<Boolean>>(values.asList()), ValueCollection
+class StringValueMutableList(vararg values: Value<String>) : ArrayList<Value<String>>(values.asList()), ValueCollection
+class IntValueMutableList(vararg values: Value<Int>) : ArrayList<Value<Int>>(values.asList()), ValueCollection
+class LongValueMutableList(vararg values: Value<Long>) : ArrayList<Value<Long>>(values.asList()), ValueCollection
+class FloatValueMutableList(vararg values: Value<Float>) : ArrayList<Value<Float>>(values.asList()), ValueCollection
+class DoubleValueMutableList(vararg values: Value<Double>) : ArrayList<Value<Double>>(values.asList()), ValueCollection
+class BigDecimalValueMutableList(vararg values: Value<BigDecimal>) : ArrayList<Value<BigDecimal>>(values.asList()), ValueCollection
+class DateTimeValueMutableList(vararg values: Value<DateTime>) : ArrayList<Value<DateTime>>(values.asList()), ValueCollection
 
-class BooleanMutableSet : LinkedHashSet<Boolean>(), ValueCollection
-class StringMutableSet : LinkedHashSet<String>(), ValueCollection
-class IntMutableSet : LinkedHashSet<Int>(), ValueCollection
-class LongMutableSet : LinkedHashSet<Long>(), ValueCollection
-class FloatMutableSet : LinkedHashSet<Float>(), ValueCollection
-class DoubleMutableSet : LinkedHashSet<Double>(), ValueCollection
-class BigDecimalMutableSet : LinkedHashSet<BigDecimal>(), ValueCollection
-class DateTimeMutableSet : LinkedHashSet<DateTime>(), ValueCollection
+class BooleanMutableSet(vararg values: Boolean) : HashSet<Boolean>(values.asList()), ValueCollection
+class StringMutableSet(vararg values: String) : HashSet<String>(values.asList()), ValueCollection
+class IntMutableSet(vararg values: Int) : HashSet<Int>(values.asList()), ValueCollection
+class LongMutableSet(vararg values: Long) : HashSet<Long>(values.asList()), ValueCollection
+class FloatMutableSet(vararg values: Float) : HashSet<Float>(values.asList()), ValueCollection
+class DoubleMutableSet(vararg values: Double) : HashSet<Double>(values.asList()), ValueCollection
+class BigDecimalMutableSet(vararg values: BigDecimal) : HashSet<BigDecimal>(values.asList()), ValueCollection
+class DateTimeMutableSet(vararg values: DateTime) : HashSet<DateTime>(values.asList()), ValueCollection
 
-class BooleanValueMutableSet : ValueMutableSet<Boolean>(), ValueCollection
-class StringValueMutableSet : ValueMutableSet<String>(), ValueCollection
-class IntValueMutableSet : ValueMutableSet<Int>(), ValueCollection
-class LongValueMutableSet : ValueMutableSet<Long>(), ValueCollection
-class FloatValueMutableSet : ValueMutableSet<Float>(), ValueCollection
-class DoubleValueMutableSet : ValueMutableSet<Double>(), ValueCollection
-class BigDecimalValueMutableSet : ValueMutableSet<BigDecimal>(), ValueCollection
-class DateTimeValueMutableSet : ValueMutableSet<DateTime>(), ValueCollection
+class BooleanValueMutableSet(vararg values: Value<Boolean>) : ValueMutableSet<Boolean>(values.asList()), ValueCollection
+class StringValueMutableSet(vararg values: Value<String>) : ValueMutableSet<String>(values.asList()), ValueCollection
+class IntValueMutableSet(vararg values: Value<Int>) : ValueMutableSet<Int>(values.asList()), ValueCollection
+class LongValueMutableSet(vararg values: Value<Long>) : ValueMutableSet<Long>(values.asList()), ValueCollection
+class FloatValueMutableSet(vararg values: Value<Float>) : ValueMutableSet<Float>(values.asList()), ValueCollection
+class DoubleValueMutableSet(vararg values: Value<Double>) : ValueMutableSet<Double>(values.asList()), ValueCollection
+class BigDecimalValueMutableSet(vararg values: Value<BigDecimal>) : ValueMutableSet<BigDecimal>(values.asList()), ValueCollection
+class DateTimeValueMutableSet(vararg values: Value<DateTime>) : ValueMutableSet<DateTime>(values.asList()), ValueCollection
