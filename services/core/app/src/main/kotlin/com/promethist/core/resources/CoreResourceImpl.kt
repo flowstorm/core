@@ -105,7 +105,9 @@ class CoreResourceImpl : CoreResource {
                 sender = sender,
                 recipient = session.application.dialogueName,
                 sessionId = session.sessionId,
-                items = mutableListOf(Response.Item(text = input.transcript.text)))
+                items = mutableListOf(Response.Item(text = input.transcript.text)),
+                language = input.locale
+        )
         val appVariables = mutableMapOf<String, Serializable>()
         addUserToExtensions(requestMessage, session.user)
         requestMessage.attributes["variables"] = appVariables as Serializable
