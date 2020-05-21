@@ -9,7 +9,7 @@ class NamedEntityListAttributeDelegate<E: NamedEntity>(
         scope: ContextualAttributeDelegate.Scope,
         namespace: (() -> String)? = null
 ) {
-    private val attributeDelegate = ContextualAttributeDelegate<StringMutableList>(scope, StringMutableList::class, namespace, null)
+    private val attributeDelegate = ContextualAttributeDelegate(scope, StringMutableList::class, namespace) { StringMutableList() }
 
     operator fun getValue(thisRef: Dialogue, property: KProperty<*>): MutableList<E> {
         val names = attributeDelegate.getValue(thisRef, property)

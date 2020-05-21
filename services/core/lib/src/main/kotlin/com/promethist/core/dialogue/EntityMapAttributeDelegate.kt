@@ -1,5 +1,6 @@
 package com.promethist.core.dialogue
 
+import com.promethist.core.type.StringMutableList
 import kotlin.reflect.KProperty
 
 class EntityMapAttributeDelegate<E>(
@@ -11,7 +12,7 @@ class EntityMapAttributeDelegate<E>(
         fun put(key: String): E?
     }
 
-    private val attributeDelegate = ContextualAttributeDelegate<MutableList<String>>(scope, MutableList::class, namespace, null)
+    private val attributeDelegate = ContextualAttributeDelegate(scope, MutableList::class, namespace) { StringMutableList() }
 
     operator fun getValue(thisRef: Dialogue, property: KProperty<*>): EntityMap<E> {
         val keys = attributeDelegate.getValue(thisRef, property)
