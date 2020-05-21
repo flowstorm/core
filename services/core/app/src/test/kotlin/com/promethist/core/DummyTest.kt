@@ -16,7 +16,7 @@ class DummyTest {
 
     @Test
     fun `dummy test case`() {
-        /*
+
         val db = KMongo.createClient(ConnectionString(AppConfig.instance["database.url"]))
                 .getDatabase(AppConfig.instance["name"] + "-" + AppConfig.instance["namespace"])
 
@@ -25,9 +25,9 @@ class DummyTest {
 
         val t1 = TestX("xxx")
         t1.attributes.get("ns1").apply {
-            put("iv", IntValue(1))
-            put("bv", BooleanValue(true))
-            put("dtv", DateTimeValue(ZonedDateTime.now()))
+            put("iv", Value(1).apply { value++ })
+            put("bv", Value(true))
+            put("dtv", Value(ZonedDateTime.now()))
             val dtml = DateTimeMutableList()
             dtml.add(ZonedDateTime.now())
             put("dtml", Value.pack(dtml))
@@ -36,7 +36,7 @@ class DummyTest {
         println(t1)
 
         val col = db.getCollection<TestX>("testx")
-        //col.insertOne(t1)
+        col.insertOne(t1)
 
         val t2 = col.findOne { TestX::id eq "xxx" }
         println(t2)
@@ -46,6 +46,6 @@ class DummyTest {
 
         println(1)
 
-         */
+
     }
 }

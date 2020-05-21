@@ -4,6 +4,8 @@ import ch.qos.logback.classic.Level
 import com.promethist.core.*
 import com.promethist.core.context.ContextFactory
 import com.promethist.core.context.ContextPersister
+import com.promethist.core.dialogue.BasicDialogue
+import com.promethist.core.dialogue.Dialogue
 import com.promethist.core.model.*
 import com.promethist.core.model.Application
 import com.promethist.core.model.metrics.Metric
@@ -67,16 +69,17 @@ class CoreResourceImpl : CoreResource {
                     with (processPipeline(context)) {
                         // client attributes
                         listOf("speakingRate", "speakingPitch", "speakingVolumeGain").forEach {
-                            if (!turn.attributes.containsKey(it)) {
-                                val value = session.attributes[it] ?: userProfile.attributes[it]
+                            if (!turn.attributes[Dialogue.clientNamespace].containsKey(it)) {
+                                val value = session.attributes[Dialogue.clientNamespace][it]
+                                        ?: userProfile.attributes[Dialogue.clientNamespace][it]
                                 if (value != null)
-                                    turn.attributes[it] = value
+                                    turn.attributes[Dialogue.clientNamespace][it] = value
                             }
                         }
                         turn.responseItems.forEach {
                             it.ttsVoice = it.ttsVoice ?: session.application.ttsVoice ?: TtsConfig.defaultVoice(locale?.language ?: "en")
                         }
-                        Response(context.locale, turn.responseItems, dialogueLog.log, turn.attributes, expectedPhrases, sessionEnded)
+                        Response(context.locale, turn.responseItems, dialogueLog.log, turn.attributes[Dialogue.clientNamespace], expectedPhrases, sessionEnded)
                     }
                 }
                 else -> error("Unknown dialogue engine (${session.application.dialogueEngine})")

@@ -11,8 +11,6 @@ import kotlin.reflect.full.isSubtypeOf
 
 abstract class Dialogue {
 
-    val clientNamespace = "client"
-
     //dialogue config - must/may be overrided
     abstract val dialogueName: String
     open val buildId: String = "unknown" // used for generated classes, others are unknown
@@ -198,6 +196,8 @@ abstract class Dialogue {
     class DialogueScriptException(node: Node, cause: Throwable) : Throwable("DialogueScript failed at ${node.dialogue.dialogueName}#${node.id}", cause)
 
     companion object {
+
+        val clientNamespace = "client"
 
         private val threadContext = ThreadLocal<ThreadContext>()
 

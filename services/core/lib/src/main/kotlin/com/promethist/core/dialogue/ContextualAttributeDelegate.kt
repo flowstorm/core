@@ -7,7 +7,7 @@ class ContextualAttributeDelegate<V: Any>(
         private val scope: Scope,
         clazz: KClass<*>,
         namespace: (() -> String)? = null,
-        default: (Context.() -> V)? = null
+        default: (Context.() -> V)
 ) : AttributeDelegate<V>(clazz, namespace, default) {
 
     enum class Scope { Turn, Session, User }

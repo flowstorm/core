@@ -7,6 +7,7 @@ typealias DateTime = ZonedDateTime
 typealias PropertyMap = Map<String, Any>
 typealias MutablePropertyMap = MutableMap<String, Any>
 
+/*
 class BooleanValue(value: Boolean = create()) : Value<Boolean>(value)
 class StringValue(value: String = create()) : Value<String>(value)
 class IntValue(value: Int = create()) : Value<Int>(value)
@@ -15,7 +16,7 @@ class FloatValue(value: Float = create()) : Value<Float>(value)
 class DoubleValue(value: Double = create()) : Value<Double>(value)
 class BigDecimalValue(value: BigDecimal = create()) : Value<BigDecimal>(value)
 class DateTimeValue(value: DateTime = create()) : Value<DateTime>(value)
-
+*/
 interface ValueCollection
 
 class BooleanMutableList : ArrayList<Boolean>(), ValueCollection

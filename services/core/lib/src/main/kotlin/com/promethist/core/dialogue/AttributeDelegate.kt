@@ -7,7 +7,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.full.isSubclassOf
 
-abstract class AttributeDelegate<V: Any>(val clazz: KClass<*>, val namespace: (() -> String)? = null, val default: (Context.() -> V)? = null) {
+abstract class AttributeDelegate<V: Any>(val clazz: KClass<*>, val namespace: (() -> String)? = null, val default: (Context.() -> V)) {
 
     abstract val attributes: Attributes
 
@@ -20,12 +20,13 @@ abstract class AttributeDelegate<V: Any>(val clazz: KClass<*>, val namespace: ((
 
     fun unpackValue(namespace: Attributes.Namespace, name: String) =
         namespace.getOrPut(name) {
-            Value.pack(default?.invoke(Dialogue.threadContext().context) ?: Value.create(clazz))
+            Value.pack(default.invoke(Dialogue.threadContext().context))
         }.let {
-            if (clazz.isSubclassOf(Value::class))
+            if (clazz.isSubclassOf(Value::class)) {
                 it
-            else
+            } else {
                 it.value
+            }
         } as V
 
     fun packValue(any: Any) = Value.pack(any)

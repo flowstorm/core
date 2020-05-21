@@ -41,7 +41,7 @@ abstract class BasicDialogue : Dialogue() {
         infix fun DateTime.isDay(day: Int) = this isDay day..day
     }
 
-    val location by turnAttribute<Location>(clientNamespace)
+    val location by turnAttribute(clientNamespace) { Location() }
 
     var turnSpeakingRate by turnAttribute(clientNamespace) { 1.0 }
     var sessionSpeakingRate by sessionAttribute(clientNamespace) { 1.0 }
@@ -55,16 +55,16 @@ abstract class BasicDialogue : Dialogue() {
     var sessionSpeakingVolumeGain by sessionAttribute(clientNamespace) { 1.0 }
     var userSpeakingVolumeGain by userAttribute(clientNamespace) { 1.0 }
 
-    inline fun <reified V: Any> turnAttribute(namespace: String? = null, noinline default: (Context.() -> V)? = null) =
+    inline fun <reified V: Any> turnAttribute(namespace: String? = null, noinline default: (Context.() -> V)) =
             ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.Turn, V::class, { namespace ?: dialogueNameWithoutVersion }, default)
 
-    inline fun <reified V: Any> sessionAttribute(namespace: String? = null, noinline default: (Context.() -> V)? = null) =
+    inline fun <reified V: Any> sessionAttribute(namespace: String? = null, noinline default: (Context.() -> V)) =
             ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.Session, V::class, { namespace ?: dialogueNameWithoutVersion }, default)
 
-    inline fun <reified V: Any> userAttribute(namespace: String? = null, noinline default: (Context.() -> V)? = null) =
+    inline fun <reified V: Any> userAttribute(namespace: String? = null, noinline default: (Context.() -> V)) =
             ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.User, V::class, { namespace ?: dialogueNameWithoutVersion }, default)
 
-    inline fun <reified V: Any> communityAttribute(communityName: String, namespace: String? = null, noinline default: (Context.() -> V)? = null) =
+    inline fun <reified V: Any> communityAttribute(communityName: String, namespace: String? = null, noinline default: (Context.() -> V)) =
             CommunityAttributeDelegate(V::class, communityName, { namespace?:dialogueNameWithoutVersion }, default)
 
     inline fun <reified E: NamedEntity> turnEntityListAttribute(entities: Collection<E>, namespace: String? = null) =
