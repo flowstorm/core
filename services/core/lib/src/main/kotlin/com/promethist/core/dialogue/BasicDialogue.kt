@@ -42,9 +42,12 @@ abstract class BasicDialogue : Dialogue() {
     }
 
     // client request attributes
-    var clientType by sessionAttribute(clientNamespace) { "unknown" }
+    val clientType by sessionAttribute(clientNamespace) { "unknown" }
     var clientScreen by sessionAttribute(clientNamespace) { false }
     val clientLocation by sessionAttribute(clientNamespace) { Location() }
+    val clientTemperature by sessionAttribute(clientNamespace) { 20.0 }
+    val clientAmbientLight by sessionAttribute(clientNamespace) { 0.0 }
+    val clientSpacialMotion by sessionAttribute(clientNamespace) { 0.0 }
 
     // client response attributes
     var turnSpeakingRate by turnAttribute(clientNamespace) { 1.0 }
