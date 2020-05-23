@@ -4,7 +4,6 @@ import ch.qos.logback.classic.Level
 import com.promethist.core.*
 import com.promethist.core.context.ContextFactory
 import com.promethist.core.context.ContextPersister
-import com.promethist.core.dialogue.BasicDialogue
 import com.promethist.core.dialogue.Dialogue
 import com.promethist.core.model.*
 import com.promethist.core.model.Application

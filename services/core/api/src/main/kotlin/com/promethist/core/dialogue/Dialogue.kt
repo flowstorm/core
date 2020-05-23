@@ -2,6 +2,7 @@ package com.promethist.core.dialogue
 
 import com.promethist.core.Context
 import com.promethist.core.runtime.Loader
+import com.promethist.core.type.Location
 import com.promethist.core.type.PropertyMap
 import java.util.*
 import kotlin.random.Random
@@ -16,6 +17,8 @@ abstract class Dialogue {
     open val buildId: String = "unknown" // used for generated classes, others are unknown
     open val language = "en"
     val locale by lazy { Locale(language) }
+
+    abstract val clientLocation: Location?
 
     //runtime dependencies
     lateinit var loader: Loader
@@ -104,7 +107,7 @@ abstract class Dialogue {
 
         constructor(vararg text: (Context.(Response) -> String)) : this(nextId--, true, *text)
 
-        fun getText(context: Context, index: Int = -1) = threadContext(context,  this) {
+        fun getText(context: Context, index: Int = -1) = threadContext(context, this) {
             texts[if (index < 0) Random.nextInt(texts.size) else index](context, this)
         } as String
     }
@@ -200,6 +203,8 @@ abstract class Dialogue {
         val clientNamespace = "client"
 
         private val threadContext = ThreadLocal<ThreadContext>()
+
+        val isInThreadContext get() = (threadContext.get() != null)
 
         fun threadContext() = threadContext.get() ?: error("out of dialogue thread context")
 

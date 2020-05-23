@@ -9,4 +9,14 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
         JsonSubTypes.Type(value = MemoryMutableSet::class, name = "ValueMutableSet"),
         JsonSubTypes.Type(value = MemoryMutableList::class, name = "ValueMutableList")
 )
-interface PersistentObject
+interface Memorable {
+
+    companion object {
+        fun pack(any: Any): Memorable =
+                when {
+                    any is Memorable -> any
+                    Memory.canContain(any) -> Memory(any)
+                    else -> error("unsupported type ${any::class.qualifiedName}")
+                }
+    }
+}

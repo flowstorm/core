@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.promethist.core.Defaults
+import com.promethist.core.dialogue.Dialogue
 import java.math.BigDecimal
 
 open class Memory<V: Any>(
@@ -42,7 +43,16 @@ open class Memory<V: Any>(
         ])
         var _value: V,
         var _type: String = _value::class.simpleName!!
-) : PersistentObject {
+) : Memorable {
+
+    companion object {
+
+        val ZERO_TIME = DateTime.of(0, 1, 1, 0, 0, 0, 0, Defaults.zoneId)
+
+        fun canContain(it: Any) =
+                it is Boolean || it is String || it is Int || it is Long || it is Float || it is Double || it is BigDecimal || it is DateTime || it is Location || it is ValueCollection
+    }
+
     @get:JsonIgnore
     var value: V
         get() = _value
@@ -52,6 +62,7 @@ open class Memory<V: Any>(
         }
     var time = DateTime.now()
     var count = 0
+    var location: Location? = null
 
     override fun equals(other: Any?): Boolean = if (other is Memory<*>) (_value == other._value) else false
 
@@ -62,18 +73,11 @@ open class Memory<V: Any>(
     fun touch() {
         count++
         time = DateTime.now()
-    }
-
-    companion object {
-
-        val ZERO_TIME = DateTime.of(0, 1, 1, 0, 0, 0, 0, Defaults.zoneId)
-
-        fun pack(any: Any): PersistentObject =
-            if (any is PersistentObject) {
-                any
-            } else when (any) {
-                is Boolean, is String, is Int, is Long, is Float, is Double, is BigDecimal, is DateTime, is ValueCollection -> Memory(any)
-                else -> error("unsupported value type ${any::class.qualifiedName}")
+        if (Dialogue.isInThreadContext) {
+            Dialogue.threadContext().dialogue.apply {
+                if (clientLocation != null && clientLocation!!.isNotEmpty())
+                    location = clientLocation
             }
+        }
     }
 }

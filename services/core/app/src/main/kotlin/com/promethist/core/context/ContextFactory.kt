@@ -2,14 +2,12 @@ package com.promethist.core.context
 
 import com.promethist.core.model.*
 import com.promethist.core.Context
-import com.promethist.core.Input
 import com.promethist.core.Pipeline
 import com.promethist.core.Request
 import com.promethist.core.dialogue.Dialogue
 import com.promethist.core.profile.ProfileRepository
 import com.promethist.core.resources.CommunityResource
 import com.promethist.core.runtime.DialogueLog
-import com.promethist.core.type.Attributes
 import javax.inject.Inject
 
 class ContextFactory {

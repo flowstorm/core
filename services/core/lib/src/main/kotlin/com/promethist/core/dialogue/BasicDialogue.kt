@@ -42,9 +42,9 @@ abstract class BasicDialogue : Dialogue() {
     }
 
     // client request attributes
+    override var clientLocation by sessionAttribute(clientNamespace) { Location() }
     var clientType by sessionAttribute(clientNamespace) { "unknown" }
     var clientScreen by sessionAttribute(clientNamespace) { false }
-    var clientLocation by sessionAttribute(clientNamespace) { Location() }
     var clientTemperature by sessionAttribute(clientNamespace) { -273.15 }
     var clientAmbientLight by sessionAttribute(clientNamespace) { 0.0 }
     var clientSpacialMotion by sessionAttribute(clientNamespace) { 0.0 }

@@ -30,7 +30,7 @@ class BigDecimalMutableSet(vararg values: BigDecimal) : ValueSet<BigDecimal>(val
 class DateTimeMutableSet(vararg values: DateTime) : ValueSet<DateTime>(values.asList())
 class LocationMutableSet(vararg values: Location) : ValueSet<Location>(values.asList())
 
-interface MemoryCollection<V : Any> : MutableCollection<Memory<V>>, PersistentObject
+interface MemoryCollection<V : Any> : MutableCollection<Memory<V>>, Memorable
 
 class MemoryMutableList<V : Any>(vararg memories: Memory<V>) : ArrayList<Memory<V>>(memories.asList()), MemoryCollection<V>
 

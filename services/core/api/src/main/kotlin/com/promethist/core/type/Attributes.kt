@@ -2,7 +2,7 @@ package com.promethist.core.type
 
 class Attributes : LinkedHashMap<String, Attributes.Namespace>() {
 
-    class Namespace : LinkedHashMap<String, PersistentObject>() {
+    class Namespace : LinkedHashMap<String, Memorable>() {
 
         fun put(values: PropertyMap) {
             values.forEach {
