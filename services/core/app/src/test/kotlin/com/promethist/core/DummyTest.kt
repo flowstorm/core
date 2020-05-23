@@ -20,8 +20,6 @@ class DummyTest {
 
     data class TestX(val id: String, val attributes: Attributes = Attributes())
 
-    data class TestY(val id: String, val v: PersistentObject, val ivl: ValueMutableList2, val svs: ValueMutableList2, val dtvl: MemoryMutableList)
-
     val db get() = KMongo.createClient(ConnectionString(AppConfig.instance["database.url"]))
             .getDatabase(AppConfig.instance["name"] + "-" + AppConfig.instance["namespace"])
 
@@ -55,18 +53,13 @@ class DummyTest {
         }
     }
 
-    val ty1 = TestY("id", MemoryMutableList(Memory(3), Memory(4)),
-            mutableListOf(Memory(1), Memory(2)),
-            mutableListOf(Memory("a"), Memory("b")),
-            MemoryMutableList(Memory(DateTime.now())))
-
     init {
         mapper.configure(SerializationFeature.INDENT_OUTPUT, true)
     }
 
     @Test
     fun `dummy test x db`() {
-        /*
+
         val json = mapper.writeValueAsString(tx1)
         println(json)
 
@@ -75,28 +68,6 @@ class DummyTest {
 
         val tx2 = col.findOne { TestX::id eq "id" }
         println(tx2)
-        */
-    }
 
-    @Test
-    fun `dummy y json`() {
-        val json = mapper.writeValueAsString(ty1)
-        println(json)
-
-        val ty2 = mapper.readValue<TestY>(json)
-        println(ty2)
-
-    }
-
-    @Test
-    fun `dummy y db`() {
-        /*
-        val col = db.getCollection<TestY>("testy")
-        col.insertOne(ty1)
-
-        val ty2 = col.findOne { TestX::id eq "id" }
-
-        println(ty2)
-        */
     }
 }
