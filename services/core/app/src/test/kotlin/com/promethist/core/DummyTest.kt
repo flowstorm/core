@@ -1,6 +1,8 @@
 package com.promethist.core
 
+import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.mongodb.ConnectionString
 import com.promethist.common.ObjectUtil.defaultMapper as mapper
 import com.promethist.common.AppConfig
 import com.promethist.core.type.*
@@ -12,66 +14,89 @@ import java.math.BigDecimal
 import java.text.SimpleDateFormat
 import java.time.ZonedDateTime
 
+typealias ValueMutableList2 = MutableList<Value<*>>
+
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class DummyTest {
     //Dummy test to keep test directory in git and avoid warnings in build until we introduce actual tests.
 
     data class TestX(val id: String, val attributes: Attributes = Attributes())
 
-    @Test
-    fun `dummy test case`() {
+    data class TestY(val id: String, val v: PersistentObject, val ivl: ValueMutableList2, val svs: ValueMutableList2, val dtvl: ValueMutableList)
 
-        /*
-        val db = KMongo.createClient(ConnectionString(AppConfig.instance["database.url"]))
-                .getDatabase(AppConfig.instance["name"] + "-" + AppConfig.instance["namespace"])
+    val db get() = KMongo.createClient(ConnectionString(AppConfig.instance["database.url"]))
+            .getDatabase(AppConfig.instance["name"] + "-" + AppConfig.instance["namespace"])
 
-        println(AppConfig.instance["name"] + "-" + AppConfig.instance["namespace"])
-*/
-
-        val t1 = TestX("xxx")
-        t1.attributes.get("ns1").apply {
+    val tx1 = TestX("id").apply {
+        attributes.get("ns1").apply {
             put("iv", Value(1).apply { value++ })
             put("bv", Value(true))
             put("dtv", Value(ZonedDateTime.now()))
+
             put("dtml", Value(DateTimeMutableList(ZonedDateTime.now())))
-
             put("sl", Value(StringMutableList("a", "b", "c")))
-            put("is", Value(IntMutableSet(1, 2, 3)))
+            put("il", Value(IntMutableList(1, 2, 3)))
+            put("ss", Value(StringMutableSet("d", "e", "f")))
+            put("is", Value(IntMutableSet(4, 5, 6)))
 
-            //put("bvl", Value(BooleanValueMutableList(Value(true), Value(false))))
-            //put("svl", Value(StringValueMutableList(Value("a"), Value("b"))))
-            //put("ivl", Value(IntValueMutableList(Value(1), Value(2))))
-            put("lvl", Value(LongValueMutableList(Value(1), Value(2))))
-            put("fvl", Value(FloatValueMutableList(Value(.0F), Value(.0F))))
-            //put("dvl", Value(DoubleValueMutableList(Value(.0), Value(.0))))
-            put("bdvl", Value(BigDecimalValueMutableList(Value(BigDecimal.valueOf(1)), Value(BigDecimal.valueOf(2)))))
+            put("bvl", ValueMutableList(Value(true), Value(false)))
+            put("svl", ValueMutableList(Value("a"), Value("b")))
+            put("ivl", ValueMutableList(Value(1), Value(2)))
+            put("lvl", ValueMutableList(Value(1), Value(2)))
+            put("fvl", ValueMutableList(Value(.0F), Value(.0F)))
+            put("dvl", ValueMutableList(Value(.0), Value(.0)))
+            put("bdvl", ValueMutableList(Value(BigDecimal.valueOf(1)), Value(BigDecimal.valueOf(2))))
 
-            //put("bvs", Value(BooleanValueMutableSet(Value(true), Value(false))))
-            //put("svs", Value(StringValueMutableSet(Value("a"), Value("b"))))
-            //put("ivs", Value(IntValueMutableSet(Value(1), Value(2))))
-            put("lvs", Value(LongValueMutableSet(Value(1), Value(2))))
-            put("fvs", Value(FloatValueMutableSet(Value(.0F), Value(.0F))))
-            //put("dvs", Value(DoubleValueMutableSet(Value(.0), Value(.0))))
-            put("bdvs", Value(BigDecimalValueMutableSet(Value(BigDecimal.valueOf(1)), Value(BigDecimal.valueOf(2)))))
+            put("bvs", ValueMutableSet(Value(true), Value(false)))
+            put("svs", ValueMutableSet(Value("c"), Value("d")))
+            put("ivs", ValueMutableSet(Value(3), Value(4)))
+            put("lvs", ValueMutableSet(Value(3), Value(4)))
+            put("fvs", ValueMutableSet(Value(.1F), Value(.1F)))
+            put("dvs", ValueMutableSet(Value(.1), Value(.1)))
+            put("bdvs", ValueMutableSet(Value(BigDecimal.valueOf(3)), Value(BigDecimal.valueOf(4))))
         }
+    }
 
-        val json = mapper.writeValueAsString(t1)
+    val ty1 = TestY("id", ValueMutableList(Value(3), Value(4)),
+            mutableListOf(Value(1), Value(2)),
+            mutableListOf(Value("a"), Value("b")),
+            ValueMutableList(Value(DateTime.now())))
+
+    init {
+        mapper.configure(SerializationFeature.INDENT_OUTPUT, true)
+    }
+
+    @Test
+    fun `dummy test x db`() {
+
+        val json = mapper.writeValueAsString(tx1)
         println(json)
-        //mapper.writerWithDefaultPrettyPrinter().writeValue(System.out, t1)
-        val t2 = mapper.readValue<TestX>(json)
 
-        println(t1 == t2)
-
-/*
         val col = db.getCollection<TestX>("testx")
-        col.insertOne(t1)
+        col.insertOne(tx1)
 
-        val t2 = col.findOne { TestX::id eq "xxx" }
-        println(t2)
-*/
-        val iv1 = t1!!.attributes["ns1"]["iv"]
-        val iv2 = t2!!.attributes["ns1"]["iv"]
+        val tx2 = col.findOne { TestX::id eq "id" }
+        println(tx2)
+    }
 
-        println(1)
+    @Test
+    fun `dummy y json`() {
+        val json = mapper.writeValueAsString(ty1)
+        println(json)
+
+        val ty2 = mapper.readValue<TestY>(json)
+        println(ty2)
+
+    }
+
+    @Test
+    fun `dummy y db`() {
+        val col = db.getCollection<TestY>("testy")
+        col.insertOne(ty1)
+
+        val ty2 = col.findOne { TestX::id eq "id" }
+
+        println(ty2)
+
     }
 }

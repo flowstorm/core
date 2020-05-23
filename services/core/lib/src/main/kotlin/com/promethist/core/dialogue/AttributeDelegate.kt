@@ -7,27 +7,22 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.full.isSubclassOf
 
-abstract class AttributeDelegate<V: Any>(val clazz: KClass<*>, val namespace: (() -> String)? = null, val default: (Context.() -> V)) {
+abstract class AttributeDelegate<V: Any>(private val clazz: KClass<*>, val namespace: (() -> String)? = null, val default: (Context.() -> V)) {
 
     abstract val attributes: Attributes
 
     operator fun getValue(thisRef: Dialogue, property: KProperty<*>): V =
-            unpackValue(attributes[namespace?.invoke() ?: "default"], property.name)
+            attributes[namespace?.invoke() ?: "default"].getOrPut(property.name) {
+                Value.pack(default.invoke(Dialogue.threadContext().context))
+            }.let {
+                if (!clazz.isSubclassOf(Value::class) && (it is Value<*>)) {
+                    it.value
+                } else {
+                    it
+                }
+            } as V
 
     operator fun setValue(thisRef: Dialogue, property: KProperty<*>, any: V) {
-        attributes[namespace?.invoke() ?: "default"][property.name] = packValue(any)
+        attributes[namespace?.invoke() ?: "default"][property.name] = Value.pack(any)
     }
-
-    fun unpackValue(namespace: Attributes.Namespace, name: String) =
-        namespace.getOrPut(name) {
-            Value.pack(default.invoke(Dialogue.threadContext().context))
-        }.let {
-            if (clazz.isSubclassOf(Value::class)) {
-                it
-            } else {
-                it.value
-            }
-        } as V
-
-    fun packValue(any: Any) = Value.pack(any)
 }
