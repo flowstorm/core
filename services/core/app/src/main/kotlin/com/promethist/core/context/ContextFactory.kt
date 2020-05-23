@@ -5,6 +5,7 @@ import com.promethist.core.Context
 import com.promethist.core.Input
 import com.promethist.core.Pipeline
 import com.promethist.core.Request
+import com.promethist.core.dialogue.Dialogue
 import com.promethist.core.profile.ProfileRepository
 import com.promethist.core.resources.CommunityResource
 import com.promethist.core.runtime.DialogueLog
@@ -30,7 +31,9 @@ class ContextFactory {
                 pipeline,
                 profile,
                 session,
-                Turn(input = request.input, attributes = Attributes().apply { this["client"].put(request.attributes) }),
+                Turn(input = request.input, attributes = Attributes().also {
+                    it[Dialogue.clientNamespace].put(request.attributes)
+                }),
                 dialogueLog.logger,
                 request.input.locale,
                 communityResource

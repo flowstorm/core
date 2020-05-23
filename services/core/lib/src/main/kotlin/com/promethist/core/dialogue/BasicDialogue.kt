@@ -41,6 +41,8 @@ abstract class BasicDialogue : Dialogue() {
         infix fun DateTime.isDay(day: Int) = this isDay day..day
     }
 
+    val clientType by turnAttribute(clientNamespace) { "unknown" }
+    val hasScreen by turnAttribute(clientNamespace) { false }
     val location by turnAttribute(clientNamespace) { Location() }
 
     var turnSpeakingRate by turnAttribute(clientNamespace) { 1.0 }
