@@ -9,12 +9,10 @@ import com.promethist.core.type.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.litote.kmongo.*
-import org.litote.kmongo.id.jackson.IdJacksonModule
 import java.math.BigDecimal
-import java.text.SimpleDateFormat
 import java.time.ZonedDateTime
 
-typealias ValueMutableList2 = MutableList<Value<*>>
+typealias ValueMutableList2 = MutableList<Memory<*>>
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class DummyTest {
@@ -22,45 +20,45 @@ class DummyTest {
 
     data class TestX(val id: String, val attributes: Attributes = Attributes())
 
-    data class TestY(val id: String, val v: PersistentObject, val ivl: ValueMutableList2, val svs: ValueMutableList2, val dtvl: ValueMutableList)
+    data class TestY(val id: String, val v: PersistentObject, val ivl: ValueMutableList2, val svs: ValueMutableList2, val dtvl: MemoryMutableList)
 
     val db get() = KMongo.createClient(ConnectionString(AppConfig.instance["database.url"]))
             .getDatabase(AppConfig.instance["name"] + "-" + AppConfig.instance["namespace"])
 
     val tx1 = TestX("id").apply {
         attributes.get("ns1").apply {
-            put("iv", Value(1).apply { value++ })
-            put("bv", Value(true))
-            put("dtv", Value(ZonedDateTime.now()))
+            put("iv", Memory(1).apply { value++ })
+            put("bv", Memory(true))
+            put("dtv", Memory(ZonedDateTime.now()))
 
-            put("dtml", Value(DateTimeMutableList(ZonedDateTime.now())))
-            put("sl", Value(StringMutableList("a", "b", "c")))
-            put("il", Value(IntMutableList(1, 2, 3)))
-            put("ss", Value(StringMutableSet("d", "e", "f")))
-            put("is", Value(IntMutableSet(4, 5, 6)))
+            put("dtml", Memory(DateTimeMutableList(ZonedDateTime.now())))
+            put("sl", Memory(StringMutableList("a", "b", "c")))
+            put("il", Memory(IntMutableList(1, 2, 3)))
+            put("ss", Memory(StringMutableSet("d", "e", "f")))
+            put("is", Memory(IntMutableSet(4, 5, 6)))
 
-            put("bvl", ValueMutableList(Value(true), Value(false)))
-            put("svl", ValueMutableList(Value("a"), Value("b")))
-            put("ivl", ValueMutableList(Value(1), Value(2)))
-            put("lvl", ValueMutableList(Value(1), Value(2)))
-            put("fvl", ValueMutableList(Value(.0F), Value(.0F)))
-            put("dvl", ValueMutableList(Value(.0), Value(.0)))
-            put("bdvl", ValueMutableList(Value(BigDecimal.valueOf(1)), Value(BigDecimal.valueOf(2))))
+            put("bvl", MemoryMutableList(Memory(true), Memory(false)))
+            put("svl", MemoryMutableList(Memory("a"), Memory("b")))
+            put("ivl", MemoryMutableList(Memory(1), Memory(2)))
+            put("lvl", MemoryMutableList(Memory(1), Memory(2)))
+            put("fvl", MemoryMutableList(Memory(.0F), Memory(.0F)))
+            put("dvl", MemoryMutableList(Memory(.0), Memory(.0)))
+            put("bdvl", MemoryMutableList(Memory(BigDecimal.valueOf(1)), Memory(BigDecimal.valueOf(2))))
 
-            put("bvs", ValueMutableSet(Value(true), Value(false)))
-            put("svs", ValueMutableSet(Value("c"), Value("d")))
-            put("ivs", ValueMutableSet(Value(3), Value(4)))
-            put("lvs", ValueMutableSet(Value(3), Value(4)))
-            put("fvs", ValueMutableSet(Value(.1F), Value(.1F)))
-            put("dvs", ValueMutableSet(Value(.1), Value(.1)))
-            put("bdvs", ValueMutableSet(Value(BigDecimal.valueOf(3)), Value(BigDecimal.valueOf(4))))
+            put("bvs", MemoryMutableSet(Memory(true), Memory(false)))
+            put("svs", MemoryMutableSet(Memory("c"), Memory("d")))
+            put("ivs", MemoryMutableSet(Memory(3), Memory(4)))
+            put("lvs", MemoryMutableSet(Memory(3), Memory(4)))
+            put("fvs", MemoryMutableSet(Memory(.1F), Memory(.1F)))
+            put("dvs", MemoryMutableSet(Memory(.1), Memory(.1)))
+            put("bdvs", MemoryMutableSet(Memory(BigDecimal.valueOf(3)), Memory(BigDecimal.valueOf(4))))
         }
     }
 
-    val ty1 = TestY("id", ValueMutableList(Value(3), Value(4)),
-            mutableListOf(Value(1), Value(2)),
-            mutableListOf(Value("a"), Value("b")),
-            ValueMutableList(Value(DateTime.now())))
+    val ty1 = TestY("id", MemoryMutableList(Memory(3), Memory(4)),
+            mutableListOf(Memory(1), Memory(2)),
+            mutableListOf(Memory("a"), Memory("b")),
+            MemoryMutableList(Memory(DateTime.now())))
 
     init {
         mapper.configure(SerializationFeature.INDENT_OUTPUT, true)
@@ -68,7 +66,7 @@ class DummyTest {
 
     @Test
     fun `dummy test x db`() {
-
+        /*
         val json = mapper.writeValueAsString(tx1)
         println(json)
 
@@ -77,6 +75,7 @@ class DummyTest {
 
         val tx2 = col.findOne { TestX::id eq "id" }
         println(tx2)
+        */
     }
 
     @Test
@@ -91,12 +90,13 @@ class DummyTest {
 
     @Test
     fun `dummy y db`() {
+        /*
         val col = db.getCollection<TestY>("testy")
         col.insertOne(ty1)
 
         val ty2 = col.findOne { TestX::id eq "id" }
 
         println(ty2)
-
+        */
     }
 }

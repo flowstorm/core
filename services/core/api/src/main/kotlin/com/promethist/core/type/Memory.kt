@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.promethist.core.Defaults
 import java.math.BigDecimal
 
-open class Value<V: Any>(
+open class Memory<V: Any>(
         @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "_type", include = JsonTypeInfo.As.EXTERNAL_PROPERTY)
         @JsonSubTypes(value = [
 
@@ -47,11 +47,18 @@ open class Value<V: Any>(
             touch()
             _value = value
         }
-
+    @get:JsonIgnore val booleanValue get() = value as Boolean
+    @get:JsonIgnore val stringValue get() = value.toString()
+    @get:JsonIgnore val intValue get() = value as Int
+    @get:JsonIgnore val longValue get() = value as Long
+    @get:JsonIgnore val floatValue get() = value as Float
+    @get:JsonIgnore val doubleValue get() = value as Double
+    @get:JsonIgnore val bigDecimalValue get() = value as BigDecimal
+    @get:JsonIgnore val dateTimeValue get() = value as DateTime
     var time = DateTime.now()
     var count = 0
 
-    override fun equals(other: Any?): Boolean = if (other is Value<*>) (_value == other._value) else false
+    override fun equals(other: Any?): Boolean = if (other is Memory<*>) (_value == other._value) else false
 
     override fun hashCode(): Int = _value.hashCode()
 
@@ -70,7 +77,7 @@ open class Value<V: Any>(
             if (any is PersistentObject) {
                 any
             } else when (any) {
-                is Boolean, is String, is Int, is Long, is Float, is Double, is BigDecimal, is DateTime, is ValueCollection -> Value(any)
+                is Boolean, is String, is Int, is Long, is Float, is Double, is BigDecimal, is DateTime, is ValueCollection -> Memory(any)
                 else -> error("unsupported value type ${any::class.qualifiedName}")
             }
     }

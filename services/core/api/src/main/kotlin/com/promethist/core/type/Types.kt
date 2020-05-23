@@ -27,12 +27,14 @@ class DoubleMutableSet(vararg values: Double) : HashSet<Double>(values.asList())
 class BigDecimalMutableSet(vararg values: BigDecimal) : HashSet<BigDecimal>(values.asList()), ValueCollection
 class DateTimeMutableSet(vararg values: DateTime) : HashSet<DateTime>(values.asList()), ValueCollection
 
-class ValueMutableList(vararg values: Value<*>) : ArrayList<Value<*>>(values.asList()), PersistentObject
-class ValueMutableSet(vararg values: Value<*>) : HashSet<Value<*>>(values.asList()), PersistentObject {
-    override fun add(e: Value<*>): Boolean {
-        for (v in this) {
-            if (v == e) {
-                v.touch()
+interface MemoryCollection : Collection<Memory<*>>, PersistentObject
+
+class MemoryMutableList(vararg values: Memory<*>) : ArrayList<Memory<*>>(values.asList()), MemoryCollection
+class MemoryMutableSet(vararg values: Memory<*>) : HashSet<Memory<*>>(values.asList()), MemoryCollection {
+    override fun add(e: Memory<*>): Boolean {
+        for (m in this) {
+            if (m == e) {
+                m.touch()
                 return true
             }
         }

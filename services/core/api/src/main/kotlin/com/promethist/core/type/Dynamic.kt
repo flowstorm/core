@@ -26,7 +26,7 @@ class Dynamic : LinkedHashMap<String, Any>, MutablePropertyMap {
                     String::class -> ""
                     Boolean::class -> false
                     MutableList::class -> mutableListOf<V>()
-                    ZonedDateTime::class -> Value.ZERO_TIME
+                    ZonedDateTime::class -> Memory.ZERO_TIME
                     else -> error("unsupported $clazz")
                 }
     }
@@ -63,11 +63,11 @@ class Dynamic : LinkedHashMap<String, Any>, MutablePropertyMap {
         return Triple(obj, name, obj.get(name))
     }
 
-    fun <V: Any> put(key: String, clazz: KClass<*>, default: (() -> V)? = null, eval: (Value<V>.() -> Any)): Any {
+    fun <V: Any> put(key: String, clazz: KClass<*>, default: (() -> V)? = null, eval: (Memory<V>.() -> Any)): Any {
         val triple = item(key)
         val any = triple.third ?: default?.invoke() ?: defaultValue<V>(clazz)
 
-        val value = Value(any as V)
+        val value = Memory(any as V)
         val ret = eval(value)
         triple.first[triple.second] = value.value
         return ret
@@ -75,10 +75,10 @@ class Dynamic : LinkedHashMap<String, Any>, MutablePropertyMap {
 
     inline operator fun <reified V: Any> invoke(key: String, any: V) = put<V>(key, V::class) { value = any; Unit }
 
-    inline operator fun <reified V: Any> invoke(key: String, noinline eval: (Value<V>.() -> Any)): Any =
+    inline operator fun <reified V: Any> invoke(key: String, noinline eval: (Memory<V>.() -> Any)): Any =
             put(key, V::class, null, eval)
 
-    inline fun <reified V> list(key: String, noinline eval: (Value<MutableList<V>>.() -> Any)): Any =
+    inline fun <reified V> list(key: String, noinline eval: (Memory<MutableList<V>>.() -> Any)): Any =
             put(key, MutableList::class, null, eval)
 
     operator fun invoke(key: String): Any = item(key).third?:error("missing item $key")

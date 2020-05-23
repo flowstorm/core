@@ -242,7 +242,7 @@ abstract class BasicDialogue : Dialogue() {
 
     fun describe(data: Collection<String>) = enumerate(data)
 
-    fun describe(data: Value<*>) = describe(data.value) + indent(describe(data.time, HIGH))
+    fun describe(data: Memory<*>) = describe(data.value) + indent(describe(data.time, HIGH))
 
     fun describe(data: Any?, detail: Int = 0) =
         when (data) {

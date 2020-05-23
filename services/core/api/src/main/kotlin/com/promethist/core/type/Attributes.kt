@@ -6,7 +6,7 @@ class Attributes : LinkedHashMap<String, Attributes.Namespace>() {
 
         fun put(values: PropertyMap) {
             values.forEach {
-                put(it.key, Value(it.value))
+                put(it.key, Memory(it.value))
             }
         }
     }

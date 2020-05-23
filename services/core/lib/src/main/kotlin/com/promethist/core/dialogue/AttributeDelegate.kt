@@ -2,7 +2,7 @@ package com.promethist.core.dialogue
 
 import com.promethist.core.Context
 import com.promethist.core.type.Attributes
-import com.promethist.core.type.Value
+import com.promethist.core.type.Memory
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.full.isSubclassOf
@@ -13,9 +13,9 @@ abstract class AttributeDelegate<V: Any>(private val clazz: KClass<*>, val names
 
     operator fun getValue(thisRef: Dialogue, property: KProperty<*>): V =
             attributes[namespace?.invoke() ?: "default"].getOrPut(property.name) {
-                Value.pack(default.invoke(Dialogue.threadContext().context))
+                Memory.pack(default.invoke(Dialogue.threadContext().context))
             }.let {
-                if (!clazz.isSubclassOf(Value::class) && (it is Value<*>)) {
+                if (!clazz.isSubclassOf(Memory::class) && (it is Memory<*>)) {
                     it.value
                 } else {
                     it
@@ -23,6 +23,6 @@ abstract class AttributeDelegate<V: Any>(private val clazz: KClass<*>, val names
             } as V
 
     operator fun setValue(thisRef: Dialogue, property: KProperty<*>, any: V) {
-        attributes[namespace?.invoke() ?: "default"][property.name] = Value.pack(any)
+        attributes[namespace?.invoke() ?: "default"][property.name] = Memory.pack(any)
     }
 }
