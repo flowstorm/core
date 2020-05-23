@@ -7,23 +7,30 @@ typealias MutablePropertyMap = MutableMap<String, Any>
 
 interface ValueCollection
 
-class BooleanMutableList(vararg values: Boolean) : ArrayList<Boolean>(values.asList()), ValueCollection
-class StringMutableList(vararg values: String) : ArrayList<String>(values.asList()), ValueCollection
-class IntMutableList(vararg values: Int) : ArrayList<Int>(values.asList()), ValueCollection
-class LongMutableList(vararg values: Long) : ArrayList<Long>(values.asList()), ValueCollection
-class FloatMutableList(vararg values: Float) : ArrayList<Float>(values.asList()), ValueCollection
-class DoubleMutableList(vararg values: Double) : ArrayList<Double>(values.asList()), ValueCollection
-class BigDecimalMutableList(vararg values: BigDecimal) : ArrayList<BigDecimal>(values.asList()), ValueCollection
-class DateTimeMutableList(vararg values: DateTime) : ArrayList<DateTime>(values.asList()), ValueCollection
+open class ValueList<V : Any>(values: Collection<V>) : ArrayList<V>(values), ValueCollection {
+    fun remember(value: V) = add(value)
+}
+open class ValueSet<V : Any>(values: Collection<V>) : HashSet<V>(values), ValueCollection {
+    fun remember(value: V) = add(value)
+}
 
-class BooleanMutableSet(vararg values: Boolean) : HashSet<Boolean>(values.asList()), ValueCollection
-class StringMutableSet(vararg values: String) : HashSet<String>(values.asList()), ValueCollection
-class IntMutableSet(vararg values: Int) : HashSet<Int>(values.asList()), ValueCollection
-class LongMutableSet(vararg values: Long) : HashSet<Long>(values.asList()), ValueCollection
-class FloatMutableSet(vararg values: Float) : HashSet<Float>(values.asList()), ValueCollection
-class DoubleMutableSet(vararg values: Double) : HashSet<Double>(values.asList()), ValueCollection
-class BigDecimalMutableSet(vararg values: BigDecimal) : HashSet<BigDecimal>(values.asList()), ValueCollection
-class DateTimeMutableSet(vararg values: DateTime) : HashSet<DateTime>(values.asList()), ValueCollection
+class BooleanMutableList(vararg values: Boolean) : ValueList<Boolean>(values.asList())
+class StringMutableList(vararg values: String) : ValueList<String>(values.asList())
+class IntMutableList(vararg values: Int) : ValueList<Int>(values.asList())
+class LongMutableList(vararg values: Long) : ValueList<Long>(values.asList())
+class FloatMutableList(vararg values: Float) : ValueList<Float>(values.asList())
+class DoubleMutableList(vararg values: Double) : ValueList<Double>(values.asList())
+class BigDecimalMutableList(vararg values: BigDecimal) : ValueList<BigDecimal>(values.asList())
+class DateTimeMutableList(vararg values: DateTime) : ValueList<DateTime>(values.asList())
+
+class BooleanMutableSet(vararg values: Boolean) : ValueSet<Boolean>(values.asList())
+class StringMutableSet(vararg values: String) : ValueSet<String>(values.asList())
+class IntMutableSet(vararg values: Int) : ValueSet<Int>(values.asList())
+class LongMutableSet(vararg values: Long) : ValueSet<Long>(values.asList())
+class FloatMutableSet(vararg values: Float) : ValueSet<Float>(values.asList())
+class DoubleMutableSet(vararg values: Double) : ValueSet<Double>(values.asList())
+class BigDecimalMutableSet(vararg values: BigDecimal) : ValueSet<BigDecimal>(values.asList())
+class DateTimeMutableSet(vararg values: DateTime) : ValueSet<DateTime>(values.asList())
 
 interface MemoryCollection<V : Any> : Collection<Memory<V>>, PersistentObject
 
