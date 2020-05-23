@@ -30,10 +30,10 @@ class ContextFactory {
         return Context(
                 pipeline,
                 profile,
-                session,
-                Turn(input = request.input, attributes = Attributes().also {
-                    it[Dialogue.clientNamespace].put(request.attributes)
-                }),
+                session.apply {
+                    attributes[Dialogue.clientNamespace].put(request.attributes)
+                },
+                Turn(input = request.input),
                 dialogueLog.logger,
                 request.input.locale,
                 communityResource
