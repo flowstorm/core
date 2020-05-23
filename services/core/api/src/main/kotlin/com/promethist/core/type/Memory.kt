@@ -18,6 +18,7 @@ open class Memory<V: Any>(
             JsonSubTypes.Type(value = Double::class, name = "Double"),
             JsonSubTypes.Type(value = BigDecimal::class, name = "BigDecimal"),
             JsonSubTypes.Type(value = DateTime::class, name = "ZonedDateTime"),
+            JsonSubTypes.Type(value = Location::class, name = "Location"),
 
             JsonSubTypes.Type(value = BooleanMutableSet::class, name = "BooleanMutableSet"),
             JsonSubTypes.Type(value = StringMutableSet::class, name = "StringMutableSet"),
@@ -27,6 +28,7 @@ open class Memory<V: Any>(
             JsonSubTypes.Type(value = DoubleMutableSet::class, name = "DoubleMutableSet"),
             JsonSubTypes.Type(value = BigDecimalMutableSet::class, name = "BigDecimalMutableSet"),
             JsonSubTypes.Type(value = DateTimeMutableSet::class, name = "DateTimeMutableSet"),
+            JsonSubTypes.Type(value = LocationMutableSet::class, name = "LocationMutableSet"),
 
             JsonSubTypes.Type(value = BooleanMutableList::class, name = "BooleanMutableList"),
             JsonSubTypes.Type(value = StringMutableList::class, name = "StringMutableList"),
@@ -35,7 +37,8 @@ open class Memory<V: Any>(
             JsonSubTypes.Type(value = FloatMutableList::class, name = "FloatMutableList"),
             JsonSubTypes.Type(value = DoubleMutableList::class, name = "DoubleMutableList"),
             JsonSubTypes.Type(value = BigDecimalMutableList::class, name = "BigDecimalMutableList"),
-            JsonSubTypes.Type(value = DateTimeMutableList::class, name = "DateTimeMutableList")
+            JsonSubTypes.Type(value = DateTimeMutableList::class, name = "DateTimeMutableList"),
+            JsonSubTypes.Type(value = LocationMutableList::class, name = "LocationMutableList")
         ])
         var _value: V,
         var _type: String = _value::class.simpleName!!
