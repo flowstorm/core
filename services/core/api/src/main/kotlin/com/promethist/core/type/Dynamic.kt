@@ -4,7 +4,6 @@ import java.math.BigDecimal
 import java.time.ZonedDateTime
 import kotlin.reflect.KClass
 
-
 @Suppress("UNCHECKED_CAST")
 class Dynamic : LinkedHashMap<String, Any>, MutablePropertyMap {
 
@@ -78,10 +77,5 @@ class Dynamic : LinkedHashMap<String, Any>, MutablePropertyMap {
     inline operator fun <reified V: Any> invoke(key: String, noinline eval: (Memory<V>.() -> Any)): Any =
             put(key, V::class, null, eval)
 
-    inline fun <reified V> list(key: String, noinline eval: (Memory<MutableList<V>>.() -> Any)): Any =
-            put(key, MutableList::class, null, eval)
-
     operator fun invoke(key: String): Any = item(key).third?:error("missing item $key")
-
-    fun <V> list(key: String): MutableList<V> = invoke(key) as MutableList<V>
 }

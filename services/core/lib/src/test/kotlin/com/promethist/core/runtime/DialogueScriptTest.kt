@@ -93,15 +93,6 @@ internal class DialogueScriptTest {
 
                 val visitTimes = mutableListOf<DateTime>()
                 println(visitTimes.filter { it isDay -5..0 }.size)
-                val t = DateTime.now()
-                val animals = Dynamic()
-
-                animals.list<DateTime>("cat") { value.add(t) }
-                animals.list<DateTime>("dog") { value.add(t) }
-                animals.list<DateTime>("dog") { value.add(t) }
-
-                println(animals.list { (value as List<DateTime>).run { key + " " + (size of "time") }})
-                println(animals.list { (value as List<DateTime>).run { key + " " + describe(last()) + (if (size > 1) " last time" else "") }})
             }
         }
     }

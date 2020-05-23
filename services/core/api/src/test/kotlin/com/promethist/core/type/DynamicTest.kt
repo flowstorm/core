@@ -1,9 +1,6 @@
 package com.promethist.core.type
 
-import com.promethist.common.AppConfig
-import com.promethist.common.ObjectUtil.defaultMapper as mapper
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 
@@ -63,16 +60,4 @@ class DynamicTest {
             }
         }
     }
-
-    @Test
-    fun `test list`() {
-        val mem = Dynamic()
-        mem.list<Int>("list") { value.add(1) }
-        mem.list<Int>("list") { value.add(2) }
-
-        assertEquals(2, mem.list<Int>("list").size)
-        assertTrue(mem.list<Int>("list").contains(1))
-        assertTrue(mem.list<Int>("list").contains(2))
-    }
-
 }

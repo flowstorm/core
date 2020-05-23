@@ -19,6 +19,7 @@ open class Memory<V: Any>(
             JsonSubTypes.Type(value = Double::class, name = "Double"),
             JsonSubTypes.Type(value = BigDecimal::class, name = "BigDecimal"),
             JsonSubTypes.Type(value = DateTime::class, name = "ZonedDateTime"),
+            JsonSubTypes.Type(value = Dynamic::class, name = "Dynamic"),
             JsonSubTypes.Type(value = Location::class, name = "Location"),
 
             JsonSubTypes.Type(value = BooleanMutableSet::class, name = "BooleanMutableSet"),
@@ -50,7 +51,7 @@ open class Memory<V: Any>(
         val ZERO_TIME = DateTime.of(0, 1, 1, 0, 0, 0, 0, Defaults.zoneId)
 
         fun canContain(it: Any) =
-                it is Boolean || it is String || it is Int || it is Long || it is Float || it is Double || it is BigDecimal || it is DateTime || it is Location || it is ValueCollection
+                it is Boolean || it is String || it is Int || it is Long || it is Float || it is Double || it is BigDecimal || it is DateTime || it is Dynamic || it is Location || it is ValueCollection
     }
 
     @get:JsonIgnore
@@ -80,7 +81,7 @@ open class Memory<V: Any>(
         time = DateTime.now()
         if (Dialogue.isInThreadContext) {
             Dialogue.threadContext().dialogue.apply {
-                if (clientLocation != null && clientLocation!!.isNotEmpty())
+                if (clientLocation != null && clientLocation!!.isNotEmpty)
                     location = clientLocation
             }
         }
