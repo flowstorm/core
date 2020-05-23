@@ -47,14 +47,6 @@ open class Memory<V: Any>(
             touch()
             _value = value
         }
-    @get:JsonIgnore val booleanValue get() = value as Boolean
-    @get:JsonIgnore val stringValue get() = value.toString()
-    @get:JsonIgnore val intValue get() = value as Int
-    @get:JsonIgnore val longValue get() = value as Long
-    @get:JsonIgnore val floatValue get() = value as Float
-    @get:JsonIgnore val doubleValue get() = value as Double
-    @get:JsonIgnore val bigDecimalValue get() = value as BigDecimal
-    @get:JsonIgnore val dateTimeValue get() = value as DateTime
     var time = DateTime.now()
     var count = 0
 
