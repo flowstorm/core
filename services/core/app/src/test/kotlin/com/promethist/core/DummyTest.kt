@@ -59,7 +59,7 @@ class DummyTest {
 
     @Test
     fun `dummy test x db`() {
-
+        /*
         val json = mapper.writeValueAsString(tx1)
         println(json)
 
@@ -68,6 +68,6 @@ class DummyTest {
 
         val tx2 = col.findOne { TestX::id eq "id" }
         println(tx2)
-
+        */
     }
 }
