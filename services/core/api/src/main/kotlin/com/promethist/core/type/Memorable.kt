@@ -5,9 +5,9 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "_class")
 @JsonSubTypes(
-        JsonSubTypes.Type(value = Memory::class, name = "Value"),
-        JsonSubTypes.Type(value = MemoryMutableSet::class, name = "ValueMutableSet"),
-        JsonSubTypes.Type(value = MemoryMutableList::class, name = "ValueMutableList")
+        JsonSubTypes.Type(value = Memory::class, name = "Memory"),
+        JsonSubTypes.Type(value = MemoryMutableSet::class, name = "MemoryMutableSet"),
+        JsonSubTypes.Type(value = MemoryMutableList::class, name = "MemoryMutableList")
 )
 interface Memorable {
 
@@ -16,7 +16,7 @@ interface Memorable {
                 when {
                     any is Memorable -> any
                     Memory.canContain(any) -> Memory(any)
-                    else -> error("unsupported type ${any::class.qualifiedName}")
+                    else -> error("unsupported memorable value type ${any::class.qualifiedName}")
                 }
     }
 }

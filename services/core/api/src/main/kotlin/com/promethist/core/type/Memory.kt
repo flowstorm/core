@@ -64,6 +64,11 @@ open class Memory<V: Any>(
     var count = 0
     var location: Location? = null
 
+    init {
+        if (!canContain(_value))
+            error("unsupported memory value type ${_value::class.qualifiedName}")
+    }
+
     override fun equals(other: Any?): Boolean = if (other is Memory<*>) (_value == other._value) else false
 
     override fun hashCode(): Int = _value.hashCode()
