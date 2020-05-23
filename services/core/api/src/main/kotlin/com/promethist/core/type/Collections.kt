@@ -7,12 +7,8 @@ typealias MutablePropertyMap = MutableMap<String, Any>
 
 interface ValueCollection
 
-open class ValueList<V : Any>(values: Collection<V>) : ArrayList<V>(values), ValueCollection {
-    fun remember(value: V) = add(value)
-}
-open class ValueSet<V : Any>(values: Collection<V>) : HashSet<V>(values), ValueCollection {
-    fun remember(value: V) = add(value)
-}
+open class ValueList<V : Any>(values: Collection<V>) : ArrayList<V>(values), ValueCollection
+open class ValueSet<V : Any>(values: Collection<V>) : HashSet<V>(values), ValueCollection
 
 class BooleanMutableList(vararg values: Boolean) : ValueList<Boolean>(values.asList())
 class StringMutableList(vararg values: String) : ValueList<String>(values.asList())
@@ -32,11 +28,9 @@ class DoubleMutableSet(vararg values: Double) : ValueSet<Double>(values.asList()
 class BigDecimalMutableSet(vararg values: BigDecimal) : ValueSet<BigDecimal>(values.asList())
 class DateTimeMutableSet(vararg values: DateTime) : ValueSet<DateTime>(values.asList())
 
-interface MemoryCollection<V : Any> : Collection<Memory<V>>, PersistentObject
+interface MemoryCollection<V : Any> : MutableCollection<Memory<V>>, PersistentObject
 
-class MemoryMutableList<V : Any>(vararg memories: Memory<V>) : ArrayList<Memory<V>>(memories.asList()), MemoryCollection<V> {
-    fun remember(value: V) = add(Memory(value))
-}
+class MemoryMutableList<V : Any>(vararg memories: Memory<V>) : ArrayList<Memory<V>>(memories.asList()), MemoryCollection<V>
 
 class MemoryMutableSet<V : Any>(vararg memories: Memory<V>) : HashSet<Memory<V>>(memories.asList()), MemoryCollection<V> {
     override fun add(memory: Memory<V>): Boolean {
@@ -48,5 +42,13 @@ class MemoryMutableSet<V : Any>(vararg memories: Memory<V>) : HashSet<Memory<V>>
         }
         return super.add(memory)
     }
-    fun remember(value: V) = add(Memory(value))
 }
+
+fun MemoryCollection<Boolean>.add(value: Boolean) = add(Memory(value))
+fun MemoryCollection<String>.add(value: String) = add(Memory(value))
+fun MemoryCollection<Int>.add(value: Int) = add(Memory(value))
+fun MemoryCollection<Long>.add(value: Long) = add(Memory(value))
+fun MemoryCollection<Float>.add(value: Float) = add(Memory(value))
+fun MemoryCollection<Double>.add(value: Double) = add(Memory(value))
+fun MemoryCollection<BigDecimal>.add(value: BigDecimal) = add(Memory(value))
+fun MemoryCollection<DateTime>.add(value: DateTime) = add(Memory(value))
