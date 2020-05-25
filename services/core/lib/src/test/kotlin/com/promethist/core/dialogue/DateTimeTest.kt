@@ -13,6 +13,14 @@ internal class DateTimeTest : DialogueTest() {
     fun `datetime`() {
         val dt = DateTime.parse("2020-05-25T11:42:56.355Z")
 
+        val today = BasicDialogue.today
+        val d1 = dt.day(-1)
+        val d2 = dt.day(1)
+
+        println(today)
+        println(d1)
+        println(d2)
+        //println(d1 >= )
         println(dt isDay -1..0)
     }
 }

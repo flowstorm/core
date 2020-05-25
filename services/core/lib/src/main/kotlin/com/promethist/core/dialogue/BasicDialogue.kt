@@ -37,7 +37,7 @@ abstract class BasicDialogue : Dialogue() {
         val DateTime.monthName get() = English.months[month.value - 1] //TODO localize
         val DateTime.dayOfWeekName get() = English.weekDays[dayOfWeek.value - 1] //TODO localize
         infix fun DateTime.isDay(range: IntRange) =
-                day(range.first.toLong()) >= today && today < day(range.last.toLong() + 1)
+                day(range.first.toLong()) <= today && today < day(range.last.toLong() + 1)
         infix fun DateTime.isDay(day: Int) = this isDay day..day
     }
 

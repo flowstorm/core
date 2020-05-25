@@ -5,6 +5,7 @@ import com.promethist.core.model.metrics.Metric
 import io.mockk.every
 import io.mockk.mockkClass
 import io.mockk.mockkObject
+import java.time.ZoneId
 
 open class DialogueTest {
 
@@ -21,5 +22,6 @@ open class DialogueTest {
         every { context.session.metrics } returns metrics
         mockkObject(Dialogue)
         every { Dialogue.threadContext() } returns Dialogue.ThreadContext(dialogue, context)
+        every { context.turn.input.zoneId } returns ZoneId.of("Europe/Paris")
     }
 }
