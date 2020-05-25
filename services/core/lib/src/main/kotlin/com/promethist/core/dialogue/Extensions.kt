@@ -7,7 +7,7 @@ import java.time.DayOfWeek
 
 // strings
 
-fun String.toLocation() = Location(0F, 0F)
+fun String.toLocation() = Location(0.0, 0.0)
 
 fun String.endsWith(suffixes: Collection<String>): Boolean {
     for (suffix in suffixes)
@@ -16,14 +16,14 @@ fun String.endsWith(suffixes: Collection<String>): Boolean {
     return false
 }
 
-infix fun String.similarityTo(tokens: List<Input.Word>): Float {
+infix fun String.similarityTo(tokens: List<Input.Word>): Double {
     val theseWords = tokenize().map { it.text.toLowerCase() }
     val thoseWords = tokens.map { it.text.toLowerCase() }
     var matches = 0
     for (word in theseWords)
         if (thoseWords.contains(word))
             matches++
-    return matches / theseWords.size.toFloat()
+    return matches / theseWords.size.toDouble()
 }
 
 infix fun String.similarityTo(input: Input) = similarityTo(input.words)
@@ -38,42 +38,42 @@ fun Map<String, Any>.list(transform: Map.Entry<String, Any>.() -> String) = map 
 
 fun <T> Collection<T>.random(a: Int): Collection<T> = shuffled().take(a)
 
-fun <T> Collection<T>.similarTo(tokens: List<Input.Word>, transform: (T) -> String, n: Int, minSimilarity: Float = .0F) =
-        filter { minSimilarity == .0F || transform(it) similarityTo tokens >= minSimilarity }
-                .sortedBy { transform(it) similarityTo tokens }.take(n)
+fun <T> Collection<T>.similarTo(tokens: List<Input.Word>, transform: T.() -> String, n: Int, minSimilarity: Double = .0) =
+        filter { minSimilarity == .0 || transform(it) similarityTo tokens >= minSimilarity }
+                .sortedByDescending { transform(it) similarityTo tokens }.take(n)
 
-fun <T> Collection<T>.similarTo(input: Input, transform: (T) -> String, n: Int, minSimilarity: Float = .0F) =
+fun <T> Collection<T>.similarTo(input: Input, transform: T.() -> String, n: Int, minSimilarity: Double = .0) =
         similarTo(input.words, transform, n, minSimilarity)
 
-fun <T> Collection<T>.similarTo(text: String, transform: (T) -> String, n: Int, minSimilarity: Float = .0F) =
+fun <T> Collection<T>.similarTo(text: String, transform: T.() -> String, n: Int, minSimilarity: Double = .0) =
         similarTo(text.tokenize(), transform, n, minSimilarity)
 
-fun <T> Collection<T>.similarTo(tokens: List<Input.Word>, transform: (T) -> String, minSimilarity: Float = .0F) =
+fun <T> Collection<T>.similarTo(tokens: List<Input.Word>, transform: T.() -> String, minSimilarity: Double = .0) =
         similarTo(tokens, transform, 1, minSimilarity).firstOrNull()
 
-fun <T> Collection<T>.similarTo(input: Input, transform: (T) -> String, minSimilarity: Float = .0F) =
+fun <T> Collection<T>.similarTo(input: Input, transform: T.() -> String, minSimilarity: Double = .0) =
         similarTo(input, transform, 1, minSimilarity).firstOrNull()
 
-fun <T> Collection<T>.similarTo(text: String, transform: (T) -> String, minSimilarity: Float = .0F) =
+fun <T> Collection<T>.similarTo(text: String, transform: T.() -> String, minSimilarity: Double = .0) =
         similarTo(text, transform, 1, minSimilarity).firstOrNull()
 
-fun Collection<String>.similarTo(tokens: List<Input.Word>, n: Int, minSimilarity: Float = .0F) =
-        similarTo(tokens, {it}, n, minSimilarity)
+fun Collection<String>.similarTo(tokens: List<Input.Word>, n: Int, minSimilarity: Double = .0) =
+        similarTo(tokens, { this }, n, minSimilarity)
 
-fun Collection<String>.similarTo(input: Input, n: Int, minSimilarity: Float = .0F) =
-        similarTo(input, {it}, n, minSimilarity)
+fun Collection<String>.similarTo(input: Input, n: Int, minSimilarity: Double = .0) =
+        similarTo(input, { this }, n, minSimilarity)
 
-fun Collection<String>.similarTo(text: String, n: Int, minSimilarity: Float = .0F) =
-        similarTo(text, {it}, n, minSimilarity)
+fun Collection<String>.similarTo(text: String, n: Int, minSimilarity: Double = .0) =
+        similarTo(text, { this }, n, minSimilarity)
 
-fun Collection<String>.similarTo(tokens: List<Input.Word>, minSimilarity: Float = .0F) =
-        similarTo(tokens, {it}, minSimilarity)
+fun Collection<String>.similarTo(tokens: List<Input.Word>, minSimilarity: Double = .0) =
+        similarTo(tokens, { this }, minSimilarity)
 
-fun Collection<String>.similarTo(input: Input, minSimilarity: Float = .0F) =
-        similarTo(input, {it}, minSimilarity)
+fun Collection<String>.similarTo(input: Input, minSimilarity: Double = .0) =
+        similarTo(input, { this }, minSimilarity)
 
-fun Collection<String>.similarTo(text: String, minSimilarity: Float = .0F) =
-        similarTo(text, {it}, minSimilarity)
+fun Collection<String>.similarTo(text: String, minSimilarity: Double = .0) =
+        similarTo(text, { this }, minSimilarity)
 
 // date time
 

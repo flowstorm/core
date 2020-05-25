@@ -1,6 +1,7 @@
 package `product`.`some-subdialogue`
 
 import com.promethist.core.dialogue.Dialogue
+import com.promethist.core.type.Location
 
 data class Model1(
         // dialogue properties
@@ -9,6 +10,7 @@ data class Model1(
 ) : Dialogue() {
 
     override val dialogueName: String = "product/some-subdialogue"
+    override val clientLocation: Location? = null
 
     val response0 = Response(nextId--, { "Welcome to sub dialogue" })
     val intent1 = Intent(nextId--, "intent1", "yes", "okay")

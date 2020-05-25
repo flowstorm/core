@@ -47,9 +47,6 @@ open class Memory<V: Any>(
 ) : Memorable {
 
     companion object {
-
-        val ZERO_TIME = DateTime.of(0, 1, 1, 0, 0, 0, 0, Defaults.zoneId)
-
         fun canContain(it: Any) =
                 it is Boolean || it is String || it is Int || it is Long || it is Float || it is Double || it is BigDecimal || it is DateTime || it is Dynamic || it is Location || it is ValueCollection
     }

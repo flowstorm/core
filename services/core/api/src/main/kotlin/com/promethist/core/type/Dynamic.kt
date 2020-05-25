@@ -25,7 +25,7 @@ class Dynamic : LinkedHashMap<String, Any>, MutablePropertyMap {
                     String::class -> ""
                     Boolean::class -> false
                     MutableList::class -> mutableListOf<V>()
-                    ZonedDateTime::class -> Memory.ZERO_TIME
+                    ZonedDateTime::class -> ZERO_TIME
                     else -> error("unsupported $clazz")
                 }
     }
