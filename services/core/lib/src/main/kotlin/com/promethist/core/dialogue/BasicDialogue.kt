@@ -126,15 +126,21 @@ abstract class BasicDialogue : Dialogue() {
             codeRun.context.communityResource.get(communityName)?.attributes ?: Dynamic.EMPTY
 
     fun addResponseItem(vararg value: Any, image: String? = null, audio: String? = null, video: String? = null, repeatable: Boolean = true) =
-            codeRun.context.turn.addResponseItem(enumerate(*value).replace(Regex("#([\\w\\.]+)")) {
+            codeRun.context.turn.addResponseItem(enumerate(*value).replace(Regex("#([\\w\\.\\d]+)")) {
                 var obj: Any? = this
+                var point = false
                 for (name in it.groupValues[1].split(".")) {
-                    val prop = obj!!.javaClass.kotlin.memberProperties.firstOrNull { it.name == name }
-                    obj = prop?.call(obj)
-                    if (obj == null)
+                    if (name.isBlank()) {
+                        point = true
                         break
+                    } else {
+                        val prop = obj!!.javaClass.kotlin.memberProperties.firstOrNull { it.name == name }
+                        obj = prop?.call(obj)
+                        if (obj == null)
+                            break
+                    }
                 }
-                describe(obj)
+                describe(obj) + (if (point) "." else "")
             }, image, audio, video, repeatable)
 
     private inline fun unsupportedLanguage(): Nothing {
