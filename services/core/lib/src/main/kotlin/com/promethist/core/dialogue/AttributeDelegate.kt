@@ -14,7 +14,7 @@ abstract class AttributeDelegate<V: Any>(private val clazz: KClass<*>, val names
 
     operator fun getValue(thisRef: Dialogue, property: KProperty<*>): V =
             attributes[namespace?.invoke() ?: "default"].getOrPut(property.name) {
-                Memorable.pack(default.invoke(Dialogue.run.context))
+                Memorable.pack(default.invoke(Dialogue.codeRun.context))
             }.let {
                 if (!clazz.isSubclassOf(Memory::class) && (it is Memory<*>)) {
                     it.value

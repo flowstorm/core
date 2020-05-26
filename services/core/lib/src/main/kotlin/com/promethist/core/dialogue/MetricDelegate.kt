@@ -15,7 +15,7 @@ class MetricDelegate(private val metricSpec: String) : ReadWriteProperty<Dialogu
     val name = metricSpec.substringAfter(".")
 
     private val metric
-        get() = with(Dialogue.run.context.session) {
+        get() = with(Dialogue.codeRun.context.session) {
             metrics.firstOrNull { it.namespace == namespace && it.name == name }
                     ?: Metric(namespace, name).also { metrics.add(it) }
         }

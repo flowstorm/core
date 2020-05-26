@@ -10,6 +10,7 @@ import java.io.File
 import java.io.FileInputStream
 import java.net.URL
 import java.util.StringTokenizer
+import kotlin.reflect.full.memberProperties
 
 abstract class BasicDialogue : Dialogue() {
 
@@ -25,7 +26,7 @@ abstract class BasicDialogue : Dialogue() {
         @Deprecated("Use pass instead, toIntent will be removed")
         val toIntent = pass
 
-        val now: DateTime get() = DateTime.now(run.context.turn.input.zoneId)
+        val now: DateTime get() = DateTime.now(codeRun.context.turn.input.zoneId)
         val today get() = now.day
         val tomorrow get() = now + 1
         val yesterday get() = now - 1
@@ -122,10 +123,19 @@ abstract class BasicDialogue : Dialogue() {
     }
 
     fun communityAttributes(communityName: String) =
-            run.context.communityResource.get(communityName)?.attributes ?: Dynamic.EMPTY
+            codeRun.context.communityResource.get(communityName)?.attributes ?: Dynamic.EMPTY
 
     fun addResponseItem(vararg value: Any, image: String? = null, audio: String? = null, video: String? = null, repeatable: Boolean = true) =
-            run.context.turn.addResponseItem(enumerate(*value), image, audio, video, repeatable)
+            codeRun.context.turn.addResponseItem(enumerate(*value).replace(Regex("#([\\w\\.]+)")) {
+                var obj: Any? = this
+                for (name in it.groupValues[1].split(".")) {
+                    val prop = obj!!.javaClass.kotlin.memberProperties.firstOrNull { it.name == name }
+                    obj = prop?.call(obj)
+                    if (obj == null)
+                        break
+                }
+                describe(obj)
+            }, image, audio, video, repeatable)
 
     private inline fun unsupportedLanguage(): Nothing {
         val stackTraceElement = Thread.currentThread().stackTrace[1]
@@ -256,7 +266,7 @@ abstract class BasicDialogue : Dialogue() {
             is Location -> "latitude is ${data.latitude}, longitude is ${data.longitude}"
             is DateTime -> data.toString()
             is String -> data
-            null -> "unknown"
+            null -> "undefined"
             else -> data.toString()
         }
 

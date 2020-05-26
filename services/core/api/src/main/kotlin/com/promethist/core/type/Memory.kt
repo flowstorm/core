@@ -75,8 +75,8 @@ open class Memory<V: Any>(
     fun touch() {
         count++
         time = DateTime.now()
-        if (Dialogue.isRunning) {
-            Dialogue.run.dialogue.apply {
+        if (Dialogue.isCodeRunning) {
+            Dialogue.codeRun.node.dialogue.apply {
                 if (clientLocation != null && clientLocation!!.isNotEmpty)
                     location = clientLocation
             }
