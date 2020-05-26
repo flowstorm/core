@@ -25,7 +25,7 @@ abstract class BasicDialogue : Dialogue() {
         @Deprecated("Use pass instead, toIntent will be removed")
         val toIntent = pass
 
-        val now: DateTime get() = with (threadContext()) { DateTime.now(context.turn.input.zoneId) }
+        val now: DateTime get() = DateTime.now(run.context.turn.input.zoneId)
         val today get() = now.day
         val tomorrow get() = now + 1
         val yesterday get() = now - 1
@@ -121,11 +121,11 @@ abstract class BasicDialogue : Dialogue() {
         }
     }
 
-    fun communityAttributes(communityName: String) = with (threadContext()) { context.communityResource.get(communityName)?.attributes ?: Dynamic.EMPTY }
+    fun communityAttributes(communityName: String) =
+            run.context.communityResource.get(communityName)?.attributes ?: Dynamic.EMPTY
 
-    fun addResponseItem(vararg value: Any, image: String? = null, audio: String? = null, video: String? = null, repeatable: Boolean = true) = with (threadContext()) {
-        context.turn.addResponseItem(enumerate(*value), image, audio, video, repeatable)
-    }
+    fun addResponseItem(vararg value: Any, image: String? = null, audio: String? = null, video: String? = null, repeatable: Boolean = true) =
+            run.context.turn.addResponseItem(enumerate(*value), image, audio, video, repeatable)
 
     private inline fun unsupportedLanguage(): Nothing {
         val stackTraceElement = Thread.currentThread().stackTrace[1]

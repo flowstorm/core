@@ -12,7 +12,7 @@ class ContextualAttributeDelegate<V: Any>(
 
     enum class Scope { Turn, Session, User }
 
-    override val attributes get() = with (Dialogue.threadContext().context) {
+    override val attributes get() = with (Dialogue.run.context) {
         when (scope) {
             Scope.Session -> session.attributes
             Scope.User -> userProfile.attributes

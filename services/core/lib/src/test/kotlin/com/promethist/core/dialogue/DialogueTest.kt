@@ -21,7 +21,7 @@ open class DialogueTest {
     init {
         every { context.session.metrics } returns metrics
         mockkObject(Dialogue)
-        every { Dialogue.threadContext() } returns Dialogue.ThreadContext(dialogue, context)
+        every { Dialogue.run } returns Dialogue.Run(dialogue, context)
         every { context.turn.input.zoneId } returns ZoneId.of("Europe/Paris")
     }
 }

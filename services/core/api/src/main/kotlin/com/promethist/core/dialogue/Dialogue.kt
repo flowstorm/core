@@ -22,7 +22,7 @@ abstract class Dialogue {
 
     //runtime dependencies
     lateinit var loader: Loader
-    val logger get() = threadContext().context.logger
+    val logger get() = run.context.logger
 
     val nodes: MutableSet<Node> = mutableSetOf()
     var nextId: Int = 0
@@ -67,7 +67,7 @@ abstract class Dialogue {
                 this(nextId--, false, intents, lambda)
 
         fun process(context: Context): Transition? =
-                threadContext(context, this) { lambda(context, this) } as Transition?
+                run(context, this) { lambda(context, this) } as Transition?
     }
 
     open inner class Intent(
@@ -107,7 +107,7 @@ abstract class Dialogue {
 
         constructor(vararg text: (Context.(Response) -> String)) : this(nextId--, true, *text)
 
-        fun getText(context: Context, index: Int = -1) = threadContext(context, this) {
+        fun getText(context: Context, index: Int = -1) = run(context, this) {
             texts[if (index < 0) Random.nextInt(texts.size) else index](context, this)
         } as String
     }
@@ -121,7 +121,7 @@ abstract class Dialogue {
     ): Node(id) {
         constructor(lambda: (Context.(Function) -> Transition)) : this(nextId--, lambda)
         fun exec(context: Context): Transition =
-                threadContext(context, this) { lambda(context, this) } as Transition
+                run(context, this) { lambda(context, this) } as Transition
     }
 
     inner class SubDialogue(
@@ -130,7 +130,7 @@ abstract class Dialogue {
             val lambda: Context.(SubDialogue) -> PropertyMap): TransitNode(id) {
 
         fun getConstructorArgs(context: Context): PropertyMap =
-                threadContext(context, this) { lambda(context, this) } as PropertyMap
+                run(context, this) { lambda(context, this) } as PropertyMap
 
         fun create(vararg args: Pair<String, Any>): PropertyMap = args.toMap()
     }
@@ -166,6 +166,8 @@ abstract class Dialogue {
 
     val subDialogues: List<SubDialogue> get() = nodes.filterIsInstance<SubDialogue>()
 
+    fun inContext(block: Context.() -> Any) = block(run.context)
+
     fun node(id: Int): Node = nodes.find { it.id == id }?:error("Node $id not found in $this")
 
     fun intentNode(id: Int) = intents.find { it.id == id } ?: error("Intent $id not found in $this")
@@ -194,7 +196,7 @@ abstract class Dialogue {
         return sb.toString()
     }
 
-    class ThreadContext(val dialogue: Dialogue, val context: Context)
+    class Run(val dialogue: Dialogue, val context: Context)
 
     class DialogueScriptException(node: Node, cause: Throwable) : Throwable("DialogueScript failed at ${node.dialogue.dialogueName}#${node.id}", cause)
 
@@ -202,22 +204,21 @@ abstract class Dialogue {
 
         val clientNamespace = "client"
 
-        private val threadContext = ThreadLocal<ThreadContext>()
+        private val _run = ThreadLocal<Run>()
 
-        val isInThreadContext get() = (threadContext.get() != null)
+        val isRunning get() = (_run.get() != null)
 
-        fun threadContext() = threadContext.get() ?: error("out of dialogue thread context")
+        val run = _run.get() ?: error("out of dialogue context run")
 
-        fun threadContext(context: Context, node: Node, block: () -> Any?): Any? =
+        fun run(context: Context, node: Node, block: () -> Any?): Any? =
                 try {
-                    threadContext.set(ThreadContext(node.dialogue, context))
+                    _run.set(Run(node.dialogue, context))
                     block()
                 } catch (e: Throwable) {
                     throw DialogueScriptException(node, e)
                 } finally {
-                    threadContext.remove()
+                    _run.remove()
                 }
 
-        fun inContext(block: Context.() -> Any) = block(threadContext().context)
     }
 }
