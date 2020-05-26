@@ -217,5 +217,7 @@ abstract class Dialogue {
                 } finally {
                     threadContext.remove()
                 }
+
+        fun inContext(block: Context.() -> Any) = block(threadContext().context)
     }
 }
