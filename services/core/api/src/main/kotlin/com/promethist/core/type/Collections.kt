@@ -10,31 +10,108 @@ interface ValueCollection
 open class ValueList<V : Any>(values: Collection<V>) : ArrayList<V>(values), ValueCollection
 open class ValueSet<V : Any>(values: Collection<V>) : HashSet<V>(values), ValueCollection
 
-class BooleanMutableList(vararg values: Boolean) : ValueList<Boolean>(values.asList())
-class StringMutableList(vararg values: String) : ValueList<String>(values.asList())
-class IntMutableList(vararg values: Int) : ValueList<Int>(values.asList())
-class LongMutableList(vararg values: Long) : ValueList<Long>(values.asList())
-class FloatMutableList(vararg values: Float) : ValueList<Float>(values.asList())
-class DoubleMutableList(vararg values: Double) : ValueList<Double>(values.asList())
-class BigDecimalMutableList(vararg values: BigDecimal) : ValueList<BigDecimal>(values.asList())
-class DateTimeMutableList(vararg values: DateTime) : ValueList<DateTime>(values.asList())
-class LocationMutableList(vararg values: Location) : ValueList<Location>(values.asList())
+class BooleanMutableList(values: Collection<Boolean>) : ValueList<Boolean>(values) {
+    constructor() : this(emptyList())
+    constructor(vararg values: Boolean) : this(values.asList())
+}
 
-class BooleanMutableSet(vararg values: Boolean) : ValueSet<Boolean>(values.asList())
-class StringMutableSet(vararg values: String) : ValueSet<String>(values.asList())
-class IntMutableSet(vararg values: Int) : ValueSet<Int>(values.asList())
-class LongMutableSet(vararg values: Long) : ValueSet<Long>(values.asList())
-class FloatMutableSet(vararg values: Float) : ValueSet<Float>(values.asList())
-class DoubleMutableSet(vararg values: Double) : ValueSet<Double>(values.asList())
-class BigDecimalMutableSet(vararg values: BigDecimal) : ValueSet<BigDecimal>(values.asList())
-class DateTimeMutableSet(vararg values: DateTime) : ValueSet<DateTime>(values.asList())
-class LocationMutableSet(vararg values: Location) : ValueSet<Location>(values.asList())
+class StringMutableList(values: Collection<String>) : ValueList<String>(values) {
+    constructor() : this(emptyList())
+    constructor(vararg values: String) : this(values.asList())
+}
+
+class IntMutableList(values: Collection<Int>) : ValueList<Int>(values) {
+    constructor() : this(emptyList())
+    constructor(vararg values: Int) : this(values.asList())
+}
+
+class LongMutableList(values: Collection<Long>) : ValueList<Long>(values) {
+    constructor() : this(emptyList())
+    constructor(vararg values: Long) : this(values.asList())
+}
+
+class FloatMutableList(values: Collection<Float>) : ValueList<Float>(values) {
+    constructor() : this(emptyList())
+    constructor(vararg values: Float) : this(values.asList())
+}
+
+class DoubleMutableList(values: Collection<Double>) : ValueList<Double>(values) {
+    constructor() : this(emptyList())
+    constructor(vararg values: Double) : this(values.asList())
+}
+
+class BigDecimalMutableList(values: Collection<BigDecimal>) : ValueList<BigDecimal>(values) {
+    constructor() : this(emptyList())
+    constructor(vararg values: BigDecimal) : this(values.asList())
+}
+
+class DateTimeMutableList(values: Collection<DateTime>) : ValueList<DateTime>(values) {
+    constructor() : this(emptyList())
+    constructor(vararg values: DateTime) : this(values.asList())
+}
+
+class LocationMutableList(values: Collection<Location>) : ValueList<Location>(values) {
+    constructor() : this(emptyList())
+    constructor(vararg values: Location) : this(values.asList())
+}
+
+class BooleanMutableSet(values: Collection<Boolean>) : ValueSet<Boolean>(values) {
+    constructor() : this(emptyList())
+    constructor(vararg values: Boolean) : this(values.asList())
+}
+
+class StringMutableSet(values: Collection<String>) : ValueSet<String>(values) {
+    constructor() : this(emptySet())
+    constructor(vararg values: String) : this(values.asList())
+}
+
+class IntMutableSet(values: Collection<Int>) : ValueSet<Int>(values) {
+    constructor() : this(emptySet())
+    constructor(vararg values: Int) : this(values.asList())
+}
+
+class LongMutableSet(values: Collection<Long>) : ValueSet<Long>(values) {
+    constructor() : this(emptySet())
+    constructor(vararg values: Long) : this(values.asList())
+}
+
+class FloatMutableSet(values: Collection<Float>) : ValueSet<Float>(values) {
+    constructor() : this(emptySet())
+    constructor(vararg values: Float) : this(values.asList())
+}
+
+class DoubleMutableSet(values: Collection<Double>) : ValueSet<Double>(values) {
+    constructor() : this(emptySet())
+    constructor(vararg values: Double) : this(values.asList())
+}
+
+class BigDecimalMutableSet(values: Collection<BigDecimal>) : ValueSet<BigDecimal>(values) {
+    constructor() : this(emptySet())
+    constructor(vararg values: BigDecimal) : this(values.asList())
+}
+
+class DateTimeMutableSet(values: Collection<DateTime>) : ValueSet<DateTime>(values) {
+    constructor() : this(emptySet())
+    constructor(vararg values: DateTime) : this(values.asList())
+}
+
+class LocationMutableSet(values: Collection<Location>) : ValueSet<Location>(values) {
+    constructor() : this(emptySet())
+    constructor(vararg values: Location) : this(values.asList())
+}
 
 interface MemoryCollection<V : Any> : MutableCollection<Memory<V>>, Memorable
 
-class MemoryMutableList<V : Any>(vararg memories: Memory<V>) : ArrayList<Memory<V>>(memories.asList()), MemoryCollection<V>
+class MemoryMutableList<V : Any>(memories: Collection<Memory<V>>) : ArrayList<Memory<V>>(memories), MemoryCollection<V> {
+    constructor() : this(emptyList())
+    constructor(vararg memories: Memory<V>) : this(memories.asList())
+}
 
-class MemoryMutableSet<V : Any>(vararg memories: Memory<V>) : HashSet<Memory<V>>(memories.asList()), MemoryCollection<V> {
+class MemoryMutableSet<V : Any>(memories: Collection<Memory<V>>) : HashSet<Memory<V>>(memories), MemoryCollection<V> {
+
+    constructor() : this(emptySet())
+    constructor(vararg memories: Memory<V>) : this(memories.asList())
+
     override fun add(memory: Memory<V>): Boolean {
         for (m in this) {
             if (m == memory) {

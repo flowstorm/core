@@ -11,7 +11,7 @@ class CommunityAttributeDelegate<V: Any>(
         default: (Context.() -> V)
 ) : AttributeDelegate<V>(clazz, namespace, default) {
 
-    private val community get() = with (Dialogue.threadContext().context) {
+    private val community get() = with (Dialogue.codeRun.context) {
         communityResource.get(communityName) ?: Community(name = communityName).apply {
             communityResource.create(this)
         }

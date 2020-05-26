@@ -3,6 +3,7 @@ package com.promethist.core.runtime
 import com.promethist.core.*
 import com.promethist.core.dialogue.Dialogue
 import com.promethist.core.builder.IrModel
+import com.promethist.core.dialogue.BasicDialogue
 import com.promethist.util.LoggerDelegate
 import kotlin.math.roundToInt
 import org.slf4j.Logger
@@ -141,7 +142,13 @@ class DialogueManager : Component {
                         when (node) {
                             is Dialogue.Response -> {
                                 val text = node.getText(context)
-                                turn.addResponseItem(text, node.image, node.audio, node.video, repeatable = node.isRepeatable)
+                                if (node.dialogue is BasicDialogue) {
+                                    Dialogue.codeRun(context, node) {
+                                        (node.dialogue as BasicDialogue).addResponseItem(text, image = node.image, audio = node.audio, video = node.video, repeatable = node.isRepeatable)
+                                    }
+                                } else {
+                                    turn.addResponseItem(text, image = node.image, audio = node.audio, video = node.video, repeatable = node.isRepeatable)
+                                }
                             }
                             is Dialogue.GlobalIntent -> {
                                 session.dialogueStack.push(session.turns.last().endFrame)

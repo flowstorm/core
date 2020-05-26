@@ -10,9 +10,9 @@ class SimpleIntentRecognition : Component {
 
     lateinit var models: Map<IrModel, Map<Int, List<String>>>
 
-    override fun process(context: Context): Context = Dialogue.threadContext().let {
+    override fun process(context: Context): Context = Dialogue.codeRun.let {
         if (!this::models.isInitialized) {
-            initModels(it.dialogue)
+            initModels(it.node.dialogue)
         }
 
         val text = context.input.transcript.text
