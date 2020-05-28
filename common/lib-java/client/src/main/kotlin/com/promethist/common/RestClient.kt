@@ -43,6 +43,9 @@ object RestClient {
         return proxy<I>(resource, targetUrl)
     }
 
+    fun <T> call(url: String, responseType: Class<T>, method: String = "GET", headers: Map<String, String>? = null, output: Any? = null) =
+            call(URL(url), responseType, method, headers, output)
+
     fun <T> call(url: URL, responseType: Class<T>, method: String = "GET", headers: Map<String, String>? = null, output: Any? = null): T =
         call<Any>(url, method, headers, output).inputStream.use {
             mapper.readValue(it, responseType)
