@@ -14,7 +14,7 @@ internal class ApiTest {
         val antonyms = Api.words<ArrayList<String>>("good", "antonyms")
         println(antonyms)
 
-        val response = Api.words<Dynamic>("hatchback") as Dynamic
+        val response = Api.words<Dynamic>("hatchback")
         response<ArrayList<PropertyMap>>("results") {
             value.forEach {
                 println("partOfSpeech = " + it["partOfSpeech"])
