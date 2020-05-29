@@ -5,6 +5,7 @@ import com.promethist.common.ObjectUtil
 import com.promethist.core.Context
 import com.promethist.core.Input
 import com.promethist.core.language.English
+import com.promethist.core.runtime.Api
 import com.promethist.core.type.*
 import java.io.File
 import java.io.FileInputStream
@@ -40,6 +41,8 @@ abstract class BasicDialogue : Dialogue() {
         infix fun DateTime.isDay(range: IntRange) =
                 day(range.first.toLong()) <= today && today < day(range.last.toLong() + 1)
         infix fun DateTime.isDay(day: Int) = this isDay day..day
+
+        val api = Api()
     }
 
     // client request attributes
