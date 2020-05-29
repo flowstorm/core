@@ -99,7 +99,7 @@ class SourceCodeBuilder(val name: String, val buildId: String) {
                 .appendln("import com.promethist.core.type.*")
                 .appendln("import com.promethist.core.model.*")
                 .appendln("import com.promethist.core.dialogue.*")
-                .appendln("import com.promethist.core.runtime.Loader")
+                .appendln("import com.promethist.core.runtime.*")
                 .appendln("import kotlin.random.Random")
                 .appendln("import java.time.*")
                 .appendln("import java.util.*")

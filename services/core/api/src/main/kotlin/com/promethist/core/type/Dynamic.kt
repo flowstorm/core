@@ -12,6 +12,8 @@ class Dynamic : LinkedHashMap<String, Any>, MutablePropertyMap {
     constructor(map: PropertyMap) { putAll(map) }
     constructor(vararg pairs: Pair<String, Any>) { putAll(pairs) }
 
+    data class Value<T: Any>(var value: T)
+
     companion object {
         val EMPTY = Dynamic()
 
@@ -62,11 +64,11 @@ class Dynamic : LinkedHashMap<String, Any>, MutablePropertyMap {
         return Triple(obj, name, obj.get(name))
     }
 
-    fun <V: Any> put(key: String, clazz: KClass<*>, default: (() -> V)? = null, eval: (Memory<V>.() -> Any)): Any {
+    fun <V: Any> put(key: String, clazz: KClass<*>, default: (() -> V)? = null, eval: (Value<V>.() -> Any)): Any {
         val triple = item(key)
         val any = triple.third ?: default?.invoke() ?: defaultValue<V>(clazz)
 
-        val value = Memory(any as V)
+        val value = Value(any as V)
         val ret = eval(value)
         triple.first[triple.second] = value.value
         return ret
@@ -74,7 +76,7 @@ class Dynamic : LinkedHashMap<String, Any>, MutablePropertyMap {
 
     inline operator fun <reified V: Any> invoke(key: String, any: V) = put<V>(key, V::class) { value = any; Unit }
 
-    inline operator fun <reified V: Any> invoke(key: String, noinline eval: (Memory<V>.() -> Any)): Any =
+    inline operator fun <reified V: Any> invoke(key: String, noinline eval: (Value<V>.() -> Any)): Any =
             put(key, V::class, null, eval)
 
     operator fun invoke(key: String): Any = item(key).third?:error("missing item $key")
