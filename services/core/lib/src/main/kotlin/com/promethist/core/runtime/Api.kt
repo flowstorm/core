@@ -2,33 +2,48 @@ package com.promethist.core.runtime
 
 import com.promethist.common.RestClient
 import com.promethist.core.type.Dynamic
-import java.net.URL
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
+import com.promethist.core.type.PropertyMap
+import javax.ws.rs.client.Entity
+import javax.ws.rs.client.Invocation
+import javax.ws.rs.client.WebTarget
 
 class Api {
 
-    inline fun <reified T : Any> get(url: String, headers: Map<String, String>? = null) =
-            RestClient.call(URL(url), T::class.java, "GET", headers)
+    fun target(targetUrl: String) = RestClient.webTarget(targetUrl)
 
-    inline fun <reified T : Any> put(url: String, out: Any, headers: Map<String, String>? = null) =
-            RestClient.call(URL(url), T::class.java, "PUT", headers, out)
+    fun Invocation.Builder.headers(headers: PropertyMap? = null): Invocation.Builder {
+        headers?.forEach {
+            header(it.key, it.value)
+        }
+        return this
+    }
 
-    inline fun <reified T : Any> post(url: String, out: Any, headers: Map<String, String>? = null) =
-            RestClient.call(URL(url), T::class.java, "POST", headers, out)
+    inline fun <reified T : Any> get(target: WebTarget, headers: PropertyMap? = null) =
+            target.request().headers(headers).get(T::class.java)
 
-    inline fun <reified T : Any> words(word: String, what: String = "") =
-            get<Dynamic>("https://wordsapiv1.p.rapidapi.com/words/" + URLEncoder.encode(word, StandardCharsets.UTF_8.toString()) + "/$what",
+    inline fun <reified T : Any> put(target: WebTarget, out: Any, headers: PropertyMap? = null) =
+            target.request().headers(headers).put(Entity.json(out), T::class.java)
+
+    inline fun <reified T : Any> post(target: WebTarget, out: Any, headers: PropertyMap? = null) =
+            target.request().headers(headers).post(Entity.json(out), T::class.java)
+
+    inline fun <reified T : Any> delete(target: WebTarget, headers: PropertyMap? = null) =
+            target.request().headers(headers).delete(T::class.java)
+
+    inline fun <reified T : Any> words(word: String, type: String = "") =
+            get<Dynamic>(target("https://wordsapiv1.p.rapidapi.com/words/").path("$word/$type"),
                     headers = mapOf(
                             "x-rapidapi-host" to "wordsapiv1.p.rapidapi.com",
                             "x-rapidapi-key" to "859cf47420msh48dc7d97117df51p1127d4jsn4c6bc3f201ea"
                     )
             ).let {
-                if (what.isBlank() && it is Dynamic)
+                if (type.isBlank() && it is Dynamic)
                     it
                 else
-                    it<T>(what) {
+                    it<T>(type) {
                         value
                 }
             } as T
+
+    fun words(word: String, type: String) = words<List<String>>(word, type)
 }

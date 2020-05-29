@@ -10,16 +10,15 @@ internal class ApiTest {
 
     @Test
     fun `test api words`() {
-        /*
+
         val api = Api()
 
-        println(api.get<List<String>>("https://repository.promethist.ai/data/animals.json"))
+        println(api.get<List<String>>(api.target("https://repository.promethist.ai/data/animals.json")))
 
-        val antonyms = api.words<ArrayList<String>>("good", "antonyms")
-        println(antonyms)
+        println(api.words("good", "antonyms"))
 
         val response = api.words<Dynamic>("hatchback")
-        response<ArrayList<PropertyMap>>("results") {
+        response<List<PropertyMap>>("results") {
             value.forEach {
                 println("partOfSpeech = " + it["partOfSpeech"])
                 if (it.containsKey("synonyms")) {
@@ -30,6 +29,6 @@ internal class ApiTest {
                 }
             }
         }
-        */
+
     }
 }

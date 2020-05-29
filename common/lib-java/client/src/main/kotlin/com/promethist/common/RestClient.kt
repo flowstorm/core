@@ -44,8 +44,10 @@ object RestClient {
     }
 
     fun <T> call(url: URL, responseType: Class<T>, method: String = "GET", headers: Map<String, String>? = null, output: Any? = null): T =
-        call<Any>(url, method, headers, output).inputStream.use {
-            mapper.readValue(it, responseType)
+        call<Any>(url, method, headers, output).run {
+            inputStream.use {
+                mapper.readValue(it, responseType)
+            }
         }
 
     fun <T> call(url: URL, method: String = "GET", headers: Map<String, String>? = null, output: Any? = null): HttpURLConnection {
