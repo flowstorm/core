@@ -14,7 +14,7 @@ class StringSequenceAttributeDelegate(
     operator fun getValue(thisRef: Dialogue, property: KProperty<*>): SequenceAttribute<String, String> {
         val memories = attributeDelegate.getValue(thisRef, property)
         return object : SequenceAttribute<String, String>(entities, memories, nextValue) {
-            override fun toMemoryValue(v: String) = v
+            override fun toMemoryValue(e: String) = e
         }
     }
 }
