@@ -24,16 +24,6 @@ internal class DialogueScriptTest {
     }
 
     @Test
-    fun `test datetime`() {
-        val now = DateTime.now()
-        val yesterday = now - 1
-        println(yesterday)
-        println(now + 1)
-
-
-    }
-
-    @Test
     fun `test similarity`() {
         val input = Input()
         input.tokens.add(Input.Word("blade"))

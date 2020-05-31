@@ -105,13 +105,14 @@ interface MemoryCollection<V : Any> : MutableCollection<Memory<V>>, Memorable
 class MemoryMutableList<V : Any>(memories: Collection<Memory<V>>) : ArrayList<Memory<V>>(memories), MemoryCollection<V> {
     constructor() : this(emptyList())
     constructor(vararg memories: Memory<V>) : this(memories.asList())
+    val values get() = map { it.value }
 }
 
 class MemoryMutableSet<V : Any>(memories: Collection<Memory<V>>) : HashSet<Memory<V>>(memories), MemoryCollection<V> {
 
     constructor() : this(emptySet())
     constructor(vararg memories: Memory<V>) : this(memories.asList())
-
+    val values get() = map { it.value }
     override fun add(memory: Memory<V>): Boolean {
         for (m in this) {
             if (m == memory) {

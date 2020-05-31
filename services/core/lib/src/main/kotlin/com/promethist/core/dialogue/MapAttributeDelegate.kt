@@ -1,22 +1,22 @@
 package com.promethist.core.dialogue
 
-import com.promethist.core.type.StringMutableList
+import com.promethist.core.type.StringMutableSet
 import kotlin.reflect.KProperty
 
-class EntityMapAttributeDelegate<E>(
+class MapAttributeDelegate<E : Any>(
         val entities: Map<String, E>,
         scope: ContextualAttributeDelegate.Scope,
         namespace: (() -> String)? = null
 ) {
-    interface EntityMap<E> : MutableMap<String, E> {
+    interface KeyMap<E> : MutableMap<String, E> {
         fun put(key: String): E?
     }
 
-    private val attributeDelegate = ContextualAttributeDelegate(scope, MutableList::class, namespace) { StringMutableList() }
+    private val attributeDelegate = ContextualAttributeDelegate(scope, MutableSet::class, namespace) { StringMutableSet() }
 
-    operator fun getValue(thisRef: Dialogue, property: KProperty<*>): EntityMap<E> {
+    operator fun getValue(thisRef: Dialogue, property: KProperty<*>): KeyMap<E> {
         val keys = attributeDelegate.getValue(thisRef, property)
-        return object : HashMap<String, E>(keys.map { it to entities[it] }.toMap()), EntityMap<E> {
+        return object : HashMap<String, E>(keys.map { it to entities[it] }.toMap()), KeyMap<E> {
 
             override fun get(key: String): E? = if (keys.contains(key)) entities[key] else null
 

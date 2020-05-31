@@ -28,9 +28,9 @@ abstract class BasicDialogue : Dialogue() {
         val toIntent = pass
 
         val now: DateTime get() = DateTime.now(codeRun.context.turn.input.zoneId)
-        val today get() = now.day
-        val tomorrow get() = now + 1
-        val yesterday get() = now - 1
+        val today get() = now.date
+        val tomorrow get() = now + 1.day
+        val yesterday get() = now - 1.day
         val DateTime.isToday get() = this isDay 0..0
         val DateTime.isTomorrow get() = this isDay 1..1
         val DateTime.isYesterday get() = this isDay -1..-1
@@ -39,10 +39,10 @@ abstract class BasicDialogue : Dialogue() {
         val DateTime.monthName get() = English.months[month.value - 1] //TODO localize
         val DateTime.dayOfWeekName get() = English.weekDays[dayOfWeek.value - 1] //TODO localize
         infix fun DateTime.isDay(range: IntRange) =
-                day(range.first.toLong()) <= today && today < day(range.last.toLong() + 1)
+                this + range.first.day <= today && today < this + range.last.day + 1.day
         infix fun DateTime.isDay(day: Int) = this isDay day..day
 
-        val api = Api()
+        val api = Api
     }
 
     // client request attributes
@@ -78,6 +78,18 @@ abstract class BasicDialogue : Dialogue() {
     inline fun <reified V: Any> communityAttribute(communityName: String, namespace: String? = null, noinline default: (Context.() -> V)) =
             CommunityAttributeDelegate(V::class, communityName, { namespace?:dialogueNameWithoutVersion }, default)
 
+    inline fun sessionSequenceAttribute(list: List<String>, namespace: String? = null, noinline nextValue: (SequenceAttribute<String, String>.() -> String?) = { nextRandom() }) =
+            StringSequenceAttributeDelegate(list, ContextualAttributeDelegate.Scope.Session, { namespace ?: dialogueNameWithoutVersion }, nextValue)
+
+    inline fun userSequenceAttribute(list: List<String>, namespace: String? = null, noinline nextValue: (SequenceAttribute<String, String>.() -> String?) = { nextRandom() }) =
+            StringSequenceAttributeDelegate(list, ContextualAttributeDelegate.Scope.User, { namespace ?: dialogueNameWithoutVersion }, nextValue)
+
+    inline fun <reified E: NamedEntity> sessionSequenceAttribute(entities: List<E>, namespace: String? = null, noinline nextValue: (SequenceAttribute<E, String>.() -> E?) = { nextRandom() }) =
+            EntitySequenceAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Session, { namespace ?: dialogueNameWithoutVersion }, nextValue)
+
+    inline fun <reified E: NamedEntity> userSequenceAttribute(entities: List<E>, namespace: String? = null, noinline nextValue: (SequenceAttribute<E, String>.() -> E?) = { nextRandom() }) =
+            EntitySequenceAttributeDelegate(entities, ContextualAttributeDelegate.Scope.User, { namespace ?: dialogueNameWithoutVersion }, nextValue)
+
     inline fun <reified E: NamedEntity> turnEntityListAttribute(entities: Collection<E>, namespace: String? = null) =
             NamedEntityListAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Turn) { namespace ?: dialogueNameWithoutVersion }
 
@@ -96,14 +108,14 @@ abstract class BasicDialogue : Dialogue() {
     inline fun <reified E: NamedEntity> userEntitySetAttribute(entities: Collection<E>, namespace: String? = null) =
             NamedEntitySetAttributeDelegate(entities, ContextualAttributeDelegate.Scope.User) { namespace ?: dialogueNameWithoutVersion }
 
-    inline fun <reified E: NamedEntity> turnEntityMapAttribute(entities: Map<String, E>, namespace: String? = null) =
-            EntityMapAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Turn) { namespace ?: dialogueNameWithoutVersion }
+    inline fun <reified E: Any> sessionMapAttribute(entities: Map<String, E>, namespace: String? = null) =
+            MapAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Session) { namespace ?: dialogueNameWithoutVersion }
 
-    inline fun <reified E: NamedEntity> sessionEntityMapAttribute(entities: Map<String, E>, namespace: String? = null) =
-            EntityMapAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Session) { namespace ?: dialogueNameWithoutVersion }
+    inline fun <reified E: Any> turnMapAttribute(entities: Map<String, E>, namespace: String? = null) =
+            MapAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Turn) { namespace ?: dialogueNameWithoutVersion }
 
-    inline fun <reified E: NamedEntity> userEntityMapAttribute(entities: Map<String, E>, namespace: String? = null) =
-            EntityMapAttributeDelegate(entities, ContextualAttributeDelegate.Scope.User) { namespace ?: dialogueNameWithoutVersion }
+    inline fun <reified E: Any> userMapAttribute(entities: Map<String, E>, namespace: String? = null) =
+            MapAttributeDelegate(entities, ContextualAttributeDelegate.Scope.User) { namespace ?: dialogueNameWithoutVersion }
 
     fun metricValue(metricSpec: String) = MetricDelegate(metricSpec)
 

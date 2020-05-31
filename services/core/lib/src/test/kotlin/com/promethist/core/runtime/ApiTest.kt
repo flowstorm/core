@@ -11,13 +11,11 @@ internal class ApiTest {
     @Test
     fun `test api words`() {
 
-        val api = Api()
+        println(Api.get<List<String>>(Api.target("https://repository.promethist.ai/data/animals.json")))
 
-        println(api.get<List<String>>(api.target("https://repository.promethist.ai/data/animals.json")))
+        println(Api.words("good", "antonyms"))
 
-        println(api.words("good", "antonyms"))
-
-        val response = api.words<Dynamic>("hatchback")
+        val response = Api.words<Dynamic>("hatchback")
         response<List<PropertyMap>>("results") {
             value.forEach {
                 println("partOfSpeech = " + it["partOfSpeech"])
