@@ -4,6 +4,9 @@ import com.promethist.core.Input
 import com.promethist.core.type.DateTime
 import com.promethist.core.type.Location
 import java.time.DayOfWeek
+import java.time.Duration
+import java.time.LocalTime
+import java.time.temporal.ChronoUnit
 
 // strings
 
@@ -77,25 +80,32 @@ fun Collection<String>.similarTo(text: String, minSimilarity: Double = .0) =
 
 // date time
 
-val DateTime.day get() = day(0)
 val DateTime.isWeekend get() = dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY
 
-infix fun DateTime.differsInDaysFrom(dateTime: DateTime) =
-        (year * 366 * 24 + hour) - (dateTime.year * 366 * 24 + dateTime.hour)
+infix fun DateTime.differsInHoursFrom(other: DateTime) = Duration.between(this, other).toHours()
 
-infix fun DateTime.differsInHoursFrom(dateTime: DateTime) =
-        (year * 366 * 24 + hour) - (dateTime.year * 366 * 24 + dateTime.hour)
+infix fun DateTime.differsInDaysFrom(other: DateTime) = Duration.between(this, other).toDays()
 
-infix fun DateTime.differsInMonthsFrom(dateTime: DateTime) =
-        (year * 12 + monthValue) - (dateTime.year * 12 + dateTime.monthValue)
+infix fun DateTime.differsInMonthsFrom(other: DateTime) =
+        (year * 12 + monthValue) - (other.year * 12 + other.monthValue)
 
-infix fun DateTime.isSameDayAs(to: DateTime) = day == to.day
+infix fun DateTime.isSameDayAs(to: DateTime) =
+        (dayOfYear == to.dayOfYear) && (monthValue == to.monthValue) && (year == to.year)
 
-infix operator fun DateTime.plus(dayCount: Long) = day(dayCount)
+class DateTimeUnit(val unit: ChronoUnit, val amount: Long)
 
-infix operator fun DateTime.minus(dayCount: Long) = day(-dayCount)
+infix operator fun DateTime.plus(timeUnit: DateTimeUnit) = plus(timeUnit.amount, timeUnit.unit)
+infix operator fun DateTime.minus(timeUnit: DateTimeUnit) = minus(timeUnit.amount, timeUnit.unit)
 
-infix fun DateTime.day(dayCount: Long): DateTime =
-        plus(dayCount, java.time.temporal.ChronoUnit.DAYS).with(java.time.LocalTime.of(0, 0, 0, 0))
+val Number.second: DateTimeUnit get() = DateTimeUnit(ChronoUnit.SECONDS, toLong())
+val Number.minute: DateTimeUnit get() = DateTimeUnit(ChronoUnit.MINUTES, toLong())
+val Number.hour: DateTimeUnit get() = DateTimeUnit(ChronoUnit.HOURS, toLong())
+val Number.day: DateTimeUnit get() = DateTimeUnit(ChronoUnit.DAYS, toLong())
+val Number.week: DateTimeUnit get() = DateTimeUnit(ChronoUnit.WEEKS, toLong())
+val Number.month: DateTimeUnit get() = DateTimeUnit(ChronoUnit.MONTHS, toLong())
+val Number.year: DateTimeUnit get() = DateTimeUnit(ChronoUnit.YEARS, toLong())
 
-val DateTime.isDay get() = hour == 0 && minute == 0 && second == 0 && nano == 0
+val DateTime.date get() = with(LocalTime.of(0, 0, 0, 0))
+val DateTime.isDate get() = hour == 0 && minute == 0 && second == 0 && nano == 0
+
+

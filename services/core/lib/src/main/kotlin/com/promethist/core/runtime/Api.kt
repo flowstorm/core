@@ -7,7 +7,7 @@ import javax.ws.rs.client.Entity
 import javax.ws.rs.client.Invocation
 import javax.ws.rs.client.WebTarget
 
-class Api {
+object Api {
 
     fun target(targetUrl: String) = RestClient.webTarget(targetUrl)
 
