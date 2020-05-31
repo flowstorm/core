@@ -8,18 +8,19 @@ import kotlin.random.Random
 abstract class SequenceAttribute<E, V : Any>(
         val list: List<E>,
         private val memories: MemoryMutableSet<V>,
-        val nextValue: (SequenceAttribute<E, V>.() -> E?)) {
+        val nextBlock: (SequenceAttribute<E, V>.() -> E?)) {
 
-    val next get() = nextValue(this)
-    val last get() = memories.maxBy { it.time }?.let { memory ->
-        list.find { toMemoryValue(it) == memory.value}
-    } ?: error("no item in sequence (access next property first)")
+    val next get() = nextBlock(this)
+    val last get() = last() ?: error("no item in sequence (access next property first)")
+
+    fun last() = memories.maxBy { it.time }?.let { memory ->
+        list.find { toMemoryValue(it) == memory.value }
+    }
 
     fun nextRandom(minDuration: DateTimeUnit = 1.day, maxCount: Int = Int.MAX_VALUE, resetDuration: DateTimeUnit? = null): E? {
-        val values = mutableListOf<V>()
         val now = DateTime.now()
-        if (resetDuration != null)
-            memories.filter { it.time + resetDuration <= now }.forEach { it.count = 0 }
+        memories.filter { resetDuration != null && it.time + resetDuration <= now }.forEach { it.count = 0 }
+        val values = mutableListOf<V>()
         list.forEach { e ->
             val value = toMemoryValue(e)
             val lastMemory = memories.find {
@@ -37,8 +38,24 @@ abstract class SequenceAttribute<E, V : Any>(
     }
 
     fun nextInLine(minDuration: DateTimeUnit = 1.day, maxCount: Int = Int.MAX_VALUE, resetDuration: DateTimeUnit? = null): E? {
-        TODO("SequenceAttribute.nextInLine method not implemented yet")
+        val now = DateTime.now()
+        memories.filter { resetDuration != null && it.time + resetDuration <= now }.forEach { it.count = 0 }
+        val last = last()
+        val i = if (last == null)
+            0
+        else list.indexOf(last).let {
+            if (it + 1 < list.size) it + 1 else 0
+        }
+        val e = list[i]
+        val value = toMemoryValue(e)
+        val lastMemory = memories.find { it.value == value }
+        return if ((lastMemory == null) || (lastMemory.count < maxCount && lastMemory.time + minDuration < now)) {
+            memories.add(Memory(value))
+            e
+        } else {
+            null
+        }
     }
 
-    abstract fun toMemoryValue(v: E): V
+    abstract fun toMemoryValue(e: E): V
 }
