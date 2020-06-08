@@ -352,6 +352,9 @@ abstract class BasicDialogue : Dialogue() {
     fun enumerate(data: Collection<String>, subj: String = "", before: Boolean = false, conj: String = "") =
             enumerate(data, { plural(subj, data.size) }, before, conj)
 
+    fun enumerate(data: Collection<Number>, before: Boolean = false, conj: String = "") =
+            enumerate(data.map { describe(it) }, "", before, conj)
+
     fun enumerate(data: Map<String, Number>): String = enumerate(mutableListOf<String>().apply {
         data.forEach { add(it.value of it.key) }
     })

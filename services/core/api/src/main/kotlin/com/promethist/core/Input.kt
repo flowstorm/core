@@ -60,6 +60,17 @@ data class Input(
     val intent get() = intents.firstOrNull()?:error("No intent class recognized in input")
 
     @get:JsonIgnore
+    val numbers: List<Number> get() {
+        val numbers = mutableListOf<Number>()
+        transcript.text.replace(Regex("([\\d\\.,]+)")) {
+            val s = it.groupValues[1].replace(',', '.')
+            numbers.add(if (s.indexOf('.') >= 0) s.toFloat() else s.toInt())
+            s
+        }
+        return numbers
+    }
+
+    @get:JsonIgnore
     val entityMap: Map<String, List<Entity>> by lazy {
         val map = mutableMapOf<String, MutableList<Entity>>()
         words.forEach { word ->
