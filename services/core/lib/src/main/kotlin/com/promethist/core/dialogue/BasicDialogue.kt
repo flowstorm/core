@@ -205,7 +205,7 @@ abstract class BasicDialogue : Dialogue() {
             }
         }
 
-    fun plural(data: Collection<String>, count: Int = 2) = enumerate(data.map { plural(it, count) })
+    fun plural(data: Collection<String>, count: Int = 2) = data.map { plural(it, count) }
 
     fun article(subj: String, article: Article = Article.Indefinite) =
             when (language) {
