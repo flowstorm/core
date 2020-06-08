@@ -71,6 +71,8 @@ internal class DialogueScriptTest {
                 println(enumerate(1 of "point+ for math", 2 of "another? point+ for history", 3 of "more? other point"))
                 println(enumerate("point+ for math" to 3))
                 println(enumerate("a", "b", "c", conj = "or", subj = "movie"))
+                println(enumerate(listOf("d", "e", "f")))
+                println(enumerate(listOf(1, 2, 3), conj = "or"))
                 println(enumerate(movies.list { name }, {
                     when (it) {
                         0 -> "movie is none"
