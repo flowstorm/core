@@ -38,8 +38,13 @@ abstract class BasicDialogue : Dialogue() {
         val DateTime.holidayName get() = null // && TODO check holidays in context.turn.input.locale.country
         val DateTime.monthName get() = English.months[month.value - 1] //TODO localize
         val DateTime.dayOfWeekName get() = English.weekDays[dayOfWeek.value - 1] //TODO localize
-        infix fun DateTime.isDay(range: IntRange) =
-                date >= today + range.first.day && date <= today + range.last.day
+        infix fun DateTime.isSecond(range: IntRange) = this >= now + range.first.second && this <= now + range.last.second
+        infix fun DateTime.isMinute(range: IntRange) = this >= now + range.first.minute && this <= now + range.last.minute
+        infix fun DateTime.isHour(range: IntRange) = this >= now + range.first.hour && this <= now + range.last.hour
+        infix fun DateTime.isDay(range: IntRange) = date >= today + range.first.day && date <= today + range.last.day
+        infix fun DateTime.isWeek(range: IntRange) = date >= today + range.first.week && date <= today + range.last.week
+        infix fun DateTime.isMonth(range: IntRange) = date >= today + range.first.month && date <= today + range.last.month
+        infix fun DateTime.isYear(range: IntRange) = date >= today + range.first.year && date <= today + range.last.year
         infix fun DateTime.isDay(day: Int) = this isDay day..day
 
         val api = Api
