@@ -29,8 +29,8 @@ abstract class BasicDialogue : Dialogue() {
 
         val now: DateTime get() = DateTime.now(codeRun.context.turn.input.zoneId)
         val today get() = now.date
-        val tomorrow get() = now + 1.day
-        val yesterday get() = now - 1.day
+        val tomorrow get() = today + 1.day
+        val yesterday get() = today - 1.day
         val DateTime.isToday get() = this isDay 0..0
         val DateTime.isTomorrow get() = this isDay 1..1
         val DateTime.isYesterday get() = this isDay -1..-1
@@ -39,7 +39,7 @@ abstract class BasicDialogue : Dialogue() {
         val DateTime.monthName get() = English.months[month.value - 1] //TODO localize
         val DateTime.dayOfWeekName get() = English.weekDays[dayOfWeek.value - 1] //TODO localize
         infix fun DateTime.isDay(range: IntRange) =
-                this + range.first.day <= today && today < this + range.last.day + 1.day
+                date >= today + range.first.day && date <= today + range.last.day
         infix fun DateTime.isDay(day: Int) = this isDay day..day
 
         val api = Api

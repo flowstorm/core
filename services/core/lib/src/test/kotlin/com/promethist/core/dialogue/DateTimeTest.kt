@@ -11,20 +11,22 @@ internal class DateTimeTest : DialogueTest() {
 
     @Test
     fun `datetime`() {
-        val t = BasicDialogue.now
-        val d = BasicDialogue.today
+        with (BasicDialogue) {
 
-        println(t)
-        println(t + 1.second)
-        println(t + 1.minute)
-        println(t + 1.hour)
+            val t = now
+            val d = today
 
-        println(d)
-        println(d + 1.day)
-        println(d + 1.month)
-        println(d + 1.year)
-        println(d - 1.day)
-        println(d - 1.month)
-        println(d - 1.year)
+            println("now = $t")
+            println("today = $d")
+            println("yesterday = $yesterday")
+            println("tomorrow = $tomorrow")
+
+            val d_5 = today + 5.day
+            println("d-5 = $d_5")
+
+            println(d_5 isDay -4..4)
+
+        }
+
     }
 }
