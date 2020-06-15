@@ -51,74 +51,143 @@ abstract class BasicDialogue : Dialogue() {
     }
 
     // client request attributes
-    override var clientLocation by sessionAttribute(clientNamespace) { Location() }
-    var clientType by sessionAttribute(clientNamespace) { "unknown" }
-    var clientScreen by sessionAttribute(clientNamespace) { false }
-    var clientTemperature by sessionAttribute(clientNamespace) { -273.15 }
-    var clientAmbientLight by sessionAttribute(clientNamespace) { 0.0 }
-    var clientSpatialMotion by sessionAttribute(clientNamespace) { 0.0 }
+    override var clientLocation by session(clientNamespace) { Location() }
+    var clientType by session(clientNamespace) { "unknown" }
+    var clientScreen by session(clientNamespace) { false }
+    var clientTemperature by session(clientNamespace) { -273.15 }
+    var clientAmbientLight by session(clientNamespace) { 0.0 }
+    var clientSpatialMotion by session(clientNamespace) { 0.0 }
 
     // client response attributes
-    var turnSpeakingRate by turnAttribute(clientNamespace) { 1.0 }
-    var sessionSpeakingRate by sessionAttribute(clientNamespace) { 1.0 }
-    var userSpeakingRate by userAttribute(clientNamespace) { 1.0 }
+    var turnSpeakingRate by turn(clientNamespace) { 1.0 }
+    var sessionSpeakingRate by session(clientNamespace) { 1.0 }
+    var userSpeakingRate by user(clientNamespace) { 1.0 }
 
-    var turnSpeakingPitch by turnAttribute(clientNamespace) { 0.0 }
-    var sessionSpeakingPitch by sessionAttribute(clientNamespace) { 0.0 }
-    var userSpeakingPitch by userAttribute(clientNamespace) { 0.0 }
+    var turnSpeakingPitch by turn(clientNamespace) { 0.0 }
+    var sessionSpeakingPitch by session(clientNamespace) { 0.0 }
+    var userSpeakingPitch by user(clientNamespace) { 0.0 }
 
-    var turnSpeakingVolumeGain by turnAttribute(clientNamespace) { 1.0 }
-    var sessionSpeakingVolumeGain by sessionAttribute(clientNamespace) { 1.0 }
-    var userSpeakingVolumeGain by userAttribute(clientNamespace) { 1.0 }
+    var turnSpeakingVolumeGain by turn(clientNamespace) { 1.0 }
+    var sessionSpeakingVolumeGain by session(clientNamespace) { 1.0 }
+    var userSpeakingVolumeGain by user(clientNamespace) { 1.0 }
 
+    inline fun <reified V: Any> turn(namespace: String? = null, noinline default: (Context.() -> V)) =
+            ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.Turn, V::class, { namespace ?: dialogueNameWithoutVersion }, default)
+
+    inline fun <reified V: Any> session(namespace: String? = null, noinline default: (Context.() -> V)) =
+            ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.Session, V::class, { namespace ?: dialogueNameWithoutVersion }, default)
+
+    inline fun <reified V: Any> user(namespace: String? = null, noinline default: (Context.() -> V)) =
+            ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.User, V::class, { namespace ?: dialogueNameWithoutVersion }, default)
+
+    inline fun <reified V: Any> community(communityName: String, namespace: String? = null, noinline default: (Context.() -> V)) =
+            CommunityAttributeDelegate(V::class, communityName, { namespace?:dialogueNameWithoutVersion }, default)
+
+    inline fun sessionSequence(list: List<String>, namespace: String? = null, noinline nextValue: (SequenceAttribute<String, String>.() -> String?) = { nextRandom() }) =
+            StringSequenceAttributeDelegate(list, ContextualAttributeDelegate.Scope.Session, { namespace ?: dialogueNameWithoutVersion }, nextValue)
+
+    inline fun userSequence(list: List<String>, namespace: String? = null, noinline nextValue: (SequenceAttribute<String, String>.() -> String?) = { nextRandom() }) =
+            StringSequenceAttributeDelegate(list, ContextualAttributeDelegate.Scope.User, { namespace ?: dialogueNameWithoutVersion }, nextValue)
+
+    inline fun <reified E: NamedEntity> sessionSequence(entities: List<E>, namespace: String? = null, noinline nextValue: (SequenceAttribute<E, String>.() -> E?) = { nextRandom() }) =
+            EntitySequenceAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Session, { namespace ?: dialogueNameWithoutVersion }, nextValue)
+
+    inline fun <reified E: NamedEntity> userSequence(entities: List<E>, namespace: String? = null, noinline nextValue: (SequenceAttribute<E, String>.() -> E?) = { nextRandom() }) =
+            EntitySequenceAttributeDelegate(entities, ContextualAttributeDelegate.Scope.User, { namespace ?: dialogueNameWithoutVersion }, nextValue)
+
+    inline fun <reified E: NamedEntity> turnEntityList(entities: Collection<E>, namespace: String? = null) =
+            NamedEntityListAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Turn) { namespace ?: dialogueNameWithoutVersion }
+
+    inline fun <reified E: NamedEntity> sessionEntityList(entities: Collection<E>, namespace: String? = null) =
+            NamedEntityListAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Session) { namespace ?: dialogueNameWithoutVersion }
+
+    inline fun <reified E: NamedEntity> userEntityList(entities: Collection<E>, namespace: String? = null) =
+            NamedEntityListAttributeDelegate(entities, ContextualAttributeDelegate.Scope.User) { namespace ?: dialogueNameWithoutVersion }
+
+    inline fun <reified E: NamedEntity> turnEntitySet(entities: Collection<E>, namespace: String? = null) =
+            NamedEntitySetAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Turn) { namespace ?: dialogueNameWithoutVersion }
+
+    inline fun <reified E: NamedEntity> sessionEntitySet(entities: Collection<E>, namespace: String? = null) =
+            NamedEntitySetAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Session) { namespace ?: dialogueNameWithoutVersion }
+
+    inline fun <reified E: NamedEntity> userEntitySet(entities: Collection<E>, namespace: String? = null) =
+            NamedEntitySetAttributeDelegate(entities, ContextualAttributeDelegate.Scope.User) { namespace ?: dialogueNameWithoutVersion }
+
+    inline fun <reified E: Any> sessionMap(entities: Map<String, E>, namespace: String? = null) =
+            MapAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Session) { namespace ?: dialogueNameWithoutVersion }
+
+    inline fun <reified E: Any> turnMap(entities: Map<String, E>, namespace: String? = null) =
+            MapAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Turn) { namespace ?: dialogueNameWithoutVersion }
+
+    inline fun <reified E: Any> userMap(entities: Map<String, E>, namespace: String? = null) =
+            MapAttributeDelegate(entities, ContextualAttributeDelegate.Scope.User) { namespace ?: dialogueNameWithoutVersion }
+
+    // deprecated delegates with *Attribute suffix in name
+    @Deprecated("Use turn instead", replaceWith = ReplaceWith("turn"))
     inline fun <reified V: Any> turnAttribute(namespace: String? = null, noinline default: (Context.() -> V)) =
             ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.Turn, V::class, { namespace ?: dialogueNameWithoutVersion }, default)
 
+    @Deprecated("Use session instead", replaceWith = ReplaceWith("session"))
     inline fun <reified V: Any> sessionAttribute(namespace: String? = null, noinline default: (Context.() -> V)) =
             ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.Session, V::class, { namespace ?: dialogueNameWithoutVersion }, default)
 
+    @Deprecated("Use user instead", replaceWith = ReplaceWith("user"))
     inline fun <reified V: Any> userAttribute(namespace: String? = null, noinline default: (Context.() -> V)) =
             ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.User, V::class, { namespace ?: dialogueNameWithoutVersion }, default)
 
+    @Deprecated("Use community instead", replaceWith = ReplaceWith("community"))
     inline fun <reified V: Any> communityAttribute(communityName: String, namespace: String? = null, noinline default: (Context.() -> V)) =
             CommunityAttributeDelegate(V::class, communityName, { namespace?:dialogueNameWithoutVersion }, default)
 
+    @Deprecated("Use sessionSequence instead", replaceWith = ReplaceWith("sessionSequence"))
     inline fun sessionSequenceAttribute(list: List<String>, namespace: String? = null, noinline nextValue: (SequenceAttribute<String, String>.() -> String?) = { nextRandom() }) =
             StringSequenceAttributeDelegate(list, ContextualAttributeDelegate.Scope.Session, { namespace ?: dialogueNameWithoutVersion }, nextValue)
 
+    @Deprecated("Use userSequence instead", replaceWith = ReplaceWith("userSequence"))
     inline fun userSequenceAttribute(list: List<String>, namespace: String? = null, noinline nextValue: (SequenceAttribute<String, String>.() -> String?) = { nextRandom() }) =
             StringSequenceAttributeDelegate(list, ContextualAttributeDelegate.Scope.User, { namespace ?: dialogueNameWithoutVersion }, nextValue)
 
+    @Deprecated("Use sessionSequence instead", replaceWith = ReplaceWith("sessionSequence"))
     inline fun <reified E: NamedEntity> sessionSequenceAttribute(entities: List<E>, namespace: String? = null, noinline nextValue: (SequenceAttribute<E, String>.() -> E?) = { nextRandom() }) =
             EntitySequenceAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Session, { namespace ?: dialogueNameWithoutVersion }, nextValue)
 
+    @Deprecated("Use userSequence instead", replaceWith = ReplaceWith("userSequence"))
     inline fun <reified E: NamedEntity> userSequenceAttribute(entities: List<E>, namespace: String? = null, noinline nextValue: (SequenceAttribute<E, String>.() -> E?) = { nextRandom() }) =
             EntitySequenceAttributeDelegate(entities, ContextualAttributeDelegate.Scope.User, { namespace ?: dialogueNameWithoutVersion }, nextValue)
 
+    @Deprecated("Use turnEntityList instead", replaceWith = ReplaceWith("turnEntityList"))
     inline fun <reified E: NamedEntity> turnEntityListAttribute(entities: Collection<E>, namespace: String? = null) =
             NamedEntityListAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Turn) { namespace ?: dialogueNameWithoutVersion }
 
+    @Deprecated("Use sessionEntityList instead", replaceWith = ReplaceWith("sessionEntityList"))
     inline fun <reified E: NamedEntity> sessionEntityListAttribute(entities: Collection<E>, namespace: String? = null) =
             NamedEntityListAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Session) { namespace ?: dialogueNameWithoutVersion }
 
+    @Deprecated("Use userEntityList instead", replaceWith = ReplaceWith("userEntityList"))
     inline fun <reified E: NamedEntity> userEntityListAttribute(entities: Collection<E>, namespace: String? = null) =
             NamedEntityListAttributeDelegate(entities, ContextualAttributeDelegate.Scope.User) { namespace ?: dialogueNameWithoutVersion }
 
+    @Deprecated("Use turnEntitySet instead", replaceWith = ReplaceWith("turnEntitySet"))
     inline fun <reified E: NamedEntity> turnEntitySetAttribute(entities: Collection<E>, namespace: String? = null) =
             NamedEntitySetAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Turn) { namespace ?: dialogueNameWithoutVersion }
 
+    @Deprecated("Use sessionEntitySet instead", replaceWith = ReplaceWith("sessionEntitySet"))
     inline fun <reified E: NamedEntity> sessionEntitySetAttribute(entities: Collection<E>, namespace: String? = null) =
             NamedEntitySetAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Session) { namespace ?: dialogueNameWithoutVersion }
 
+    @Deprecated("Use userEntitySet instead", replaceWith = ReplaceWith("userEntitySet"))
     inline fun <reified E: NamedEntity> userEntitySetAttribute(entities: Collection<E>, namespace: String? = null) =
             NamedEntitySetAttributeDelegate(entities, ContextualAttributeDelegate.Scope.User) { namespace ?: dialogueNameWithoutVersion }
 
+    @Deprecated("Use sessionMap instead", replaceWith = ReplaceWith("sessionMap"))
     inline fun <reified E: Any> sessionMapAttribute(entities: Map<String, E>, namespace: String? = null) =
             MapAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Session) { namespace ?: dialogueNameWithoutVersion }
 
+    @Deprecated("Use turnMap instead", replaceWith = ReplaceWith("turnMap"))
     inline fun <reified E: Any> turnMapAttribute(entities: Map<String, E>, namespace: String? = null) =
             MapAttributeDelegate(entities, ContextualAttributeDelegate.Scope.Turn) { namespace ?: dialogueNameWithoutVersion }
 
+    @Deprecated("Use userMap instead", replaceWith = ReplaceWith("userMap"))
     inline fun <reified E: Any> userMapAttribute(entities: Map<String, E>, namespace: String? = null) =
             MapAttributeDelegate(entities, ContextualAttributeDelegate.Scope.User) { namespace ?: dialogueNameWithoutVersion }
 
