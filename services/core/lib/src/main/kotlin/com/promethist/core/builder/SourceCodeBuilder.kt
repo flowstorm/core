@@ -73,13 +73,15 @@ class SourceCodeBuilder(val name: String, val buildId: String) {
     private val goBacks = mutableListOf<GoBack>()
     private val transitions = mutableMapOf<String, String>()
 
-    data class Intent(val nodeId: Int, val nodeName: String, val threshold: Float, val utterances: List<String>)
-    data class GlobalIntent(val nodeId: Int, val nodeName: String, val threshold: Float, val utterances: List<String>)
-    data class UserInput(val nodeId: Int, val nodeName: String, val intentNames: List<String>, val skipGlobalIntents: Boolean, val transitions: Map<String, String>, val code: CharSequence = "")
-    data class Response(val nodeId: Int, val nodeName: String, val repeatable: Boolean, val texts: List<String>)
-    data class Function(val nodeId: Int, val nodeName: String, val transitions: Map<String, String>, val code: CharSequence)
-    data class SubDialogue(val nodeId: Int, val nodeName: String, val subDialogueName: String, val code: CharSequence = "")
-    data class GoBack(val nodeId: Int, val nodeName: String, val repeat:Boolean)
+    interface Node
+
+    data class Intent(val nodeId: Int, val nodeName: String, val threshold: Float, val utterances: List<String>) : Node
+    data class GlobalIntent(val nodeId: Int, val nodeName: String, val threshold: Float, val utterances: List<String>) : Node
+    data class UserInput(val nodeId: Int, val nodeName: String, val intentNames: List<String>, val skipGlobalIntents: Boolean, val transitions: Map<String, String>, val code: CharSequence = "") : Node
+    data class Response(val nodeId: Int, val nodeName: String, val repeatable: Boolean, val texts: List<String>) : Node
+    data class Function(val nodeId: Int, val nodeName: String, val transitions: Map<String, String>, val code: CharSequence) : Node
+    data class SubDialogue(val nodeId: Int, val nodeName: String, val subDialogueName: String, val code: CharSequence = "") : Node
+    data class GoBack(val nodeId: Int, val nodeName: String, val repeat: Boolean) : Node
 
     fun addNode(node: UserInput) = userInputs.add(node)
     fun addNode(node: Intent) = intents.add(node)
@@ -158,7 +160,7 @@ class SourceCodeBuilder(val name: String, val buildId: String) {
         source.appendln(") : $parentClass() {")
     }
 
-    private fun write(goBack: GoBack)  = with(goBack) {
+    private fun write(goBack: GoBack) = with(goBack) {
         source.appendln("\tval $nodeName = GoBack($nodeId, $repeat)")
     }
 

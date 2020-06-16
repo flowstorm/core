@@ -2,6 +2,7 @@ package com.promethist.core.builder
 
 import com.promethist.common.AppConfig
 import com.promethist.core.dialogue.Dialogue
+import com.promethist.core.model.Build
 import com.promethist.core.resources.FileResource
 import com.promethist.core.runtime.DialogueClassLoader
 import com.promethist.core.runtime.Kotlin
@@ -67,7 +68,7 @@ class DialogueBuilder(
         /**
          * Builds and stores dialogue model with intent model and included files using file resource.
          */
-        fun build() {
+        fun build(): Build {
             try {
                 logger.info("start building dialogue model $name")
                 source.build()
@@ -77,6 +78,10 @@ class DialogueBuilder(
                 saveJavaArchive(buildPath)
                 buildIntentModels(dialogue)
                 logger.info("finished building dialogue model $name")
+                return Build(buildId, true, getLogs())
+            } catch (t: Throwable) {
+                logger.error("Build Exception: ${t.message}", t)
+                return Build(buildId, false, getLogs(), t.message ?: "")
             } finally {
                 saveBuildLog(buildPath)
             }
@@ -88,10 +93,13 @@ class DialogueBuilder(
             saveJavaArchive(basePath)
         }
 
+        private fun getLogs(): List<String> {
+            return BuildLogAppender.getEvents(Thread.currentThread().name)
+        }
+
         private fun saveBuildLog(dir: String) {
-            val threadName = Thread.currentThread().name
-            val logs = BuildLogAppender.getEvents(threadName)
-            BuildLogAppender.clearEvents(threadName)
+            val logs = getLogs()
+            BuildLogAppender.clearEvents(Thread.currentThread().name)
             val log = StringBuilder()
 
             logs.forEach {
