@@ -31,8 +31,8 @@ class AppConfig: Serializable, Cloneable {
 
             listOf(
                     (System.getProperty("app.config") ?: ".") + "/" + FILENAME,
-                    System.getenv("APP_PROPERTIES"))
-            .forEach { path ->
+                    (System.getProperty("app.config") ?: ".") + "/" + LOCAL_FILENAME
+            ).forEach { path ->
                 File(path).let { file ->
                     if (file.exists()) {
                         properties.load(FileInputStream(file))
@@ -75,6 +75,7 @@ class AppConfig: Serializable, Cloneable {
 
     companion object {
         const val FILENAME = "app.properties"
+        const val LOCAL_FILENAME = "app.local.properties"
 
         @JvmStatic
         val instance = AppConfig()
