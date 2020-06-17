@@ -34,8 +34,12 @@ class ContextFactory {
                     with (attributes[Dialogue.clientNamespace]) {
                         request.attributes.forEach {
                             put(it.key, Memory(when (it.key) {
-                                "clientLocation" -> (it.value as String).toLocation()
-                                else -> it.value
+                                "clientLocation" ->
+                                    (it.value as String).toLocation()
+                                "clientTemperature", "clientAmbientLight", "clientSpatialMotion" ->
+                                    (it.value as String).toDouble()
+                                else ->
+                                    it.value
                             }))
                         }
                     }
