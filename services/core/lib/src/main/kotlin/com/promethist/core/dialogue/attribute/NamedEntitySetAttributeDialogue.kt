@@ -1,5 +1,6 @@
-package com.promethist.core.dialogue
+package com.promethist.core.dialogue.attribute
 
+import com.promethist.core.dialogue.Dialogue
 import com.promethist.core.type.NamedEntity
 import com.promethist.core.type.StringMutableSet
 import kotlin.reflect.KProperty

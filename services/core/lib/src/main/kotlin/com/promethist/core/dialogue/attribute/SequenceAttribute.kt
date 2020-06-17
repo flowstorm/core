@@ -1,5 +1,8 @@
-package com.promethist.core.dialogue
+package com.promethist.core.dialogue.attribute
 
+import com.promethist.core.dialogue.DateTimeUnit
+import com.promethist.core.dialogue.day
+import com.promethist.core.dialogue.plus
 import com.promethist.core.type.DateTime
 import com.promethist.core.type.Memory
 import com.promethist.core.type.MemoryMutableSet
@@ -15,6 +18,18 @@ abstract class SequenceAttribute<E, V : Any>(
 
     fun last() = memories.maxBy { it.time }?.let { memory ->
         list.find { toMemoryValue(it) == memory.value }
+    }
+
+    fun next(count: Int): List<E> {
+        val values = mutableListOf<E>()
+        for (i in 0 until count) {
+            val value = next
+            if (value != null)
+                values.add(value)
+            else
+                break
+        }
+        return values
     }
 
     fun nextRandom(minDuration: DateTimeUnit = 1.day, maxCount: Int = Int.MAX_VALUE, resetDuration: DateTimeUnit? = null): E? {

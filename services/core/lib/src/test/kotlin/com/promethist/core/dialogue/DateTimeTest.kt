@@ -1,17 +1,14 @@
 package com.promethist.core.dialogue
 
-import com.promethist.core.dialogue.BasicDialogue.Companion.isDay
-import com.promethist.core.type.DateTime
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class DateTimeTest : DialogueTest() {
 
     @Test
     fun `datetime`() {
-        with (BasicDialogue) {
+        with (dialogue) {
 
             val t = now
             val d = today

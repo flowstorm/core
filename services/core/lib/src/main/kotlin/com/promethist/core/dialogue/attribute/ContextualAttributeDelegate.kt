@@ -1,7 +1,8 @@
-package com.promethist.core.dialogue
+package com.promethist.core.dialogue.attribute
 
 import kotlin.reflect.KClass
 import com.promethist.core.Context
+import com.promethist.core.dialogue.Dialogue
 
 class ContextualAttributeDelegate<V: Any>(
         private val scope: Scope,
