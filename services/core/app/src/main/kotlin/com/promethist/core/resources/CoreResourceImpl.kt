@@ -52,7 +52,7 @@ class CoreResourceImpl : CoreResource {
         dialogueLog.level = Level.ALL
 
         val session = try {
-            initSession(appKey, sender, sessionId, input)
+            initSession(appKey, sender,token, sessionId, input)
         } catch (e: Exception) {
             return processException(request, e)
         }
@@ -132,7 +132,7 @@ class CoreResourceImpl : CoreResource {
                 responseMessage.attributes, responseMessage.expectedPhrases, responseMessage.sessionEnded)
     }
 
-    private fun initSession(key: String, sender: String, sessionId: String, input: Input): Session {
+    private fun initSession(key: String, sender: String, token: String?, sessionId: String, input: Input): Session {
         val storedSession = sessionResource.get(sessionId)
         val session = if (storedSession != null) {
             logger.info("Restoring the existing session.")
@@ -142,6 +142,7 @@ class CoreResourceImpl : CoreResource {
             val contentResponse = contentDistributionResource.resolve(
                     ContentRequest(
                             sender,
+                            token,
                             key,
                             input.locale.language,
                             Application.StartCondition(Application.StartCondition.Type.OnAction, input.transcript.text)
