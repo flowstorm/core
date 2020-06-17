@@ -7,6 +7,7 @@ import com.amazonaws.services.polly.AmazonPollyClient
 import com.amazonaws.services.polly.model.OutputFormat
 import com.amazonaws.services.polly.model.SynthesizeSpeechRequest
 import com.amazonaws.services.polly.model.TextType
+import com.promethist.common.AppConfig
 import com.promethist.core.model.TtsConfig
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -18,7 +19,7 @@ object AmazonTtsService: TtsService {
     private val client = AmazonPollyClient(
             /*DefaultAWSCredentialsProviderChain()*/
             //TODO set access + secret key from from environment
-            AWSStaticCredentialsProvider(BasicAWSCredentials("AKIAJF7AJY2YPGYWPRCQ", "oHb3U5ikYoZDsFgAUAbF1L1oAa8t/5XDWNr7KXDN")),
+            AWSStaticCredentialsProvider(BasicAWSCredentials(AppConfig.instance["aws.access-key"], AppConfig.instance["aws.secret-key"])),
             ClientConfiguration())
 
     override fun speak(ttsRequest: TtsRequest): ByteArray {

@@ -1,6 +1,7 @@
 package com.promethist.port.tts
 
 import com.microsoft.cognitiveservices.speech.*
+import com.promethist.common.AppConfig
 import com.promethist.core.model.TtsConfig
 import org.w3c.dom.Document
 import java.io.ByteArrayInputStream
@@ -33,7 +34,7 @@ object MicrosoftTtsService: TtsService {
 
     fun createSynthesizer(voiceName: String): SpeechSynthesizer {
         //TODO set subcription key + region from environment
-        val config: SpeechConfig = SpeechConfig.fromSubscription("3e54aecb6d564750bce2c5536c86727e", "westeurope")
+        val config: SpeechConfig = SpeechConfig.fromSubscription(AppConfig.instance["mscs.key"], AppConfig.instance["mscs.location"])
         config.setSpeechSynthesisOutputFormat(SpeechSynthesisOutputFormat.Audio16Khz64KBitRateMonoMp3)
         config.speechSynthesisVoiceName = voiceName
         return SpeechSynthesizer(config)

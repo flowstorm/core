@@ -105,6 +105,8 @@ class PortService {
         val audio = TtsAudio(ttsRequest)
         val path = "tts/${ttsRequest.voice}/${audio.code}.mp3"
         try {
+            if (AppConfig.instance.get("tts.no-cache", "false") == "true")
+                throw NotFoundException("tts.no-cache = true")
             val ttsFile = filestore.getFile(path)
             logger.info("getTtsAudio[HIT](ttsRequest = $ttsRequest)")
             if (download)
@@ -112,11 +114,11 @@ class PortService {
             audio.path = path
         } catch (e: NotFoundException) {
             logger.info("getTtsAudio[MISS](ttsRequest = $ttsRequest)")
-            audio.speak() // perform speach synthesis
+            audio.speak() // perform speech synthesis
             logger.info("getTtsAudio[DONE]")
             if (asyncSave) {
                 thread(start = true) {
-                    saveTtsAudio(audio.code,  audio.type, audio.data!!, ttsRequest)
+                    saveTtsAudio(audio.code, audio.type, audio.data!!, ttsRequest)
                 }
             } else {
                 saveTtsAudio(audio.code, audio.type, audio.data!!, ttsRequest)
