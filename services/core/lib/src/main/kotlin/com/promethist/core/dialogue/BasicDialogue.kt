@@ -49,6 +49,7 @@ abstract class BasicDialogue : Dialogue() {
     var clientTemperature by session(clientNamespace) { -273.15 }
     var clientAmbientLight by session(clientNamespace) { 0.0 }
     var clientSpatialMotion by session(clientNamespace) { 0.0 }
+    var nickname by user(clientNamespace) { user.nickname }
 
     // client response attributes
     var turnSpeakingRate by turn(clientNamespace) { 1.0 }
