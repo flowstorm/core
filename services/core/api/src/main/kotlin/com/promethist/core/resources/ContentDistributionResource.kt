@@ -21,6 +21,7 @@ interface ContentDistributionResource {
 
     data class ContentRequest(
             val sender: String,
+            val token: String?,
             val appKey: String,
             val language: String?,
             val starCondition: Application.StartCondition

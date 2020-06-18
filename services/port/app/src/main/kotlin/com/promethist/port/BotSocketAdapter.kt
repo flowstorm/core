@@ -60,6 +60,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
 
     private lateinit var appKey: String
     private lateinit var sender: String
+    private var token: String? = null
     private var sessionId: String? = null
     private var locale: Locale? = null
     private lateinit var clientRequirements: BotClientRequirements
@@ -76,7 +77,8 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
 
     private val logger by LoggerDelegate()
 
-    private fun createRequest(input: Input) = Request(appKey, sender, sessionId?:error("missing session id"), input)
+    private fun createRequest(input: Input) = Request(appKey, sender, token, sessionId?:error("missing session id"),
+            input)
 
     override fun open() {
         logger.info("open()")
@@ -140,6 +142,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                 is BotEvent.Init -> {
                     appKey = event.key
                     sender = event.sender //TODO verify event.sender - get user id to be stored in connection
+                    token = event.token
                     clientRequirements = event.requirements
                     sendEvent(BotEvent.Ready())
                 }

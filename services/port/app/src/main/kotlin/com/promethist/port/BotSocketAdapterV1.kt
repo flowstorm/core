@@ -171,7 +171,7 @@ class BotSocketAdapterV1 : BotSocket, WebSocketAdapter() {
 
 
     fun onInput(input: Input) {
-        val request = Request(appKey, sender, sessionId?:error("Session ID not set"), input)
+        val request = Request(appKey, sender, null, sessionId?:error("Session ID not set"), input)
         val response = coreResource.process(request)
         sendResponse(response)
         if (response.sessionEnded) {
@@ -199,7 +199,7 @@ class BotSocketAdapterV1 : BotSocket, WebSocketAdapter() {
         } else {
             sessionId = message.sessionId
         }
-        val request = Request(event.appKey, message.sender, sessionId?:error("Session ID not set"), input)
+        val request = Request(event.appKey, message.sender, null, sessionId?:error("Session ID not set"), input)
         coreResource.process(request).let {
             val response = message.response(it.items)
             response.sessionEnded = it.sessionEnded
