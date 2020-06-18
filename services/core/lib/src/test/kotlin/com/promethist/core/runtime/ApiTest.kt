@@ -10,7 +10,7 @@ internal class ApiTest {
 
     @Test
     fun `test api words`() {
-
+        /*
         println(Api.get<List<String>>(Api.target("https://repository.promethist.ai/data/animals.json")))
 
         println(Api.words("good", "antonyms"))
@@ -27,6 +27,6 @@ internal class ApiTest {
                 }
             }
         }
-
+        */
     }
 }

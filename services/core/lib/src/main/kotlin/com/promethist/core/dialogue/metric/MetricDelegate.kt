@@ -1,5 +1,6 @@
-package com.promethist.core.dialogue
+package com.promethist.core.dialogue.metric
 
+import com.promethist.core.dialogue.Dialogue
 import com.promethist.core.model.metrics.Metric
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty

@@ -1,5 +1,5 @@
 .idea
-local
+*local*
 *.iml
 hs_*.log
 .DS_Store

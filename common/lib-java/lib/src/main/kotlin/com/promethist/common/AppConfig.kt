@@ -1,7 +1,9 @@
 package com.promethist.common
 
 import com.promethist.util.LoggerDelegate
+import java.io.File
 import java.io.FileInputStream
+import java.io.FileNotFoundException
 import java.io.Serializable
 import java.lang.NullPointerException
 import java.util.*
@@ -18,14 +20,35 @@ class AppConfig: Serializable, Cloneable {
     private val logger by LoggerDelegate()
 
     init {
+        var loaded = false
         try {
+            // from resource
             val stream = javaClass.getResourceAsStream("/$FILENAME")
-            if (stream != null)
+            if (stream != null) {
                 properties.load(stream)
-            val file = (System.getProperty("app.config")?:".") + "/$FILENAME"
-            properties.load(FileInputStream(file))
+                loaded = true
+            }
+
+            listOf(
+                    (System.getProperty("app.config") ?: ".") + "/" + FILENAME,
+                    (System.getProperty("app.config") ?: ".") + "/" + LOCAL_FILENAME
+            ).forEach { path ->
+                File(path).let { file ->
+                    if (file.exists()) {
+                        properties.load(FileInputStream(file))
+                        loaded = true
+                        println("$file loaded")
+                    }
+                }
+            }
+            properties.forEach {
+                println("${it.key} = ${it.value}")
+            }
+        } catch (e: FileNotFoundException) {
+            if (!loaded)
+                logger.warn(e.message)
         } catch (e: Throwable) {
-            logger.info(e.message)
+            logger.error("app config load error")
         }
     }
 
@@ -52,6 +75,7 @@ class AppConfig: Serializable, Cloneable {
 
     companion object {
         const val FILENAME = "app.properties"
+        const val LOCAL_FILENAME = "app.local.properties"
 
         @JvmStatic
         val instance = AppConfig()

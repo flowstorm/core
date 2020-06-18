@@ -1,6 +1,7 @@
 package com.promethist.core.dialogue
 
 import com.promethist.core.Context
+import com.promethist.core.dialogue.metric.MetricDelegate
 import com.promethist.core.model.metrics.Metric
 import io.mockk.every
 import io.mockk.mockkClass
