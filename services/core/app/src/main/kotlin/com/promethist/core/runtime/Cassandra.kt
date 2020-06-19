@@ -24,7 +24,7 @@ class Cassandra : Component {
         logger.info("processing NER with input ${context.input}")
 
         context.turn.input =
-                webTarget.path("/ner/ner3").queryParam("language", context.input.locale.toString())
+                webTarget.path("/ner/default").queryParam("language", context.input.locale.toString())
                         .request().post(Entity.json(context.input), object : GenericType<Input>() {})
 
         return context.pipeline.process(context)
