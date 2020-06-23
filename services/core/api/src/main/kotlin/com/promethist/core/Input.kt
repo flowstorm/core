@@ -40,7 +40,7 @@ data class Input(
 
     data class Punctuation(override val text: String) : Token(text)
 
-    data class Entity(val className: String, var value: String)
+    data class Entity(val className: String, var value: String, var confidence: Float)
 
     class WordList(words: List<Word>) : ArrayList<Word>() {
         init {
@@ -83,10 +83,12 @@ data class Input(
                         map[className] = mutableListOf()
                     else if (inside) {
                         val last = map[className]!!.size - 1
-                        map[className]!![last].value = map[className]!![last].value + " " + word.text
+                        map[className]!![last].value += " " + word.text
+                        var length = map[className]!![last].value.split(" ").size
+                        map[className]!![last].confidence += (it.score - map[className]!![last].confidence) / length
                     }
                     if (!inside)
-                        map[className]!!.add(Entity(className, word.text))
+                        map[className]!!.add(Entity(className, word.text, it.score))
                 }
             }
         }

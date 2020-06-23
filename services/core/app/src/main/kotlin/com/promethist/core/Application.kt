@@ -61,10 +61,8 @@ class Application : JerseyApplication() {
                 val cassandra = Cassandra()
                 cassandra.webTarget = RestClient.webTarget(cassandraUrl)
                         .path("/query")
-                        .queryParam("input_tokenized", true)
-                        .queryParam("output_tokenized", true)
-//temporarilly disable casandra
-//                bind(cassandra).to(Component::class.java).named("cassandra")
+
+                bind(cassandra).to(Component::class.java).named("cassandra")
 
 
                 // tokenizer (first)
