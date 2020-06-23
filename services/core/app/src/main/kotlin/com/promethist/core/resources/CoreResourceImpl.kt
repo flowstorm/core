@@ -98,15 +98,12 @@ class CoreResourceImpl : CoreResource {
             return processException(request, e)
         }
     }
-    class DebugDialogueEventException(cause: Throwable) : Throwable("Debug Dialogue Event Exception", cause)
 
     private fun processPipeline(context: Context): Context {
         try {
             val processedContext = context.pipeline.process(context)
             contextPersister.persist(processedContext)
-            //throw DebugDialogueEventException(Throwable())
             return processedContext
-
         } catch (e: Throwable) {
             context.dialogueEvent = DialogueEvent(datetime = Date(), type = DialogueEvent.Type.SERVER_ERROR, userId = context.user._id, sessionId = context.session._id, applicationName = context.application.name, dialogueName = context.application.dialogueName, nodeId = context.turn.endFrame?.nodeId, text = e.localizedMessage)
             throw e
