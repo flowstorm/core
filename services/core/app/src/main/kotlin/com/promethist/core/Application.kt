@@ -73,6 +73,7 @@ class Application : JerseyApplication() {
                 bind(MongoProfileRepository::class.java).to(ProfileRepository::class.java)
                 bindTo(ReportResource::class.java, ReportResourceImpl::class.java)
                 bindTo(SessionResource::class.java, SessionResourceImpl::class.java)
+                bindTo(DialogueEventResource::class.java, DialogueEventResourceImpl::class.java)
                 bindTo(ProfileResource::class.java, ProfileResourceImpl::class.java)
                 bindTo(CommunityResource::class.java, CommunityResourceImpl::class.java)
                 bindTo(DevicePairingResource::class.java, DevicePairingResourceImpl::class.java)
