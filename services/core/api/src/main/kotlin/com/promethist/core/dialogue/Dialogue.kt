@@ -66,8 +66,12 @@ abstract class Dialogue {
         constructor(intents: Array<Intent>, lambda: (Context.(UserInput) -> Transition?)) :
                 this(nextId--, false, intents, lambda)
 
-        fun process(context: Context): Transition? =
-                codeRun(context, this) { lambda(context, this) } as Transition?
+        fun process(context: Context): Transition? {
+            val transition = codeRun(context, this) { lambda(context, this) } as Transition?
+            if (transition == null && intents.isEmpty()) throw DialogueScriptException(this,  Exception("Can not pass processing to IR, there are no intents following the user input node."))
+
+            return transition
+        }
     }
 
     open inner class Intent(
@@ -185,8 +189,6 @@ abstract class Dialogue {
             val name by lazy { "${this::class.qualifiedName}: ${node::class.simpleName}(${node.id})" }
             if (node is TransitNode && !node.isNextInitialized())
                 error("$name missing next node")
-            if (node is UserInput && node.intents.isEmpty())
-                error("$name missing intents")
         }
     }
 

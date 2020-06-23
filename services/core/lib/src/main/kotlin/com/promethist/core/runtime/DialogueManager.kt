@@ -178,20 +178,23 @@ class DialogueManager : Component {
     }
 
     private fun addExpectedPhrases(context: Context, intents: Collection<Dialogue.Intent>) {
-        //note: google has limit 5000 (+100k per whole ASR request), we use lower value to be more comfortable with even longer phrases
-        val maxPhrasesPerIntent = 2000 / intents.size
-        intents.forEach { intent ->
-            if (intent.utterances.size > maxPhrasesPerIntent) {
-                val rat = intent.utterances.size / maxPhrasesPerIntent.toFloat()
-                var idx = 0.0F
-                for (i in 0 until maxPhrasesPerIntent) {
-                    context.expectedPhrases.add(ExpectedPhrase(intent.utterances[idx.roundToInt()]))
-                    idx += rat
+        if (intents.isNotEmpty()) {
+            //note: google has limit 5000 (+100k per whole ASR request), we use lower value to be more comfortable with even longer phrases
+            val maxPhrasesPerIntent = 2000 / intents.size
+            intents.forEach { intent ->
+                if (intent.utterances.size > maxPhrasesPerIntent) {
+                    val rat = intent.utterances.size / maxPhrasesPerIntent.toFloat()
+                    var idx = 0.0F
+                    for (i in 0 until maxPhrasesPerIntent) {
+                        context.expectedPhrases.add(ExpectedPhrase(intent.utterances[idx.roundToInt()]))
+                        idx += rat
+                    }
+                } else {
+                    context.expectedPhrases.addAll(intent.utterances.map { text -> ExpectedPhrase(text) })
                 }
-            } else {
-                context.expectedPhrases.addAll(intent.utterances.map { text -> ExpectedPhrase(text) })
             }
         }
+
         logger.info("${context.expectedPhrases.size} expected phrase(s) added")
     }
 }
