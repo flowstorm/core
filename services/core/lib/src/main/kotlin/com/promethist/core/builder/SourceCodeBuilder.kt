@@ -49,7 +49,9 @@ class SourceCodeBuilder(val name: String, val buildId: String) {
         globalIntents.forEach { write(it) }
         intents.forEach { write(it) }
         userInputs.forEach { write(it) }
-        responses.forEach { write(it) }
+        speeches.forEach { write(it) }
+        images.forEach { write(it) }
+        sounds.forEach { write(it) }
         functions.forEach { write(it) }
         subDialogues.forEach { write(it) }
 
@@ -67,7 +69,9 @@ class SourceCodeBuilder(val name: String, val buildId: String) {
     private val intents = mutableListOf<Intent>()
     private val globalIntents = mutableListOf<GlobalIntent>()
     private val userInputs = mutableListOf<UserInput>()
-    private val responses = mutableListOf<Response>()
+    private val speeches = mutableListOf<Speech>()
+    private val sounds = mutableListOf<Sound>()
+    private val images = mutableListOf<Image>()
     private val functions = mutableListOf<Function>()
     private val subDialogues = mutableListOf<SubDialogue>()
     private val goBacks = mutableListOf<GoBack>()
@@ -78,7 +82,9 @@ class SourceCodeBuilder(val name: String, val buildId: String) {
     data class Intent(val nodeId: Int, val nodeName: String, val threshold: Float, val utterances: List<String>) : Node
     data class GlobalIntent(val nodeId: Int, val nodeName: String, val threshold: Float, val utterances: List<String>) : Node
     data class UserInput(val nodeId: Int, val nodeName: String, val intentNames: List<String>, val skipGlobalIntents: Boolean, val transitions: Map<String, String>, val code: CharSequence = "") : Node
-    data class Response(val nodeId: Int, val nodeName: String, val repeatable: Boolean, val texts: List<String>) : Node
+    data class Speech(val nodeId: Int, val nodeName: String, val repeatable: Boolean, val texts: List<String>) : Node
+    data class Sound(val nodeId: Int, val nodeName: String, val source: String) : Node
+    data class Image(val nodeId: Int, val nodeName: String, val source: String) : Node
     data class Function(val nodeId: Int, val nodeName: String, val transitions: Map<String, String>, val code: CharSequence) : Node
     data class SubDialogue(val nodeId: Int, val nodeName: String, val subDialogueName: String, val code: CharSequence = "") : Node
     data class GoBack(val nodeId: Int, val nodeName: String, val repeat: Boolean) : Node
@@ -86,7 +92,9 @@ class SourceCodeBuilder(val name: String, val buildId: String) {
     fun addNode(node: UserInput) = userInputs.add(node)
     fun addNode(node: Intent) = intents.add(node)
     fun addNode(node: GlobalIntent) = globalIntents.add(node)
-    fun addNode(node: Response) = responses.add(node)
+    fun addNode(node: Speech) = speeches.add(node)
+    fun addNode(node: Image) = images.add(node)
+    fun addNode(node: Sound) = sounds.add(node)
     fun addNode(node: Function) = functions.add(node)
     fun addNode(node: SubDialogue) = subDialogues.add(node)
     fun addNode(node: GoBack) = goBacks.add(node)
@@ -224,12 +232,20 @@ class SourceCodeBuilder(val name: String, val buildId: String) {
         return b.toString()
     }
 
-    private fun write(response: Response) = with(response) {
+    private fun write(speech: Speech) = with(speech) {
         source.append("\tval $nodeName = Response($nodeId, $repeatable")
         texts.forEach { text ->
             source.append(", { \"\"\"").append(enumerateExpressions(text)).append("\"\"\" }")
         }
         source.appendln(')')
+    }
+
+    private fun write(image: Image) = with(image) {
+        this@SourceCodeBuilder.source.appendln("\tval $nodeName = Response($nodeId, image = \"${source}\")")
+    }
+
+    private fun write(sound: Sound) = with(sound) {
+        this@SourceCodeBuilder.source.appendln("\tval $nodeName = Response($nodeId, audio = \"${source}\")")
     }
 
     private fun write(function: Function) = with(function) {

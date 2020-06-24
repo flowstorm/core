@@ -112,8 +112,8 @@ abstract class Dialogue {
         constructor(vararg text: (Context.(Response) -> String)) : this(nextId--, true, *text)
 
         fun getText(context: Context, index: Int = -1) = codeRun(context, this) {
-            texts[if (index < 0) Random.nextInt(texts.size) else index](context, this)
-        } as String
+            if (texts.isNotEmpty()) texts[if (index < 0) Random.nextInt(texts.size) else index](context, this) else null
+        } as String?
     }
 
     @Deprecated("Use goBack node instead.")
