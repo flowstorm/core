@@ -1,6 +1,7 @@
 package com.promethist.core.dialogue
 
 import com.promethist.core.Context
+import com.promethist.core.model.TtsConfig
 import com.promethist.core.runtime.Loader
 import com.promethist.core.type.Location
 import com.promethist.core.type.PropertyMap
@@ -15,12 +16,7 @@ abstract class Dialogue {
     //dialogue config - must/may be overrided
     abstract val dialogueName: String
     open val buildId: String = "unknown" // used for generated classes, others are unknown
-    open val language
-        get() = when (voice) {
-            "George", "Grace", "Anthony", "Audrey", "Michael", "Mary", "Milan" -> "en"
-            "Gabriela", "Milan" -> "cs"
-            else -> error("unknown voice")
-        }
+    open val language get() = TtsConfig.forVoice(voice)?.locale.language ?: error("unknown voice")
 
     open val voice = "Audrey"
     val locale by lazy { Locale(language) }
