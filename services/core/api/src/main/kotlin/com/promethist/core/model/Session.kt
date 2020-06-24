@@ -2,9 +2,7 @@ package com.promethist.core.model
 
 import com.promethist.core.Response
 import com.promethist.core.model.metrics.Metric
-import com.promethist.core.type.Attributes
-import com.promethist.core.type.MutablePropertyMap
-import com.promethist.core.type.PropertyMap
+import com.promethist.core.type.*
 import org.litote.kmongo.Id
 import org.litote.kmongo.newId
 import com.promethist.core.model.Message as CoreMessage
@@ -16,6 +14,7 @@ data class Session(
         val sessionId: String,
         var user: User,
         var application: Application,
+        var location: Location? = null,
         val turns: MutableList<Turn> = mutableListOf(),
         val messages: MutableList<Message> = mutableListOf(),
         val metrics: MutableList<Metric> = mutableListOf(),
@@ -23,6 +22,9 @@ data class Session(
         val attributes: Attributes = Attributes(),
         val dialogueStack: DialogueStack = LinkedList()
 ) {
+    val clientType get()  = attributes["client"]?.get("clientType")?.let {
+        (it as Memory<String>).value
+    } ?: "unknown"
 
     data class DialogueStackFrame(
             val name: String,
