@@ -15,7 +15,14 @@ abstract class Dialogue {
     //dialogue config - must/may be overrided
     abstract val dialogueName: String
     open val buildId: String = "unknown" // used for generated classes, others are unknown
-    open val language = "en"
+    open val language
+        get() = when (voice) {
+            "George", "Grace", "Anthony", "Audrey", "Michael", "Mary", "Milan" -> "en"
+            "Gabriela", "Milan" -> "cs"
+            else -> error("unknown voice")
+        }
+
+    open val voice = "Audrey"
     val locale by lazy { Locale(language) }
 
     abstract val clientLocation: Location?

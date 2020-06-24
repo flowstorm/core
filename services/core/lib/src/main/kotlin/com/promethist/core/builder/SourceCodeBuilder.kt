@@ -13,7 +13,7 @@ class SourceCodeBuilder(val name: String, val buildId: String) {
 
     // builder configuration:
     var parameters: PropertyMap = mapOf()
-    var config: PropertyMap = mapOf()
+    var properties: PropertyMap = mapOf()
     var initCode: CharSequence = ""
     var extensionCode: CharSequence = ""
     var parentClass: String = "BasicDialogue"
@@ -120,7 +120,7 @@ class SourceCodeBuilder(val name: String, val buildId: String) {
         source.appendln("\toverride val dialogueName = \"$name\"")
         source.appendln("\toverride val buildId = \"$buildId\"")
 
-        config.forEach {
+        properties.forEach {
             source.append("override val ${it.key}: ${it.value::class.simpleName} = ")
             if (it.value is String)
                 source.append('"').append((it.value as String).trim().replace("\"", "\\\"")).append('"')
