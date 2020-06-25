@@ -32,7 +32,7 @@ object DialogueLoadTest {
                         datetime = Date(),
                         sessionId = "T-E-S-T",
                         user = user,
-                        application = Application(name = "test", dialogueName = "product/some-dialogue/1", ttsVoice = "Grace")
+                        application = Application(name = "test", dialogueName = "product/some-dialogue/1", voice = Voice.Grace)
                 ),
                 Turn(Input(transcript = Input.Transcript("some message"))),
                 logger,

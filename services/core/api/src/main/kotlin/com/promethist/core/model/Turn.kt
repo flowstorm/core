@@ -15,12 +15,13 @@ data class Turn(
         val log: MutableList<LogEntry> = mutableListOf()
 ) {
 
-    fun addResponseItem(text: String?, image: String? = null, audio: String? = null, video: String? = null, repeatable: Boolean = true) {
+    fun addResponseItem(text: String?, image: String? = null, audio: String? = null, video: String? = null, repeatable: Boolean = true, voice: Voice? = null) {
         val plainText = text?.replace(Regex("\\<.*?\\>"), "")
         val item = Response.Item(plainText,
                 ssml = if (text != plainText) text else null,
                 image = image, audio = audio, video = video,
-                repeatable = repeatable
+                repeatable = repeatable,
+                voice = voice
         )
         item.ssml = item.ssml?.replace(Regex("<image.*?src=\"(.*?)\"[^\\>]+>")) {
             item.image = it.groupValues[1]

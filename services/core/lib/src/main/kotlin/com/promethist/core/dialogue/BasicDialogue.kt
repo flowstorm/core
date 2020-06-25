@@ -208,7 +208,7 @@ abstract class BasicDialogue : Dialogue() {
             codeRun.context.communityResource.get(communityName)?.attributes ?: Dynamic.EMPTY
 
     fun addResponseItem(text: String?, image: String? = null, audio: String? = null, video: String? = null, repeatable: Boolean = true) =
-            codeRun.context.turn.addResponseItem(text?.let { evaluateTextTemplate(it) }, image, audio, video, repeatable)
+            codeRun.context.turn.addResponseItem(text?.let { evaluateTextTemplate(it) }, image, audio, video, repeatable, voice)
 
     /**
      * evaluate # in response text

@@ -3,6 +3,7 @@ package com.promethist.port.tts
 import com.microsoft.cognitiveservices.speech.*
 import com.promethist.common.AppConfig
 import com.promethist.core.model.TtsConfig
+import com.promethist.core.model.Voice
 import org.w3c.dom.Document
 import java.io.ByteArrayInputStream
 import java.io.File
@@ -92,7 +93,7 @@ object MicrosoftTtsService: TtsService {
         //val str = "<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"en-US\"><say-as type=\"date:mdy\"> 1/29/2009 </say-as></speak>";
         //val str = "<speak>Chceš si se mnou zatancovat?</speak>"
         val str = "<speak><s>Mluv na mě jen když zrovna svítí moje zelené světlo, </s> <s>jinak bych tě bohužel neslyšela.</s> </speak>"
-        val audioData = speak(TtsRequest("Milan", str, true))
+        val audioData = speak(TtsRequest(Voice.Milan, str, true))
         println("${audioData.size}")
         File("/Users/tomas.zajicek/Downloads/testx.mp3").writeBytes(audioData)
     }

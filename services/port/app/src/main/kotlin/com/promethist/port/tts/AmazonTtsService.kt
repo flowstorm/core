@@ -9,6 +9,7 @@ import com.amazonaws.services.polly.model.SynthesizeSpeechRequest
 import com.amazonaws.services.polly.model.TextType
 import com.promethist.common.AppConfig
 import com.promethist.core.model.TtsConfig
+import com.promethist.core.model.Voice
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.FileOutputStream
@@ -39,7 +40,7 @@ object AmazonTtsService: TtsService {
 
     @JvmStatic
     fun main(args: Array<String>) {
-        val ttsRequest = TtsRequest("Audrey",
+        val ttsRequest = TtsRequest(Voice.Audrey,
                 """<speak><amazon:domain name="news">There has been a concerted effort among aides and allies to get President Donald Trump to stop conducting the daily coronavirus briefings, multiple sources tell CNN.</amazon:domain></speak>""",
                 true
         )
