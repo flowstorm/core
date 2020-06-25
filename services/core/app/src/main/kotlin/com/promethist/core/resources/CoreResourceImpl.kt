@@ -105,7 +105,7 @@ class CoreResourceImpl : CoreResource {
             contextPersister.persist(processedContext)
             return processedContext
         } catch (e: Throwable) {
-            context.dialogueEvent = DialogueEvent(datetime = Date(), type = DialogueEvent.Type.SERVER_ERROR, userId = context.user._id, sessionId = context.session._id, applicationName = context.application.name, dialogueName = context.application.dialogueName, nodeId = context.turn.endFrame?.nodeId, text = e.localizedMessage)
+            context.dialogueEvent = DialogueEvent(datetime = Date(), type = DialogueEvent.Type.serverError, userId = context.user._id, sessionId = context.session._id, applicationName = context.application.name, dialogueName = context.application.dialogueName, nodeId = context.turn.endFrame?.nodeId, text = e.localizedMessage)
             throw e
         } finally {
             if (context.dialogueEvent != null) dialogueEventResource.create(context.dialogueEvent!!)
