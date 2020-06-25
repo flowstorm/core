@@ -35,7 +35,9 @@ class ContextFactory {
                         request.attributes.forEach {
                             put(it.key, Memory(when (it.key) {
                                 "clientLocation" ->
-                                    (it.value as String).toLocation()
+                                    (it.value as String).toLocation().apply {
+                                        location = this
+                                    }
                                 "clientTemperature", "clientAmbientLight", "clientSpatialMotion" ->
                                     (it.value as String).toDouble()
                                 else ->

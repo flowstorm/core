@@ -1,9 +1,10 @@
 package com.promethist.port.tts
 
+import com.promethist.core.model.Voice
 import java.security.MessageDigest
 
 data class TtsRequest(
-        val voice: String,
+        val voice: Voice,
         var text: String,
         var isSsml: Boolean = false,
         val sampleRate: Int = 16000,

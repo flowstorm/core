@@ -1,8 +1,8 @@
 package com.promethist.port.tts
 
 import com.promethist.core.model.TtsConfig
+import com.promethist.core.model.Voice
 import com.promethist.util.LoggerDelegate
-import org.slf4j.LoggerFactory
 import java.io.File
 
 object TtsServiceFactory {
@@ -24,7 +24,7 @@ object TtsServiceFactory {
 
     @JvmStatic
     fun main(args: Array<String>) {
-        val speech = speak(TtsRequest("Gabriela","Třistatřicetři stříbrných stříkaček stříkalo přes třistatřicetři stříbrných střech."))
+        val speech = speak(TtsRequest(Voice.Gabriela, "Třistatřicetři stříbrných stříkaček stříkalo přes třistatřicetři stříbrných střech."))
         File("local/speech.mp3").writeBytes(speech)
     }
 

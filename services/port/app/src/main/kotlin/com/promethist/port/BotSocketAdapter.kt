@@ -1,6 +1,6 @@
 package com.promethist.port
 
-import ai.promethist.client.BotClientRequirements
+import ai.promethist.client.BotConfig
 import ai.promethist.client.BotEvent
 import ai.promethist.client.BotSocket
 import com.promethist.common.AppConfig
@@ -24,7 +24,7 @@ import javax.inject.Inject
 
 class BotSocketAdapter : BotSocket, WebSocketAdapter() {
 
-    inner class BotSttCallback() : SttCallback {
+    inner class BotSttCallback : SttCallback {
 
         override fun onResponse(input: Input, final: Boolean) {
             try {
@@ -63,7 +63,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
     private var token: String? = null
     private var sessionId: String? = null
     private var locale: Locale? = null
-    private lateinit var clientRequirements: BotClientRequirements
+    private lateinit var config: BotConfig
 
     // STT
     private var inputAudioTime: Long = 0
@@ -126,7 +126,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                 val text = "#silence"
                 inputAudioClose(true)
                 sendEvent(BotEvent.Recognized(text))
-                onRequest(createRequest(Input(clientRequirements.locale, clientRequirements.zoneId, Input.Transcript(text))))
+                onRequest(createRequest(Input(config.locale, config.zoneId, Input.Transcript(text))))
             } else {
                 super.onWebSocketBinary(payload, offset, length)
                 sttStream?.write(payload, offset, length)
@@ -143,13 +143,13 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                     appKey = event.key
                     sender = event.sender //TODO verify event.sender - get user id to be stored in connection
                     token = event.token
-                    clientRequirements = event.requirements
+                    config = event.config
                     sendEvent(BotEvent.Ready())
                 }
                 is BotEvent.Request -> onRequest(event.request)
                 is BotEvent.InputAudioStreamOpen -> {
                     inputAudioClose(false)
-                    val sttConfig = SttConfig(locale ?: clientRequirements.locale, clientRequirements.zoneId, clientRequirements.sttSampleRate)
+                    val sttConfig = SttConfig(locale ?: config.locale, config.zoneId, config.sttSampleRate)
                     sttService = SttServiceFactory.create("Google", sttConfig, this.expectedPhrases, BotSttCallback())
                     sttStream = sttService?.createStream()
                     inputAudioTime = System.currentTimeMillis()
@@ -216,8 +216,8 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
             val item = items[i]
             if (item.text == null)
                 item.text = ""
-            var voice = clientRequirements.ttsVoice ?: item.ttsVoice ?: TtsConfig.defaultVoice(response.locale?.language ?: "en")
-            if (voice.startsWith('A')) {
+            var voice = config.voice ?: item.voice ?: TtsConfig.defaultVoice(response.locale?.language ?: "en")
+            if (voice.name.startsWith('A')) {
                 // Amazon Polly synthesis - strip <audio> tag and create audio item
                 item.ssml = item.ssml?.replace(Regex("<audio.*?src=\"(.*?)\"[^\\>]+>")) {
                     if (item.text!!.isBlank())
@@ -231,7 +231,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
             item.ssml = item.ssml?.replace(Regex("<voice.*?name=\"(.*?)\">(.*)</voice>")) {
                 val name = it.groupValues[1]
                 TtsConfig.values.forEach { config ->
-                    if (name == config.name || name == config.voice)
+                    if (name == config.name || name == config.voice.name)
                         voice = config.voice
                 }
                 it.groupValues[2]
@@ -261,17 +261,17 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                                 speakingVolumeGain = attributes["speakingVolumeGain"].toString().toDouble()
                         }
                     }
-                if (clientRequirements.tts != BotClientRequirements.TtsType.None) {
+                if (config.tts != BotConfig.TtsType.None) {
                     val audio = dataService.getTtsAudio(
                             ttsRequest,
-                            clientRequirements.tts != BotClientRequirements.TtsType.RequiredLinks,
-                            clientRequirements.tts == BotClientRequirements.TtsType.RequiredStreaming
+                            config.tts != BotConfig.TtsType.RequiredLinks,
+                            config.tts == BotConfig.TtsType.RequiredStreaming
                     )
-                    when (clientRequirements.tts) {
-                        BotClientRequirements.TtsType.RequiredLinks ->
+                    when (config.tts) {
+                        BotConfig.TtsType.RequiredLinks ->
                             item.audio = ServiceUrlResolver.getEndpointUrl("filestore", ServiceUrlResolver.RunMode.dist) + '/' + audio.path
 
-                        BotClientRequirements.TtsType.RequiredStreaming ->
+                        BotConfig.TtsType.RequiredStreaming ->
                             sendBinaryData(audio.speak().data!!)
                     }
                 }

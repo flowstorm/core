@@ -207,23 +207,28 @@ abstract class BasicDialogue : Dialogue() {
     fun communityAttributes(communityName: String) =
             codeRun.context.communityResource.get(communityName)?.attributes ?: Dynamic.EMPTY
 
-    fun addResponseItem(vararg value: Any, image: String? = null, audio: String? = null, video: String? = null, repeatable: Boolean = true) =
-            codeRun.context.turn.addResponseItem(enumerate(*value).replace(Regex("#([\\w\\.\\d]+)")) {
-                var obj: Any? = this
-                var point = false
-                for (name in it.groupValues[1].split(".")) {
-                    if (name.isBlank()) {
-                        point = true
-                        break
-                    } else {
-                        val prop = obj!!.javaClass.kotlin.memberProperties.firstOrNull { it.name == name }
-                        obj = prop?.call(obj)
-                        if (obj == null)
-                            break
-                    }
-                }
-                describe(obj) + (if (point) "." else "")
-            }, image, audio, video, repeatable)
+    fun addResponseItem(text: String?, image: String? = null, audio: String? = null, video: String? = null, repeatable: Boolean = true) =
+            codeRun.context.turn.addResponseItem(text?.let { evaluateTextTemplate(it) }, image, audio, video, repeatable, voice)
+
+    /**
+     * evaluate # in response text
+     */
+    private fun evaluateTextTemplate(text: String) = enumerate(text).replace(Regex("#([\\w\\.\\d]+)")) {
+        var obj: Any? = this
+        var point = false
+        for (name in it.groupValues[1].split(".")) {
+            if (name.isBlank()) {
+                point = true
+                break
+            } else {
+                val prop = obj!!.javaClass.kotlin.memberProperties.firstOrNull { it.name == name }
+                obj = prop?.call(obj)
+                if (obj == null)
+                    break
+            }
+        }
+        describe(obj) + (if (point) "." else "")
+    }
 
     inline fun unsupportedLanguage(): Nothing {
         val stackTraceElement = Thread.currentThread().stackTrace[1]

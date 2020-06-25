@@ -8,7 +8,7 @@ open class Application(
         open var _id: Id<Application> = newId(),
         open var name: String,
         open var dialogueName: String,
-        open var ttsVoice: String? = null,
+        open var voice: Voice? = null,
         open var public: Boolean = false,
         open var icon: String? = null,
         open var startCondition: StartCondition = StartCondition(StartCondition.Type.OnAction, "\$intro"),

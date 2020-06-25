@@ -79,7 +79,7 @@ class CoreResourceImpl : CoreResource {
                             }
                         }
                         turn.responseItems.forEach {
-                            it.ttsVoice = it.ttsVoice ?: session.application.ttsVoice ?: TtsConfig.defaultVoice(locale?.language ?: "en")
+                            it.voice = it.voice ?: session.application.voice ?: TtsConfig.defaultVoice(locale?.language ?: "en")
                         }
                         Response(context.locale, turn.responseItems, dialogueLog.log, turn.attributes[Dialogue.clientNamespace], expectedPhrases, sessionEnded)
                     }
@@ -128,7 +128,7 @@ class CoreResourceImpl : CoreResource {
         val responseMessage = dialogueResouce.message(key, requestMessage)!!
         logger.info(responseMessage.toString())
         responseMessage.items.forEach {
-            it.ttsVoice = it.ttsVoice ?: session.application.ttsVoice ?: TtsConfig.defaultVoice(responseMessage.language?.language ?: "en")
+            it.voice = it.voice ?: session.application.voice ?: TtsConfig.defaultVoice(responseMessage.language?.language ?: "en")
         }
         val metrics = if (responseMessage.attributes.containsKey("metrics"))
             @Suppress("UNCHECKED_CAST") //suppressed, will be removed anyway
@@ -219,20 +219,20 @@ class CoreResourceImpl : CoreResource {
                 pairingResource.createOrUpdateDevicePairing(devicePairing)
                 val pairingCode = devicePairing.pairingCode.toCharArray().joinToString(", ")
                 if (request.input.locale.language == "cs")
-                    add(Response.Item(ttsVoice = TtsConfig.defaultVoice("cs"),
+                    add(Response.Item(voice = TtsConfig.defaultVoice("cs"),
                         text = getMessageResourceString("cs", "PAIRING", listOf(pairingCode))))
                 else
-                    add(Response.Item(ttsVoice = TtsConfig.defaultVoice("en"),
+                    add(Response.Item(voice = TtsConfig.defaultVoice("en"),
                         text = getMessageResourceString("en", "PAIRING", listOf(pairingCode))))
             } else {
                 if (request.input.locale.language == "cs")
-                    add(Response.Item(ttsVoice = TtsConfig.defaultVoice("cs"),
+                    add(Response.Item(voice = TtsConfig.defaultVoice("cs"),
                         text = getMessageResourceString("cs", type, listOf(code))))
                 else
-                    add(Response.Item(ttsVoice = TtsConfig.defaultVoice("en"),
+                    add(Response.Item(voice = TtsConfig.defaultVoice("en"),
                         text = getMessageResourceString("en", type, listOf(code))))
                 if (text != null)
-                    add(Response.Item(ttsVoice = TtsConfig.defaultVoice("en"),
+                    add(Response.Item(voice = TtsConfig.defaultVoice("en"),
                         text = text))
             }
         }, dialogueLog.log, mutableMapOf<String, Any>(), mutableListOf(), sessionEnded = true)

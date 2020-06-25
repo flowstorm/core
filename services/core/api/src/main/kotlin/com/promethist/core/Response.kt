@@ -2,6 +2,7 @@ package com.promethist.core
 
 import com.promethist.core.model.LogEntry
 import com.promethist.core.model.TtsConfig
+import com.promethist.core.model.Voice
 import java.util.*
 
 //TODO after removing Message class, change atrributes type to PropertyMap
@@ -40,7 +41,7 @@ open class Response(
             /**
              * TTS voice
              */
-            var ttsVoice: String? = null,
+            var voice: Voice? = null,
 
             var repeatable: Boolean = true
     ) {
@@ -59,7 +60,7 @@ open class Response(
                 var name = it.groupValues[1]
                 for (i in TtsConfig.values.indices) {
                     val config = TtsConfig.values[i]
-                    if (name == config.voice) {
+                    if (name == config.voice.name) {
                         if (config.provider == provider) {
                             name = config.name
                         } else {

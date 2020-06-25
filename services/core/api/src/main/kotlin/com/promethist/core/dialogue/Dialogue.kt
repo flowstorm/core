@@ -1,6 +1,8 @@
 package com.promethist.core.dialogue
 
 import com.promethist.core.Context
+import com.promethist.core.model.TtsConfig
+import com.promethist.core.model.Voice
 import com.promethist.core.runtime.Loader
 import com.promethist.core.type.Location
 import com.promethist.core.type.PropertyMap
@@ -15,7 +17,9 @@ abstract class Dialogue {
     //dialogue config - must/may be overrided
     abstract val dialogueName: String
     open val buildId: String = "unknown" // used for generated classes, others are unknown
-    open val language = "en"
+    open val language get() = TtsConfig.forVoice(voice)?.locale.language ?: error("unknown voice")
+
+    open val voice = Voice.Grace
     val locale by lazy { Locale(language) }
 
     abstract val clientLocation: Location?
@@ -66,8 +70,12 @@ abstract class Dialogue {
         constructor(intents: Array<Intent>, lambda: (Context.(UserInput) -> Transition?)) :
                 this(nextId--, false, intents, lambda)
 
-        fun process(context: Context): Transition? =
-                codeRun(context, this) { lambda(context, this) } as Transition?
+        fun process(context: Context): Transition? {
+            val transition = codeRun(context, this) { lambda(context, this) } as Transition?
+            if (transition == null && intents.isEmpty()) throw DialogueScriptException(this,  Exception("Can not pass processing to IR, there are no intents following the user input node."))
+
+            return transition
+        }
     }
 
     open inner class Intent(
@@ -108,8 +116,8 @@ abstract class Dialogue {
         constructor(vararg text: (Context.(Response) -> String)) : this(nextId--, true, *text)
 
         fun getText(context: Context, index: Int = -1) = codeRun(context, this) {
-            texts[if (index < 0) Random.nextInt(texts.size) else index](context, this)
-        } as String
+            if (texts.isNotEmpty()) texts[if (index < 0) Random.nextInt(texts.size) else index](context, this) else null
+        } as String?
     }
 
     @Deprecated("Use goBack node instead.")
@@ -185,8 +193,6 @@ abstract class Dialogue {
             val name by lazy { "${this::class.qualifiedName}: ${node::class.simpleName}(${node.id})" }
             if (node is TransitNode && !node.isNextInitialized())
                 error("$name missing next node")
-            if (node is UserInput && node.intents.isEmpty())
-                error("$name missing intents")
         }
     }
 
