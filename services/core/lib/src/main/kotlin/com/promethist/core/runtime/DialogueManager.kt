@@ -105,6 +105,7 @@ class DialogueManager : Component {
                                 turn.endFrame = it
                                 session.dialogueStack.push(it)
                             }
+                            turn.attributes[Dialogue.clientNamespace].set("nodeId", node.id)
                             inputRequested = true
                         }
                     }
