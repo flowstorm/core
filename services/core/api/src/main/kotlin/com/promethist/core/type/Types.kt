@@ -7,3 +7,4 @@ typealias DateTime = ZonedDateTime
 
 const val ZERO_TEMPERATURE = -273.15
 val ZERO_TIME = DateTime.of(0, 1, 1, 0, 0, 0, 0, Defaults.zoneId)
+val DEFAULT_LOCATION = Location(50.101, 14.395)

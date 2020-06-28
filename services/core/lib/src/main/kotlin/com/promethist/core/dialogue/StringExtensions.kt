@@ -15,11 +15,6 @@ fun String.tokenize(): List<Input.Word> {
     return tokens
 }
 
-fun String.toLocation(): Location {
-    val s = split(',')
-    return Location(s[0].trim().toDouble(), s[1].trim().toDouble())
-}
-
 fun String.endsWith(suffixes: Collection<String>): Boolean {
     for (suffix in suffixes)
         if (endsWith(suffix))
