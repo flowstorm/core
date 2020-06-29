@@ -16,5 +16,5 @@ data class DialogueEvent(
         val text: String
 ) {
 
-    enum class Type { serverError, userError, userComment }
+    enum class Type { ServerError, UserError, UserComment }
 }
