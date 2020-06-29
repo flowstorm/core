@@ -12,9 +12,9 @@ val DateTime.isWeekend get() = dayOfWeek == java.time.DayOfWeek.SATURDAY || dayO
 val DateTime.monthName get() = English.months[month.value - 1] //TODO localize
 val DateTime.dayOfWeekName get() = English.weekDays[dayOfWeek.value - 1] //TODO localize
 
-infix fun DateTime.differsInHoursFrom(other: DateTime) = java.time.Duration.between(this, other).toHours()
+infix fun DateTime.differsInHoursFrom(other: DateTime) = Duration.between(this, other).toHours()
 
-infix fun DateTime.differsInDaysFrom(other: DateTime) = java.time.Duration.between(this, other).toDays()
+infix fun DateTime.differsInDaysFrom(other: DateTime) = Duration.between(this, other).toDays()
 
 infix fun DateTime.differsInMonthsFrom(other: DateTime) =
         (year * 12 + monthValue) - (other.year * 12 + other.monthValue)
@@ -53,21 +53,21 @@ val DateTime.isDate get() = hour == 0 && minute == 0 && second == 0 && nano == 0
 
 fun BasicDialogue.describeDate(data: DateTime = now, detail: Int = 0): String {
     val delta = Duration.between(data, now)
-    if (data == today) { // events that took/take place in days around the current date
+    if (data.toLocalDate() == today.toLocalDate()) { // events that took/take place in days around the current date
         return mapOf(
                 "en" to "today",
                 "de" to "heute",
                 "cs" to "dnes",
                 "fr" to "aujourd'hui"
         )[language] ?: unsupportedLanguage()
-    } else if (data == yesterday) {
+    } else if (data.toLocalDate() == yesterday.toLocalDate()) {
         return mapOf( //TODO: days in different languages
                 "en" to "yesterday",
                 "de" to "gestern",
                 "cs" to "včera",
                 "fr" to "heir"
         )[language] ?: unsupportedLanguage()
-    } else if (data == tomorrow) {
+    } else if (data.toLocalDate() == tomorrow.toLocalDate()) {
         return mapOf( //TODO: days in different languages
                 "en" to "tomorrow",
                 "de" to "morgen",
@@ -606,7 +606,7 @@ fun BasicDialogue.describeTime(data: DateTime = now, detail: Int = 0): String {
                 }
             }
         }
-    } else if (data.date == today) { // events that took/take place in days around the current date
+    } else if (data.date.toLocalDate() == today.toLocalDate()) { // events that took/take place in days around the current date
         when {
             detail == 0 && !delta.isNegative -> {
                 return mapOf(
@@ -633,14 +633,14 @@ fun BasicDialogue.describeTime(data: DateTime = now, detail: Int = 0): String {
                 )[language] ?: unsupportedLanguage()
             }
         }
-    } else if (delta.seconds.absoluteValue < 172800 && (data.date == yesterday)) {
+    } else if (delta.seconds.absoluteValue < 172800 && (data.date.toLocalDate() == yesterday.toLocalDate())) {
         return mapOf( //TODO: days in different languages
                 "en" to "yesterday " + timeOfDay(data, detail),
                 "de" to "gestern " + timeOfDay(data, detail),
                 "cs" to "včera " + timeOfDay(data, detail),
                 "fr" to "heir " + timeOfDay(data, detail)
         )[language] ?: unsupportedLanguage()
-    } else if (delta.seconds.absoluteValue < 172800 && (data.date == tomorrow)) {
+    } else if (delta.seconds.absoluteValue < 172800 && (data.date.toLocalDate() == tomorrow.toLocalDate())) {
         return mapOf( //TODO: days in different languages
                 "en" to "tomorrow " + timeOfDay(data, detail),
                 "de" to "morgen " + timeOfDay(data, detail),
