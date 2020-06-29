@@ -108,7 +108,13 @@ class CoreResourceImpl : CoreResource {
             contextPersister.persist(processedContext)
             return processedContext
         } catch (e: Throwable) {
-            context.dialogueEvent = DialogueEvent(datetime = Date(), type = DialogueEvent.Type.ServerError, userId = context.user._id, sessionId = context.session._id, applicationName = context.application.name, dialogueName = context.application.dialogueName, nodeId = context.turn.endFrame?.nodeId, text = e.localizedMessage)
+            val messages = mutableListOf<String>()
+            var c: Throwable? = e
+            while (c != null) {
+                messages.add(c::class.simpleName + ":" + c.message?:"")
+                c = c.cause
+            }
+            context.dialogueEvent = DialogueEvent(datetime = Date(), type = DialogueEvent.Type.ServerError, userId = context.user._id, sessionId = context.session._id, applicationName = context.application.name, dialogueName = context.application.dialogueName, nodeId = context.turn.endFrame?.nodeId, text = messages.joinToString(" \nCAUSED BY: "))
             throw e
         } finally {
             if (context.dialogueEvent != null) dialogueEventResource.create(context.dialogueEvent!!)
