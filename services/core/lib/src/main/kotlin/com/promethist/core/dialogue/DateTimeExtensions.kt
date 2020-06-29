@@ -3,6 +3,7 @@ package com.promethist.core.dialogue
 import com.promethist.core.language.English
 import com.promethist.core.type.DateTime
 import java.time.Duration
+import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 import kotlin.math.absoluteValue
 
@@ -20,6 +21,19 @@ infix fun DateTime.differsInMonthsFrom(other: DateTime) =
 
 infix fun DateTime.isSameDayAs(to: DateTime) =
         (dayOfYear == to.dayOfYear) && (monthValue == to.monthValue) && (year == to.year)
+
+fun DateTime.set(year: Int = Int.MIN_VALUE, month: Int = 0, dayOfMonth: Int = 0,
+                    hour: Int = -1, minute: Int = -1, second: Int = -1, nanoOfSecond: Int = 0, zone: ZoneId? = null) =
+    DateTime.of(
+            if (year == Int.MIN_VALUE) this.year else year,
+            if (month == 0) this.monthValue else month,
+            if (dayOfMonth == 0) this.dayOfMonth else dayOfMonth,
+            if (hour == -1) this.hour else hour,
+            if (minute == -1) this.minute else minute,
+            if (second == -1) this.second else second,
+            0,
+            if (zone == null) this.zone else zone
+    )
 
 class DateTimeUnit(val unit: ChronoUnit, val amount: Long)
 

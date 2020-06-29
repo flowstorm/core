@@ -10,6 +10,7 @@ import com.promethist.core.model.Application
 import com.promethist.core.model.metrics.Metric
 import com.promethist.core.resources.ContentDistributionResource.ContentRequest
 import com.promethist.core.runtime.DialogueLog
+import com.promethist.core.type.Memory
 import com.promethist.core.type.PropertyMap
 import com.promethist.util.LoggerDelegate
 import java.io.Serializable
@@ -81,7 +82,9 @@ class CoreResourceImpl : CoreResource {
                         turn.responseItems.forEach {
                             it.voice = it.voice ?: session.application.voice ?: TtsConfig.defaultVoice(locale?.language ?: "en")
                         }
-                        Response(context.locale, turn.responseItems, dialogueLog.log, turn.attributes[Dialogue.clientNamespace], expectedPhrases, sessionEnded)
+                        Response(context.locale, turn.responseItems, dialogueLog.log,
+                                turn.attributes[Dialogue.clientNamespace].map { it.key to (it.value as Memory<*>).value }.toMap().toMutableMap(),
+                                expectedPhrases, sessionEnded)
                     }
                 }
                 else -> error("Unknown dialogue engine (${session.application.dialogueEngine})")

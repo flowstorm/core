@@ -121,11 +121,17 @@ class SourceCodeBuilder(val name: String, val buildId: String) {
         source.appendln("\toverride val buildId = \"$buildId\"")
 
         properties.forEach {
-            source.append("override val ${it.key}: ${it.value::class.simpleName} = ")
-            if (it.value is String)
-                source.append('"').append((it.value as String).trim().replace("\"", "\\\"")).append('"')
-            else
-                source.append(it.value.toString())
+            val className = it.value::class.simpleName
+            source.append("override val ${it.key}: $className = ")
+            when (it.value) {
+                is String -> {
+                    source.append('"').append((it.value as String).trim().replace("\"", "\\\"")).append('"')
+                }
+                is Enum<*> -> with (it.value as Enum<*>) {
+                    source.append(className).append('.').append(name)
+                }
+                else -> source.append(it.value.toString())
+            }
             source.appendln()
         }
 
