@@ -18,8 +18,8 @@ abstract class BasicCzechDialogue() : BasicDialogue() {
     val _basicVolumeDownResponse = Response(basicId++, { "\$volume_down setting volume down" })
 
     val _basicLogApplicationErrorGlobalIntent = GlobalIntent(basicId++, "basicLogApplicationErrorGlobalIntent", "chyba aplikace", "problém aplikace")
-    val _basicLogApplicationErrorResponse1 = Response(basicId++, {"Nyní prosím popište problém."})
-    val _basicLogApplicationErrorResponse2 = Response(basicId++, {"Děkujeme za oznámení, následuje návrat ke konverzaci."})
+    val _basicLogApplicationErrorResponse1 = Response(basicId++, {"O co jde?"})
+    val _basicLogApplicationErrorResponse2 = Response(basicId++, {"Díky, pojďme zpátky."})
     val _basicLogApplicationErrorUserInputTransition = Transition(_basicLogApplicationErrorResponse2)
     val _basicLogApplicationErrorUserInput = UserInput(basicId++, arrayOf()) {
         val transition = Transition(_basicLogApplicationErrorResponse2)
