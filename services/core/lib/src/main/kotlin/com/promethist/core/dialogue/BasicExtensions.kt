@@ -1,6 +1,7 @@
 package com.promethist.core.dialogue
 
 import com.promethist.core.language.English
+import kotlin.math.absoluteValue
 
 enum class Article { None, Indefinite, Definite }
 
@@ -18,7 +19,7 @@ fun BasicDialogue.definiteArticle(subj: String) = article(subj, Article.Definite
 
 fun BasicDialogue.empty(subj: String) =
         when (language) {
-            "en" -> "no"
+            "en" -> "zero"
             "de" -> "kein" //TODO male vs. female
             else -> unsupportedLanguage()
         } + " $subj"
@@ -36,7 +37,7 @@ fun BasicDialogue.plural(input: String, count: Int = 2) =
                     it
                 if (count < 1 && it.endsWith('?')) {
                     ""
-                } else if (count > 1 && it.endsWith('+')) {
+                } else if (count.absoluteValue != 1 && it.endsWith('+')) {
                     when (language) {
                         "en" -> English.irregularPlurals.getOrElse(word) {
                             when {
