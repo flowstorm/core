@@ -21,7 +21,7 @@ class InternalTokenizer : Component {
                 tokens.addAll(transcript.text.tokenize())
             }
             logger.info("tokens $tokens")
-            alternatives.add(transcript)
+            alternatives.add(0, transcript)
             if (words.size > DEFAULT_MAX_WORDS) {
                 transcript = Input.Transcript("#toomanywords")
             }
