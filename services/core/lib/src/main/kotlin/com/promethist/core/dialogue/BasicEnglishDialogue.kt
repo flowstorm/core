@@ -18,8 +18,8 @@ abstract class BasicEnglishDialogue() : BasicDialogue() {
     val _basicVolumeDownResponse = Response(basicId++, { "\$volume_down setting volume down" })
 
     val _basicLogApplicationErrorGlobalIntent = GlobalIntent(basicId++, "basicLogApplicationErrorGlobalIntent", "application error", "application problem")
-    val _basicLogApplicationErrorResponse1 = Response(basicId++, {"What is the problem?"})
-    val _basicLogApplicationErrorResponse2 = Response(basicId++, {"Thank you for the report. Let's get back now"})
+    val _basicLogApplicationErrorResponse1 = Response(basicId++, {"What's the problem?"})
+    val _basicLogApplicationErrorResponse2 = Response(basicId++, {"Thanks. Let's get back."})
     val _basicLogApplicationErrorUserInputTransition = Transition(_basicLogApplicationErrorResponse2)
     val _basicLogApplicationErrorUserInput = UserInput(basicId++, arrayOf()) {
         val transition = Transition(_basicLogApplicationErrorResponse2)
