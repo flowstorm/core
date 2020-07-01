@@ -47,6 +47,9 @@ class SessionResourceImpl: SessionResource {
         query.filters.firstOrNull { it.name.startsWith("attributes.") && it.operator == Query.Operator.eq }?.let {
             pipeline.add(match(Filters.eq(it.name, it.value)))
         }
+        query.filters.firstOrNull { it.name.startsWith("application.") && it.operator == Query.Operator.eq }?.let {
+            pipeline.add(match(Filters.eq(it.name, it.value)))
+        }
 
         pipeline.add(limit(query.limit))
         return sessions.aggregate(pipeline).toMutableList()
