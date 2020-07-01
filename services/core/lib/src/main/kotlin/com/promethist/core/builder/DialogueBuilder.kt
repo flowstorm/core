@@ -80,7 +80,7 @@ class DialogueBuilder(
                 logger.info("finished building dialogue model $name")
                 return Build(buildId, true, getLogs())
             } catch (t: Throwable) {
-                logger.error("Build Exception: ${t.message}", t)
+                logger.error("Build Exception:\n ${t.message}", t)
                 return Build(buildId, false, getLogs(), t.message ?: "")
             } finally {
                 saveBuildLog(buildPath)
@@ -121,7 +121,7 @@ class DialogueBuilder(
                 val time1 = System.currentTimeMillis()
                 classFiles.forEach {
                     val className = "model.$buildId.${it.nameWithoutExtension}"
-                    logger.info("loading dialogue model class $className from $it")
+//                    logger.info("loading dialogue model class $className from $it")
                     byteCodeClassLoader.loadClass(className, it.readBytes())
                 }
                 val time2 = System.currentTimeMillis()
@@ -162,11 +162,13 @@ class DialogueBuilder(
                     if (line == null)
                         break
                     else
+                        if (line.contains("warning: classpath entry points to a non-existent location")) continue // ignore this warning
                         buf.appendln(line)
                 }
                 if (proc.waitFor() != 0)
                     error(buf)
                 logger.debug("Kotlin compiler output:\n$buf")
+
                 File(workDir, "model/$buildId").apply {
                     list { _, name -> name.endsWith(".class") }.forEach {
                         classFiles.add(File(this, it))
@@ -189,7 +191,7 @@ class DialogueBuilder(
             val zip = ZipOutputStream(buf)
             classFiles.forEach { classFile ->
                 val path = "model/$buildId/${classFile.name}"
-                logger.info("saving dialogue model class $classFile to JAR resource $path")
+//                logger.info("saving dialogue model class $classFile to JAR resource $path")
                 zip.putNextEntry(ZipEntry(path))
                 classFile.inputStream().use { it.copyTo(zip) }
             }
@@ -231,7 +233,7 @@ class DialogueBuilder(
                 irModels.add(irModel)
                 intentModelBuilder.build(irModel, language, it.intents.asList())
             }
-            logger.info("built intent models: $irModels")
+            logger.info("built ${irModels.size} intent models")
         }
     }
 
