@@ -10,7 +10,6 @@ class InternalTokenizer : Component {
 
     companion object {
         const val DEFAULT_MAX_WORDS = 12
-
     }
     private val logger by LoggerDelegate()
 
@@ -20,12 +19,12 @@ class InternalTokenizer : Component {
             if (tokens.isEmpty()) {
                 // tokenization has not been done yet (ASR skipped?)
                 tokens.addAll(transcript.text.tokenize())
-                context.logger.info("processing tokenization - tokens $tokens")
-            } else {
-                logger.info("processing tokenization - nothing to do")
             }
-            if (words.size > DEFAULT_MAX_WORDS)
+            logger.info("tokens $tokens")
+            alternatives.add(0, transcript)
+            if (words.size > DEFAULT_MAX_WORDS) {
                 transcript = Input.Transcript("#toomanywords")
+            }
         }
         return context.pipeline.process(context)
     }

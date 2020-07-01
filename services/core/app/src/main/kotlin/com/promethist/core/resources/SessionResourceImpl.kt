@@ -44,7 +44,10 @@ class SessionResourceImpl: SessionResource {
             pipeline.add(match(Session::user / User::_id `in` it.value.split(",").map { WrappedObjectId<User>(it) }))
         }
 
-        query.filters.firstOrNull { it.name.startsWith("attributes.") && it.operator == Query.Operator.eq }?.let {
+        query.filters.firstOrNull { it.name.startsWith("properties.") && it.operator == Query.Operator.eq }?.let {
+            pipeline.add(match(Filters.eq(it.name, it.value)))
+        }
+        query.filters.firstOrNull { it.name.startsWith("application.") && it.operator == Query.Operator.eq }?.let {
             pipeline.add(match(Filters.eq(it.name, it.value)))
         }
 
