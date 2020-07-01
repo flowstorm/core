@@ -23,10 +23,14 @@ class Cassandra : Component {
         }
         logger.info("processing NER with input ${context.input}")
 
-        context.turn.input =
-                webTarget.path("/ner/default").queryParam("language", context.input.locale.toString())
-                        .request().post(Entity.json(context.input), object : GenericType<Input>() {})
-
+        try {
+            context.turn.input =
+                    webTarget.path("/ner/default").queryParam("language", context.input.locale.toString())
+                            .request().post(Entity.json(context.input), object : GenericType<Input>() {})
+        } catch (t:Throwable) {
+            //TODO we are not using cassandra - exception should not block pipeline processing
+            context.logger.error("Call to Cassandra failed: " + t.message)
+        }
         return context.pipeline.process(context)
     }
 }
