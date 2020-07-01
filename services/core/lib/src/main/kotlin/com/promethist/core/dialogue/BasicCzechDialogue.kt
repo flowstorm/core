@@ -8,16 +8,16 @@ abstract class BasicCzechDialogue() : BasicDialogue() {
     var basicId = 1
     //Nodes
     val _goBack = GoBack(basicId++, repeat = true)
-    val _basicVersionGlobalIntent = GlobalIntent(basicId++, "basicVolumeUpGlobalIntent", "verze")
+    val _basicVersionGlobalIntent = GlobalIntent(basicId++, "basicVolumeUpGlobalIntent", 0.99F, "verze")
     val _basicVersionResponse = Response(basicId++, { "\$version, dialogue $dialogueName" })
 
-    val _basicVolumeUpGlobalIntent = GlobalIntent(basicId++, "basicVolumeUpGlobalIntent", "zvýšit hlasitost", "mluv hlasitěji")
+    val _basicVolumeUpGlobalIntent = GlobalIntent(basicId++, "basicVolumeUpGlobalIntent", 0.99F, "zvýšit hlasitost", "mluv hlasitěji")
     val _basicVolumeUpResponse = Response(basicId++, { "\$volume_up setting volume up" })
 
-    val _basicVolumeDownGlobalIntent = GlobalIntent(basicId++, "basicVolumeDownGlobalIntent", "snížit hlasitost", "mluv tišeji")
+    val _basicVolumeDownGlobalIntent = GlobalIntent(basicId++, "basicVolumeDownGlobalIntent", 0.99F, "snížit hlasitost", "mluv tišeji")
     val _basicVolumeDownResponse = Response(basicId++, { "\$volume_down setting volume down" })
 
-    val _basicLogApplicationErrorGlobalIntent = GlobalIntent(basicId++, "basicLogApplicationErrorGlobalIntent", "chyba aplikace", "problém aplikace")
+    val _basicLogApplicationErrorGlobalIntent = GlobalIntent(basicId++, "basicLogApplicationErrorGlobalIntent", 0.99F, "chyba aplikace", "problém aplikace")
     val _basicLogApplicationErrorResponse1 = Response(basicId++, {"O co jde?"})
     val _basicLogApplicationErrorResponse2 = Response(basicId++, {"Díky, pojďme zpátky."})
     val _basicLogApplicationErrorUserInputTransition = Transition(_basicLogApplicationErrorResponse2)
@@ -27,7 +27,7 @@ abstract class BasicCzechDialogue() : BasicDialogue() {
         transition
     }
 
-    val _basicLogApplicationCommentGlobalIntent = GlobalIntent(basicId++, "basicLogApplicationCommentGlobalIntent", "komentář aplikace")
+    val _basicLogApplicationCommentGlobalIntent = GlobalIntent(basicId++, "basicLogApplicationCommentGlobalIntent", 0.99F, "komentář aplikace")
     val _basicLogApplicationCommentResponse1 = Response(basicId++, {"Nyní máte prostor přidat komentář."})
     val _basicLogApplicationCommentResponse2 = Response(basicId++, {"Děkujeme za komentář, následuje návrat ke konverzaci."})
     val _basicLogApplicationCommentUserInputTransition = Transition(_basicLogApplicationCommentResponse2)
