@@ -17,7 +17,7 @@ class QueryValueFactory : Factory<Query> {
 
     override fun provide(): Query {
         val query = Query(
-                limit = context.uriInfo.queryParameters.getFirst(LIMIT)?.toInt() ?: 50,
+                limit = context.uriInfo.queryParameters.getFirst(LIMIT)?.toInt() ?: Query.LIMIT_DEFAULT,
                 seek_id = context.uriInfo.queryParameters.getFirst(SEEK_ID)
         )
 

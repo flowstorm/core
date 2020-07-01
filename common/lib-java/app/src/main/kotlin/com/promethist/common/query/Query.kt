@@ -3,7 +3,7 @@ package com.promethist.common.query
 import javax.ws.rs.client.WebTarget
 
 data class Query(
-        val limit: Int = 20,
+        val limit: Int = LIMIT_DEFAULT,
         val seek_id: String?,
         val filters: MutableList<Filter> = mutableListOf()
 ) {
@@ -11,6 +11,9 @@ data class Query(
 
     enum class Operator {
         eq, gt, gte, lt, lte, `in`, like, regex
+    }
+    companion object {
+        const val LIMIT_DEFAULT = 100
     }
 }
 
