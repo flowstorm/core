@@ -1,14 +1,12 @@
 package com.promethist.core.resources
 
 import com.mongodb.client.MongoDatabase
-import com.promethist.common.query.MongoFiltersFactory
 import com.promethist.common.query.Query
 import com.promethist.core.model.DialogueEvent
 import com.promethist.core.model.Session
-import org.litote.kmongo.Id
-import org.litote.kmongo.eq
-import org.litote.kmongo.getCollection
-import org.litote.kmongo.toList
+import org.bson.conversions.Bson
+import org.litote.kmongo.*
+import org.litote.kmongo.id.ObjectIdGenerator
 import javax.inject.Inject
 
 class DialogueEventResourceImpl: DialogueEventResource {
@@ -23,7 +21,23 @@ class DialogueEventResourceImpl: DialogueEventResource {
 
 
     override fun getDialogueEvents(): List<DialogueEvent> {
-        return dialogueEvents.aggregate(MongoFiltersFactory.createPipeline(DialogueEvent::class, query)).toList()
+        val pipeline: MutableList<Bson> = mutableListOf()
+        pipeline.apply {
+            query.seek_id?.let { seekId ->
+                val seekDate = dialogueEvents.findOneById(ObjectIdGenerator.create(seekId))!!.datetime
+                add(match(or(
+                        DialogueEvent::datetime lt seekDate,
+                        and(
+                                DialogueEvent::datetime eq seekDate,
+                                DialogueEvent::_id lt ObjectIdGenerator.create(seekId)
+                        )
+                )))
+            }
+
+            add(sort(descending(DialogueEvent::datetime, DialogueEvent::_id)))
+        }
+        pipeline.add(limit(query.limit))
+        return dialogueEvents.aggregate(pipeline).toMutableList()
     }
 
     override fun create(dialogueEvent: DialogueEvent) {
