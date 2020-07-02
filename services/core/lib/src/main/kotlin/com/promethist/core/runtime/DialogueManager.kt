@@ -82,6 +82,8 @@ class DialogueManager : Component {
 
                 node = getNode(frame, context)
                 processedNodes.add(node)
+                if (node.id < 0)
+                    turn.attributes[Dialogue.clientNamespace].set("nodeId", node.id)
 
                 when (node) {
                     is Dialogue.UserInput -> {
@@ -105,7 +107,6 @@ class DialogueManager : Component {
                                 turn.endFrame = it
                                 session.dialogueStack.push(it)
                             }
-                            turn.attributes[Dialogue.clientNamespace].set("nodeId", node.id)
                             inputRequested = true
                         }
                     }
