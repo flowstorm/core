@@ -48,10 +48,6 @@ class DialogueEventResourceImpl: DialogueEventResource {
         return dialogueEvents.find(DialogueEvent::_id eq eventId).singleOrNull()
     }
 
-    override fun getForSession(sessionId: Id<Session>): List<DialogueEvent> {
-        return dialogueEvents.find(DialogueEvent::sessionId  eq sessionId).toMutableList()
-    }
-
 
 
 }
