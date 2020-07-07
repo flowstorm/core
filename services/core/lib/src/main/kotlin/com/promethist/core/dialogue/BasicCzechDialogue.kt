@@ -22,20 +22,7 @@ abstract class BasicCzechDialogue() : BasicDialogue() {
 
 
 
-    override fun addResponseItem(text: String?, image: String?, audio: String?, video: String?, repeatable: Boolean) =
-            codeRun.context.turn.addResponseItem(text?.let { evaluateTextTemplate(evaluateMorphology(it)) }, image, audio, video, repeatable, voice)
 
-    private fun evaluateMorphology(text: String): String {
-        if (false)  {
-            return text.replace("@", "")
-        } else {
-            return text.replace("l@", "la")
-                    .replace("en@", "na")
-                    .replace("sám@", "sama")
-                    .replace("ý@", "á")
-                    .replace("@", "a")
-        }
-    }
 
 
 
