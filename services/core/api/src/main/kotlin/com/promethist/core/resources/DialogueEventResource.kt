@@ -18,5 +18,4 @@ interface DialogueEventResource {
 
     fun get(eventId: Id<DialogueEvent>): DialogueEvent?
     fun create(dialogueEvent: DialogueEvent)
-    fun getForSession(sessionId: Id<Session>): List<DialogueEvent>
 }
