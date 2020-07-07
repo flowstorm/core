@@ -5,21 +5,20 @@ import java.util.*
 import kotlin.reflect.full.memberProperties
 
 abstract class BasicCzechDialogue() : BasicDialogue() {
+    val gender by user { "male" }
 
     override fun addResponseItem(text: String?, image: String?, audio: String?, video: String?, repeatable: Boolean) =
-            codeRun.context.turn.addResponseItem(text?.let { evaluateTextTemplate(evaluateMorphology(it)) }, image, audio, video, repeatable, voice)
+            codeRun.context.turn.addResponseItem(text?.let { evaluateTextTemplate(evaluateGenderTags(it)) }, image, audio, video, repeatable, voice)
 
-    private fun evaluateMorphology(text: String): String {
-        if (false)  {
-            return text.replace("@", "")
+    private fun evaluateGenderTags(text: String) = if (gender == "male")  {
+            text.replace("@", "")
         } else {
-            return text.replace("l@", "la")
+            text.replace("l@", "la")
                     .replace("en@", "na")
                     .replace("sám@", "sama")
                     .replace("ý@", "á")
                     .replace("@", "a")
         }
-    }
 
 
 
