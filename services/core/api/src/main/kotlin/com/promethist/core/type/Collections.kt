@@ -55,6 +55,11 @@ class LocationMutableList(values: Collection<Location>) : ValueList<Location>(va
     constructor(vararg values: Location) : this(values.asList())
 }
 
+class DynamicMutableList(values: Collection<Dynamic>) : ValueList<Dynamic>(values) {
+    constructor() : this(emptyList())
+    constructor(vararg values: Dynamic) : this(values.asList())
+}
+
 class BooleanMutableSet(values: Collection<Boolean>) : ValueSet<Boolean>(values) {
     constructor() : this(emptyList())
     constructor(vararg values: Boolean) : this(values.asList())
@@ -98,6 +103,11 @@ class DateTimeMutableSet(values: Collection<DateTime>) : ValueSet<DateTime>(valu
 class LocationMutableSet(values: Collection<Location>) : ValueSet<Location>(values) {
     constructor() : this(emptySet())
     constructor(vararg values: Location) : this(values.asList())
+}
+
+class DynamicMutableSet(values: Collection<Dynamic>) : ValueSet<Dynamic>(values) {
+    constructor() : this(emptySet())
+    constructor(vararg values: Dynamic) : this(values.asList())
 }
 
 interface MemoryCollection<V : Any> : MutableCollection<Memory<V>>, Memorable

@@ -1,5 +1,21 @@
 package com.promethist.core.dialogue
 
+val BasicDialogue.vocatives: Map<String, Map<String, String>> by lazy {
+    mapOf(
+            "cs" to String(BasicDialogue::class.java.getResourceAsStream("/dialogue/vocative_cs.txt").readBytes()).trim().split("\n").map {
+                it.trim().split(";").let { p ->
+                    p[0] to p[1]
+                }
+            }.toMap()
+    )
+}
+
+fun BasicDialogue.vocative(name: String): String =
+        when (language) {
+            "cs" -> vocatives["cs"]!![name] ?: name
+            else -> unsupportedLanguage()
+        }
+
 fun BasicDialogue.greeting(name: String? = null) = (
         if (now.hour >= 18 || now.hour < 3)
             mapOf(
@@ -22,7 +38,7 @@ fun BasicDialogue.greeting(name: String? = null) = (
                     "cs" to "dobré odpoledne",
                     "fr" to "bonne après-midi"
             )[language] ?: unsupportedLanguage()
-        ) + indent(name, ", ")
+        ) + indent(name?.let { vocative(it) }, ", ")
 
 fun BasicDialogue.farewell(name: String? = null) = (
         if (now.hour >= 21 || now.hour < 3)
@@ -39,4 +55,4 @@ fun BasicDialogue.farewell(name: String? = null) = (
                     "cs" to "nashledanou",
                     "fr" to "au revoir"
             )[language] ?: unsupportedLanguage()
-        ) + indent(name, ", ")
+        ) + indent(name?.let { vocative(it) }, ", ")

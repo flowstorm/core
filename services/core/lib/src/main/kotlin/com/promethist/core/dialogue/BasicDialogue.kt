@@ -25,7 +25,7 @@ abstract class BasicDialogue : Dialogue() {
 
         @Deprecated("Use pass instead, toIntent will be removed")
         val toIntent = pass
-        val api = Api
+        val api = Api()
     }
 
     val now: DateTime get() = DateTime.now(codeRun.context.turn.input.zoneId)
