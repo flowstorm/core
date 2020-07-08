@@ -13,7 +13,7 @@ val BasicDialogue.vocatives: Map<String, Map<String, String>> by lazy {
 fun BasicDialogue.vocative(name: String): String =
         when (language) {
             "cs" -> vocatives["cs"]!![name] ?: name
-            else -> unsupportedLanguage()
+            else -> name
         }
 
 fun BasicDialogue.greeting(name: String? = null) = (

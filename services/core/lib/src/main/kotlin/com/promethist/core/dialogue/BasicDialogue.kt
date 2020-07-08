@@ -184,6 +184,9 @@ abstract class BasicDialogue : Dialogue() {
     inline fun <reified E: Any> userMapAttribute(entities: Map<String, E>, namespace: String? = null) =
             MapAttributeDelegate(entities, ContextualAttributeDelegate.Scope.User) { namespace ?: dialogueNameWithoutVersion }
 
+    fun metric(metricSpec: String) = MetricDelegate(metricSpec)
+
+    @Deprecated("Use metric instead", replaceWith = ReplaceWith("metric"))
     fun metricValue(metricSpec: String) = MetricDelegate(metricSpec)
 
     inline fun <reified T: Any> loader(path: String): Lazy<T> = lazy {
