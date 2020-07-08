@@ -7,8 +7,7 @@ import kotlin.reflect.full.memberProperties
 abstract class BasicCzechDialogue() : BasicDialogue() {
     val gender by user { "male" }
 
-    override fun addResponseItem(text: String?, image: String?, audio: String?, video: String?, repeatable: Boolean) =
-            codeRun.context.turn.addResponseItem(text?.let { evaluateTextTemplate(evaluateGenderTags(it)) }, image, audio, video, repeatable, voice)
+    override fun evaluateTextTemplate(text: String) = evaluateGenderTags(super.evaluateTextTemplate(text))
 
     private fun evaluateGenderTags(text: String) = if (gender == "male")  {
             text.replace("@", "")
