@@ -9,13 +9,13 @@ abstract class BasicCzechDialogue() : BasicDialogue() {
     //Nodes
     val _goBack = GoBack(basicId++, repeat = true)
     val _basicVersionGlobalIntent = GlobalIntent(basicId++, "basicVolumeUpGlobalIntent", 0.99F, "verze")
-    val _basicVersionResponse = Response(basicId++, { "\$version, dialogue $dialogueName" })
+    val _basicVersionResponse = Response(basicId++, { "#version, dialog $dialogueName" })
 
     val _basicVolumeUpGlobalIntent = GlobalIntent(basicId++, "basicVolumeUpGlobalIntent", 0.99F, "zvýšit hlasitost", "mluv hlasitěji")
-    val _basicVolumeUpResponse = Response(basicId++, { "\$volume_up setting volume up" })
+    val _basicVolumeUpResponse = Response(basicId++, { "#volume_up zvyšuji hlasitist" })
 
     val _basicVolumeDownGlobalIntent = GlobalIntent(basicId++, "basicVolumeDownGlobalIntent", 0.99F, "snížit hlasitost", "mluv tišeji")
-    val _basicVolumeDownResponse = Response(basicId++, { "\$volume_down setting volume down" })
+    val _basicVolumeDownResponse = Response(basicId++, { "#volume_down snižuji hlasitost" })
 
     val _basicLogApplicationErrorGlobalIntent = GlobalIntent(basicId++, "basicLogApplicationErrorGlobalIntent", 0.99F, "chyba aplikace", "problém aplikace")
     val _basicLogApplicationErrorResponse1 = Response(basicId++, {"O co jde?"})
@@ -23,17 +23,17 @@ abstract class BasicCzechDialogue() : BasicDialogue() {
     val _basicLogApplicationErrorUserInputTransition = Transition(_basicLogApplicationErrorResponse2)
     val _basicLogApplicationErrorUserInput = UserInput(basicId++, arrayOf()) {
         val transition = Transition(_basicLogApplicationErrorResponse2)
-        dialogueEvent = DialogueEvent(datetime = Date(), type = DialogueEvent.Type.UserError, userId = user._id, sessionId = session._id, applicationName = application.name, dialogueName = application.dialogueName, nodeId = turn.endFrame?.nodeId, text = input.transcript.text)
+        dialogueEvent = DialogueEvent(datetime = Date(), type = DialogueEvent.Type.UserError, user = user, sessionId = session.sessionId, applicationName = application.name, dialogueName = application.dialogueName, nodeId = turn.endFrame?.nodeId, text = input.transcript.text)
         transition
     }
 
     val _basicLogApplicationCommentGlobalIntent = GlobalIntent(basicId++, "basicLogApplicationCommentGlobalIntent", 0.99F, "komentář aplikace")
-    val _basicLogApplicationCommentResponse1 = Response(basicId++, {"Nyní máte prostor přidat komentář."})
-    val _basicLogApplicationCommentResponse2 = Response(basicId++, {"Děkujeme za komentář, následuje návrat ke konverzaci."})
+    val _basicLogApplicationCommentResponse1 = Response(basicId++, {"O co jde?"})
+    val _basicLogApplicationCommentResponse2 = Response(basicId++, {"Díky, pojďme zpátky."})
     val _basicLogApplicationCommentUserInputTransition = Transition(_basicLogApplicationCommentResponse2)
     val _basicLogApplicationCommentUserInput = UserInput(basicId++, arrayOf()) {
         val transition = Transition(_basicLogApplicationCommentResponse2)
-        dialogueEvent = DialogueEvent(datetime = Date(), type = DialogueEvent.Type.UserComment, userId = user._id, sessionId = session._id, applicationName = application.name, dialogueName = application.dialogueName, nodeId = turn.endFrame?.nodeId, text = input.transcript.text)
+        dialogueEvent = DialogueEvent(datetime = Date(), type = DialogueEvent.Type.UserComment, user = user, sessionId = session.sessionId, applicationName = application.name, dialogueName = application.dialogueName, nodeId = turn.endFrame?.nodeId, text = input.transcript.text)
         transition
     }
 
