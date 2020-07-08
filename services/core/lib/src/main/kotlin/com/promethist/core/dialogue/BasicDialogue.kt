@@ -207,13 +207,13 @@ abstract class BasicDialogue : Dialogue() {
     fun communityAttributes(communityName: String) =
             codeRun.context.communityResource.get(communityName)?.attributes ?: Dynamic.EMPTY
 
-    open fun addResponseItem(text: String?, image: String? = null, audio: String? = null, video: String? = null, repeatable: Boolean = true) =
+    fun addResponseItem(text: String?, image: String? = null, audio: String? = null, video: String? = null, repeatable: Boolean = true) =
             codeRun.context.turn.addResponseItem(text?.let { evaluateTextTemplate(it) }, image, audio, video, repeatable, voice)
 
     /**
      * evaluate # in response text
      */
-    fun evaluateTextTemplate(text: String) = enumerate(text).replace(Regex("#([\\w\\.\\d]+)")) {
+    open fun evaluateTextTemplate(text: String) = enumerate(text).replace(Regex("#([\\w\\.\\d]+)")) {
         var obj: Any? = this
         var point = false
         for (name in it.groupValues[1].split(".")) {
