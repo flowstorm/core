@@ -21,10 +21,6 @@ abstract class BasicCzechDialogue() : BasicDialogue() {
 
 
 
-
-
-
-
     var basicId = 1
     //Nodes
     val _goBack = GoBack(basicId++, repeat = true)
