@@ -1,5 +1,7 @@
 package com.promethist.core.runtime
 
+import com.fasterxml.jackson.core.type.TypeReference
+import com.promethist.common.ObjectUtil
 import com.promethist.common.RestClient
 import com.promethist.core.type.Dynamic
 import com.promethist.core.type.PropertyMap
@@ -16,6 +18,10 @@ open class Api {
             header(it.key, it.value)
         }
         return this
+    }
+
+    inline fun <reified T : Any> load(name: String) = this::class.java.getResourceAsStream(name).use {
+        ObjectUtil.defaultMapper.readValue<T>(it, object : TypeReference<T>() {})
     }
 
     inline fun <reified T : Any> get(target: WebTarget, headers: PropertyMap? = null) =

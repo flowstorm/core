@@ -20,6 +20,8 @@ class SampleApi(dialogue: BasicDialogue) : DialogueApi(dialogue) {
                 .queryParam("lng", clientLocation.longitude)
                 , headers)
     }
+
+    fun test1(): Dynamic = load("/test/wcities/test1.json")
 }
 
 val BasicDialogue.sample get() = DialogueApi.get<SampleApi>(this)
