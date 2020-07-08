@@ -12,7 +12,16 @@ val BasicDialogue.vocatives: Map<String, Map<String, String>> by lazy {
 
 fun BasicDialogue.vocative(name: String): String =
         when (language) {
-            "cs" -> vocatives["cs"]!![name] ?: name
+            "cs" -> vocatives["cs"]!![name] ?: name.replace(Regex("a$"), "o")
+                    .replace(Regex("(?<=[cai]el)$"), "i")
+                    .replace(Regex("něk$"), "ňku")
+                    .replace(Regex("el$"), "le")
+                    .replace(Regex("ek$"), "ku")
+                    .replace(Regex("ec$"), "če")
+                    .replace(Regex("(?<=[td])r$"), "ře")
+                    .replace(Regex("(?<=[šjxcsz])$"), "i")
+                    .replace(Regex("(?<=[kh])$"), "u")
+                    .replace(Regex("(?<=[nvdrlmft])$"), "e")
             else -> name
         }
 

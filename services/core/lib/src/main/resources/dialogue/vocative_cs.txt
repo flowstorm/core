@@ -15,6 +15,7 @@ Afra;Afro
 Agaton;Agatone
 Aglaja;Aglajo
 Agnes;Agnes
+Ágnes;Ágnes
 Achilles;Achille
 Aino;Aino
 Ajax;Ajaxi
@@ -422,11 +423,14 @@ Ikarus;Ikare
 Ildika;Ildiko
 Ilja;Iljo
 Ilona;Ilono
+Inés;Inés
+Ines;Inés
 Inéz;Inézi
 Ingrid;Ingrid
 Irena;Ireno
 Irenej;Ireneji
 Irma;Irmo
+Isabel;Isabel
 Isabella;Isabello
 Isabelle;Isabello
 Isak;Isaku
@@ -434,6 +438,7 @@ Ivan;Ivane
 Ivana;Ivano
 Ivo;Ivo
 Ivona;Ivono
+Izabel;Izabel
 Izák;Izáku
 Izidora;Izidoro
 Izmael;Izmaeli
@@ -856,6 +861,7 @@ Rožec;Rožče
 Rudolf;Rudolfe
 Rupert;Ruperte
 Rut;Rut
+Rút;Rút
 Růžena;Růženo
 Rytmus;Rytme
 Řehoř;Řehoři
