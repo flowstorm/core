@@ -28,8 +28,8 @@ abstract class BasicEnglishDialogue() : BasicDialogue() {
     }
 
     val _basicLogApplicationCommentGlobalIntent = GlobalIntent(basicId++, "basicLogApplicationCommentGlobalIntent", 0.99F, "application command", "application comment")
-    val _basicLogApplicationCommentResponse1 = Response(basicId++, {"What would you like to comment?"})
-    val _basicLogApplicationCommentResponse2 = Response(basicId++, {"Thank you for the report. Let's get back now"})
+    val _basicLogApplicationCommentResponse1 = Response(basicId++, {"What's the comment?"})
+    val _basicLogApplicationCommentResponse2 = Response(basicId++, {"Thanks. Let's get back"})
     val _basicLogApplicationCommentUserInputTransition = Transition(_basicLogApplicationCommentResponse2)
     val _basicLogApplicationCommentUserInput = UserInput(basicId++, arrayOf()) {
         val transition = Transition(_basicLogApplicationCommentResponse2)

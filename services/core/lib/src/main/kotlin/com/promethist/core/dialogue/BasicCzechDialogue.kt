@@ -28,8 +28,8 @@ abstract class BasicCzechDialogue() : BasicDialogue() {
     }
 
     val _basicLogApplicationCommentGlobalIntent = GlobalIntent(basicId++, "basicLogApplicationCommentGlobalIntent", 0.99F, "komentář aplikace")
-    val _basicLogApplicationCommentResponse1 = Response(basicId++, {"Nyní máte prostor přidat komentář."})
-    val _basicLogApplicationCommentResponse2 = Response(basicId++, {"Děkujeme za komentář, následuje návrat ke konverzaci."})
+    val _basicLogApplicationCommentResponse1 = Response(basicId++, {"O co jde?"})
+    val _basicLogApplicationCommentResponse2 = Response(basicId++, {"Díky, pojďme zpátky."})
     val _basicLogApplicationCommentUserInputTransition = Transition(_basicLogApplicationCommentResponse2)
     val _basicLogApplicationCommentUserInput = UserInput(basicId++, arrayOf()) {
         val transition = Transition(_basicLogApplicationCommentResponse2)
