@@ -80,11 +80,19 @@ class DialogueBuilder(
                 logger.info("finished building dialogue model $name")
                 return Build(buildId, true, getLogs())
             } catch (t: Throwable) {
-                logger.error("Build Exception:\n ${t.message}", t)
-                return Build(buildId, false, getLogs(), t.message ?: "")
+                val fullError = getExceptionChain("", t)
+                logger.error("Build Exception:\n$fullError", t)
+                return Build(buildId, false, getLogs(), fullError)
             } finally {
                 saveBuildLog(buildPath)
             }
+        }
+
+        private fun getExceptionChain(message: String, t: Throwable?): String {
+            if (t == null) {
+                return message
+            }
+            return getExceptionChain("$t\n$message", t.cause)
         }
 
         fun deploy() {
