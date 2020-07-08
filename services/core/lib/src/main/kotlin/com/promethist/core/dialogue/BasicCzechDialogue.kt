@@ -9,13 +9,13 @@ abstract class BasicCzechDialogue() : BasicDialogue() {
     //Nodes
     val _goBack = GoBack(basicId++, repeat = true)
     val _basicVersionGlobalIntent = GlobalIntent(basicId++, "basicVolumeUpGlobalIntent", 0.99F, "verze")
-    val _basicVersionResponse = Response(basicId++, { "#version, dialogue $dialogueName" })
+    val _basicVersionResponse = Response(basicId++, { "#version, dialog $dialogueName" })
 
     val _basicVolumeUpGlobalIntent = GlobalIntent(basicId++, "basicVolumeUpGlobalIntent", 0.99F, "zvýšit hlasitost", "mluv hlasitěji")
-    val _basicVolumeUpResponse = Response(basicId++, { "#volume_up setting volume up" })
+    val _basicVolumeUpResponse = Response(basicId++, { "#volume_up zvyšuji hlasitist" })
 
     val _basicVolumeDownGlobalIntent = GlobalIntent(basicId++, "basicVolumeDownGlobalIntent", 0.99F, "snížit hlasitost", "mluv tišeji")
-    val _basicVolumeDownResponse = Response(basicId++, { "#volume_down setting volume down" })
+    val _basicVolumeDownResponse = Response(basicId++, { "#volume_down snižuji hlasitost" })
 
     val _basicLogApplicationErrorGlobalIntent = GlobalIntent(basicId++, "basicLogApplicationErrorGlobalIntent", 0.99F, "chyba aplikace", "problém aplikace")
     val _basicLogApplicationErrorResponse1 = Response(basicId++, {"O co jde?"})
