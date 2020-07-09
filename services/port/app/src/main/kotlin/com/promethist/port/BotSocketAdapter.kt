@@ -11,6 +11,7 @@ import com.promethist.core.model.TtsConfig
 import com.promethist.core.Input
 import com.promethist.core.Request
 import com.promethist.core.Response
+import com.promethist.core.model.Voice
 import com.promethist.core.resources.CoreResource
 import com.promethist.core.type.MutablePropertyMap
 import com.promethist.port.stt.*
@@ -243,8 +244,10 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                         ((if (item.ssml != null) item.ssml else item.text) ?: "").replace(Regex("#(\\w+)")) {
                             // command processing
                             when (it.groupValues[1]) {
+                                //TO BE REMOVED version command is now handled by a global intent in Basic Dialogue classes for each specific localization
                                 "version" -> {
                                     item.text = "Server version ${AppConfig.version}, environment ${AppConfig.instance.get("namespace", "unknown")}."
+                                    item.voice = Voice.Audrey
                                     item.text!!
                                 }
                                 else -> ""

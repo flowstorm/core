@@ -5,6 +5,8 @@ import com.promethist.common.ObjectUtil
 import com.promethist.core.Context
 import com.promethist.core.dialogue.attribute.*
 import com.promethist.core.dialogue.metric.MetricDelegate
+import com.promethist.core.model.ClientCommand
+import com.promethist.core.model.enumContains
 import com.promethist.core.runtime.Api
 import com.promethist.core.type.*
 import java.io.File
@@ -217,20 +219,24 @@ abstract class BasicDialogue : Dialogue() {
      * evaluate # in response text
      */
     open fun evaluateTextTemplate(text: String) = enumerate(text).replace(Regex("#([\\w\\.\\d]+)")) {
-        var obj: Any? = this
-        var point = false
-        for (name in it.groupValues[1].split(".")) {
-            if (name.isBlank()) {
-                point = true
-                break
-            } else {
-                val prop = obj!!.javaClass.kotlin.memberProperties.firstOrNull { it.name == name }
-                obj = prop?.call(obj)
-                if (obj == null)
+        if (enumContains<ClientCommand>(it.groupValues[1])) {
+            "#" + it.groupValues[1]
+        } else {
+            var obj: Any? = this
+            var point = false
+            for (name in it.groupValues[1].split(".")) {
+                if (name.isBlank()) {
+                    point = true
                     break
+                } else {
+                    val prop = obj!!.javaClass.kotlin.memberProperties.firstOrNull { it.name == name }
+                    obj = prop?.call(obj)
+                    if (obj == null)
+                        break
+                }
             }
+            describe(obj) + (if (point) "." else "")
         }
-        describe(obj) + (if (point) "." else "")
     }
 
     inline fun unsupportedLanguage(): Nothing {

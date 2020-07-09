@@ -1,5 +1,6 @@
 package com.promethist.core.dialogue
 
+import com.promethist.common.AppConfig
 import com.promethist.core.model.DialogueEvent
 import java.util.*
 
@@ -9,7 +10,7 @@ abstract class BasicEnglishDialogue() : BasicDialogue() {
     //Nodes
     val _goBack = GoBack(basicId++, repeat = true)
     val _basicVersionGlobalIntent = GlobalIntent(basicId++, "basicVersionGlobalIntent", 0.99F, "version")
-    val _basicVersionResponse = Response(basicId++, { "#version, dialogue $dialogueName" })
+    val _basicVersionResponse = Response(basicId++, { "Server version ${AppConfig.version}, environment ${AppConfig.instance.get("namespace", "unknown")}, dialogue $dialogueName, dialogue version $version" })
 
     val _basicVolumeUpGlobalIntent = GlobalIntent(basicId++, "basicVolumeUpGlobalIntent", 0.99F, "volume up", "louder")
     val _basicVolumeUpResponse = Response(basicId++, { "#volume_up setting volume up" })

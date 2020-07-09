@@ -1,5 +1,6 @@
 package com.promethist.core.dialogue
 
+import com.promethist.common.AppConfig
 import com.promethist.core.model.DialogueEvent
 import java.util.*
 import kotlin.reflect.full.memberProperties
@@ -24,7 +25,7 @@ abstract class BasicCzechDialogue() : BasicDialogue() {
     //Nodes
     val _goBack = GoBack(basicId++, repeat = true)
     val _basicVersionGlobalIntent = GlobalIntent(basicId++, "basicVersionGlobalIntent", 0.99F, "verze")
-    val _basicVersionResponse = Response(basicId++, { "#version, dialog $dialogueName" })
+    val _basicVersionResponse = Response(basicId++, { "Verze serveru ${AppConfig.version}, prostředí ${AppConfig.instance.get("namespace", "unknown")}, dialog $dialogueName, verze dialogu $version" })
 
     val _basicVolumeUpGlobalIntent = GlobalIntent(basicId++, "basicVolumeUpGlobalIntent", 0.99F, "zvýšit hlasitost", "mluv hlasitěji")
     val _basicVolumeUpResponse = Response(basicId++, { "#volume_up zvyšuji hlasitost" })
