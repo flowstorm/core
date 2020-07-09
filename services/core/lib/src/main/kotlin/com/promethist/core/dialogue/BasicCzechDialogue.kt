@@ -13,7 +13,6 @@ abstract class BasicCzechDialogue() : BasicDialogue() {
             text.replace("@", "")
         } else {
             text.replace("l@", "la")
-                    .replace("en@", "na")
                     .replace("sám@", "sama")
                     .replace("ý@", "á")
                     .replace("@", "a")
