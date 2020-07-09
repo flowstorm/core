@@ -1,5 +1,7 @@
 package com.promethist.core.builder
 
+import com.promethist.core.model.TtsConfig
+import com.promethist.core.model.Voice
 import com.promethist.core.type.PropertyMap
 import com.promethist.util.LoggerDelegate
 import java.io.ByteArrayOutputStream
@@ -16,7 +18,7 @@ class SourceCodeBuilder(val name: String, val buildId: String) {
     var properties: PropertyMap = mapOf()
     var initCode: CharSequence = ""
     var extensionCode: CharSequence = ""
-    var parentClass: String = "BasicDialogue"
+    var parentClass: String? = null
     val className: String
     var code: String = ""
         get() {
@@ -37,6 +39,16 @@ class SourceCodeBuilder(val name: String, val buildId: String) {
     }
 
     fun build() {
+        if (parentClass == null) {
+            val voice = if (properties.containsKey("voice")) properties["voice"] as Voice else Voice.Grace
+            val config = TtsConfig.forVoice(voice)
+            parentClass = when (config.locale.language) {
+                "en" -> "BasicEnglishDialogue"
+                "cs" -> "BasicCzechDialogue"
+                else -> "BasicDialogue"
+            }
+        }
+
         logger.info("building source code for $name")
         logger.info("class $className : $parentClass")
 
