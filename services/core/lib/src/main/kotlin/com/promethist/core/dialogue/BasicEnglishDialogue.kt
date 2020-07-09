@@ -8,7 +8,7 @@ abstract class BasicEnglishDialogue() : BasicDialogue() {
     var basicId = 1
     //Nodes
     val _goBack = GoBack(basicId++, repeat = true)
-    val _basicVersionGlobalIntent = GlobalIntent(basicId++, "basicVolumeUpGlobalIntent", 0.99F, "version")
+    val _basicVersionGlobalIntent = GlobalIntent(basicId++, "basicVersionGlobalIntent", 0.99F, "version")
     val _basicVersionResponse = Response(basicId++, { "#version, dialogue $dialogueName" })
 
     val _basicVolumeUpGlobalIntent = GlobalIntent(basicId++, "basicVolumeUpGlobalIntent", 0.99F, "volume up", "louder")
