@@ -5,7 +5,7 @@ import java.time.ZonedDateTime
 import kotlin.reflect.KClass
 
 @Suppress("UNCHECKED_CAST")
-class Dynamic : LinkedHashMap<String, Any>, MutablePropertyMap {
+open class Dynamic : LinkedHashMap<String, Any>, MutablePropertyMap {
 
     constructor() : super()
     constructor(dynamic: Dynamic) : super(dynamic)

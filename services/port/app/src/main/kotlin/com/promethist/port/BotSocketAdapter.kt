@@ -13,6 +13,7 @@ import com.promethist.core.Request
 import com.promethist.core.Response
 import com.promethist.core.model.Voice
 import com.promethist.core.resources.CoreResource
+import com.promethist.core.type.Dynamic
 import com.promethist.core.type.MutablePropertyMap
 import com.promethist.port.stt.*
 import com.promethist.port.tts.TtsRequest
@@ -79,7 +80,7 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
     private val logger by LoggerDelegate()
 
     private fun createRequest(input: Input) = Request(appKey, sender, token, sessionId?:error("missing session id"),
-            input)
+            input, Dynamic())
 
     override fun open() {
         logger.info("open()")
