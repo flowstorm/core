@@ -22,6 +22,8 @@ fun BasicDialogue.vocative(name: String): String =
                     .replace(Regex("(?<=[šjxcsz])$"), "i")
                     .replace(Regex("(?<=[kh])$"), "u")
                     .replace(Regex("(?<=[nvdrlmft])$"), "e")
+                    .replace(Regex("(?<=[gkh])$"), "u")
+                    .replace(Regex("(?<=[ei]us)$"), "e")
             else -> name
         }
 
