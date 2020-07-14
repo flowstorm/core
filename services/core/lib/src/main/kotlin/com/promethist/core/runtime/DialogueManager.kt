@@ -87,7 +87,9 @@ class DialogueManager : Component {
 
                 when (node) {
                     is Dialogue.UserInput -> {
-                        if (processedNodes.size == 1) {
+                        if ((processedNodes[0] is Dialogue.StartDialogue && processedNodes[1] == node) ||
+                                processedNodes[0] == node
+                        ) {
                             //first user input in turn
                             val irModels = getIntentModels(frame, context)
                             context.irModels = irModels
