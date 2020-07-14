@@ -3,6 +3,7 @@ package com.promethist.core.dialogue
 import com.promethist.core.Context
 import com.promethist.core.dialogue.metric.MetricDelegate
 import com.promethist.core.model.metrics.Metric
+import com.promethist.core.type.DEFAULT_LOCATION
 import io.mockk.every
 import io.mockk.mockkClass
 import io.mockk.mockkObject
@@ -12,6 +13,7 @@ open class DialogueTest {
 
     class TestDialogue : BasicDialogue() {
         override val dialogueName = "product/dialogue/1"
+        override var clientLocation = DEFAULT_LOCATION
         var metric by MetricDelegate("namespace.name")
 
         val response1 = Response({ "Hello" })
