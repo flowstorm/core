@@ -36,7 +36,7 @@ abstract class BasicCzechDialogue() : BasicDialogue() {
     val _basicLogApplicationErrorResponse1 = Response(basicId++, {"O co jde?"})
     val _basicLogApplicationErrorResponse2 = Response(basicId++, {"Díky, pojďme zpátky."})
     val _basicLogApplicationErrorUserInputTransition = Transition(_basicLogApplicationErrorResponse2)
-    val _basicLogApplicationErrorUserInput = UserInput(basicId++, arrayOf()) {
+    val _basicLogApplicationErrorUserInput = UserInput(basicId++, arrayOf(), arrayOf()) {
         val transition = Transition(_basicLogApplicationErrorResponse2)
         dialogueEvent = DialogueEvent(datetime = Date(), type = DialogueEvent.Type.UserError, user = user, sessionId = session.sessionId, properties = context.session.properties, applicationName = application.name, dialogueName = application.dialogueName, nodeId = turn.endFrame?.nodeId, text = input.transcript.text)
         transition
@@ -46,7 +46,7 @@ abstract class BasicCzechDialogue() : BasicDialogue() {
     val _basicLogApplicationCommentResponse1 = Response(basicId++, {"O co jde?"})
     val _basicLogApplicationCommentResponse2 = Response(basicId++, {"Díky, pojďme zpátky."})
     val _basicLogApplicationCommentUserInputTransition = Transition(_basicLogApplicationCommentResponse2)
-    val _basicLogApplicationCommentUserInput = UserInput(basicId++, arrayOf()) {
+    val _basicLogApplicationCommentUserInput = UserInput(basicId++, arrayOf(), arrayOf()) {
         val transition = Transition(_basicLogApplicationCommentResponse2)
         dialogueEvent = DialogueEvent(datetime = Date(), type = DialogueEvent.Type.UserComment, user = user, sessionId = session.sessionId, properties = context.session.properties, applicationName = application.name, dialogueName = application.dialogueName, nodeId = turn.endFrame?.nodeId, text = input.transcript.text)
         transition

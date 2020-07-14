@@ -22,7 +22,7 @@ abstract class BasicEnglishDialogue() : BasicDialogue() {
     val _basicLogApplicationErrorResponse1 = Response(basicId++, {"What's the problem?"})
     val _basicLogApplicationErrorResponse2 = Response(basicId++, {"Thanks. Let's get back."})
     val _basicLogApplicationErrorUserInputTransition = Transition(_basicLogApplicationErrorResponse2)
-    val _basicLogApplicationErrorUserInput = UserInput(basicId++, arrayOf()) {
+    val _basicLogApplicationErrorUserInput = UserInput(basicId++, arrayOf(), arrayOf()) {
         val transition = Transition(_basicLogApplicationErrorResponse2)
         dialogueEvent = DialogueEvent(datetime = Date(), type = DialogueEvent.Type.UserError, user = user, sessionId = session.sessionId, properties = context.session.properties, applicationName = application.name, dialogueName = application.dialogueName, nodeId = turn.endFrame?.nodeId, text = input.transcript.text)
         transition
@@ -32,7 +32,7 @@ abstract class BasicEnglishDialogue() : BasicDialogue() {
     val _basicLogApplicationCommentResponse1 = Response(basicId++, {"What's the comment?"})
     val _basicLogApplicationCommentResponse2 = Response(basicId++, {"Thanks. Let's get back"})
     val _basicLogApplicationCommentUserInputTransition = Transition(_basicLogApplicationCommentResponse2)
-    val _basicLogApplicationCommentUserInput = UserInput(basicId++, arrayOf()) {
+    val _basicLogApplicationCommentUserInput = UserInput(basicId++, arrayOf(), arrayOf()) {
         val transition = Transition(_basicLogApplicationCommentResponse2)
         dialogueEvent = DialogueEvent(datetime = Date(), type = DialogueEvent.Type.UserComment, user = user, sessionId = session.sessionId, properties = context.session.properties, applicationName = application.name, dialogueName = application.dialogueName, nodeId = turn.endFrame?.nodeId, text = input.transcript.text)
         transition

@@ -61,18 +61,19 @@ abstract class Dialogue {
             override val id: Int,
             var skipGlobalIntents: Boolean,
             val intents: Array<Intent>,
+            val commands: Array<Command>,
             val lambda: (Context.(UserInput) -> Transition?)
     ): Node(id) {
 
-        constructor(id: Int, intents: Array<Intent>, lambda: (Context.(UserInput) -> Transition?)) :
-                this(id, false, intents, lambda)
+        constructor(id: Int, intents: Array<Intent>, commands: Array<Command>, lambda: (Context.(UserInput) -> Transition?)) :
+                this(id, false, intents, commands, lambda)
 
-        constructor(intents: Array<Intent>, lambda: (Context.(UserInput) -> Transition?)) :
-                this(nextId--, false, intents, lambda)
+        constructor(intents: Array<Intent>, commands: Array<Command>, lambda: (Context.(UserInput) -> Transition?)) :
+                this(nextId--, false, intents, commands, lambda)
 
         fun process(context: Context): Transition? {
             val transition = codeRun(context, this) { lambda(context, this) } as Transition?
-            if (transition == null && intents.isEmpty()) throw DialogueScriptException(this,  Exception("Can not pass processing to IR, there are no intents following the user input node."))
+            if (transition == null && intents.isEmpty() && commands.isEmpty()) throw DialogueScriptException(this, Exception("Can not pass processing to pipeline, there are no intents or commands following the user input node."))
 
             return transition
         }
@@ -97,6 +98,14 @@ abstract class Dialogue {
              vararg utterance: String
     ): Intent(id, name, threshold, *utterance) {
         constructor(id: Int, name: String, vararg utterance: String) : this(id, name, 0.0F, *utterance)
+    }
+
+    inner class Command(
+            override val id: Int,
+            val name: String,
+            val command: String
+    ): TransitNode(id) {
+        constructor(name: String, command: String) : this(nextId--, name, command)
     }
 
     open inner class Response(
@@ -165,6 +174,8 @@ abstract class Dialogue {
     val intents: List<Intent> get() = nodes.filterIsInstance<Intent>()
 
     val globalIntents: List<GlobalIntent> get() = nodes.filterIsInstance<GlobalIntent>()
+
+    val commands: List<Command> get() = nodes.filterIsInstance<Command>()
 
     val userInputs: List<UserInput> get() = nodes.filterIsInstance<UserInput>()
 

@@ -60,6 +60,7 @@ class SourceCodeBuilder(val name: String, val buildId: String) {
         goBacks.forEach { write(it) }
         globalIntents.forEach { write(it) }
         intents.forEach { write(it) }
+        commands.forEach { write(it) }
         userInputs.forEach { write(it) }
         speeches.forEach { write(it) }
         images.forEach { write(it) }
@@ -87,19 +88,21 @@ class SourceCodeBuilder(val name: String, val buildId: String) {
     private val functions = mutableListOf<Function>()
     private val subDialogues = mutableListOf<SubDialogue>()
     private val goBacks = mutableListOf<GoBack>()
+    private val commands = mutableListOf<Command>()
     private val transitions = mutableMapOf<String, String>()
 
     interface Node
 
     data class Intent(val nodeId: Int, val nodeName: String, val threshold: Float, val utterances: List<String>) : Node
     data class GlobalIntent(val nodeId: Int, val nodeName: String, val threshold: Float, val utterances: List<String>) : Node
-    data class UserInput(val nodeId: Int, val nodeName: String, val intentNames: List<String>, val skipGlobalIntents: Boolean, val transitions: Map<String, String>, val code: CharSequence = "") : Node
+    data class UserInput(val nodeId: Int, val nodeName: String, val intentNames: List<String>, val commandNames: List<String>, val skipGlobalIntents: Boolean, val transitions: Map<String, String>, val code: CharSequence = "") : Node
     data class Speech(val nodeId: Int, val nodeName: String, val repeatable: Boolean, val texts: List<String>) : Node
     data class Sound(val nodeId: Int, val nodeName: String, val source: String) : Node
     data class Image(val nodeId: Int, val nodeName: String, val source: String) : Node
     data class Function(val nodeId: Int, val nodeName: String, val transitions: Map<String, String>, val code: CharSequence) : Node
     data class SubDialogue(val nodeId: Int, val nodeName: String, val subDialogueName: String, val code: CharSequence = "") : Node
     data class GoBack(val nodeId: Int, val nodeName: String, val repeat: Boolean) : Node
+    data class Command(val nodeId: Int, val nodeName: String, val command: String) : Node
 
     fun addNode(node: UserInput) = userInputs.add(node)
     fun addNode(node: Intent) = intents.add(node)
@@ -110,6 +113,7 @@ class SourceCodeBuilder(val name: String, val buildId: String) {
     fun addNode(node: Function) = functions.add(node)
     fun addNode(node: SubDialogue) = subDialogues.add(node)
     fun addNode(node: GoBack) = goBacks.add(node)
+    fun addNode(node: Command) = commands.add(node)
     fun addTransition(transition: Pair<String, String>) = transitions.put(transition.first, transition.second)
 
     private fun writeHeader() {
@@ -207,13 +211,10 @@ class SourceCodeBuilder(val name: String, val buildId: String) {
     }
 
     private fun write(userInput: UserInput) = with(userInput) {
-        source.append("\tval $nodeName = UserInput($nodeId, $skipGlobalIntents, arrayOf(")
-        for (i in intentNames.indices) {
-            if (i > 0)
-                source.append(", ")
-            source.append(intentNames[i])
-        }
-        source.appendln(")) {")
+        val intents  = intentNames.joinToString(", ")
+        val commands = commandNames.joinToString(", ")
+
+        source.append("\tval $nodeName = UserInput($nodeId, $skipGlobalIntents, arrayOf($intents), arrayOf($commands) ) {")
         transitions.forEach { source.appendln("\t\tval ${it.key} = Transition(${it.value})") }
         source.appendln("//--code-start;type:userInput;name:$nodeName")
         if (code.isNotEmpty()) {
@@ -281,6 +282,9 @@ class SourceCodeBuilder(val name: String, val buildId: String) {
         source.appendln("//--code-end;type:subDialogue;name:$nodeName").appendln("\t}")
     }
 
+    private fun write(command: Command) = with(command) {
+        source.appendln("\tval $nodeName = Command($nodeId,\"$nodeName\", \"${this.command}\")")
+    }
     private fun writeTransitions() {
         source.appendln()
         source.appendln("\tinit {")

@@ -70,6 +70,8 @@ data class Input(
         return numbers
     }
 
+    var command: String? = null
+
     @get:JsonIgnore
     val entityMap: Map<String, List<Entity>> by lazy {
         val map = mutableMapOf<String, MutableList<Entity>>()
