@@ -6,7 +6,6 @@ import java.util.*
 import kotlin.reflect.full.memberProperties
 
 abstract class BasicCzechDialogue() : BasicDialogue() {
-    val gender by user { "male" }
 
     override fun evaluateTextTemplate(text: String) = evaluateGenderTags(super.evaluateTextTemplate(text))
 

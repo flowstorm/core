@@ -66,6 +66,9 @@ abstract class BasicDialogue : Dialogue() {
     var sessionSpeakingVolumeGain by session(clientNamespace) { 1.0 }
     var userSpeakingVolumeGain by user(clientNamespace) { 1.0 }
 
+    //user profile attrubutes
+    var gender by user("profile") { "male" }
+
     inline fun <reified V: Any> turn(namespace: String? = null, noinline default: (Context.() -> V)) =
             ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.Turn, V::class, { namespace ?: dialogueNameWithoutVersion }, default)
 
