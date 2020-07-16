@@ -98,9 +98,7 @@ class DialogueManager : Component {
 
                 when (node) {
                     is Dialogue.UserInput -> {
-                        if ((processedNodes[0] is Dialogue.StartDialogue && processedNodes[1] == node) ||
-                                processedNodes[0] == node
-                        ) {
+                        if (shouldProcessUserInput(processedNodes, node)) {
                             //first user input in turn
                             val irModels = getIntentModels(frame, context)
                             context.irModels = irModels
@@ -185,7 +183,16 @@ class DialogueManager : Component {
         }
     }
 
-    private fun logNodes(nodes: List<Dialogue.Node>, logger:Logger) {
+    private fun shouldProcessUserInput(processedNodes: MutableList<Dialogue.Node>, node: Dialogue.UserInput): Boolean =
+            when (processedNodes.size) {
+                // first user input in the turn
+                1 -> processedNodes[0] == node
+                // user input next to start node
+                2 -> (processedNodes[0] is Dialogue.StartDialogue && processedNodes[1] == node)
+                else -> false
+            }
+
+    private fun logNodes(nodes: List<Dialogue.Node>, logger: Logger) {
         if (nodes.isEmpty()) return
         var dialogueNodes: List<Dialogue.Node>
         var rest = nodes
