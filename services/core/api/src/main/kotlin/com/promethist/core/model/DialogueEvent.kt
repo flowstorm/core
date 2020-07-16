@@ -1,5 +1,6 @@
 package com.promethist.core.model
 
+import com.promethist.core.type.MutablePropertyMap
 import org.litote.kmongo.Id
 import org.litote.kmongo.newId
 import java.util.*
@@ -13,6 +14,7 @@ data class DialogueEvent(
         val applicationName: String,
         val dialogueName: String?,
         val nodeId: Int?,
+        val properties: MutablePropertyMap = mutableMapOf(),
         val text: String
 ) {
 

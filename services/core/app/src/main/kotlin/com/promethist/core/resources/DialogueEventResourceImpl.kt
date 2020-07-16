@@ -1,6 +1,8 @@
 package com.promethist.core.resources
 
 import com.mongodb.client.MongoDatabase
+import com.mongodb.client.model.Filters
+import com.promethist.common.query.MongoFiltersFactory
 import com.promethist.common.query.Query
 import com.promethist.core.model.DialogueEvent
 import com.promethist.core.model.Session
@@ -35,7 +37,14 @@ class DialogueEventResourceImpl: DialogueEventResource {
             }
 
             add(sort(descending(DialogueEvent::datetime, DialogueEvent::_id)))
+            add(match(*MongoFiltersFactory.createFilters(Session::class, query, includeSeek = false).toTypedArray()))
+
         }
+
+        query.filters.firstOrNull { it.name.startsWith("properties.") && it.operator == Query.Operator.eq }?.let {
+            pipeline.add(match(Filters.eq(it.name, it.value)))
+        }
+
         pipeline.add(limit(query.limit))
         return dialogueEvents.aggregate(pipeline).toMutableList()
     }

@@ -24,7 +24,7 @@ abstract class BasicEnglishDialogue() : BasicDialogue() {
     val _basicLogApplicationErrorUserInputTransition = Transition(_basicLogApplicationErrorResponse2)
     val _basicLogApplicationErrorUserInput = UserInput(basicId++, arrayOf()) {
         val transition = Transition(_basicLogApplicationErrorResponse2)
-        dialogueEvent = DialogueEvent(datetime = Date(), type = DialogueEvent.Type.UserError, user = user, sessionId = session.sessionId, applicationName = application.name, dialogueName = application.dialogueName, nodeId = turn.endFrame?.nodeId, text = input.transcript.text)
+        dialogueEvent = DialogueEvent(datetime = Date(), type = DialogueEvent.Type.UserError, user = user, sessionId = session.sessionId, properties = context.session.properties, applicationName = application.name, dialogueName = application.dialogueName, nodeId = turn.endFrame?.nodeId, text = input.transcript.text)
         transition
     }
 
@@ -34,7 +34,7 @@ abstract class BasicEnglishDialogue() : BasicDialogue() {
     val _basicLogApplicationCommentUserInputTransition = Transition(_basicLogApplicationCommentResponse2)
     val _basicLogApplicationCommentUserInput = UserInput(basicId++, arrayOf()) {
         val transition = Transition(_basicLogApplicationCommentResponse2)
-        dialogueEvent = DialogueEvent(datetime = Date(), type = DialogueEvent.Type.UserComment, user = user, sessionId = session.sessionId, applicationName = application.name, dialogueName = application.dialogueName, nodeId = turn.endFrame?.nodeId, text = input.transcript.text)
+        dialogueEvent = DialogueEvent(datetime = Date(), type = DialogueEvent.Type.UserComment, user = user, sessionId = session.sessionId, properties = context.session.properties, applicationName = application.name, dialogueName = application.dialogueName, nodeId = turn.endFrame?.nodeId, text = input.transcript.text)
         transition
     }
 
