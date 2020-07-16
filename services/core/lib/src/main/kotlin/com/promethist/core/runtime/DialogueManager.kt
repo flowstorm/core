@@ -64,6 +64,17 @@ class DialogueManager : Component {
         }
     }
 
+    private fun getCommandFrame(frame: Frame, context: Context): Frame {
+        val node = getNode(frame, context) as Dialogue.UserInput
+        val dialogue = dialogueFactory.get(frame)
+
+        val commands = node.commands + dialogue.globalCommands
+
+        return commands.firstOrNull { it.command == context.input.command }?.let {
+            frame.copy(nodeId = it.id)
+        } ?: error("Command ${context.input.command} not found in dialogue.")
+    }
+
     private fun getNode(frame: Frame, context: Context): Dialogue.Node =
             dialogueFactory.get(frame).apply { context.locale = locale }.node(frame.nodeId)
 
@@ -100,7 +111,12 @@ class DialogueManager : Component {
                             } else {
                                 // intent recognition
                                 processPipeline()
-                                getIntentFrame(irModels, frame, context)
+
+                                if (context.input.command != null) {
+                                    getCommandFrame(frame, context)
+                                } else {
+                                    getIntentFrame(irModels, frame, context)
+                                }
                             }
                         } else {
                             //last user input in turn
@@ -154,7 +170,7 @@ class DialogueManager : Component {
                                     turn.addResponseItem(text, image = node.image, audio = node.audio, video = node.video, repeatable = node.isRepeatable)
                                 }
                             }
-                            is Dialogue.GlobalIntent -> {
+                            is Dialogue.GlobalIntent, is Dialogue.GlobalCommand -> {
                                 session.dialogueStack.push(session.turns.last().endFrame)
                             }
                         }

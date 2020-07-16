@@ -49,6 +49,8 @@ class Application : JerseyApplication() {
                         .queryParam("key", AppConfig.instance["illusionist.apiKey"])
                 bind(illusionist).to(Component::class.java).named("illusionist")
 
+                bind(Command::class.java).to(Component::class.java).named("commandResolver")
+
                 // DM component (third - dialog user input decides whether to process the rest of pipeline or not)
                 val dialogueFactory = DialogueFactory(FileResourceLoader(filestore, "dialogue",
                         AppConfig.instance.get("loader.noCache", "false") == "true",
