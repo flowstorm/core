@@ -3,6 +3,7 @@ package com.promethist.core.dialogue
 import com.promethist.core.Context
 import com.promethist.core.dialogue.metric.MetricDelegate
 import com.promethist.core.model.metrics.Metric
+import com.promethist.core.type.Attributes
 import com.promethist.core.type.DEFAULT_LOCATION
 import io.mockk.every
 import io.mockk.mockkClass
@@ -22,9 +23,11 @@ open class DialogueTest {
     val metrics = mutableListOf<Metric>()
     val dialogue = TestDialogue()
     val context = mockkClass(Context::class)
+    var attributes = Attributes()
 
     init {
         every { context.session.metrics } returns metrics
+        every { context.session.attributes } returns attributes
         mockkObject(Dialogue)
         every { Dialogue.codeRun } returns Dialogue.CodeRun(dialogue.response1, context)
         every { context.turn.input.zoneId } returns ZoneId.of("Europe/Paris")
