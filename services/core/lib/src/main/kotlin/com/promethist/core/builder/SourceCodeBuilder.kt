@@ -61,6 +61,7 @@ class SourceCodeBuilder(val name: String, val buildId: String) {
         globalIntents.forEach { write(it) }
         intents.forEach { write(it) }
         commands.forEach { write(it) }
+        globalCommands.forEach { write(it) }
         userInputs.forEach { write(it) }
         speeches.forEach { write(it) }
         images.forEach { write(it) }
@@ -89,6 +90,7 @@ class SourceCodeBuilder(val name: String, val buildId: String) {
     private val subDialogues = mutableListOf<SubDialogue>()
     private val goBacks = mutableListOf<GoBack>()
     private val commands = mutableListOf<Command>()
+    private val globalCommands = mutableListOf<GlobalCommand>()
     private val transitions = mutableMapOf<String, String>()
 
     interface Node
@@ -103,6 +105,7 @@ class SourceCodeBuilder(val name: String, val buildId: String) {
     data class SubDialogue(val nodeId: Int, val nodeName: String, val subDialogueName: String, val code: CharSequence = "") : Node
     data class GoBack(val nodeId: Int, val nodeName: String, val repeat: Boolean) : Node
     data class Command(val nodeId: Int, val nodeName: String, val command: String) : Node
+    data class GlobalCommand(val nodeId: Int, val nodeName: String, val command: String) : Node
 
     fun addNode(node: UserInput) = userInputs.add(node)
     fun addNode(node: Intent) = intents.add(node)
@@ -114,6 +117,7 @@ class SourceCodeBuilder(val name: String, val buildId: String) {
     fun addNode(node: SubDialogue) = subDialogues.add(node)
     fun addNode(node: GoBack) = goBacks.add(node)
     fun addNode(node: Command) = commands.add(node)
+    fun addNode(node: GlobalCommand) = globalCommands.add(node)
     fun addTransition(transition: Pair<String, String>) = transitions.put(transition.first, transition.second)
 
     private fun writeHeader() {
@@ -285,6 +289,11 @@ class SourceCodeBuilder(val name: String, val buildId: String) {
     private fun write(command: Command) = with(command) {
         source.appendln("\tval $nodeName = Command($nodeId,\"$nodeName\", \"${this.command}\")")
     }
+
+    private fun write(command: GlobalCommand) = with(command) {
+        source.appendln("\tval $nodeName = GlobalCommand($nodeId,\"$nodeName\", \"${this.command}\")")
+    }
+
     private fun writeTransitions() {
         source.appendln()
         source.appendln("\tinit {")

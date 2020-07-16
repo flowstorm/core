@@ -100,11 +100,19 @@ abstract class Dialogue {
         constructor(id: Int, name: String, vararg utterance: String) : this(id, name, 0.0F, *utterance)
     }
 
-    inner class Command(
+    open inner class Command(
             override val id: Int,
-            val name: String,
-            val command: String
+            open val name: String,
+            open val command: String
     ): TransitNode(id) {
+        constructor(name: String, command: String) : this(nextId--, name, command)
+    }
+
+    inner class GlobalCommand(
+            override val id: Int,
+            override val name: String,
+            override val command: String
+    ): Command(id, name, command) {
         constructor(name: String, command: String) : this(nextId--, name, command)
     }
 
@@ -176,6 +184,8 @@ abstract class Dialogue {
     val globalIntents: List<GlobalIntent> get() = nodes.filterIsInstance<GlobalIntent>()
 
     val commands: List<Command> get() = nodes.filterIsInstance<Command>()
+
+    val globalCommands: List<GlobalCommand> get() = nodes.filterIsInstance<GlobalCommand>()
 
     val userInputs: List<UserInput> get() = nodes.filterIsInstance<UserInput>()
 
