@@ -169,7 +169,8 @@ class DialogueManager : Component {
                                 }
                             }
                             is Dialogue.GlobalIntent, is Dialogue.GlobalCommand -> {
-                                session.dialogueStack.push(session.turns.last().endFrame)
+                                if (session.turns.isNotEmpty()) //it is empty only when GlobalIntent/Command is reached in first turn(UInput right after start)
+                                    session.dialogueStack.push(session.turns.last().endFrame)
                             }
                         }
                         frame = frame.copy(nodeId = node.next.id)
