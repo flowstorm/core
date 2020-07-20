@@ -5,13 +5,13 @@ import com.promethist.core.type.*
 
 class ParkopediaApi(dialogue: BasicDialogue) : DialogueApi(dialogue) {
 
-    private fun withCustom(data: Dynamic): DynamicMutableList {
-        val list = DynamicMutableList(data)
+    private fun withCustom(data: List<Dynamic>): DynamicMutableList {
+        val dynamicList = DynamicMutableList(data)
         val custom = dialogue.context.session.attributes["parkopedia"]["parking"]
         if (custom != null) {
-            (custom as MemoryMutableList<Dynamic>).forEach { list.add(it.value) }
+            (custom as MemoryMutableList<Dynamic>).forEach { dynamicList.add(it.value) }
         }
-        return list
+        return dynamicList
     }
 
     fun addMockedData(vararg data: Dynamic) = with(dialogue) {
@@ -19,8 +19,10 @@ class ParkopediaApi(dialogue: BasicDialogue) : DialogueApi(dialogue) {
         context.session.attributes["parkopedia"].put("parking", Memorable.pack(memoryList))
     }
 
-    fun nearParking(milesRadius: Int = 20, additionalParameters: Map<String, Any> = mapOf()): DynamicMutableList =
-            withCustom(load("/test/parkopedia/rawMunich.json"))
+    fun nearParking(milesRadius: Int = 20, additionalParameters: Map<String, Any> = mapOf()): DynamicMutableList {
+        var samples = (load<Dynamic>("/test/parkopedia/rawMunich.json")("locations.all") as Iterable<PropertyMap>).map { Dynamic(it["properties"] as PropertyMap) }
+        return withCustom(samples)
+    }
 
 }
 

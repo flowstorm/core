@@ -25,7 +25,7 @@ internal class ParkopediaApiTest : DialogueTest() {
                     "price" to 5
             )
             parkopedia.addMockedData(record1)
-            assertEquals(parkopedia.nearParking()[1], record1)
+            assertEquals(parkopedia.nearParking()[200], record1)
         }
     }
 }
