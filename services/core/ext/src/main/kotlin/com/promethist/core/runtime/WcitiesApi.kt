@@ -1,7 +1,6 @@
 package com.promethist.core.runtime
 
 import com.promethist.core.dialogue.BasicDialogue
-import com.promethist.core.dialogue.Dialogue
 import com.promethist.core.type.*
 import javax.ws.rs.client.WebTarget
 
