@@ -72,7 +72,7 @@ class DialogueManager : Component {
 
         return commands.firstOrNull { it.command == context.input.command }?.let {
             frame.copy(nodeId = it.id)
-        } ?: error("Command ${context.input.command} not found in dialogue.")
+        } ?: error("Action ${context.input.command} not found in dialogue.")
     }
 
     private fun getNode(frame: Frame, context: Context): Dialogue.Node =
