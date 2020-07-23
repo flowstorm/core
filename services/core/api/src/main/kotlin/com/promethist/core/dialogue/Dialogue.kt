@@ -231,6 +231,8 @@ abstract class Dialogue {
 
     companion object {
 
+        const val GENERATED_USER_INPUT_ID = 10000
+
         val clientNamespace = "client"
 
         private val _run = ThreadLocal<Run>()

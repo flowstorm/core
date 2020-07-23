@@ -114,7 +114,17 @@ class CoreResourceImpl : CoreResource {
                 messages.add(c::class.simpleName + ":" + c.message?:"")
                 c = c.cause
             }
-            context.dialogueEvent = DialogueEvent(datetime = Date(), type = DialogueEvent.Type.ServerError, user = context.user, sessionId = context.session.sessionId, properties = context.session.properties, applicationName = context.application.name, dialogueName = context.application.dialogueName, nodeId = context.turn.endFrame?.nodeId, text = messages.joinToString(" \nCAUSED BY: "))
+            context.dialogueEvent = DialogueEvent(
+                    datetime = Date(),
+                    type = DialogueEvent.Type.ServerError,
+                    user = context.user,
+                    sessionId = context.session.sessionId,
+                    properties = context.session.properties,
+                    applicationName = context.application.name,
+                    dialogueName = context.application.dialogueName,
+                    //TODO Replace with actual node ID after node sequence is added in Context
+                    nodeId = 0,
+                    text = messages.joinToString(" \nCAUSED BY: "))
             throw e
         } finally {
             if (context.dialogueEvent != null) dialogueEventResource.create(context.dialogueEvent!!)
