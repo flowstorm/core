@@ -64,22 +64,23 @@ class DialogueManager : Component {
         }
     }
 
-    private fun getCommandFrame(frame: Frame, context: Context): Frame {
+    private fun getActionFrame(frame: Frame, context: Context): Frame {
         val node = getNode(frame, context) as AbstractDialogue.UserInput
         val dialogue = dialogueFactory.get(frame)
 
-        val commands = node.commands + dialogue.globalCommands
-        commands.firstOrNull { it.command == context.input.command }?.let {
+        val actions = node.actions + dialogue.globalActions
+        val commands = node.actions + dialogue.globalActions
+        commands.firstOrNull { it.action == context.input.action }?.let {
             return frame.copy(nodeId = it.id)
         }
 
         context.session.dialogueStack.distinctBy { it.id }.reversed().forEach { f ->
-            dialogueFactory.get(f).globalCommands.firstOrNull { it.command == context.input.command }?.let {
+            dialogueFactory.get(f).globalActions.firstOrNull { it.action == context.input.action }?.let {
                 return f.copy(nodeId = it.id)
             }
         }
 
-        error("Action ${context.input.command} not found in dialogue.")
+        error("Action ${context.input.action} not found in dialogue.")
     }
 
     private fun getNode(frame: Frame, context: Context): AbstractDialogue.Node =
@@ -117,8 +118,8 @@ class DialogueManager : Component {
                                 // intent recognition
                                 processPipeline()
 
-                                if (context.input.command != null) {
-                                    getCommandFrame(frame, context)
+                                if (context.input.action != null) {
+                                    getActionFrame(frame, context)
                                 } else {
                                     getIntentFrame(intentModels, frame, context)
                                 }
@@ -184,8 +185,8 @@ class DialogueManager : Component {
                                     turn.addResponseItem(text, image = node.image, audio = node.audio, video = node.video, repeatable = node.isRepeatable)
                                 }
                             }
-                            is AbstractDialogue.GlobalIntent, is AbstractDialogue.GlobalCommand -> {
-                                if (session.turns.isNotEmpty()) //it is empty only when GlobalIntent/Command is reached in first turn(UInput right after start)
+                            is AbstractDialogue.GlobalIntent, is AbstractDialogue.GlobalAction -> {
+                                if (session.turns.isNotEmpty()) //it is empty only when GlobalIntent/Action is reached in first turn(UInput right after start)
                                     session.dialogueStack.push(session.turns.last().endFrame)
                             }
                         }

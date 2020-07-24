@@ -61,19 +61,19 @@ abstract class AbstractDialogue : DialogueModel {
             override val id: Int,
             var skipGlobalIntents: Boolean,
             val intents: Array<Intent>,
-            val commands: Array<Command>,
+            val actions: Array<Action>,
             val lambda: (Context.(UserInput) -> Transition?)
     ): Node(id) {
 
-        constructor(id: Int, intents: Array<Intent>, commands: Array<Command>, lambda: (Context.(UserInput) -> Transition?)) :
-                this(id, false, intents, commands, lambda)
+        constructor(id: Int, intents: Array<Intent>, actions: Array<Action>, lambda: (Context.(UserInput) -> Transition?)) :
+                this(id, false, intents, actions, lambda)
 
-        constructor(intents: Array<Intent>, commands: Array<Command>, lambda: (Context.(UserInput) -> Transition?)) :
-                this(nextId--, false, intents, commands, lambda)
+        constructor(intents: Array<Intent>, actions: Array<Action>, lambda: (Context.(UserInput) -> Transition?)) :
+                this(nextId--, false, intents, actions, lambda)
 
         fun process(context: Context): Transition? {
             val transition = run(context, this) { lambda(context, this) } as Transition?
-            if (transition == null && intents.isEmpty() && commands.isEmpty()) throw DialogueScriptException(this, Exception("Can not pass processing to pipeline, there are no intents or commands following the user input node."))
+            if (transition == null && intents.isEmpty() && actions.isEmpty()) throw DialogueScriptException(this, Exception("Can not pass processing to pipeline, there are no intents or actions following the user input node."))
 
             return transition
         }
@@ -100,20 +100,20 @@ abstract class AbstractDialogue : DialogueModel {
         constructor(id: Int, name: String, vararg utterance: String) : this(id, name, 0.0F, *utterance)
     }
 
-    open inner class Command(
+    open inner class Action(
             override val id: Int,
             open val name: String,
-            open val command: String
+            open val action: String
     ): TransitNode(id) {
-        constructor(name: String, command: String) : this(nextId--, name, command)
+        constructor(name: String, action: String) : this(nextId--, name, action)
     }
 
-    inner class GlobalCommand(
+    inner class GlobalAction(
             override val id: Int,
             override val name: String,
-            override val command: String
-    ): Command(id, name, command) {
-        constructor(name: String, command: String) : this(nextId--, name, command)
+            override val action: String
+    ): Action(id, name, action) {
+        constructor(name: String, action: String) : this(nextId--, name, action)
     }
 
     open inner class Response(
@@ -182,9 +182,9 @@ abstract class AbstractDialogue : DialogueModel {
 
     val globalIntents: List<GlobalIntent> get() = nodes.filterIsInstance<GlobalIntent>()
 
-    val commands: List<Command> get() = nodes.filterIsInstance<Command>()
+    val actions: List<Action> get() = nodes.filterIsInstance<Action>()
 
-    val globalCommands: List<GlobalCommand> get() = nodes.filterIsInstance<GlobalCommand>()
+    val globalActions: List<GlobalAction> get() = nodes.filterIsInstance<GlobalAction>()
 
     val userInputs: List<UserInput> get() = nodes.filterIsInstance<UserInput>()
 

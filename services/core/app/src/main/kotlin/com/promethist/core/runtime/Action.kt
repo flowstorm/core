@@ -3,14 +3,14 @@ package com.promethist.core.runtime
 import com.promethist.core.Component
 import com.promethist.core.Context
 
-class Command : Component {
+class Action : Component {
     override fun process(context: Context): Context {
         var text = context.input.transcript.text
 
         if (text == "\$intro") text = "#intro" //backward compatibility
 
-        if (text.matches("$COMMAND_PREFIX([\\w\\-]+)".toRegex())) {
-            context.input.command  = text.substringAfter(COMMAND_PREFIX)
+        if (text.matches("$ACTION_PREFIX([\\w\\-]+)".toRegex())) {
+            context.input.action  = text.substringAfter(ACTION_PREFIX)
             return context //do not process the rest of pipeline
         }
 
@@ -18,6 +18,6 @@ class Command : Component {
     }
 
     companion object {
-        const val COMMAND_PREFIX = "#"
+        const val ACTION_PREFIX = "#"
     }
 }

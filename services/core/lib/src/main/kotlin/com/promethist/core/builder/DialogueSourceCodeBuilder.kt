@@ -59,8 +59,8 @@ class DialogueSourceCodeBuilder(val dialogueId: String, val buildId: String, val
         goBacks.forEach { write(it) }
         globalIntents.forEach { write(it) }
         intents.forEach { write(it) }
-        commands.forEach { write(it) }
-        globalCommands.forEach { write(it) }
+        actions.forEach { write(it) }
+        globalActions.forEach { write(it) }
         userInputs.forEach { write(it) }
         speeches.forEach { write(it) }
         images.forEach { write(it) }
@@ -88,23 +88,23 @@ class DialogueSourceCodeBuilder(val dialogueId: String, val buildId: String, val
     private val functions = mutableListOf<Function>()
     private val subDialogues = mutableListOf<SubDialogue>()
     private val goBacks = mutableListOf<GoBack>()
-    private val commands = mutableListOf<Command>()
-    private val globalCommands = mutableListOf<GlobalCommand>()
+    private val actions = mutableListOf<Action>()
+    private val globalActions = mutableListOf<GlobalAction>()
     private val transitions = mutableMapOf<String, String>()
 
     interface Node
 
     data class Intent(val nodeId: Int, val nodeName: String, val threshold: Float, val utterances: List<String>) : Node
     data class GlobalIntent(val nodeId: Int, val nodeName: String, val threshold: Float, val utterances: List<String>) : Node
-    data class UserInput(val nodeId: Int, val nodeName: String, val intentNames: List<String>, val commandNames: List<String>, val skipGlobalIntents: Boolean, val transitions: Map<String, String>, val code: CharSequence = "") : Node
+    data class UserInput(val nodeId: Int, val nodeName: String, val intentNames: List<String>, val actionNames: List<String>, val skipGlobalIntents: Boolean, val transitions: Map<String, String>, val code: CharSequence = "") : Node
     data class Speech(val nodeId: Int, val nodeName: String, val repeatable: Boolean, val texts: List<String>) : Node
     data class Sound(val nodeId: Int, val nodeName: String, val source: String) : Node
     data class Image(val nodeId: Int, val nodeName: String, val source: String) : Node
     data class Function(val nodeId: Int, val nodeName: String, val transitions: Map<String, String>, val code: CharSequence) : Node
     data class SubDialogue(val nodeId: Int, val nodeName: String, val subDialogueId: String, val code: CharSequence = "") : Node
     data class GoBack(val nodeId: Int, val nodeName: String, val repeat: Boolean) : Node
-    data class Command(val nodeId: Int, val nodeName: String, val command: String) : Node
-    data class GlobalCommand(val nodeId: Int, val nodeName: String, val command: String) : Node
+    data class Action(val nodeId: Int, val nodeName: String, val action: String) : Node
+    data class GlobalAction(val nodeId: Int, val nodeName: String, val action: String) : Node
 
     fun addNode(node: UserInput) = userInputs.add(node)
     fun addNode(node: Intent) = intents.add(node)
@@ -115,8 +115,8 @@ class DialogueSourceCodeBuilder(val dialogueId: String, val buildId: String, val
     fun addNode(node: Function) = functions.add(node)
     fun addNode(node: SubDialogue) = subDialogues.add(node)
     fun addNode(node: GoBack) = goBacks.add(node)
-    fun addNode(node: Command) = commands.add(node)
-    fun addNode(node: GlobalCommand) = globalCommands.add(node)
+    fun addNode(node: Action) = actions.add(node)
+    fun addNode(node: GlobalAction) = globalActions.add(node)
     fun addTransition(transition: Pair<String, String>) = transitions.put(transition.first, transition.second)
 
     private fun writeHeader() {
@@ -216,9 +216,9 @@ class DialogueSourceCodeBuilder(val dialogueId: String, val buildId: String, val
 
     private fun write(userInput: UserInput) = with(userInput) {
         val intents  = intentNames.joinToString(", ")
-        val commands = commandNames.joinToString(", ")
+        val actions = actionNames.joinToString(", ")
 
-        source.append("\tval $nodeName = UserInput($nodeId, $skipGlobalIntents, arrayOf($intents), arrayOf($commands) ) {")
+        source.append("\tval $nodeName = UserInput($nodeId, $skipGlobalIntents, arrayOf($intents), arrayOf($actions) ) {")
         transitions.forEach { source.appendln("\t\tval ${it.key} = Transition(${it.value})") }
         source.appendln("//--code-start;type:userInput;name:$nodeName")
         if (code.isNotEmpty()) {
@@ -286,12 +286,12 @@ class DialogueSourceCodeBuilder(val dialogueId: String, val buildId: String, val
         source.appendln("//--code-end;type:subDialogue;name:$nodeName").appendln("\t}")
     }
 
-    private fun write(command: Command) = with(command) {
-        source.appendln("\tval $nodeName = Command($nodeId,\"$nodeName\", \"${this.command}\")")
+    private fun write(action: Action) = with(action) {
+        source.appendln("\tval $nodeName = Action($nodeId,\"$nodeName\", \"${this.action}\")")
     }
 
-    private fun write(command: GlobalCommand) = with(command) {
-        source.appendln("\tval $nodeName = GlobalCommand($nodeId,\"$nodeName\", \"${this.command}\")")
+    private fun write(action: GlobalAction) = with(action) {
+        source.appendln("\tval $nodeName = GlobalAction($nodeId,\"$nodeName\", \"${this.action}\")")
     }
 
     private fun writeTransitions() {
