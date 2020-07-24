@@ -75,6 +75,9 @@ abstract class BasicDialogue : Dialogue() {
     inline fun <reified V: Any> session(namespace: String? = null, noinline default: (Context.() -> V)) =
             ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.Session, V::class, { namespace ?: dialogueNameWithoutVersion }, default)
 
+    inline fun <reified V: Any> client(noinline default: (Context.() -> V)) =
+            ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.Session, V::class, { clientNamespace }, default)
+
     inline fun <reified V: Any> user(namespace: String? = null, noinline default: (Context.() -> V)) =
             ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.User, V::class, { namespace ?: dialogueNameWithoutVersion }, default)
 
