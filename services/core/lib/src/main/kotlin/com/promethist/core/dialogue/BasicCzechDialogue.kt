@@ -9,13 +9,13 @@ abstract class BasicCzechDialogue() : BasicDialogue() {
 
     override fun evaluateTextTemplate(text: String) = evaluateGenderTags(super.evaluateTextTemplate(text))
 
-    private fun evaluateGenderTags(text: String) = if (gender == "male")  {
-            text.replace("@", "")
-        } else {
+    private fun evaluateGenderTags(text: String) = if (gender == "female")  {
             text.replace("l@", "la")
                     .replace("sám@", "sama")
                     .replace("ý@", "á")
                     .replace("@", "a")
+        } else {
+            text.replace("@", "")
         }
 
 

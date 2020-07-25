@@ -30,7 +30,7 @@ abstract class BasicDialogue : Dialogue() {
         val api = Api()
     }
 
-    val now: DateTime get() = DateTime.now(codeRun.context.turn.input.zoneId)
+    val now: DateTime get() = DateTime.now(run.context.turn.input.zoneId)
     val today get() = now.date
     val tomorrow get() = today + 1.day
     val yesterday get() = today - 1.day
@@ -44,16 +44,16 @@ abstract class BasicDialogue : Dialogue() {
             this + range.first.day <= today && today < this + range.last.day + 1.day
     infix fun DateTime.isDay(day: Int) = this isDay day..day
 
-    // client request attributes
     override var clientLocation by session(clientNamespace) { Location() }
     var clientType by session(clientNamespace) { "unknown" }
     var clientScreen by session(clientNamespace) { false }
     var clientTemperature by session(clientNamespace) { -273.15 }
     var clientAmbientLight by session(clientNamespace) { 0.0 }
     var clientSpatialMotion by session(clientNamespace) { 0.0 }
-    var nickname by user(clientNamespace) { user.nickname }
 
-    // client response attributes
+    var nickname by user(clientNamespace, true) { user.nickname }
+    var gender by user(clientNamespace) { "" }
+
     var turnSpeakingRate by turn(clientNamespace) { 1.0 }
     var sessionSpeakingRate by session(clientNamespace) { 1.0 }
     var userSpeakingRate by user(clientNamespace) { 1.0 }
@@ -66,9 +66,6 @@ abstract class BasicDialogue : Dialogue() {
     var sessionSpeakingVolumeGain by session(clientNamespace) { 1.0 }
     var userSpeakingVolumeGain by user(clientNamespace) { 1.0 }
 
-    //user profile attrubutes
-    var gender by user("profile") { "male" }
-
     inline fun <reified V: Any> turn(namespace: String? = null, noinline default: (Context.() -> V)) =
             ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.Turn, V::class, { namespace ?: dialogueNameWithoutVersion }, default)
 
@@ -78,11 +75,15 @@ abstract class BasicDialogue : Dialogue() {
     inline fun <reified V: Any> client(noinline default: (Context.() -> V)) =
             ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.Session, V::class, { clientNamespace }, default)
 
-    inline fun <reified V: Any> user(namespace: String? = null, noinline default: (Context.() -> V)) =
-            ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.User, V::class, { namespace ?: dialogueNameWithoutVersion }, default)
+    inline fun <reified V: Any> user(namespace: String? = null, localize: Boolean = false, noinline default: (Context.() -> V)) =
+            ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.User, V::class, {
+                (namespace ?: dialogueNameWithoutVersion) + (if (localize) "/$language" else "")
+            }, default)
 
-    inline fun <reified V: Any> community(communityName: String, namespace: String? = null, noinline default: (Context.() -> V)) =
-            CommunityAttributeDelegate(V::class, communityName, { namespace?:dialogueNameWithoutVersion }, default)
+    inline fun <reified V: Any> community(communityName: String, namespace: String? = null, localize: Boolean = false, noinline default: (Context.() -> V)) =
+            CommunityAttributeDelegate(V::class, communityName, {
+                (namespace ?: dialogueNameWithoutVersion) + (if (localize) "/$language" else "")
+            }, default)
 
     inline fun sessionSequence(list: List<String>, namespace: String? = null, noinline nextValue: (SequenceAttribute<String, String>.() -> String?) = { nextRandom() }) =
             StringSequenceAttributeDelegate(list, ContextualAttributeDelegate.Scope.Session, { namespace ?: dialogueNameWithoutVersion }, nextValue)
@@ -216,10 +217,10 @@ abstract class BasicDialogue : Dialogue() {
     }
 
     fun communityAttributes(communityName: String) =
-            codeRun.context.communityResource.get(communityName)?.attributes ?: Dynamic.EMPTY
+            run.context.communityResource.get(communityName)?.attributes ?: Dynamic.EMPTY
 
     fun addResponseItem(text: String?, image: String? = null, audio: String? = null, video: String? = null, repeatable: Boolean = true) =
-            codeRun.context.turn.addResponseItem(text?.let { evaluateTextTemplate(it) }, image, audio, video, repeatable, voice)
+            run.context.turn.addResponseItem(text?.let { evaluateTextTemplate(it) }, image, audio, video, repeatable, voice)
 
     /**
      * evaluate # in response text

@@ -29,7 +29,7 @@ open class DialogueTest {
         every { context.session.metrics } returns metrics
         every { context.session.attributes } returns attributes
         mockkObject(Dialogue)
-        every { Dialogue.codeRun } returns Dialogue.CodeRun(dialogue.response1, context)
+        every { Dialogue.run } returns Dialogue.Run(dialogue.response1, context)
         every { context.turn.input.zoneId } returns ZoneId.of("Europe/Paris")
     }
 }

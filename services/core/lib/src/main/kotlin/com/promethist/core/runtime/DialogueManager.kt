@@ -161,7 +161,7 @@ class DialogueManager : Component {
                             is Dialogue.Response -> {
                                 val text = node.getText(context)
                                 if (node.dialogue is BasicDialogue) {
-                                    Dialogue.codeRun(context, node) {
+                                    Dialogue.run(context, node) {
                                         (node.dialogue as BasicDialogue).addResponseItem(text, image = node.image, audio = node.audio, video = node.video, repeatable = node.isRepeatable)
                                     }
                                 } else {

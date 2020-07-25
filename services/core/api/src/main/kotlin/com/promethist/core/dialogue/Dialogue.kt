@@ -26,7 +26,7 @@ abstract class Dialogue {
 
     //runtime dependencies
     lateinit var loader: Loader
-    val logger get() = codeRun.context.logger
+    val logger get() = run.context.logger
 
     val nodes: MutableSet<Node> = mutableSetOf()
     var nextId: Int = 0
@@ -72,7 +72,7 @@ abstract class Dialogue {
                 this(nextId--, false, intents, commands, lambda)
 
         fun process(context: Context): Transition? {
-            val transition = codeRun(context, this) { lambda(context, this) } as Transition?
+            val transition = run(context, this) { lambda(context, this) } as Transition?
             if (transition == null && intents.isEmpty() && commands.isEmpty()) throw DialogueScriptException(this, Exception("Can not pass processing to pipeline, there are no intents or commands following the user input node."))
 
             return transition
@@ -132,7 +132,7 @@ abstract class Dialogue {
 
         constructor(vararg text: (Context.(Response) -> String)) : this(nextId--, true, *text)
 
-        fun getText(context: Context, index: Int = -1) = codeRun(context, this) {
+        fun getText(context: Context, index: Int = -1) = run(context, this) {
             if (texts.isNotEmpty()) texts[if (index < 0) Random.nextInt(texts.size) else index](context, this) else null
         } as String?
     }
@@ -146,7 +146,7 @@ abstract class Dialogue {
     ): Node(id) {
         constructor(lambda: (Context.(Function) -> Transition)) : this(nextId--, lambda)
         fun exec(context: Context): Transition =
-                codeRun(context, this) { lambda(context, this) } as Transition
+                run(context, this) { lambda(context, this) } as Transition
     }
 
     inner class SubDialogue(
@@ -155,7 +155,7 @@ abstract class Dialogue {
             val lambda: Context.(SubDialogue) -> PropertyMap): TransitNode(id) {
 
         fun getConstructorArgs(context: Context): PropertyMap =
-                codeRun(context, this) { lambda(context, this) } as PropertyMap
+                run(context, this) { lambda(context, this) } as PropertyMap
 
         fun create(vararg args: Pair<String, Any>): PropertyMap = args.toMap()
     }
@@ -195,7 +195,7 @@ abstract class Dialogue {
 
     val subDialogues: List<SubDialogue> get() = nodes.filterIsInstance<SubDialogue>()
 
-    val context get() = codeRun.context
+    val context get() = run.context
 
     fun inContext(block: Context.() -> Any) = block(context)
 
@@ -225,7 +225,7 @@ abstract class Dialogue {
         return sb.toString()
     }
 
-    class CodeRun(val node: Node, val context: Context)
+    class Run(val node: Node, val context: Context)
 
     class DialogueScriptException(node: Node, cause: Throwable) : Throwable("DialogueScript failed at ${node.dialogue.dialogueName}#${node.id}", cause)
 
@@ -233,20 +233,20 @@ abstract class Dialogue {
 
         val clientNamespace = "client"
 
-        private val run = ThreadLocal<CodeRun>()
+        private val _run = ThreadLocal<Run>()
 
-        val isCodeRunning get() = (run.get() != null)
+        val isRunning get() = (_run.get() != null)
 
-        val codeRun get() = run.get() ?: error("dialogue code not running")
+        val run get() = _run.get() ?: error("dialogue code not running")
 
-        fun codeRun(context: Context, node: Node, block: () -> Any?): Any? =
+        fun run(context: Context, node: Node, block: () -> Any?): Any? =
             try {
-                run.set(CodeRun(node, context))
+                _run.set(Run(node, context))
                 block()
             } catch (e: Throwable) {
                 throw DialogueScriptException(node, e)
             } finally {
-                run.remove()
+                _run.remove()
             }
     }
 }

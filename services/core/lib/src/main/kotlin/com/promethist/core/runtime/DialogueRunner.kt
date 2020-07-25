@@ -25,7 +25,7 @@ class DialogueRunner(
 
         lateinit var models: Map<IrModel, Map<Int, List<String>>>
 
-        override fun process(context: Context): Context = Dialogue.codeRun.let {
+        override fun process(context: Context): Context = Dialogue.run.let {
             if (!this::models.isInitialized) {
                 initModels(it.node.dialogue)
             }
