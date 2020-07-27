@@ -69,10 +69,17 @@ class DialogueManager : Component {
         val dialogue = dialogueFactory.get(frame)
 
         val commands = node.commands + dialogue.globalCommands
+        commands.firstOrNull { it.command == context.input.command }?.let {
+            return frame.copy(nodeId = it.id)
+        }
 
-        return commands.firstOrNull { it.command == context.input.command }?.let {
-            frame.copy(nodeId = it.id)
-        } ?: error("Action ${context.input.command} not found in dialogue.")
+        context.session.dialogueStack.distinctBy { it.name }.reversed().forEach { f ->
+            dialogueFactory.get(f).globalCommands.firstOrNull { it.command == context.input.command }?.let {
+                return f.copy(nodeId = it.id)
+            }
+        }
+
+        error("Action ${context.input.command} not found in dialogue.")
     }
 
     private fun getNode(frame: Frame, context: Context): Dialogue.Node =
