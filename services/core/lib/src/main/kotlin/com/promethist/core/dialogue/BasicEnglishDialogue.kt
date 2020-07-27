@@ -25,15 +25,7 @@ abstract class BasicEnglishDialogue() : BasicDialogue() {
     val _basicLogApplicationErrorResponse2 = Response(basicId++, false, {"Thanks. Let's get back."})
     val _basicLogApplicationErrorUserInput = UserInput(basicId++, arrayOf(), arrayOf()) {
         val transition = Transition(_basicLogApplicationErrorResponse2)
-        dialogueEvent = DialogueEvent(datetime = Date(),
-                type = DialogueEvent.Type.UserError,
-                user = user,
-                sessionId = session.sessionId,
-                properties = context.session.properties,
-                applicationName = application.name,
-                dialogueName = application.dialogueName,
-                nodeId = if (session.dialogueStack.last().nodeId < GENERATED_USER_INPUT_ID) session.dialogueStack.last().nodeId else nodes.filter { it is TransitNode && it.next.id == session.dialogueStack.last().nodeId}.last().id,
-                text = input.transcript.text)
+        dialogueEvent = DialogueEvent(this, this@BasicEnglishDialogue, DialogueEvent.Type.UserError, input.transcript.text)
         transition
     }
 
@@ -42,16 +34,7 @@ abstract class BasicEnglishDialogue() : BasicDialogue() {
     val _basicLogApplicationCommentResponse2 = Response(basicId++, false, {"Thanks. Let's get back"})
     val _basicLogApplicationCommentUserInput = UserInput(basicId++, arrayOf(), arrayOf()) {
         val transition = Transition(_basicLogApplicationCommentResponse2)
-        dialogueEvent = DialogueEvent(
-                datetime = Date(),
-                type = DialogueEvent.Type.UserComment,
-                user = user,
-                sessionId = session.sessionId,
-                properties = context.session.properties,
-                applicationName = application.name,
-                dialogueName = application.dialogueName,
-                nodeId = if (session.dialogueStack.last().nodeId < GENERATED_USER_INPUT_ID) session.dialogueStack.last().nodeId else nodes.filter { it is TransitNode && it.next.id == session.dialogueStack.last().nodeId}.last().id,
-                text = input.transcript.text)
+        dialogueEvent = DialogueEvent(this, this@BasicEnglishDialogue, DialogueEvent.Type.UserComment, input.transcript.text)
         transition
     }
 
