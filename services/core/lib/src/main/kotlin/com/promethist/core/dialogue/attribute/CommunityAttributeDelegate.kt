@@ -4,6 +4,7 @@ import com.promethist.core.Context
 import com.promethist.core.dialogue.Dialogue
 import com.promethist.core.model.Community
 import kotlin.reflect.KClass
+import kotlin.reflect.KProperty
 
 class CommunityAttributeDelegate<V: Any>(
         clazz: KClass<*>,
@@ -19,4 +20,9 @@ class CommunityAttributeDelegate<V: Any>(
     }
 
     override val attributes get() = community.attributes
+
+    override fun setValue(thisRef: Dialogue, property: KProperty<*>, any: V) {
+        super.setValue(thisRef, property, any)
+        Dialogue.run.context.communityResource.update(community)
+    }
 }
