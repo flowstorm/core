@@ -31,7 +31,7 @@ class ContextFactory {
                 pipeline,
                 profile,
                 session.apply {
-                    with (attributes[Dialogue.clientNamespace]) {
+                    with (attributes[Dialogue.defaultNamespace]) {
                         request.attributes.forEach {
                             put(it.key, Memory(when (it.key) {
                                 "clientLocation" ->

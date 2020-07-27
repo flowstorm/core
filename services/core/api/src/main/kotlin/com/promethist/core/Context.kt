@@ -13,6 +13,7 @@ data class Context(
         val logger: Logger,
         var locale: Locale? = null,
         val communityResource: CommunityResource,
+        val communityToUpdate: MutableList<Community> = mutableListOf(),
         var irModels: List<IrModel> = listOf(),
         var dialogueEvent: DialogueEvent? = null
 ) {
