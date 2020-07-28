@@ -6,6 +6,9 @@ import com.promethist.core.resources.CommunityResource
 class SimpleCommunityResource : CommunityResource {
 
     private val communities = mutableMapOf<String, Community>()
+    override fun getCommunities(): List<Community> {
+        return communities.values.toMutableList()
+    }
 
     override fun get(communityName: String): Community? = communities[communityName]
 

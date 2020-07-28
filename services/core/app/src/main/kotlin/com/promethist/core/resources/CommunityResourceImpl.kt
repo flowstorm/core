@@ -11,6 +11,9 @@ class CommunityResourceImpl : CommunityResource {
     lateinit var database: MongoDatabase
 
     private val communities by lazy { database.getCollection<Community>() }
+    override fun getCommunities(): List<Community> {
+        return communities.find().toMutableList()
+    }
 
     override fun get(communityName: String): Community? {
         return communities.find(Community::name eq communityName).singleOrNull()
