@@ -2,23 +2,19 @@ package com.promethist.core.dialogue
 
 import com.promethist.common.AppConfig
 import com.promethist.core.model.DialogueEvent
-import java.util.*
-import kotlin.reflect.full.memberProperties
 
 abstract class BasicCzechDialogue() : BasicDialogue() {
 
-    override fun evaluateTextTemplate(text: String) = evaluateGenderTags(super.evaluateTextTemplate(text))
-
-    private fun evaluateGenderTags(text: String) = if (gender == "female")  {
-            text.replace("l@", "la")
-                    .replace("sám@", "sama")
-                    .replace("ý@", "á")
-                    .replace("@", "a")
+    override fun evaluateTextTemplate(text: String) = super.evaluateTextTemplate(text).run {
+        if (gender == "female") {
+            replace("l@", "la").
+            replace("sám@", "sama").
+            replace("ý@", "á").
+            replace("@", "a")
         } else {
-            text.replace("@", "")
+            replace("@", "")
         }
-
-
+    }
 
     var basicId = 1
     //Nodes
