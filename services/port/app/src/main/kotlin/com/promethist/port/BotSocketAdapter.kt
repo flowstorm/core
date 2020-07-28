@@ -238,6 +238,14 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                 }
                 it.groupValues[2]
             }
+
+            // set style by <voice> tag
+            var ttsStyle = ""
+            item.ssml = item.ssml?.replace(Regex("<voice.*?style=\"(.*?)\">(.*)</voice>")) {
+                ttsStyle = it.groupValues[1]
+                it.groupValues[2]
+            }
+
             if (item.audio == null && !item.text.isNullOrBlank()) {
                 val ttsRequest =
                     TtsRequest(
@@ -254,7 +262,8 @@ class BotSocketAdapter : BotSocket, WebSocketAdapter() {
                                 else -> ""
                             }
                         },
-                        item.ssml != null
+                        item.ssml != null,
+                        ttsStyle
                     ).apply {
                         with(response) {
                             if (attributes.containsKey("speakingRate"))
