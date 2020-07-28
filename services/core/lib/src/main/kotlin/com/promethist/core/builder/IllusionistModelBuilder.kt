@@ -35,6 +35,6 @@ class IllusionistModelBuilder(val apiUrl: String, val apiKey: String) : IntentMo
         } catch (e: WebApplicationException) {
             RestClient.call<Any>(url, "PUT", output = output)
         }
-        logger.info("built illusionist model (name=$name, id=$modelId)")
+        logger.info("built model (name=$name, id=$modelId)")
     }
 }
