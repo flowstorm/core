@@ -12,18 +12,18 @@ val BasicDialogue.vocatives: Map<String, Map<String, String>> by lazy {
 
 fun BasicDialogue.vocative(name: String): String =
         when (language) {
-            "cs" -> vocatives["cs"]!![name] ?: name.replace(Regex("a$"), "o")
-                    .replace(Regex("(?<=[cai]el)$"), "i")
-                    .replace(Regex("něk$"), "ňku")
-                    .replace(Regex("el$"), "le")
-                    .replace(Regex("ek$"), "ku")
-                    .replace(Regex("ec$"), "če")
-                    .replace(Regex("(?<=[td])r$"), "ře")
-                    .replace(Regex("(?<=[šjxcsz])$"), "i")
-                    .replace(Regex("(?<=[kh])$"), "u")
-                    .replace(Regex("(?<=[nvdrlmft])$"), "e")
-                    .replace(Regex("(?<=[gkh])$"), "u")
-                    .replace(Regex("(?<=[ei]us)$"), "e")
+            "cs" -> vocatives["cs"]!![name] ?: name.replace(Regex("a\\b"), "o")
+                    .replace(Regex("(?<=[cai]el)\\b"), "i")
+                    .replace(Regex("něk\\b"), "ňku")
+                    .replace(Regex("el\\b"), "le")
+                    .replace(Regex("ek\\b"), "ku")
+                    .replace(Regex("ec\\b"), "če")
+                    .replace(Regex("(?<=[td])r\\b"), "ře")
+                    .replace(Regex("(?<=[šjxcsz])\\b"), "i")
+                    .replace(Regex("(?<=[kh])\\b"), "u")
+                    .replace(Regex("(?<=[nvdrlmft])\\b"), "e")
+                    .replace(Regex("(?<=[gkh])\\b"), "u")
+                    .replace(Regex("(?<=[ei]us)\\b"), "e")
             else -> name
         }
 
