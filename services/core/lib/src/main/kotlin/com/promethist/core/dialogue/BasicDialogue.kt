@@ -13,6 +13,7 @@ import java.io.File
 import java.io.FileInputStream
 import java.net.URL
 import java.time.Duration
+import kotlin.random.Random
 import kotlin.reflect.full.memberProperties
 
 abstract class BasicDialogue : Dialogue() {
@@ -28,6 +29,8 @@ abstract class BasicDialogue : Dialogue() {
         @Deprecated("Use pass instead, toIntent will be removed")
         val toIntent = pass
         val api = Api()
+
+        private val expander = ExampleExpander()
     }
 
     val now: DateTime get() = DateTime.now(run.context.turn.input.zoneId)
@@ -225,24 +228,27 @@ abstract class BasicDialogue : Dialogue() {
     /**
      * evaluate # in response text
      */
-    open fun evaluateTextTemplate(text: String) = enumerate(text).replace(Regex("#([\\w\\.\\d]+)")) {
-        if (enumContains<ClientCommand>(it.groupValues[1])) {
-            "#" + it.groupValues[1]
-        } else {
-            var obj: Any? = this
-            var point = false
-            for (name in it.groupValues[1].split(".")) {
-                if (name.isBlank()) {
-                    point = true
-                    break
-                } else {
-                    val prop = obj!!.javaClass.kotlin.memberProperties.firstOrNull { it.name == name }
-                    obj = prop?.call(obj)
-                    if (obj == null)
+    open fun evaluateTextTemplate(text: String) = expander.expand(text).run {
+        enumerate(this[Random.nextInt(size)]).
+        replace(Regex("#([\\w\\.\\d]+)")) {
+            if (enumContains<ClientCommand>(it.groupValues[1])) {
+                "#" + it.groupValues[1]
+            } else {
+                var obj: Any? = this
+                var point = false
+                for (name in it.groupValues[1].split(".")) {
+                    if (name.isBlank()) {
+                        point = true
                         break
+                    } else {
+                        val prop = obj!!.javaClass.kotlin.memberProperties.firstOrNull { it.name == name }
+                        obj = prop?.call(obj)
+                        if (obj == null)
+                            break
+                    }
                 }
+                describe(obj) + (if (point) "." else "")
             }
-            describe(obj) + (if (point) "." else "")
         }
     }
 
