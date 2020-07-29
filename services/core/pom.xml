@@ -22,7 +22,6 @@
     <modules>
         <module>api</module>
         <module>lib</module>
-        <module>ext</module>
         <module>app</module>
     </modules>
 

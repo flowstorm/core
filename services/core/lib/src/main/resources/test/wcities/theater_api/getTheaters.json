@@ -1,0 +1,36 @@
+{
+  "wcitiesmovies": {
+    "copyright": "Copyright 2012 Wcities",
+    "theater": {
+      "details": {
+        "id": "344243",
+        "eds_choice": "0",
+        "category": {
+          "catname": "Movie Theater",
+          "id": "80"
+        },
+        "name": "Kennedy Centre Cineplex",
+        "short_desc": "Movies and More",
+        "long_desc": "This cinema has multiple screens for your viewing pleasure. For a more enjoyable experience, sit back and relax with popcorn and a soda from the refreshment stand. Call for film schedule, ticket prices and further information.",
+        "address": {
+          "address1": "Falls Road",
+          "address2": "Kennedy Centre",
+          "city": "Belfast",
+          "country": "United Kingdom",
+          "zip": "BT11 9AE",
+          "latitude": "54.58076500",
+          "longitude": "-5.97834200"
+        },
+        "phone": "+44 28 9060 0988",
+        "credit_card": [
+          {
+            "name": "visa"
+          },
+          {
+            "name": "mastercard"
+          }
+        ]
+      }
+    }
+  }
+}

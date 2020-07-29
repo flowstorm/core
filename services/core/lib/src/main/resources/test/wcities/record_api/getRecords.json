@@ -1,0 +1,55 @@
+{
+  "records": {
+    "limit": "10",
+    "total": "4802",
+    "copyright": "Copyright 2012 Wcities",
+    "record": {
+      "details": {
+        "id": "90",
+        "eds_choice": "1",
+        "category": [
+          {
+            "cat": "5",
+            "id": "136",
+            "catname": "Attractions"
+          },
+          {
+            "cat": "6",
+            "sub": "166",
+            "id": "1152",
+            "catname": "Fine Art"
+          }
+        ],
+        "name": "National Gallery",
+        "short_desc": "An Art Haven",
+        "long_desc": "The National Gallery is a magnificent Georgian edifice, on the northern side of Trafalgar Square, and houses a massive collection of Western European Art. Works by Leonardo Da Vinci can be found in the Sainsbury wing of the gallery, alongside Botticelli and Bellini. Titian, Michelangelo and Raphael can be found in the West Wing. Other artists featured here include Rubens, Rembrandt and Caravaggio Canaletto, Degas and Monet. A portable CD guide is available in several languages.",
+        "address": {
+          "address1": "Trafalgar Square",
+          "city": "London",
+          "country": {
+            "name": "United Kingdom",
+            "iso3": "GBR"
+          },
+          "zip": "WC2N 5DN",
+          "latitude": "51.50783040",
+          "longitude": "-0.12881940"
+        },
+        "neighborhood": "Westminster/ St James",
+        "phone": "+44 20 7747 2885",
+        "fax": "+44 20 7747 2423",
+        "email": "information@ng-london.org.uk",
+        "url": "http://www.nationalgallery.org.uk",
+        "open_hours": "Sa to Th from 10:00 AM to 06:00 PM,Fr from 10:00 AM to 09:00 PM",
+        "imagefile": "90-1.jpg",
+        "nearest_train": "Charing Cross",
+        "disabled_access": "1",
+        "rating": "4",
+        "popularity": "123"
+      },
+      "comments": {
+        "user": "Robert",
+        "comment": "Great place and it free. I am not a big fan of paintings, but my wife is, so we went. Some great works of art are in this building and its all free. The only painting I knew of and wanted to see was \"SunFlowers\". Even I knew of this painting and I know nothing about art. We follow the map into the room where this masterpiece is kept. I walk up to area it is kept and look up at empty wall, with a small sign saying it was on tour. The gift shop had sun flowers everywhere, so that is where I had to see it. Maybe next time I will catch it. So if your are interest in only seeing a a certain painting, I would call ahead and see if it is there. Since it was free it was no big deal, but If I had to pay, it would have been a different story. Worth the free trip and it is right near the start of the walking tours offered by the Big Bus Company."
+      }
+    }
+  }
+}
