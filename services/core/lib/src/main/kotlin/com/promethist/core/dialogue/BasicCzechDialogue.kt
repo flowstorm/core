@@ -16,8 +16,8 @@ abstract class BasicCzechDialogue() : BasicDialogue() {
         }. //Automatic addition of <s> tags
         replace(Regex("^"), "<s>").
         replace(Regex("$"), "</s>").
-        replace(Regex("(?<=[\\!\\?])\\s+"), "<s> </s>").
-        replace(Regex("(?<=\\.)\\s+(?=[A-ZĚŠČŘŽÝÁÍÉÚŮŤĎŇ])"), "<s> </s>")
+        replace(Regex("(?<=[\\!\\?])\\s+"), "</s> <s>").
+        replace(Regex("(?<=\\.)\\s+(?=[A-ZĚŠČŘŽÝÁÍÉÚŮŤĎŇ])"), "</s> <s>")
     }
 
     var basicId = 1
