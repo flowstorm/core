@@ -6,14 +6,18 @@ import com.promethist.core.model.DialogueEvent
 abstract class BasicCzechDialogue() : BasicDialogue() {
 
     override fun evaluateTextTemplate(text: String) = super.evaluateTextTemplate(text).run {
-        if (gender == "female") {
+        if (gender == "female") { //Inflections based on User Gender
             replace("l@", "la").
             replace("sám@", "sama").
             replace("ý@", "á").
             replace("@", "a")
         } else {
             replace("@", "")
-        }
+        }. //Automatic addition of <s> tags
+        replace(Regex("^"), "<s>").
+        replace(Regex("$"), "</s>").
+        replace(Regex("(?<=[\\!\\?])\\s+"), "<s> </s>").
+        replace(Regex("(?<=\\.)\\s+(?=[A-ZĚŠČŘŽÝÁÍÉÚŮŤĎŇ])"), "<s> </s>")
     }
 
     var basicId = 1
