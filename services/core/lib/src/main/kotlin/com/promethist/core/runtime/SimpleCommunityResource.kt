@@ -10,6 +10,10 @@ class SimpleCommunityResource : CommunityResource {
         return communities.values.toMutableList()
     }
 
+    override fun getCommunitiesInOrganization(organizationId: String): List<Community> {
+        return communities.values.filter { it.organization_id == organizationId }
+    }
+
     override fun get(communityName: String): Community? = communities[communityName]
 
     override fun create(community: Community) {
