@@ -66,11 +66,6 @@
             <artifactId>aws-java-sdk-polly</artifactId>
             <version>${amazon.speech.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.microsoft.cognitiveservices.speech</groupId>
-            <artifactId>client-sdk</artifactId>
-            <version>1.12.1</version>
-        </dependency>
         <!-- Test dependencies -->
         <dependency>
             <groupId>org.assertj</groupId>

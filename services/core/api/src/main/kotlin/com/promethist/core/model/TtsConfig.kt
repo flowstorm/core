@@ -34,7 +34,7 @@ data class TtsConfig(
                 TtsConfig(Voice.Anthony, Provider.Amazon, en_US, Gender.Male,"Matthew"),
                 TtsConfig(Voice.Audrey, Provider.Amazon, en_US, Gender.Female,"Joanna"),
                 TtsConfig(Voice.Michael, Provider.Microsoft, en_US, Gender.Male, "en-US-GuyNeural"),
-                TtsConfig(Voice.Mary, Provider.Microsoft, en_US, Gender.Female, "en-US-JessaNeural"),
+                TtsConfig(Voice.Mary, Provider.Microsoft, en_US, Gender.Female, "en-US-AriaNeural"),
                 TtsConfig(Voice.Milan, Provider.Microsoft, cs_CZ, Gender.Male,"cs-CZ-Jakub"),
                 TtsConfig(Voice.Victor, Provider.Voicery, en_US, Gender.Male,"steven"),
                 TtsConfig(Voice.Victoria, Provider.Voicery, en_US, Gender.Female,"katie")
