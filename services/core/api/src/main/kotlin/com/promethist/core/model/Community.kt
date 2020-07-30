@@ -7,5 +7,6 @@ import org.litote.kmongo.newId
 data class Community(
         val _id: Id<Community> = newId(),
         val name: String,
+        val organization_id: String?,
         val attributes: Attributes = Attributes()
 )

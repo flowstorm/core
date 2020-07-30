@@ -14,6 +14,7 @@ object TtsServiceFactory {
             TtsConfig.Provider.Google -> GoogleTtsService
             TtsConfig.Provider.Amazon -> AmazonTtsService
             TtsConfig.Provider.Microsoft -> MicrosoftTtsService
+            TtsConfig.Provider.Voicery -> VoiceryTtsService
         }
 
     fun speak(request: TtsRequest): ByteArray {

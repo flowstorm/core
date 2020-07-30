@@ -72,18 +72,18 @@ class CoreResourceImpl : CoreResource {
                     with (processPipeline(context)) {
                         // client attributes
                         listOf("speakingRate", "speakingPitch", "speakingVolumeGain").forEach {
-                            if (!turn.attributes[Dialogue.clientNamespace].containsKey(it)) {
-                                val value = session.attributes[Dialogue.clientNamespace][it]
-                                        ?: userProfile.attributes[Dialogue.clientNamespace][it]
+                            if (!turn.attributes[Dialogue.defaultNamespace].containsKey(it)) {
+                                val value = session.attributes[Dialogue.defaultNamespace][it]
+                                        ?: userProfile.attributes[Dialogue.defaultNamespace][it]
                                 if (value != null)
-                                    turn.attributes[Dialogue.clientNamespace][it] = value
+                                    turn.attributes[Dialogue.defaultNamespace][it] = value
                             }
                         }
                         turn.responseItems.forEach {
                             it.voice = it.voice ?: session.application.voice ?: TtsConfig.defaultVoice(locale?.language ?: "en")
                         }
                         Response(context.locale, turn.responseItems, dialogueLog.log,
-                                turn.attributes[Dialogue.clientNamespace].map { it.key to (it.value as Memory<*>).value }.toMap().toMutableMap(),
+                                turn.attributes[Dialogue.defaultNamespace].map { it.key to (it.value as Memory<*>).value }.toMap().toMutableMap(),
                                 expectedPhrases, sessionEnded)
                     }
                 }
@@ -114,7 +114,17 @@ class CoreResourceImpl : CoreResource {
                 messages.add(c::class.simpleName + ":" + c.message?:"")
                 c = c.cause
             }
-            context.dialogueEvent = DialogueEvent(datetime = Date(), type = DialogueEvent.Type.ServerError, user = context.user, sessionId = context.session.sessionId, properties = context.session.properties, applicationName = context.application.name, dialogueName = context.application.dialogueName, nodeId = context.turn.endFrame?.nodeId, text = messages.joinToString(" \nCAUSED BY: "))
+            context.dialogueEvent = DialogueEvent(
+                    datetime = Date(),
+                    type = DialogueEvent.Type.ServerError,
+                    user = context.user,
+                    sessionId = context.session.sessionId,
+                    properties = context.session.properties,
+                    applicationName = context.application.name,
+                    dialogueName = context.application.dialogueName,
+                    //TODO Replace with actual node ID after node sequence is added in Context
+                    nodeId = 0,
+                    text = messages.joinToString(" \nCAUSED BY: "))
             throw e
         } finally {
             if (context.dialogueEvent != null) dialogueEventResource.create(context.dialogueEvent!!)

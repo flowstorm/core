@@ -231,7 +231,11 @@ abstract class Dialogue {
 
     companion object {
 
-        val clientNamespace = "client"
+        const val GENERATED_USER_INPUT_ID = 10000
+
+        val defaultNamespace: String = "_default"
+        @Deprecated("Use `defaultNamespace` instead of `clientNamespace`")
+        val clientNamespace = defaultNamespace
 
         private val _run = ThreadLocal<Run>()
 

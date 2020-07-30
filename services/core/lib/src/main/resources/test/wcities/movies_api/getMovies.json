@@ -1,0 +1,32 @@
+{
+  "wcitiesmovies": {
+    "copyright": "Copyright 2012 Wcities",
+    "movie": {
+      "id": "1347447",
+      "name": "I Am Number Four",
+      "plot": "Extraordinary John Smith is a fugitive on the run from ruthless enemies sent to destroy him. In the small Ohio town, John encounters unexpected, life-changing events-his first love, powerful new abilities and a connection to the others who share his incredible destiny.",
+      "movie_image": "http://img1.gomolo.in/images/movie/M_40823.jpg",
+      "directors": {
+        "director": "D.J. Caruso"
+      },
+      "actors": {
+        "actor": [
+          "Alex Pettyfer",
+          "Dianna Agron",
+          "Timothy Olyphant",
+          "Teresa Palmer"
+        ]
+      },
+      "theater": {
+        "id": "664432",
+        "name": "MovieTime: The Hub, Goregaon",
+        "times": {
+          "time": {
+            "showDate": "2012-02-25",
+            "showTime": "12:45"
+          }
+        }
+      }
+    }
+  }
+}

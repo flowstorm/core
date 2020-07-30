@@ -1,0 +1,29 @@
+{
+  "nearestCity": {
+    "country": {
+      "id": "2",
+      "name": "United States",
+      "iso2": "US",
+      "continent": {
+        "id": "2",
+        "name": "North America"
+      },
+      "currency": "USD",
+      "currencySymbol": "US $",
+      "dialCode": "1"
+    },
+    "city": {
+      "cityId": "193",
+      "cityName": "Tulsa",
+      "stateName": "Oklahoma",
+      "country": {
+        "name": "United States",
+        "iso2": "US"
+      },
+      "latitude": "36.133353615147",
+      "longitude": "-95.975659877241",
+      "utcOffset": "-05:00:00",
+      "distance": "141.08"
+    }
+  }
+}

@@ -24,7 +24,7 @@ abstract class AttributeDelegate<V: Any>(private val clazz: KClass<*>, val names
                 }
             } as V
 
-    operator fun setValue(thisRef: Dialogue, property: KProperty<*>, any: V) {
-        attributes[namespace?.invoke() ?: "default"][property.name] = Memorable.pack(any)
+    open operator fun setValue(thisRef: Dialogue, property: KProperty<*>, any: V) {
+        attributes[namespace?.invoke() ?: Dialogue.defaultNamespace][property.name] = Memorable.pack(any)
     }
 }

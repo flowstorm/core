@@ -13,8 +13,10 @@ class CommunityAttributeDelegate<V: Any>(
 ) : AttributeDelegate<V>(clazz, namespace, default) {
 
     private val community get() = with (Dialogue.run.context) {
-        communityResource.get(communityName) ?: Community(name = communityName).apply {
-            communityResource.create(this)
+        communities.getOrPut(communityName) {
+            communityResource.get(communityName) ?: Community(name = communityName, organization_id = session.properties["organization_id"] as String?).apply {
+                communityResource.create(this)
+            }
         }
     }
 

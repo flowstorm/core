@@ -13,6 +13,7 @@ import java.io.File
 import java.io.FileInputStream
 import java.net.URL
 import java.time.Duration
+import kotlin.random.Random
 import kotlin.reflect.full.memberProperties
 
 abstract class BasicDialogue : Dialogue() {
@@ -28,6 +29,8 @@ abstract class BasicDialogue : Dialogue() {
         @Deprecated("Use pass instead, toIntent will be removed")
         val toIntent = pass
         val api = Api()
+
+        private val expander = ExampleExpander()
     }
 
     val now: DateTime get() = DateTime.now(run.context.turn.input.zoneId)
@@ -44,27 +47,27 @@ abstract class BasicDialogue : Dialogue() {
             this + range.first.day <= today && today < this + range.last.day + 1.day
     infix fun DateTime.isDay(day: Int) = this isDay day..day
 
-    override var clientLocation by session(clientNamespace) { Location() }
-    var clientType by session(clientNamespace) { "unknown" }
-    var clientScreen by session(clientNamespace) { false }
-    var clientTemperature by session(clientNamespace) { -273.15 }
-    var clientAmbientLight by session(clientNamespace) { 0.0 }
-    var clientSpatialMotion by session(clientNamespace) { 0.0 }
+    override var clientLocation by session(defaultNamespace) { Location() }
+    var clientType by session(defaultNamespace) { "unknown" }
+    var clientScreen by session(defaultNamespace) { false }
+    var clientTemperature by session(defaultNamespace) { -273.15 }
+    var clientAmbientLight by session(defaultNamespace) { 0.0 }
+    var clientSpatialMotion by session(defaultNamespace) { 0.0 }
 
-    var nickname by user(clientNamespace, true) { user.nickname }
-    var gender by user(clientNamespace) { "" }
+    var nickname by user(defaultNamespace, true) { user.nickname }
+    var gender by user(defaultNamespace) { "" }
 
-    var turnSpeakingRate by turn(clientNamespace) { 1.0 }
-    var sessionSpeakingRate by session(clientNamespace) { 1.0 }
-    var userSpeakingRate by user(clientNamespace) { 1.0 }
+    var turnSpeakingRate by turn(defaultNamespace) { 1.0 }
+    var sessionSpeakingRate by session(defaultNamespace) { 1.0 }
+    var userSpeakingRate by user(defaultNamespace) { 1.0 }
 
-    var turnSpeakingPitch by turn(clientNamespace) { 0.0 }
-    var sessionSpeakingPitch by session(clientNamespace) { 0.0 }
-    var userSpeakingPitch by user(clientNamespace) { 0.0 }
+    var turnSpeakingPitch by turn(defaultNamespace) { 0.0 }
+    var sessionSpeakingPitch by session(defaultNamespace) { 0.0 }
+    var userSpeakingPitch by user(defaultNamespace) { 0.0 }
 
-    var turnSpeakingVolumeGain by turn(clientNamespace) { 1.0 }
-    var sessionSpeakingVolumeGain by session(clientNamespace) { 1.0 }
-    var userSpeakingVolumeGain by user(clientNamespace) { 1.0 }
+    var turnSpeakingVolumeGain by turn(defaultNamespace) { 1.0 }
+    var sessionSpeakingVolumeGain by session(defaultNamespace) { 1.0 }
+    var userSpeakingVolumeGain by user(defaultNamespace) { 1.0 }
 
     inline fun <reified V: Any> turn(namespace: String? = null, noinline default: (Context.() -> V)) =
             ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.Turn, V::class, { namespace ?: dialogueNameWithoutVersion }, default)
@@ -73,7 +76,7 @@ abstract class BasicDialogue : Dialogue() {
             ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.Session, V::class, { namespace ?: dialogueNameWithoutVersion }, default)
 
     inline fun <reified V: Any> client(noinline default: (Context.() -> V)) =
-            ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.Session, V::class, { clientNamespace }, default)
+            ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.Session, V::class, { defaultNamespace }, default)
 
     inline fun <reified V: Any> user(namespace: String? = null, localize: Boolean = false, noinline default: (Context.() -> V)) =
             ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.User, V::class, {
@@ -225,24 +228,27 @@ abstract class BasicDialogue : Dialogue() {
     /**
      * evaluate # in response text
      */
-    open fun evaluateTextTemplate(text: String) = enumerate(text).replace(Regex("#([\\w\\.\\d]+)")) {
-        if (enumContains<ClientCommand>(it.groupValues[1])) {
-            "#" + it.groupValues[1]
-        } else {
-            var obj: Any? = this
-            var point = false
-            for (name in it.groupValues[1].split(".")) {
-                if (name.isBlank()) {
-                    point = true
-                    break
-                } else {
-                    val prop = obj!!.javaClass.kotlin.memberProperties.firstOrNull { it.name == name }
-                    obj = prop?.call(obj)
-                    if (obj == null)
+    open fun evaluateTextTemplate(text: String) = expander.expand(text).run {
+        enumerate(this[Random.nextInt(size)]).
+        replace(Regex("#([\\w\\.\\d]+)")) {
+            if (enumContains<ClientCommand>(it.groupValues[1])) {
+                "#" + it.groupValues[1]
+            } else {
+                var obj: Any? = this
+                var point = false
+                for (name in it.groupValues[1].split(".")) {
+                    if (name.isBlank()) {
+                        point = true
                         break
+                    } else {
+                        val prop = obj!!.javaClass.kotlin.memberProperties.firstOrNull { it.name == name }
+                        obj = prop?.call(obj)
+                        if (obj == null)
+                            break
+                    }
                 }
+                describe(obj) + (if (point) "." else "")
             }
-            describe(obj) + (if (point) "." else "")
         }
     }
 

@@ -18,16 +18,18 @@ class DialogueRunner(
         val name: String,
         val properties: MutablePropertyMap = mutableMapOf(),
         val user: User = User(username = "tester@promethist.ai", name = "Tester", surname = "Tester", nickname = "Tester"),
-        val profile: Profile = Profile(user_id = user._id),
-        private val ir: Component = SimpleIntentRecognition()
+        val profile: Profile = Profile(user_id = user._id)
 ) : TextConsole() {
-    class SimpleIntentRecognition : Component {
+
+    private val ir: Component = SimpleIntentRecognition()
+
+    inner class SimpleIntentRecognition : Component {
 
         lateinit var models: Map<IrModel, Map<Int, List<String>>>
 
-        override fun process(context: Context): Context = Dialogue.run.let {
+        override fun process(context: Context): Context {
             if (!this::models.isInitialized) {
-                initModels(it.node.dialogue)
+                initModels(dmf.get(name, "", properties))
             }
 
             val text = context.input.transcript.text
@@ -84,8 +86,9 @@ class DialogueRunner(
     private val loader: Loader = FileResourceLoader(fileResource, "dialogue", useScript = true)
     private val logger by LoggerDelegate()
 
+    private val dmf = DialogueFactory(loader)
     private val dm = DialogueManager().apply {
-        dialogueFactory = DialogueFactory(loader)
+        dialogueFactory = dmf
     }
     private val app = Application(name = "test", dialogueName = name, voice = Voice.Grace, properties = properties)
     private val session = Session(sessionId = "T-E-S-T", user = user, application = app)
