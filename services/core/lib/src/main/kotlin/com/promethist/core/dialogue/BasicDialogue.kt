@@ -57,6 +57,8 @@ abstract class BasicDialogue : Dialogue() {
     var nickname by user(defaultNamespace, true) { user.nickname }
     var gender by user(defaultNamespace) { "" }
 
+    var dynamic by turn { Dynamic.EMPTY }
+
     var turnSpeakingRate by turn(defaultNamespace) { 1.0 }
     var sessionSpeakingRate by session(defaultNamespace) { 1.0 }
     var userSpeakingRate by user(defaultNamespace) { 1.0 }
@@ -68,6 +70,8 @@ abstract class BasicDialogue : Dialogue() {
     var turnSpeakingVolumeGain by turn(defaultNamespace) { 1.0 }
     var sessionSpeakingVolumeGain by session(defaultNamespace) { 1.0 }
     var userSpeakingVolumeGain by user(defaultNamespace) { 1.0 }
+
+    inline fun <reified V: Any> temp(noinline default: (Context.() -> V)? = null) = TempAttributeDelegate(default)
 
     inline fun <reified V: Any> turn(namespace: String? = null, noinline default: (Context.() -> V)) =
             ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.Turn, V::class, { namespace ?: dialogueNameWithoutVersion }, default)
