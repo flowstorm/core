@@ -33,8 +33,7 @@ abstract class Dialogue {
     var start = StartDialogue(nextId--)
     var goBack = GoBack(Int.MAX_VALUE)
 
-    @Deprecated("Use `goBack` instead of `stop`")
-    var stop = goBack
+    var stop = StopDialogue(Int.MAX_VALUE - 3)
     var stopSession = StopSession(Int.MAX_VALUE - 1)
     var repeat = Repeat(Int.MAX_VALUE - 2)
 
@@ -164,8 +163,7 @@ abstract class Dialogue {
 
     open inner class GoBack(override val id: Int, val repeat: Boolean = false) : Node(id)
 
-    @Deprecated("Use node GoBack instead of StopDialogue")
-    inner class StopDialogue(override val id: Int) : GoBack(id)
+    inner class StopDialogue(override val id: Int) : Node(id)
 
     inner class StopSession(override val id: Int) : Node(id)
 
