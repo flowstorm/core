@@ -238,7 +238,7 @@ abstract class BasicDialogue : Dialogue() {
             if (enumContains<ClientCommand>(it.groupValues[1])) {
                 "#" + it.groupValues[1]
             } else {
-                var obj: Any? = this
+                var obj: Any? = this@BasicDialogue
                 var point = false
                 for (name in it.groupValues[1].split(".")) {
                     if (name.isBlank()) {
