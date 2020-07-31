@@ -253,7 +253,23 @@ abstract class BasicDialogue : Dialogue() {
                 }
                 describe(obj) + (if (point) "." else "")
             }
-        }
+        }.
+        replace(Regex("\\s+"), " "). //replace multiple whitespaces with single
+        replace(Regex("\\s+(?=[.,;?!])"), ""). //Remove ws in front of punctuation
+        replace(Regex(",{2,}"), ","). //remove multiple commas in a row
+        replace(Regex("\\.{4,}"), "..."). //replace more then 3 dots
+        replace(Regex("(?<!\\.)\\.\\.(?!\\.)"), ".").  //remove double dots
+        replace(Regex("[.,;?!](?![.\\s])")) {
+            it.value+" "
+        }. //add space behind punctuation
+        trim().
+        replace(Regex("(?<=[\\!\\?]\\s).")) {
+            it.value.capitalize()
+        }. //capitalize after "!" and "?"
+        replace(Regex(",$"), "..."). //replace trailing comma with "..."
+        replace(Regex("(?<![,\\.\\!\\?])$"), "."). //add a "." when the text doesnt end with a mark
+        capitalize()
+
     }
 
     inline fun unsupportedLanguage(): Nothing {
