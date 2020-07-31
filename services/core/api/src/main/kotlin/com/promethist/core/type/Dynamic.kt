@@ -9,7 +9,7 @@ open class Dynamic : LinkedHashMap<String, Any>, MutablePropertyMap {
 
     constructor() : super()
     constructor(dynamic: Dynamic) : super(dynamic)
-    constructor(map: PropertyMap) { putAll(map) }
+    constructor(map: Map<String, Any?>) { putAll(map) }
     constructor(vararg pairs: Pair<String, Any>) { putAll(pairs) }
 
     data class Value<T: Any>(var value: T)
@@ -32,15 +32,23 @@ open class Dynamic : LinkedHashMap<String, Any>, MutablePropertyMap {
                 }
     }
 
-    override fun put(key: String, value: Any): Any? {
+    override fun put(key: String, value: Any) = put(key, value as Any?)
+
+    @JvmName("putNullable")
+    fun put(key: String, value: Any?): Any? {
         return if (value is Map<*, *> && value !is Dynamic) {
             super.put(key, Dynamic(value as PropertyMap))
+        } else if (value is List<*>) {
+            super.put(key, value.map { if (it is Map<*, *> && it !is Dynamic) Dynamic(it as Map<String, Any?>) else it })
         } else {
-            super.put(key, value)
+            super.put(key, value ?: EMPTY)
         }
     }
 
     override fun putAll(from: Map<out String, Any>) = from.forEach { put(it.key, it.value) }
+
+    @JvmName("putAllNullable")
+    fun putAll(from: Map<out String, Any?>) = from.forEach { put(it.key, it.value) }
 
     private fun item(key: String): Triple<Dynamic, String, Any?> {
         var obj = this
@@ -80,4 +88,10 @@ open class Dynamic : LinkedHashMap<String, Any>, MutablePropertyMap {
             put(key, V::class, null, eval)
 
     operator fun invoke(key: String): Any = item(key).third?:error("missing item $key")
+
+    override fun containsKey(key: String): Boolean {
+        return item(key).third != null
+    }
+
+    fun list(key: String) = invoke(key) as List<Dynamic>
 }
