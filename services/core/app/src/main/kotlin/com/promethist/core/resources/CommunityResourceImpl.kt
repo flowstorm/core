@@ -19,8 +19,8 @@ class CommunityResourceImpl : CommunityResource {
         return communities.find(Community::organization_id eq organizationId).toMutableList()
     }
 
-    override fun get(communityName: String): Community? {
-        return communities.find(Community::name eq communityName).singleOrNull()
+    override fun get(communityName: String, organizationId: String): Community? {
+        return communities.find(Community::name eq communityName, Community::organization_id eq organizationId).singleOrNull()
     }
 
     override fun create(community: Community) {

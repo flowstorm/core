@@ -14,7 +14,7 @@ class SimpleCommunityResource : CommunityResource {
         return communities.values.filter { it.organization_id == organizationId }
     }
 
-    override fun get(communityName: String): Community? = communities[communityName]
+    override fun get(communityName: String, organizationId: String): Community? = communities[communityName]
 
     override fun create(community: Community) {
         communities[community.name] = community

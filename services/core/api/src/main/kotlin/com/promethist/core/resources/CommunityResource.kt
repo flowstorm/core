@@ -23,9 +23,10 @@ interface CommunityResource {
     ): List<Community>
 
     @GET
-    @Path("/community/{communityName}")
+    @Path("/{organizationId}/community/{communityName}")
     fun get(
-            @ApiParam(required = true) @PathParam("communityName") communityName: String
+            @ApiParam(required = true) @PathParam("communityName") communityName: String,
+            @ApiParam(required = true) @PathParam("organizationId") organizationId: String
     ): Community?
 
     @POST

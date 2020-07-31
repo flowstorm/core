@@ -223,8 +223,9 @@ abstract class BasicDialogue : Dialogue() {
         }
     }
 
-    fun communityAttributes(communityName: String) =
-            run.context.communityResource.get(communityName)?.attributes ?: Dynamic.EMPTY
+//    This method was not used anywhere but it won't work since communityResource.get() requires organization ID which is not accessible in this class
+//    fun communityAttributes(communityName: String) =
+//            run.context.communityResource.get(communityName, null)?.attributes ?: Dynamic.EMPTY
 
     fun addResponseItem(text: String?, image: String? = null, audio: String? = null, video: String? = null, repeatable: Boolean = true) =
             run.context.turn.addResponseItem(text?.let { evaluateTextTemplate(it) }, image, audio, video, repeatable, voice)
