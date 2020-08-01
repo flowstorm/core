@@ -1,0 +1,140 @@
+package com.promethist.port.socket
+
+import ai.promethist.client.BotConfig
+import ai.promethist.client.BotEvent
+import com.fasterxml.jackson.annotation.JsonSubTypes
+import com.fasterxml.jackson.annotation.JsonTypeInfo
+import com.promethist.common.ObjectUtil.defaultMapper
+import com.promethist.core.Defaults
+import com.promethist.core.Input
+import com.promethist.port.stt.SttConfig
+import com.promethist.util.DataConverter
+import java.io.BufferedReader
+import java.io.File
+import java.io.InputStreamReader
+import java.util.*
+
+class BotCallSocketAdapter : AbstractBotSocketAdapter() {
+
+    data class Mark(val name: String)
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "event")
+    @JsonSubTypes(
+            JsonSubTypes.Type(value = InputMessage.Connected::class, name = "connected"),
+            JsonSubTypes.Type(value = InputMessage.Start::class, name = "start"),
+            JsonSubTypes.Type(value = InputMessage.Stop::class, name = "stop"),
+            JsonSubTypes.Type(value = InputMessage.Mark::class, name = "mark"),
+            JsonSubTypes.Type(value = InputMessage.Media::class, name = "media")
+    )
+    open class InputMessage {
+        data class Connected(val protocol: String, val version: String) : InputMessage()
+        data class Start(val sequenceNumber: String, val start: Start, val streamSid: String) : InputMessage() {
+            data class MediaFormat(val encoding: String, val sampleRate: Int, val channels: Int)
+            data class Start(val accountSid: String, val streamSid: String, val callSid: String, val tracks: List<String>, val customParameters: Map<String, String>, val mediaFormat: MediaFormat)
+        }
+        data class Stop(val sequenceNumber: String) : InputMessage()
+        data class Mark(val sequenceNumber: String, val mark: BotCallSocketAdapter.Mark) : InputMessage()
+        data class Media(val sequenceNumber: String, val media: Media, val streamSid: String) : InputMessage() {
+            data class Media(val track: String, val chunk: String, val timestamp: String, val payload: String) {
+                val payloadBytes: ByteArray get() = Base64.getDecoder().decode(payload)
+            }
+        }
+    }
+
+    open class OutputMessage(val event: String) {
+        data class Media(val streamSid: String, val media: Media) : OutputMessage("media") {
+            class Media(bytes: ByteArray) {
+                val payload = Base64.getEncoder().encodeToString(bytes)
+            }
+        }
+        data class Clear(val streamSid: String) : OutputMessage("clear")
+        data class Mark(val streamSid: String, val mark: BotCallSocketAdapter.Mark) : OutputMessage("mark")
+    }
+
+    override lateinit var appKey: String
+    override lateinit var sender: String
+    override var token: String? = null
+    override var config = BotConfig(Defaults.locale, Defaults.zoneId, true, 8000, BotConfig.TtsType.RequiredStreaming)
+    private val sttConfig = SttConfig(config.locale, config.zoneId, config.sttSampleRate, SttConfig.Encoding.MULAW)
+    private val workDir = File(System.getProperty("java.io.tmpdir"))
+
+    private fun sendMessage(message: OutputMessage) = remote.sendString(defaultMapper.writeValueAsString(message))
+
+    override fun sendEvent(event: BotEvent) {
+        logger.info("call event $event")
+        when (event) {
+            is BotEvent.SessionEnded -> {
+                val mark = OutputMessage.Mark(sessionId!!, Mark("Sleeping"))
+                sendMessage(mark)
+            }
+            is BotEvent.Recognized -> {
+                sendMessage(OutputMessage.Clear(sessionId!!))
+                if (!isRecognitionStarted)
+                    startRecognition(sttConfig)
+            }
+        }
+    }
+
+    override fun sendAudioData(data: ByteArray, count: Int?) {
+        val payload = getMulawData(data)
+        val message = OutputMessage.Media(sessionId!!, OutputMessage.Media.Media(payload))
+        logger.info("call media ${data.size} (MP3) > ${payload.size} (MULAW) bytes")
+        sendMessage(message)
+    }
+
+    override fun onWebSocketText(json: String?) {
+        when (val message = defaultMapper.readValue(json, InputMessage::class.java)) {
+            is InputMessage.Start -> {
+                sessionId = message.streamSid
+                message.start.customParameters.let {
+                    sender = it["sender"] ?: "anonymous"
+                    appKey = it["appKey"] ?: "promethist"
+                    if (it.containsKey("locale"))
+                        config.locale = Locale.forLanguageTag(it["locale"])
+                    //TODO zoneId from zip/city/state/country
+                }
+                logger.info("call from $sender")
+                onRequest(createRequest(Input(transcript = Input.Transcript("#intro"))))
+                startRecognition(sttConfig)
+            }
+            is InputMessage.Stop -> {
+                session.close()
+            }
+            is InputMessage.Mark -> {
+                if (message.mark.name == "Sleeping")
+                    session.close()
+            }
+            is InputMessage.Media -> {
+                if (isRecognitionStarted) {
+                    val payload = message.media.payloadBytes
+                    onInputAudio(payload, 0, payload.size)
+                }
+            }
+        }
+    }
+
+    private fun getMulawData(data: ByteArray): ByteArray {
+        val code = DataConverter.digest(data)
+        val mulawFile = File(workDir, "$code.mulaw")
+        if (!mulawFile.exists()) {
+            logger.info("generating MULAW $code")
+            val mp3File = File(workDir, "$code.mp3")
+            mp3File.writeBytes(data)
+            ProcessBuilder(
+                    "/usr/local/bin/ffmpeg", "-y", "-i", mp3File.absolutePath,
+                    "-codec:a", "pcm_mulaw", "-ar", "8k", "-ac", "1",
+                    "-f", "mulaw", mulawFile.absolutePath
+            ).apply {
+                redirectErrorStream(true)
+                val buf = StringBuilder()
+                val proc = start()
+                val input = BufferedReader(InputStreamReader(proc.inputStream))
+                while (true)
+                    buf.appendln(input.readLine() ?: break)
+                if (proc.waitFor() != 0)
+                    error(buf)
+            }
+        }
+        return mulawFile.readBytes()
+    }
+}

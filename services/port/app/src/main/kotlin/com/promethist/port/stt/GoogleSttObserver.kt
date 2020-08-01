@@ -16,7 +16,7 @@ class GoogleSttObserver(private val callback: SttCallback, private val locale: L
     }
 
     override fun onResponse(response: StreamingRecognizeResponse?) {
-        println("onResponse: $response")
+        //println("onResponse: $response")
         if (response == null || response.resultsList == null)
             return
         responses.add(response)

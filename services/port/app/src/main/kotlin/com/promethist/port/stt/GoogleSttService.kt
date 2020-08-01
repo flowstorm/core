@@ -6,26 +6,29 @@ import com.google.cloud.speech.v1.SpeechContext
 import com.promethist.core.ExpectedPhrase
 import java.util.concurrent.TimeUnit
 
-class GoogleSttService(config: SttConfig, callback: SttCallback, expectedPhrases: List<ExpectedPhrase>) : SttService {
+class GoogleSttService(private val callback: SttCallback) : SttService {
 
     private val client = SpeechClient.create()
-    private val responseObserver = GoogleSttObserver(callback, config.locale, config.zoneId)
-    private val recognitionConfig = RecognitionConfig.newBuilder()
-            .setEncoding(RecognitionConfig.AudioEncoding.LINEAR16)
-            .setLanguageCode(config.locale.language)
-            .setSampleRateHertz(config.sampleRate)
-            .setMaxAlternatives(5)
-            .setEnableWordTimeOffsets(true)
-            .addSpeechContexts(SpeechContext.newBuilder()
-                    .addAllPhrases(expectedPhrases.map { it.text })
-                    .build())
-            .buildPartial()
-    //		            .setModel("default")
-    //		            .build();
 
-    override fun createStream(): GoogleSttStream {
-        val clientStream = client.streamingRecognizeCallable().splitCall(responseObserver)
-        return GoogleSttStream.create(clientStream, recognitionConfig)
+    override fun createStream(config: SttConfig, expectedPhrases: List<ExpectedPhrase>): GoogleSttStream {
+        val recognitionConfig = RecognitionConfig.newBuilder()
+                .setEncoding(when (config.encoding) {
+                    SttConfig.Encoding.MULAW -> RecognitionConfig.AudioEncoding.MULAW
+                    else -> RecognitionConfig.AudioEncoding.LINEAR16
+                })
+                .setLanguageCode(config.locale.language)
+                .setSampleRateHertz(config.sampleRate)
+                .setMaxAlternatives(5)
+                .setEnableWordTimeOffsets(true)
+                .addSpeechContexts(SpeechContext.newBuilder()
+                        .addAllPhrases(expectedPhrases.map { it.text })
+                        .build())
+                .buildPartial()
+        //		            .setModel("default")
+        //		            .build();
+        val observer = GoogleSttObserver(callback, config.locale, config.zoneId)
+        val stream = client.streamingRecognizeCallable().splitCall(observer)
+        return GoogleSttStream.create(stream, recognitionConfig)
     }
 
     override fun close() {

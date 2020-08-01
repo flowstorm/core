@@ -33,13 +33,18 @@ abstract class InjectableWebSocketServlet<T> : WebSocketServlet() {
     fun configure(factory: WebSocketServletFactory, adapterClass: Class<T>) {
         configure(factory, adapterClass, object : DependencyInjector<T> {
             override fun inject(webSocket: T) {
-                for (field in adapterClass.declaredFields) {
-                    if (field.isAnnotationPresent(Inject::class.java)) {
-                        field.set(webSocket, JerseyApplication.instance[field.type])
-                    }
-                }
+                inject(webSocket, adapterClass)
             }
         })
     }
 
+    fun <T> inject(obj: T, type: Class<T>) {
+        for (field in type.declaredFields) {
+            if (field.isAnnotationPresent(Inject::class.java)) {
+                field.set(obj, JerseyApplication.instance[field.type])
+            }
+        }
+        if (type.superclass != null)
+            inject(obj, type.superclass)
+    }
 }

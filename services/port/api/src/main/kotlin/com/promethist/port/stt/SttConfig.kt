@@ -5,4 +5,6 @@ import java.time.ZoneId
 import java.util.*
 
 // todo remove lang
-data class SttConfig(val locale: Locale, val zoneId: ZoneId, val sampleRate: Int = 0): Serializable
+data class SttConfig(val locale: Locale, val zoneId: ZoneId, val sampleRate: Int = 0, val encoding: Encoding = Encoding.LINEAR16): Serializable {
+    enum class Encoding { LINEAR16, MULAW }
+}
