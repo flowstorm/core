@@ -253,7 +253,7 @@ abstract class BasicDialogue : Dialogue() {
                 }
                 describe(obj) + (if (point) "." else "")
             }
-        }.
+        }/*.
         replace(Regex("\\s+"), " "). //replace multiple whitespaces with single
         replace(Regex("\\s+(?=[.,;?!])"), ""). //Remove ws in front of punctuation
         replace(Regex(",{2,}"), ","). //remove multiple commas in a row
@@ -268,7 +268,7 @@ abstract class BasicDialogue : Dialogue() {
         }. //capitalize after "!" and "?"
         replace(Regex(",$"), "..."). //replace trailing comma with "..."
         replace(Regex("(?<![,\\.\\!\\?])$"), "."). //add a "." when the text doesnt end with a mark
-        capitalize()
+        capitalize()*/
 
     }
 
