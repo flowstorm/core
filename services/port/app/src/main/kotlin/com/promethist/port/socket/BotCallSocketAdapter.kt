@@ -4,9 +4,11 @@ import ai.promethist.client.BotConfig
 import ai.promethist.client.BotEvent
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import com.promethist.common.AppConfig
 import com.promethist.common.ObjectUtil.defaultMapper
 import com.promethist.core.Defaults
 import com.promethist.core.Input
+import com.promethist.core.type.Dynamic
 import com.promethist.port.stt.SttConfig
 import com.promethist.util.DataConverter
 import java.io.BufferedReader
@@ -57,6 +59,7 @@ class BotCallSocketAdapter : AbstractBotSocketAdapter() {
     override var config = BotConfig(Defaults.locale, Defaults.zoneId, true, 8000, BotConfig.TtsType.RequiredStreaming)
     private val sttConfig = SttConfig(config.locale, config.zoneId, config.sttSampleRate, SttConfig.Encoding.MULAW)
     private val workDir = File(System.getProperty("java.io.tmpdir"))
+    private val outSound = javaClass.getResourceAsStream("/audio/out.mp3").readBytes()
 
     private fun sendMessage(message: OutputMessage) = remote.sendString(defaultMapper.writeValueAsString(message))
 
@@ -69,6 +72,7 @@ class BotCallSocketAdapter : AbstractBotSocketAdapter() {
             }
             is BotEvent.Recognized -> {
                 sendMessage(OutputMessage.Clear(sessionId!!))
+                sendAudioData(outSound)
                 if (!isRecognitionStarted)
                     startRecognition(sttConfig)
             }
@@ -94,7 +98,8 @@ class BotCallSocketAdapter : AbstractBotSocketAdapter() {
                     //TODO zoneId from zip/city/state/country
                 }
                 logger.info("call from $sender")
-                onRequest(createRequest(Input(transcript = Input.Transcript("#intro"))))
+                onRequest(createRequest(Input(transcript = Input.Transcript("#intro")), Dynamic(
+                        "clientType" to "call:" + AppConfig.instance.get("git.ref", "unknown"))))
                 startRecognition(sttConfig)
             }
             is InputMessage.Stop -> {

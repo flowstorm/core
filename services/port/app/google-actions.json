@@ -1,0 +1,22 @@
+{
+  "actions": [
+    {
+      "description": "Default Main Intent",
+      "name": "MAIN",
+      "fulfillment": {
+        "conversationName": "Promethist"
+      },
+      "intent": {
+        "name": "actions.intent.MAIN"
+      }
+    }
+  ],
+  "conversations": {
+    "Promethist": {
+      "name": "Promethist",
+      "url": "https://port.promethist.com/google?key=promethist:5ea17702d28fd40eec1e9076",
+      "fulfillmentApiVersion": 2
+    }
+  },
+  "locale": "en"
+}

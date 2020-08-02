@@ -37,12 +37,13 @@ class AppConfig: Serializable, Cloneable {
                     if (file.exists()) {
                         properties.load(FileInputStream(file))
                         loaded = true
-                        println("$file loaded")
+                        println("${file.absolutePath} loaded")
                     }
                 }
             }
-            properties.forEach {
-                println("${it.key} = ${it.value}")
+            if (get("config.log", "false") == "true")
+                properties.forEach {
+                    println("${it.key} = ${it.value}")
             }
         } catch (e: FileNotFoundException) {
             if (!loaded)
