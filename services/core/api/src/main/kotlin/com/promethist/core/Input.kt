@@ -3,7 +3,6 @@ package com.promethist.core
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
-import com.promethist.common.ObjectUtil
 import java.time.*
 import java.util.*
 
