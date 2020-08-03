@@ -8,6 +8,7 @@ import com.promethist.core.type.DEFAULT_LOCATION
 import io.mockk.every
 import io.mockk.mockkClass
 import io.mockk.mockkObject
+import org.slf4j.LoggerFactory
 import java.time.ZoneId
 
 open class DialogueTest {
@@ -28,6 +29,7 @@ open class DialogueTest {
     init {
         every { context.session.metrics } returns metrics
         every { context.session.attributes } returns attributes
+        every { context.logger } returns LoggerFactory.getLogger(this.javaClass)
         mockkObject(Dialogue)
         every { Dialogue.run } returns Dialogue.Run(dialogue.response1, context)
         every { context.turn.input.zoneId } returns ZoneId.of("Europe/Paris")
