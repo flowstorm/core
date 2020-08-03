@@ -22,4 +22,10 @@ internal class TmdbApiTest: DialogueTest() {
 //        println(dialogue.tmdb.credits("Matrix").list("cast")[0])
 
     }
+
+    @Test
+    fun testList() {
+        println(dialogue.tmdb.credits("Matrix").list("cast")[0])
+
+    }
 }
