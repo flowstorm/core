@@ -1,9 +1,9 @@
 package com.promethist.port.socket
 
-import ai.promethist.client.BotConfig
-import ai.promethist.client.BotEvent
+import com.promethist.client.BotConfig
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import com.promethist.client.BotEvent
 import com.promethist.common.AppConfig
 import com.promethist.common.ObjectUtil.defaultMapper
 import com.promethist.core.Defaults

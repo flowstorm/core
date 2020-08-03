@@ -8,7 +8,7 @@
     <packaging>pom</packaging>
     <parent>
         <groupId>com.promethist</groupId>
-        <artifactId>promethist-services</artifactId>
+        <artifactId>services</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
     <groupId>com.promethist.core</groupId>

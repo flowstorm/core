@@ -1,8 +1,8 @@
 package com.promethist.port.socket
 
-import ai.promethist.client.BotConfig
-import ai.promethist.client.BotEvent
-import ai.promethist.client.BotSocket
+import com.promethist.client.BotConfig
+import com.promethist.client.BotEvent
+import com.promethist.client.BotSocket
 import com.promethist.common.AppConfig
 import com.promethist.common.ServiceUrlResolver
 import com.promethist.core.ExpectedPhrase

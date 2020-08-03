@@ -8,15 +8,14 @@
     <packaging>pom</packaging>
     <parent>
         <groupId>com.promethist</groupId>
-        <artifactId>promethist-main</artifactId>
+        <artifactId>main</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
-    <artifactId>promethist-common</artifactId>
+    <artifactId>common</artifactId>
     <name>Promethist Common</name>
 
     <modules>
         <module>lib-java</module>
-        <module>stressor</module>
     </modules>
 
 </project>

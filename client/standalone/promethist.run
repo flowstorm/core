@@ -1,0 +1,21 @@
+#!/bin/bash
+# config
+. ./promethist.env
+
+amixer set Master $VOLUME
+
+# code
+cd "$(dirname "$0")"
+while true
+do
+  echo "Starting $JAR"
+  $JAVA_HOME/bin/java -Xms$MEM -Xmx$MEM -jar $JAR -l $LOG_LEVEL client -d $DEVICE -s $SENDER -u $URL -k $KEY -l $LNG -i $IN_FILE -o $OUT_FILE -na -aa >> $LOG_FILE 2>&1
+  if [ $? -eq 1 ]
+  then
+    echo "Updating $JAR"
+    cp $JAR.update $JAR
+  else
+    echo "Exited with code $?"
+  fi
+  sleep 5
+done

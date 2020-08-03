@@ -1,7 +1,7 @@
 package com.promethist.port.socket
 
-import ai.promethist.client.BotConfig
-import ai.promethist.client.BotEvent
+import com.promethist.client.BotConfig
+import com.promethist.client.BotEvent
 import com.promethist.common.ObjectUtil.defaultMapper
 import com.promethist.port.stt.*
 import java.io.IOException

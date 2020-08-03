@@ -8,10 +8,10 @@
     <packaging>pom</packaging>
     <parent>
         <groupId>com.promethist</groupId>
-        <artifactId>promethist-main</artifactId>
+        <artifactId>main</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
-    <artifactId>promethist-services</artifactId>
+    <artifactId>services</artifactId>
     <name>Promethist Services</name>
 
     <modules>

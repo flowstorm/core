@@ -7,7 +7,7 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>pom</packaging>
     <groupId>com.promethist</groupId>
-    <artifactId>promethist-main</artifactId>
+    <artifactId>main</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <name>Promethist MAIN</name>
 
@@ -20,7 +20,7 @@
 
     <modules>
         <module>common</module>
-        <module>clients</module>
+        <module>client</module>
         <module>services</module>
     </modules>
 

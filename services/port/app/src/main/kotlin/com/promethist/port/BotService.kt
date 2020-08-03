@@ -1,7 +1,7 @@
 package com.promethist.port
 
-import ai.promethist.client.BotContext
-import ai.promethist.client.BotCoreClient
+import com.promethist.client.BotContext
+import com.promethist.client.BotCoreClient
 import com.promethist.common.TextConsole
 import com.promethist.common.RestClient
 import com.promethist.common.ServiceUrlResolver

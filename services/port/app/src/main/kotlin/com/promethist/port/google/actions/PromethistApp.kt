@@ -1,7 +1,7 @@
 package com.promethist.port.google.actions
 
 import com.promethist.port.BotService
-import ai.promethist.client.BotContext
+import com.promethist.client.BotContext
 import com.google.actions.api.ActionRequest
 import com.google.actions.api.ForIntent
 import com.google.actions.api.ActionsSdkApp

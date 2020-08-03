@@ -1,7 +1,7 @@
 package com.promethist.port.alexa.handlers
 
 import com.promethist.port.BotService
-import ai.promethist.client.BotContext
+import com.promethist.client.BotContext
 import com.amazon.ask.dispatcher.request.handler.HandlerInput
 import com.amazon.ask.dispatcher.request.handler.RequestHandler
 import com.amazon.ask.model.interfaces.display.BodyTemplate7
