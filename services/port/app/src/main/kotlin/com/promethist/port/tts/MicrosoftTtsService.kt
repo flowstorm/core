@@ -35,6 +35,8 @@ object MicrosoftTtsService: TtsService {
         }
     }
 
+    private var token = ""
+    private var tokenIssued = 0L
     private val logger by LoggerDelegate()
 
     fun call(url: String, builder: (Invocation.Builder.() -> Response)): Response {
@@ -47,23 +49,26 @@ object MicrosoftTtsService: TtsService {
         return res
     }
 
-    val issueToken =
-            call("https://${AppConfig.instance["mscs.location"]}.api.cognitive.microsoft.com/sts/v1.0/issueToken") {
+    fun synthetize(ssml: String): ByteArray {
+        val now = System.currentTimeMillis()
+        if (tokenIssued + 600 * 1000 < now) {
+            token = call("https://${AppConfig.instance["mscs.location"]}.api.cognitive.microsoft.com/sts/v1.0/issueToken") {
                 header("Ocp-Apim-Subscription-Key", AppConfig.instance["mscs.key"])
-                    .post(Entity.text(""))
+                        .post(Entity.text(""))
             }.readEntity(String::class.java)
-
-    fun synthetize(ssml: String): ByteArray =
-            call("https://${AppConfig.instance["mscs.location"]}.tts.speech.microsoft.com/cognitiveservices/v1") {
-                header("Authorization", "Bearer $issueToken")
+            tokenIssued = now
+        }
+        call("https://${AppConfig.instance["mscs.location"]}.tts.speech.microsoft.com/cognitiveservices/v1") {
+            header("Authorization", "Bearer $token")
                     .header("Content-Type", "application/ssml+xml")
                     .header("X-Microsoft-OutputFormat", "audio-16khz-64kbitrate-mono-mp3")
                     .post(Entity.text(ssml))
-            }.readEntity(InputStream::class.java).use {
-                val buf = ByteArrayOutputStream()
-                it.copyTo(buf)
-                buf.toByteArray()
-            }
+        }.readEntity(InputStream::class.java).use {
+            val buf = ByteArrayOutputStream()
+            it.copyTo(buf)
+            return buf.toByteArray()
+        }
+    }
 
     override fun speak(ttsRequest: TtsRequest): ByteArray {
         val ttsConfig = TtsConfig.forVoice(ttsRequest.voice)

@@ -57,7 +57,8 @@ class BotCallSocketAdapter : AbstractBotSocketAdapter() {
     override lateinit var sender: String
     override var token: String? = null
     override var config = BotConfig(Defaults.locale, Defaults.zoneId, true, 8000, BotConfig.TtsType.RequiredStreaming)
-    private val sttConfig = SttConfig(config.locale, config.zoneId, config.sttSampleRate, SttConfig.Encoding.MULAW)
+    private val sttConfig
+        get() = SttConfig(locale ?: config.locale, config.zoneId, config.sttSampleRate, SttConfig.Encoding.MULAW)
     private val workDir = File(System.getProperty("java.io.tmpdir"))
     private val outSound = javaClass.getResourceAsStream("/audio/out.mp3").readBytes()
 
