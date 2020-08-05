@@ -22,14 +22,18 @@ import org.eclipse.jetty.websocket.api.WebSocketAdapter
 import java.io.IOException
 import java.util.*
 import javax.inject.Inject
+import kotlin.concurrent.thread
 
 abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
 
     inner class BotSttCallback : SttCallback {
 
-        override fun onResponse(input: Input, final: Boolean) {
+        var silence = true
+
+        override fun onResponse(input: Input, isFinal: Boolean) {
             try {
-                if (final && !isRecognitionCancelled) {
+                if (isFinal && !isRecognitionCancelled) {
+                    silence = false
                     stopRecognition()
                     sendEvent(BotEvent.Recognized(input.transcript.text))
                     onRequest(createRequest(input))
@@ -47,6 +51,17 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
 
         override fun onOpen() {
             sendEvent(BotEvent.InputAudioStreamOpen())
+        }
+
+        override fun onEndOfUtterance() {
+            silence = true
+            stopRecognition()
+            thread {
+                Thread.sleep(1500)
+                if (silence) {
+                    sendSilenceResponse()
+                }
+            }
         }
     }
 
@@ -117,14 +132,17 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
             if (isDetectingAudio(payload, offset, length))
                 recognitionStartTime = System.currentTimeMillis()
             if (recognitionStartTime + 10000 < System.currentTimeMillis()) {
-                val text = "#silence"
                 stopRecognition(true)
-                sendEvent(BotEvent.Recognized(text))
-                onRequest(createRequest(Input(config.locale, config.zoneId, Input.Transcript(text))))
+                sendSilenceResponse()
             } else {
                 sttStream?.write(payload, offset, length)
             }
         }
+    }
+
+    private fun sendSilenceResponse() {
+        sendEvent(BotEvent.Recognized(ACTION_SILENCE))
+        onRequest(createRequest(Input(config.locale, config.zoneId, Input.Transcript(ACTION_SILENCE))))
     }
 
     override fun onWebSocketClose(statusCode: Int, reason: String?) {
@@ -238,5 +256,9 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
         }
         if (!ttsOnly)
             sendEvent(BotEvent.Response(response))
+    }
+
+    companion object {
+        const val ACTION_SILENCE = "#silence"
     }
 }
