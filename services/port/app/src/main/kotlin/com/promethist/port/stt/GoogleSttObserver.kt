@@ -7,9 +7,7 @@ import com.promethist.core.Input
 import java.time.ZoneId
 import java.util.*
 
-class GoogleSttObserver(private val callback: SttCallback, private val locale: Locale, private val zoneId: ZoneId) : ResponseObserver<StreamingRecognizeResponse> {
-
-    private val responses = ArrayList<StreamingRecognizeResponse>()
+class GoogleSttObserver(private val callback: SttCallback, private val locale: Locale, private val zoneId: ZoneId, private val singleUtterance: Boolean = false) : ResponseObserver<StreamingRecognizeResponse> {
 
     override fun onStart(controller: StreamController) {
         callback.onOpen()
@@ -17,9 +15,13 @@ class GoogleSttObserver(private val callback: SttCallback, private val locale: L
 
     override fun onResponse(response: StreamingRecognizeResponse?) {
         //println("onResponse: $response")
-        if (response == null || response.resultsList == null)
+        if (response == null)
             return
-        responses.add(response)
+
+        if (singleUtterance && response.speechEventType == StreamingRecognizeResponse.SpeechEventType.END_OF_SINGLE_UTTERANCE) {
+            callback.onEndOfUtterance()
+        }
+
         for (result in response.resultsList) {
             val alternatives = result.alternativesList ?: continue
             val firstAlternative = alternatives[0]

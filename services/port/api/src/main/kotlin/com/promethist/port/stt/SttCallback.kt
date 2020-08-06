@@ -9,4 +9,6 @@ interface SttCallback {
     fun onOpen()
 
     fun onError(e: Throwable)
+
+    fun onEndOfUtterance()
 }
