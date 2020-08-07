@@ -2,9 +2,6 @@ package com.promethist.core.dialogue
 
 import com.promethist.common.AppConfig
 import com.promethist.core.model.DialogueEvent
-import org.litote.kmongo.MongoOperator
-import com.promethist.core.dialogue.Dialogue
-import java.util.*
 
 abstract class BasicEnglishDialogue() : BasicDialogue() {
 

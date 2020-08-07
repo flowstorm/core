@@ -14,7 +14,7 @@ data class Context(
         var locale: Locale? = null,
         val communityResource: CommunityResource,
         val communities: MutableMap<String, Community> = mutableMapOf(),
-        var irModels: List<IrModel> = listOf(),
+        var intentModels: List<Model> = listOf(),
         var dialogueEvent: DialogueEvent? = null
 ) {
     // aliases

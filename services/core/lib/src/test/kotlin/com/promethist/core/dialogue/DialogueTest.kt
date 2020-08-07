@@ -14,6 +14,7 @@ import java.time.ZoneId
 open class DialogueTest {
 
     class TestDialogue : BasicDialogue() {
+        override val dialogueId = "dialogue1"
         override val dialogueName = "product/dialogue/1"
         override var clientLocation = DEFAULT_LOCATION
         var metric by MetricDelegate("namespace.name")
@@ -30,8 +31,8 @@ open class DialogueTest {
         every { context.session.metrics } returns metrics
         every { context.session.attributes } returns attributes
         every { context.logger } returns LoggerFactory.getLogger(this.javaClass)
-        mockkObject(Dialogue)
-        every { Dialogue.run } returns Dialogue.Run(dialogue.response1, context)
+        mockkObject(AbstractDialogue)
+        every { AbstractDialogue.run } returns AbstractDialogue.Run(dialogue.response1, context)
         every { context.turn.input.zoneId } returns ZoneId.of("Europe/Paris")
     }
 }

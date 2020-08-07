@@ -4,16 +4,13 @@ import ch.qos.logback.classic.Level
 import com.promethist.core.*
 import com.promethist.core.context.ContextFactory
 import com.promethist.core.context.ContextPersister
-import com.promethist.core.dialogue.Dialogue
+import com.promethist.core.dialogue.AbstractDialogue
 import com.promethist.core.model.*
-import com.promethist.core.model.Application
 import com.promethist.core.model.metrics.Metric
 import com.promethist.core.resources.ContentDistributionResource.ContentRequest
 import com.promethist.core.runtime.DialogueLog
 import com.promethist.core.type.Memory
-import com.promethist.core.type.PropertyMap
 import com.promethist.util.LoggerDelegate
-import java.io.Serializable
 import javax.inject.Inject
 import javax.ws.rs.*
 import java.util.*
@@ -26,9 +23,6 @@ class CoreResourceImpl : CoreResource {
 
     @Inject
     lateinit var sessionResource: SessionResource
-
-    @Inject
-    lateinit var dialogueResouce: BotService
 
     @Inject
     lateinit var pairingResource: DevicePairingResource
@@ -50,7 +44,7 @@ class CoreResourceImpl : CoreResource {
 
     private val logger by LoggerDelegate()
 
-    override fun process(request: Request): Response = with(request) {
+    override fun process(request: Request): Response = with (request) {
 
         //todo get logger level from request
         dialogueLog.level = Level.ALL
@@ -64,37 +58,30 @@ class CoreResourceImpl : CoreResource {
         updateAutomaticMetrics(session)
 
         val response = try {
-            when (session.application.dialogueEngine) {
-                "helena" -> getHelenaResponse(appKey, sender, session, input)
-                "core" -> {
-                    val pipeline = pipelineFactory.createPipeline()
-                    val context = contextFactory.createContext(pipeline, session, request)
-                    with (processPipeline(context)) {
-                        // client attributes
-                        listOf("speakingRate", "speakingPitch", "speakingVolumeGain").forEach {
-                            if (!turn.attributes[Dialogue.defaultNamespace].containsKey(it)) {
-                                val value = session.attributes[Dialogue.defaultNamespace][it]
-                                        ?: userProfile.attributes[Dialogue.defaultNamespace][it]
-                                if (value != null)
-                                    turn.attributes[Dialogue.defaultNamespace][it] = value
-                            }
-                        }
-                        turn.responseItems.forEach {
-                            it.voice = it.voice ?: session.application.voice ?: TtsConfig.defaultVoice(locale?.language ?: "en")
-                        }
-                        Response(context.locale, turn.responseItems, dialogueLog.log,
-                                turn.attributes[Dialogue.defaultNamespace].map { it.key to (it.value as Memory<*>).value }.toMap().toMutableMap(),
-                                expectedPhrases, sessionEnded)
+            val pipeline = pipelineFactory.createPipeline()
+            val context = contextFactory.createContext(pipeline, session, request)
+            with (processPipeline(context)) {
+                // client attributes
+                listOf("speakingRate", "speakingPitch", "speakingVolumeGain").forEach {
+                    if (!turn.attributes[AbstractDialogue.defaultNamespace].containsKey(it)) {
+                        val value = session.attributes[AbstractDialogue.defaultNamespace][it]
+                                ?: userProfile.attributes[AbstractDialogue.defaultNamespace][it]
+                        if (value != null)
+                            turn.attributes[AbstractDialogue.defaultNamespace][it] = value
                     }
                 }
-                else -> error("Unknown dialogue engine (${session.application.dialogueEngine})")
+                turn.responseItems.forEach {
+                    it.voice = it.voice ?: session.application.voice ?: TtsConfig.defaultVoice(locale?.language ?: "en")
+                }
+                Response(context.locale, turn.responseItems, dialogueLog.log,
+                        turn.attributes[AbstractDialogue.defaultNamespace].map { it.key to (it.value as Memory<*>).value }.toMap().toMutableMap(),
+                        expectedPhrases, sessionEnded)
             }
         } catch (e: Throwable) {
             processException(request, e)
         }
 
         return try {
-            session.addMessage(Session.Message(Date(), sender, null, response.items))
             sessionResource.update(session)
             response
         } catch (e: Throwable) {
@@ -111,7 +98,7 @@ class CoreResourceImpl : CoreResource {
             val messages = mutableListOf<String>()
             var c: Throwable? = e
             while (c != null) {
-                messages.add(c::class.simpleName + ":" + c.message?:"")
+                messages.add(c::class.simpleName + ":" + c.message)
                 c = c.cause
             }
             context.dialogueEvent = DialogueEvent(
@@ -121,7 +108,7 @@ class CoreResourceImpl : CoreResource {
                     sessionId = context.session.sessionId,
                     properties = context.session.properties,
                     applicationName = context.application.name,
-                    dialogueName = context.application.dialogueName,
+                    dialogue_id = context.application.dialogue_id,
                     //TODO Replace with actual node ID after node sequence is added in Context
                     nodeId = 0,
                     text = messages.joinToString(" \nCAUSED BY: "))
@@ -129,36 +116,6 @@ class CoreResourceImpl : CoreResource {
         } finally {
             if (context.dialogueEvent != null) dialogueEventResource.create(context.dialogueEvent!!)
         }
-    }
-
-    private fun getHelenaResponse(key: String, sender: String, session: Session, input: Input): Response {
-        val requestMessage = Message(
-                sender = sender,
-                recipient = session.application.dialogueName,
-                sessionId = session.sessionId,
-                items = mutableListOf(Response.Item(text = input.transcript.text)),
-                language = input.locale
-        )
-        val appVariables = mutableMapOf<String, Serializable>()
-        addUserToExtensions(requestMessage, session.user)
-        requestMessage.attributes["variables"] = appVariables as Serializable
-
-        logger.info(requestMessage.toString())
-        val responseMessage = dialogueResouce.message(key, requestMessage)!!
-        logger.info(responseMessage.toString())
-        responseMessage.items.forEach {
-            it.voice = it.voice ?: session.application.voice ?: TtsConfig.defaultVoice(responseMessage.language?.language ?: "en")
-        }
-        val metrics = if (responseMessage.attributes.containsKey("metrics"))
-            @Suppress("UNCHECKED_CAST") //suppressed, will be removed anyway
-            responseMessage.attributes["metrics"] as PropertyMap
-        else mapOf()
-        updateMetrics(session, metrics)
-
-        dialogueLog.logger.info("passed nodes " + responseMessage.attributes["passedNodes"])
-
-        return Response(responseMessage.language, responseMessage.items, dialogueLog.log,
-                responseMessage.attributes, responseMessage.expectedPhrases, responseMessage.sessionEnded)
     }
 
     private fun initSession(key: String, sender: String, token: String?, sessionId: String, input: Input): Session {
@@ -169,20 +126,11 @@ class CoreResourceImpl : CoreResource {
         } else {
             logger.info("Starting a new session.")
             val contentResponse = contentDistributionResource.resolve(
-                    ContentRequest(
-                            sender,
-                            token,
-                            key,
-                            input.locale.language,
-                            Application.StartCondition(Application.StartCondition.Type.OnAction, input.transcript.text)
-                    ))
-
+                    ContentRequest(sender, token, key, input.locale.language)
+            )
             Session(sessionId = sessionId, user = contentResponse.user, application = contentResponse.application, properties = contentResponse.sessionProperties)
         }
-
-        session.addMessage(Session.Message(Date(), sender, null, mutableListOf(Response.Item(text = input.transcript.text))))
         sessionResource.update(session)
-
         return session
     }
 
@@ -193,17 +141,6 @@ class CoreResourceImpl : CoreResource {
             find { it.name == "turns" && it.namespace == "session" }?.increment()
                     ?: add(Metric("session", "turns", 1))
         }
-    }
-
-    private fun addUserToExtensions(message: Message, user: User) {
-        message.sender = user.username
-        message.attributes["user"] = Hashtable(mapOf(
-                "name" to user.name,
-                "surname" to user.surname,
-                "username" to user.username,
-                "nickname" to user.nickname
-        ))
-        message.attributes["username"] = user.nickname
     }
 
     private fun processException(request: Request, e: Throwable): Response {
@@ -255,33 +192,6 @@ class CoreResourceImpl : CoreResource {
                         text = text))
             }
         }, dialogueLog.log, mutableMapOf<String, Any>(), mutableListOf(), sessionEnded = true)
-    }
-
-    private fun updateMetrics(session: Session, metrics: PropertyMap) {
-        for (namespaceMetrics in metrics) {
-            if (namespaceMetrics.value is Message.PropertyMap) {
-                @Suppress("UNCHECKED_CAST") //suppressed, will be removed anyway
-                updateMetricsValues(session, namespaceMetrics.key, namespaceMetrics.value as PropertyMap)
-            } else {
-                //TODO warning
-            }
-        }
-    }
-
-    private fun updateMetricsValues(session: Session, namespace: String, metrics: PropertyMap) {
-        for (item in metrics) {
-            if (item.value is Long) {
-                val m = session.metrics.firstOrNull { it.namespace == namespace && it.name == item.key }
-                if (m != null) {
-                    m.value = item.value as Long
-                } else {
-                    val metric = Metric(namespace, item.key, item.value as Long)
-                    session.metrics.add(metric)
-                }
-            } else {
-                //TODO warning
-            }
-        }
     }
 
     private fun getMessageResourceString(language: String, type: String, params: List<Any> = listOf()): String {

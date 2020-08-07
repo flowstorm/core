@@ -1,4 +1,4 @@
-package `product`.`some-subdialogue`
+package `subdialogue1`
 
 import com.promethist.core.dialogue.Dialogue
 import com.promethist.core.type.Location

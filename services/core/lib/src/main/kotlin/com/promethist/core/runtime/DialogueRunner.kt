@@ -4,18 +4,20 @@ import com.promethist.common.TextConsole
 import com.promethist.common.RestClient
 import com.promethist.core.*
 import com.promethist.core.model.*
-import com.promethist.core.dialogue.Dialogue
+import com.promethist.core.dialogue.AbstractDialogue
 import com.promethist.core.provider.LocalFileStorage
 import com.promethist.core.resources.FileResource
 import com.promethist.core.type.MutablePropertyMap
 import com.promethist.util.DataConverter
 import com.promethist.util.LoggerDelegate
+import org.bson.types.ObjectId
+import org.litote.kmongo.id.toId
 import java.io.*
 import java.util.*
 
 class DialogueRunner(
         val fileResource: FileResource,
-        val name: String,
+        val dialogueId: String,
         val properties: MutablePropertyMap = mutableMapOf(),
         val user: User = User(username = "tester@promethist.ai", name = "Tester", surname = "Tester", nickname = "Tester"),
         val profile: Profile = Profile(user_id = user._id)
@@ -25,17 +27,17 @@ class DialogueRunner(
 
     inner class SimpleIntentRecognition : Component {
 
-        lateinit var models: Map<IrModel, Map<Int, List<String>>>
+        lateinit var models: Map<Model, Map<Int, List<String>>>
 
         override fun process(context: Context): Context {
             if (!this::models.isInitialized) {
-                initModels(dmf.get(name, "", properties))
+                initModels(dmf.get(dialogueId, "", properties))
             }
 
             val text = context.input.transcript.text
 
             // select requested models
-            val requestedModels = models.filter { it.key.id in context.irModels.map { it.id } }
+            val requestedModels = models.filter { it.key.id in context.intentModels.map { it.id } }
 
             val matches = mutableListOf<Pair<String, Int>>()
             for (model in requestedModels) {
@@ -43,7 +45,7 @@ class DialogueRunner(
             }
 
             val match = when (matches.size) {
-                0 -> error("no intent model ${context.irModels.map { it.name }} matching text \"$text\"")
+                0 -> error("no intent model ${context.intentModels.map { it.name }} matching text \"$text\"")
                 1 -> matches.first()
                 else -> {
                     context.logger.warn("multiple intents $matches matched text \"$text\"")
@@ -56,14 +58,14 @@ class DialogueRunner(
             return context
         }
 
-        private fun initModels(dialogue: Dialogue) {
-            val map = mutableMapOf<IrModel, Map<Int, List<String>>>()
+        private fun initModels(dialogue: AbstractDialogue) {
+            val map = mutableMapOf<Model, Map<Int, List<String>>>()
 
-            map.put(com.promethist.core.builder.IrModel(dialogue.buildId, dialogue.dialogueName, null),
+            map.put(com.promethist.core.builder.IntentModel(dialogue.buildId, dialogue.dialogueName, null),
                     dialogue.globalIntents.map { it.id to it.utterances.toList() }.toMap())
 
             dialogue.userInputs.forEach {
-                map.put(com.promethist.core.builder.IrModel(dialogue.buildId, dialogue.dialogueName, it.id),
+                map.put(com.promethist.core.builder.IntentModel(dialogue.buildId, dialogue.dialogueName, it.id),
                         it.intents.map { it.id to it.utterances.toList() }.toMap())
             }
 
@@ -90,7 +92,7 @@ class DialogueRunner(
     private val dm = DialogueManager().apply {
         dialogueFactory = dmf
     }
-    private val app = Application(name = "test", dialogueName = name, voice = Voice.Grace, properties = properties)
+    private val app = Application(name = "test", dialogue_id = ObjectId(dialogueId).toId(), voice = Voice.Grace, properties = properties)
     private val session = Session(sessionId = "T-E-S-T", user = user, application = app)
     private val turn = Turn(Input(locale, zoneId, Input.Transcript("")))
     private val context = Context(SimplePipeline(LinkedList(listOf(dm, ir))), profile, session, turn, logger, locale, SimpleCommunityResource())

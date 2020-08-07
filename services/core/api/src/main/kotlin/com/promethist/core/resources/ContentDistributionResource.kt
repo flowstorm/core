@@ -23,8 +23,7 @@ interface ContentDistributionResource {
             val sender: String,
             val token: String?,
             val appKey: String,
-            val language: String?,
-            val starCondition: Application.StartCondition
+            val language: String?
     )
 
     data class ContentResponse(val application: Application, val user: User, val sessionProperties: MutablePropertyMap)

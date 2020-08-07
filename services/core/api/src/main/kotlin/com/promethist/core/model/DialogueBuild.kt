@@ -1,8 +1,8 @@
 package com.promethist.core.model
 
-data class Build(
+data class DialogueBuild(
         val _id: String,
-        val success:Boolean,
+        val success: Boolean,
         val logs: List<String> = listOf(),
         val error: String = ""
 )

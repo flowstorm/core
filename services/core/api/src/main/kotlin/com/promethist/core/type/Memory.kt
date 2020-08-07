@@ -3,7 +3,7 @@ package com.promethist.core.type
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
-import com.promethist.core.dialogue.Dialogue
+import com.promethist.core.dialogue.AbstractDialogue
 import java.math.BigDecimal
 
 open class Memory<V: Any>(
@@ -75,8 +75,8 @@ open class Memory<V: Any>(
     fun touch() {
         count++
         time = DateTime.now()
-        if (Dialogue.isRunning) {
-            Dialogue.run.node.dialogue.apply {
+        if (AbstractDialogue.isRunning) {
+            AbstractDialogue.run.node.dialogue.apply {
                 if (clientLocation != null && clientLocation!!.isNotEmpty)
                     location = clientLocation
             }

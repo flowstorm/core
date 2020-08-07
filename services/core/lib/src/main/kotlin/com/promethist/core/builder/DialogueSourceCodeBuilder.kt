@@ -11,7 +11,7 @@ import java.net.URL
 import java.nio.charset.StandardCharsets
 import java.time.LocalDateTime
 
-class SourceCodeBuilder(val name: String, val buildId: String) {
+class DialogueSourceCodeBuilder(val dialogueId: String, val buildId: String, val name: String) {
 
     // builder configuration:
     var parameters: PropertyMap = mapOf()
@@ -27,7 +27,6 @@ class SourceCodeBuilder(val name: String, val buildId: String) {
         }
     val scriptCode get() = "$code\n//--export-class\n$className::class\n"
     val source = StringBuilder()
-
     private val logger by LoggerDelegate()
     private val names: MutableList<String>
 
@@ -49,7 +48,7 @@ class SourceCodeBuilder(val name: String, val buildId: String) {
             }
         }
 
-        logger.info("building source code for $name")
+        logger.info("building source code for dialogue $name")
         logger.info("class $className : $parentClass")
 
         source.clear()
@@ -75,7 +74,7 @@ class SourceCodeBuilder(val name: String, val buildId: String) {
         if (extensionCode.isNotBlank()) {
             source.append(extensionCode)
         }
-        logger.info("built source code for $name")
+        logger.info("built source code for dialogue $name")
 
         code = source.toString()
     }
@@ -102,7 +101,7 @@ class SourceCodeBuilder(val name: String, val buildId: String) {
     data class Sound(val nodeId: Int, val nodeName: String, val source: String) : Node
     data class Image(val nodeId: Int, val nodeName: String, val source: String) : Node
     data class Function(val nodeId: Int, val nodeName: String, val transitions: Map<String, String>, val code: CharSequence) : Node
-    data class SubDialogue(val nodeId: Int, val nodeName: String, val subDialogueName: String, val code: CharSequence = "") : Node
+    data class SubDialogue(val nodeId: Int, val nodeName: String, val subDialogueId: String, val code: CharSequence = "") : Node
     data class GoBack(val nodeId: Int, val nodeName: String, val repeat: Boolean) : Node
     data class Command(val nodeId: Int, val nodeName: String, val command: String) : Node
     data class GlobalCommand(val nodeId: Int, val nodeName: String, val command: String) : Node
@@ -137,8 +136,9 @@ class SourceCodeBuilder(val name: String, val buildId: String) {
     }
 
     private fun writeInit() {
-        source.appendln("\toverride val dialogueName = \"$name\"")
+        source.appendln("\toverride val dialogueId = \"$dialogueId\"")
         source.appendln("\toverride val buildId = \"$buildId\"")
+        source.appendln("\toverride val dialogueName = \"$name\"")
 
         properties.forEach {
             val className = it.value::class.simpleName
@@ -264,11 +264,11 @@ class SourceCodeBuilder(val name: String, val buildId: String) {
     }
 
     private fun write(image: Image) = with(image) {
-        this@SourceCodeBuilder.source.appendln("\tval $nodeName = Response($nodeId, image = \"${source}\")")
+        this@DialogueSourceCodeBuilder.source.appendln("\tval $nodeName = Response($nodeId, image = \"${source}\")")
     }
 
     private fun write(sound: Sound) = with(sound) {
-        this@SourceCodeBuilder.source.appendln("\tval $nodeName = Response($nodeId, audio = \"${source}\")")
+        this@DialogueSourceCodeBuilder.source.appendln("\tval $nodeName = Response($nodeId, audio = \"${source}\")")
     }
 
     private fun write(function: Function) = with(function) {
@@ -280,7 +280,7 @@ class SourceCodeBuilder(val name: String, val buildId: String) {
     }
 
     private fun write(subDialogue: SubDialogue) = with(subDialogue) {
-        source.appendln("\tval $nodeName = SubDialogue($nodeId, \"$subDialogueName\") {")
+        source.appendln("\tval $nodeName = SubDialogue($nodeId, \"$subDialogueId\") {")
         source.appendln("//--code-start;type:subDialogue;name:$nodeName")
         source.appendln(if (code.isNotEmpty()) code else "it.create()")
         source.appendln("//--code-end;type:subDialogue;name:$nodeName").appendln("\t}")

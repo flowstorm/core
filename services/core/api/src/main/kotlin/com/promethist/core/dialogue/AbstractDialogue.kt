@@ -1,21 +1,22 @@
 package com.promethist.core.dialogue
 
 import com.promethist.core.Context
+import com.promethist.core.model.DialogueModel
 import com.promethist.core.model.TtsConfig
 import com.promethist.core.model.Voice
 import com.promethist.core.runtime.Loader
 import com.promethist.core.type.Location
 import com.promethist.core.type.PropertyMap
+import org.litote.kmongo.Id
 import java.util.*
 import kotlin.random.Random
 import kotlin.reflect.KProperty
 import kotlin.reflect.full.createType
 import kotlin.reflect.full.isSubtypeOf
 
-abstract class Dialogue {
+abstract class AbstractDialogue : DialogueModel {
 
     //dialogue config - must/may be overrided
-    abstract val dialogueName: String
     open val buildId: String = "unknown" // used for generated classes, others are unknown
     open val language get() = TtsConfig.forVoice(voice)?.locale.language ?: error("unknown voice")
 
@@ -38,7 +39,7 @@ abstract class Dialogue {
     var repeat = Repeat(Int.MAX_VALUE - 2)
 
     abstract inner class Node(open val id: Int) {
-        val dialogue get() = this@Dialogue
+        val dialogue get() = this@AbstractDialogue
         init { nodes.add(this) }
 
         override fun hashCode(): Int = id
@@ -150,7 +151,7 @@ abstract class Dialogue {
 
     inner class SubDialogue(
             override val id: Int,
-            val name: String,
+            val dialogueId: String,
             val lambda: Context.(SubDialogue) -> PropertyMap): TransitNode(id) {
 
         fun getConstructorArgs(context: Context): PropertyMap =

@@ -1,6 +1,6 @@
 package com.promethist.core.builder
 
-import com.promethist.core.builder.SourceCodeBuilder.*
+import com.promethist.core.builder.DialogueSourceCodeBuilder.*
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
 
@@ -17,7 +17,7 @@ internal class DialogueBuilderTest {
 
     @Test
     fun `test dialogue building`() {
-        dialogueBuilder.create("product/dialogue/1").apply {
+        dialogueBuilder.create("dialogue1", "product/dialogue/1").apply {
             source.apply {
                 parameters = mapOf("str" to "bla", "num" to 123, "chk" to true)
                 initCode = "data class Test(val i: Int)\nfun time() = System.currentTimeMillis()\nval i = 1"

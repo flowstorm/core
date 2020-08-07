@@ -1,7 +1,8 @@
 package com.promethist.core.dialogue.attribute
 
 import com.promethist.core.Context
-import com.promethist.core.dialogue.Dialogue
+import com.promethist.core.dialogue.AbstractDialogue
+import com.promethist.core.model.DialogueModel
 import com.promethist.core.type.Attributes
 import com.promethist.core.type.Memory
 import com.promethist.core.type.Memorable
@@ -13,9 +14,9 @@ abstract class AttributeDelegate<V: Any>(private val clazz: KClass<*>, val names
 
     abstract val attributes: Attributes
 
-    operator fun getValue(thisRef: Dialogue, property: KProperty<*>): V =
+    operator fun getValue(thisRef: AbstractDialogue, property: KProperty<*>): V =
             attributes[namespace?.invoke() ?: "default"].getOrPut(property.name) {
-                Memorable.pack(default.invoke(Dialogue.run.context))
+                Memorable.pack(default.invoke(AbstractDialogue.run.context))
             }.let {
                 if (!clazz.isSubclassOf(Memory::class) && (it is Memory<*>)) {
                     it.value
@@ -24,7 +25,7 @@ abstract class AttributeDelegate<V: Any>(private val clazz: KClass<*>, val names
                 }
             } as V
 
-    open operator fun setValue(thisRef: Dialogue, property: KProperty<*>, any: V) {
-        attributes[namespace?.invoke() ?: Dialogue.defaultNamespace][property.name] = Memorable.pack(any)
+    open operator fun setValue(thisRef: AbstractDialogue, property: KProperty<*>, any: V) {
+        attributes[namespace?.invoke() ?: "default"][property.name] = Memorable.pack(any)
     }
 }

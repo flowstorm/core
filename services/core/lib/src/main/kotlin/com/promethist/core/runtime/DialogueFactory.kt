@@ -1,6 +1,6 @@
 package com.promethist.core.runtime
 
-import com.promethist.core.dialogue.Dialogue
+import com.promethist.core.dialogue.AbstractDialogue
 import com.promethist.core.model.Session.DialogueStackFrame
 import com.promethist.core.type.PropertyMap
 import com.promethist.util.LoggerDelegate
@@ -8,21 +8,22 @@ import com.promethist.util.LoggerDelegate
 class DialogueFactory(private val loader: Loader) {
 
     private val logger by LoggerDelegate()
-    private val dialogues: MutableMap<Triple<String, String, PropertyMap>, Dialogue> = mutableMapOf()
+    private val dialogues: MutableMap<Triple<String?, String, PropertyMap>, AbstractDialogue> = mutableMapOf()
 
-    private fun create(name: String, args: PropertyMap): Dialogue {
-        logger.info("creating new instance $name $args")
-        val dialogue = loader.newObjectWithArgs<Dialogue>(name + "/model", args)
+    private fun create(id: String, args: PropertyMap): AbstractDialogue {
+        logger.info("creating new instance $id $args")
+        val dialogue = loader.newObjectWithArgs<AbstractDialogue>(id + "/model", args)
         dialogue.loader = loader
         dialogue.validate()
         return dialogue
     }
 
-    fun get(name: String, buildId:String, args: PropertyMap): Dialogue {
-        logger.debug("getting instance $name $args")
-        val triple = Triple(name, buildId,  args)
+    fun get(id: String, buildId: String, args: PropertyMap): AbstractDialogue {
+        logger.debug("getting instance $id $args")
+        val triple = Triple(id, buildId,  args)
         return dialogues.getOrPut(triple) {create(triple.first, triple.third)}
     }
 
-    fun get(frame: DialogueStackFrame): Dialogue = get(frame.name, frame.buildId,  frame.args)
+    fun get(frame: DialogueStackFrame): AbstractDialogue =
+            get(frame.id ?: frame.name ?: error("missing frame identification"), frame.buildId, frame.args)
 }

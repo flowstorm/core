@@ -1,9 +1,11 @@
 package com.promethist.core.runtime
 
 import com.promethist.core.*
-import com.promethist.core.dialogue.Dialogue
+import com.promethist.core.dialogue.AbstractDialogue
 import com.promethist.core.model.*
 import com.promethist.core.provider.LocalFileStorage
+import org.bson.types.ObjectId
+import org.litote.kmongo.id.toId
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -15,8 +17,8 @@ object DialogueLoadTest {
     fun main(args: Array<String>) {
         val logger: Logger = LoggerFactory.getLogger("dialogue-model-load-test")
         val loader = FileResourceLoader(LocalFileStorage(File("test")), "dialogue")
-        val dialogueName = "product/some-dialogue/1"
-        val dialogue = loader.newObject<Dialogue>("$dialogueName/model", "ble", 1, false)
+        val dialogueId = "dialogue1"
+        val dialogue = loader.newObject<AbstractDialogue>("$dialogueId/model", "ble", 1, false)
         dialogue.loader = loader
 
         dialogue.validate()
@@ -32,7 +34,7 @@ object DialogueLoadTest {
                         datetime = Date(),
                         sessionId = "T-E-S-T",
                         user = user,
-                        application = Application(name = "test", dialogueName = "product/some-dialogue/1", voice = Voice.Grace)
+                        application = Application(name = "test", dialogue_id = ObjectId(dialogueId).toId(), voice = Voice.Grace)
                 ),
                 Turn(Input(transcript = Input.Transcript("some message"))),
                 logger,
@@ -46,8 +48,8 @@ object DialogueLoadTest {
 
         dialogue.subDialogues.first().apply {
             val dialogueArgs = getConstructorArgs(context)
-            val subDialogue = loader.newObjectWithArgs<Dialogue>("${this.name}/model", dialogueArgs)
-            println("sub-dialogue: $subDialogue")
+            val subDialogue = loader.newObjectWithArgs<AbstractDialogue>("${this.dialogueId}/model", dialogueArgs)
+            println("subDialogue: $subDialogue")
             println(subDialogue.describe())
         }
     }

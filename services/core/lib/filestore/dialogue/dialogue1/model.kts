@@ -1,4 +1,4 @@
-package `product`.`some-dialogue`
+package `dialogue1`
 
 import com.promethist.core.dialogue.*
 import com.promethist.core.type.*

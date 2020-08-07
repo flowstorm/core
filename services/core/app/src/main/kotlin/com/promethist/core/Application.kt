@@ -81,9 +81,6 @@ class Application : JerseyApplication() {
                         KMongo.createClient(ConnectionString(AppConfig.instance["database.url"]))
                                 .getDatabase(AppConfig.instance["name"] + "-" + AppConfig.instance["namespace"]))
 
-                // dialogue manager helena (support of running V1 dialogue models)
-                bindTo(BotService::class.java, ServiceUrlResolver.getEndpointUrl("helena") + "/dm")
-
                 bindTo(CoreResourceImpl::class.java)
 
                 bind(DialogueLog::class.java).to(DialogueLog::class.java).`in`(RequestScoped::class.java)

@@ -1,6 +1,6 @@
 package com.promethist.core.dialogue.attribute
 
-import com.promethist.core.dialogue.Dialogue
+import com.promethist.core.dialogue.AbstractDialogue
 import com.promethist.core.type.NamedEntity
 import com.promethist.core.type.StringMutableSet
 import kotlin.reflect.KProperty
@@ -12,7 +12,7 @@ class NamedEntitySetAttributeDelegate<E: NamedEntity>(
 ) {
     private val attributeDelegate = ContextualAttributeDelegate(scope, StringMutableSet::class, namespace) { StringMutableSet() }
 
-    operator fun getValue(thisRef: Dialogue, property: KProperty<*>): MutableSet<E> {
+    operator fun getValue(thisRef: AbstractDialogue, property: KProperty<*>): MutableSet<E> {
         val names = attributeDelegate.getValue(thisRef, property)
         return object : LinkedHashSet<E>(names.mapNotNull { name -> entities.find { it.name == name } }) {
             override fun add(entity: E): Boolean {
