@@ -21,7 +21,7 @@ class GoogleSttStream(private val clientStream: ClientStream<StreamingRecognizeR
 
     companion object {
 
-        fun create(clientStream: ClientStream<StreamingRecognizeRequest>, recognitionConfig: RecognitionConfig, singleUtterance:Boolean = false): GoogleSttStream {
+        fun create(clientStream: ClientStream<StreamingRecognizeRequest>, recognitionConfig: RecognitionConfig, singleUtterance: Boolean = false): GoogleSttStream {
             val streamingRecognitionConfig =
                     StreamingRecognitionConfig.newBuilder().apply {
                         setConfig(recognitionConfig)

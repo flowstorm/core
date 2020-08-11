@@ -9,7 +9,7 @@ import com.promethist.common.ObjectUtil.defaultMapper
 import com.promethist.core.Defaults
 import com.promethist.core.Input
 import com.promethist.core.type.Dynamic
-import com.promethist.port.stt.SttConfig
+import com.promethist.core.model.SttConfig
 import com.promethist.util.DataConverter
 import java.io.BufferedReader
 import java.io.File
@@ -56,9 +56,10 @@ class BotCallSocketAdapter : AbstractBotSocketAdapter() {
     override lateinit var appKey: String
     override lateinit var sender: String
     override var token: String? = null
-    override var config = BotConfig(Defaults.locale, Defaults.zoneId, true, 8000, BotConfig.TtsType.RequiredStreaming)
-    private val sttConfig
-        get() = SttConfig(locale ?: config.locale, config.zoneId, config.sttSampleRate, SttConfig.Encoding.MULAW)
+    override var config = BotConfig(Defaults.locale, Defaults.zoneId, true, SttConfig.Mode.Duplex, 8000, BotConfig.TtsType.RequiredStreaming)
+    override val sttConfig
+        get() = SttConfig(locale
+                ?: config.locale, config.zoneId, config.sttSampleRate, SttConfig.Encoding.MULAW, config.sttMode)
     private val workDir = File(System.getProperty("java.io.tmpdir"))
     private val outSound = javaClass.getResourceAsStream("/audio/out.mp3").readBytes()
 
@@ -74,8 +75,8 @@ class BotCallSocketAdapter : AbstractBotSocketAdapter() {
             is BotEvent.Recognized -> {
                 sendMessage(OutputMessage.Clear(sessionId!!))
                 sendAudioData(outSound)
-                if (!isRecognitionStarted)
-                    startRecognition(sttConfig)
+                if (!inputAudioStreamOpen/* && sttConfig.mode == SttConfig.Mode.Duplex*/)
+                    inputAudioStreamOpen()
             }
         }
     }
@@ -101,7 +102,7 @@ class BotCallSocketAdapter : AbstractBotSocketAdapter() {
                 logger.info("call from $sender")
                 onRequest(createRequest(Input(transcript = Input.Transcript("#intro")), Dynamic(
                         "clientType" to "call:" + AppConfig.instance.get("git.ref", "unknown"))))
-                startRecognition(sttConfig)
+                inputAudioStreamOpen()
             }
             is InputMessage.Stop -> {
                 session.close()
@@ -111,7 +112,7 @@ class BotCallSocketAdapter : AbstractBotSocketAdapter() {
                     session.close()
             }
             is InputMessage.Media -> {
-                if (isRecognitionStarted) {
+                if (inputAudioStreamOpen) {
                     val payload = message.media.payloadBytes
                     onInputAudio(payload, 0, payload.size)
                 }
