@@ -16,7 +16,8 @@ object ServiceUrlResolver {
             "editor" to 8092,
             "cassandra" to 8093,
             "cassandra-training" to 8094,
-            "illusionist-training" to 8095
+            "illusionist-training" to 8095,
+            "duckling" to 8096
     )
 
     enum class RunMode { local, docker, dist, detect }

@@ -1,0 +1,27 @@
+[
+  {
+    "body": "two cups of coffee",
+    "start": 0,
+    "value": {
+      "value": 2,
+      "type": "value",
+      "product": "coffee",
+      "unit": "cup"
+    },
+    "end": 18,
+    "dim": "quantity",
+    "latent": false
+  },
+  {
+    "body": "3.5 cups",
+    "start": 0,
+    "value": {
+      "value": 3.5,
+      "type": "value",
+      "unit": "cup"
+    },
+    "end": 8,
+    "dim": "quantity",
+    "latent": false
+  }
+]

@@ -58,6 +58,14 @@ class Application : JerseyApplication() {
                 bind(dialogueFactory).to(DialogueFactory::class.java)
                 bind(DialogueManager::class.java).to(Component::class.java).named("dm")
 
+                // Duckling (time values)
+                val ducklingUrl = ServiceUrlResolver.getEndpointUrl("duckling")
+                val duckling = Duckling()
+                duckling.webTarget = RestClient.webTarget(ducklingUrl)
+                        .path("/parse")
+
+                bind(duckling).to(Component::class.java).named("duckling")
+
                 // NER component (second)
                 val cassandraUrl = ServiceUrlResolver.getEndpointUrl("cassandra")
                 val cassandra = Cassandra()
