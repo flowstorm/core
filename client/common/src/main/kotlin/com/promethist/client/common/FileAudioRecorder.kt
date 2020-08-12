@@ -52,7 +52,7 @@ class FileAudioRecorder(val dir: File, val filestoreUrl: String, val uploadMode:
             val now = LocalTime.now()
             if ((uploadMode == UploadMode.immediate) || ((uploadMode == UploadMode.night) && (now.hour in 3..5))) {
                 try {
-                    dir.walk().forEach { file ->
+                    dir.walk().maxDepth(1).forEach { file ->
                         if (file.extension == "wav") {
                             val fileUrl = "$filestoreUrl/session/${file.name}"
                             println("{Uploading $file to $fileUrl}")
