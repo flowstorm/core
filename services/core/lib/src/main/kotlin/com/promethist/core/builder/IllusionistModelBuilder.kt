@@ -2,7 +2,7 @@ package com.promethist.core.builder
 
 import com.promethist.common.RestClient
 import com.promethist.core.builder.IntentModelBuilder.Output
-import com.promethist.core.dialogue.Dialogue
+import com.promethist.core.dialogue.AbstractDialogue
 import com.promethist.util.LoggerDelegate
 import java.net.URL
 import java.util.*
@@ -12,11 +12,11 @@ class IllusionistModelBuilder(val apiUrl: String, val apiKey: String) : IntentMo
 
     private val logger by LoggerDelegate()
 
-    override fun build(irModel: IrModel, language: Locale, intents: List<Dialogue.Intent>) {
+    override fun build(irModel: IntentModel, language: Locale, intents: List<AbstractDialogue.Intent>) {
         build(irModel.id, irModel.name, language, intents)
     }
 
-    override fun build(modelId: String, name: String, language: Locale, intents: List<Dialogue.Intent>) {
+    override fun build(modelId: String, name: String, language: Locale, intents: List<AbstractDialogue.Intent>) {
         val items = mutableMapOf<String, Output.Item>()
         intents.forEach { intent ->
             items[intent.name] = Output.Item(intent.utterances, intent.id.toString(), intent.threshold)
@@ -35,6 +35,6 @@ class IllusionistModelBuilder(val apiUrl: String, val apiKey: String) : IntentMo
         } catch (e: WebApplicationException) {
             RestClient.call<Any>(url, "PUT", output = output)
         }
-        logger.info("built model (name=$name, id=$modelId)")
+        logger.info("built intent model name=$name, id=$modelId")
     }
 }

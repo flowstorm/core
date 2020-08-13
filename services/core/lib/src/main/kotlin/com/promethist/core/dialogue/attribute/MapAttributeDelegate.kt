@@ -1,6 +1,6 @@
 package com.promethist.core.dialogue.attribute
 
-import com.promethist.core.dialogue.Dialogue
+import com.promethist.core.dialogue.AbstractDialogue
 import com.promethist.core.type.StringMutableSet
 import kotlin.reflect.KProperty
 
@@ -15,7 +15,7 @@ class MapAttributeDelegate<E : Any>(
 
     private val attributeDelegate = ContextualAttributeDelegate(scope, MutableSet::class, namespace) { StringMutableSet() }
 
-    operator fun getValue(thisRef: Dialogue, property: KProperty<*>): KeyMap<E> {
+    operator fun getValue(thisRef: AbstractDialogue, property: KProperty<*>): KeyMap<E> {
         val keys = attributeDelegate.getValue(thisRef, property)
         return object : HashMap<String, E>(keys.map { it to entities[it] }.toMap()), KeyMap<E> {
 

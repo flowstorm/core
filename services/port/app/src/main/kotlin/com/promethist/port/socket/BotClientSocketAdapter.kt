@@ -3,7 +3,7 @@ package com.promethist.port.socket
 import com.promethist.client.BotConfig
 import com.promethist.client.BotEvent
 import com.promethist.common.ObjectUtil.defaultMapper
-import com.promethist.port.stt.*
+import com.promethist.core.model.SttConfig
 import java.io.IOException
 import java.nio.ByteBuffer
 
@@ -13,6 +13,9 @@ class BotClientSocketAdapter : AbstractBotSocketAdapter() {
     override lateinit var appKey: String
     override lateinit var sender: String
     override var token: String? = null
+    override val sttConfig
+        get() = SttConfig(locale ?: config.locale,
+                config.zoneId, config.sttSampleRate, SttConfig.Encoding.LINEAR16, config.sttMode)
 
     override fun onWebSocketText(json: String?) {
         try {
@@ -27,19 +30,15 @@ class BotClientSocketAdapter : AbstractBotSocketAdapter() {
                     sendEvent(BotEvent.Ready())
                 }
                 is BotEvent.Request -> onRequest(event.request)
-                is BotEvent.InputAudioStreamOpen -> {
-                    stopRecognition(false)
-                    startRecognition(SttConfig(locale ?: config.locale, config.zoneId, config.sttSampleRate))
-                }
-                is BotEvent.InputAudioStreamClose -> { }
-                is BotEvent.InputAudioStreamCancel -> stopRecognition(true)
+                is BotEvent.InputAudioStreamOpen -> inputAudioStreamOpen()
+                is BotEvent.InputAudioStreamClose -> inputAudioStreamClose()
                 is BotEvent.SessionEnded -> sendEvent(BotEvent.SessionEnded())
                 else -> error("Unexpected event of type ${event::class.simpleName}")
             }
         } catch (e: Throwable) {
             logger.error("onWebSocketText", e)
             (e.cause?:e).apply {
-                sendEvent(BotEvent.Error(message?:this::class.qualifiedName?:"unknown"))
+                sendEvent(BotEvent.Error(message ?: this::class.qualifiedName ?: "unknown"))
             }
         }
     }

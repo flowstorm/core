@@ -52,7 +52,8 @@ internal class DialogueScriptTest {
     @Test
     fun `test other`() {
         object : BasicDialogue() {
-            override val dialogueName = "test"
+            override val dialogueId = "dialogue1"
+            override val dialogueName = "product/dialogue/1"
 
             //val movieSeen by userAttribute<Dynamic>()
 

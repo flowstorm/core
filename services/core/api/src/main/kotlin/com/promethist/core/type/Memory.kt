@@ -3,7 +3,7 @@ package com.promethist.core.type
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
-import com.promethist.core.dialogue.Dialogue
+import com.promethist.core.dialogue.AbstractDialogue
 import java.math.BigDecimal
 
 open class Memory<V: Any>(
@@ -30,6 +30,7 @@ open class Memory<V: Any>(
             JsonSubTypes.Type(value = BigDecimalMutableSet::class, name = "BigDecimalMutableSet"),
             JsonSubTypes.Type(value = DateTimeMutableSet::class, name = "DateTimeMutableSet"),
             JsonSubTypes.Type(value = LocationMutableSet::class, name = "LocationMutableSet"),
+            JsonSubTypes.Type(value = DynamicMutableSet::class, name = "DynamicMutableSet"),
 
             JsonSubTypes.Type(value = BooleanMutableList::class, name = "BooleanMutableList"),
             JsonSubTypes.Type(value = StringMutableList::class, name = "StringMutableList"),
@@ -39,7 +40,8 @@ open class Memory<V: Any>(
             JsonSubTypes.Type(value = DoubleMutableList::class, name = "DoubleMutableList"),
             JsonSubTypes.Type(value = BigDecimalMutableList::class, name = "BigDecimalMutableList"),
             JsonSubTypes.Type(value = DateTimeMutableList::class, name = "DateTimeMutableList"),
-            JsonSubTypes.Type(value = LocationMutableList::class, name = "LocationMutableList")
+            JsonSubTypes.Type(value = LocationMutableList::class, name = "LocationMutableList"),
+            JsonSubTypes.Type(value = DynamicMutableList::class, name = "DynamicMutableList")
         ])
         var _value: V,
         var _type: String = _value::class.simpleName!!
@@ -75,8 +77,8 @@ open class Memory<V: Any>(
     fun touch() {
         count++
         time = DateTime.now()
-        if (Dialogue.isRunning) {
-            Dialogue.run.node.dialogue.apply {
+        if (AbstractDialogue.isRunning) {
+            AbstractDialogue.run.node.dialogue.apply {
                 if (clientLocation != null && clientLocation!!.isNotEmpty)
                     location = clientLocation
             }

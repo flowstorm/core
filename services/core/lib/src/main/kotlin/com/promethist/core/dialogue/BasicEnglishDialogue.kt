@@ -2,9 +2,6 @@ package com.promethist.core.dialogue
 
 import com.promethist.common.AppConfig
 import com.promethist.core.model.DialogueEvent
-import org.litote.kmongo.MongoOperator
-import com.promethist.core.dialogue.Dialogue
-import java.util.*
 
 abstract class BasicEnglishDialogue() : BasicDialogue() {
 
@@ -25,7 +22,7 @@ abstract class BasicEnglishDialogue() : BasicDialogue() {
     val _basicLogApplicationErrorResponse2 = Response(basicId++, false, {"Thanks. Let's get back."})
     val _basicLogApplicationErrorUserInput = UserInput(basicId++, arrayOf(), arrayOf()) {
         val transition = Transition(_basicLogApplicationErrorResponse2)
-        dialogueEvent = DialogueEvent(this, this@BasicEnglishDialogue, DialogueEvent.Type.UserError, input.transcript.text)
+        dialogueEvent = DialogueEvent(this, this@BasicEnglishDialogue, DialogueEvent.Type.UserError, input.alternatives[0].text)
         transition
     }
 
@@ -34,7 +31,7 @@ abstract class BasicEnglishDialogue() : BasicDialogue() {
     val _basicLogApplicationCommentResponse2 = Response(basicId++, false, {"Thanks. Let's get back"})
     val _basicLogApplicationCommentUserInput = UserInput(basicId++, arrayOf(), arrayOf()) {
         val transition = Transition(_basicLogApplicationCommentResponse2)
-        dialogueEvent = DialogueEvent(this, this@BasicEnglishDialogue, DialogueEvent.Type.UserComment, input.transcript.text)
+        dialogueEvent = DialogueEvent(this, this@BasicEnglishDialogue, DialogueEvent.Type.UserComment, input.alternatives[0].text)
         transition
     }
 

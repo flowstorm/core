@@ -4,7 +4,7 @@ import com.promethist.core.model.*
 import com.promethist.core.Context
 import com.promethist.core.Pipeline
 import com.promethist.core.Request
-import com.promethist.core.dialogue.Dialogue
+import com.promethist.core.dialogue.AbstractDialogue
 import com.promethist.core.profile.ProfileRepository
 import com.promethist.core.resources.CommunityResource
 import com.promethist.core.runtime.DialogueLog
@@ -31,7 +31,7 @@ class ContextFactory {
                 pipeline,
                 profile,
                 session.apply {
-                    with (attributes[Dialogue.defaultNamespace]) {
+                    with (attributes[AbstractDialogue.defaultNamespace]) {
                         request.attributes.forEach {
                             put(it.key, Memory(when (it.key) {
                                 "clientLocation" ->

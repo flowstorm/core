@@ -31,4 +31,6 @@ class Microphone : InputAudioDevice() {
     }
 
     override fun read(buffer: ByteArray): Int = micLine.read(buffer, 0, buffer!!.size)
+
+    override fun toString() = this::class.simpleName + "(${micLine.lineInfo})"
 }

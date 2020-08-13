@@ -1,5 +1,6 @@
 package com.promethist.port.socket
 
+import com.promethist.client.BotClient
 import com.promethist.client.BotConfig
 import com.promethist.client.BotEvent
 import com.promethist.client.BotSocket
@@ -9,6 +10,7 @@ import com.promethist.core.ExpectedPhrase
 import com.promethist.core.Input
 import com.promethist.core.Request
 import com.promethist.core.Response
+import com.promethist.core.model.SttConfig
 import com.promethist.core.model.TtsConfig
 import com.promethist.core.model.Voice
 import com.promethist.core.resources.CoreResource
@@ -32,9 +34,9 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
 
         override fun onResponse(input: Input, isFinal: Boolean) {
             try {
-                if (isFinal && !isRecognitionCancelled) {
+                if (isFinal && inputAudioStreamOpen) {
                     silence = false
-                    stopRecognition()
+                    inputAudioStreamClose()
                     sendEvent(BotEvent.Recognized(input.transcript.text))
                     onRequest(createRequest(input))
                 }
@@ -55,10 +57,10 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
 
         override fun onEndOfUtterance() {
             silence = true
-            stopRecognition()
             thread {
                 Thread.sleep(1500)
                 if (silence) {
+                    inputAudioStreamClose()
                     sendSilenceResponse()
                 }
             }
@@ -81,11 +83,11 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
     protected var locale: Locale? = null
     protected var sessionId: String? = null
     private var expectedPhrases: List<ExpectedPhrase> = listOf()
-    private var recognitionStartTime: Long = 0
+    private var sttStartTime: Long = 0
     private val sttService: SttService = SttServiceFactory.create("Google", BotSttCallback())
     private var sttStream: SttStream? = null
-    protected var isRecognitionCancelled = false
-    protected val isRecognitionStarted get() = (sttStream != null)
+    abstract val sttConfig: SttConfig
+    protected val inputAudioStreamOpen get() = (sttStream != null)
 
     fun createRequest(input: Input, attributes: MutablePropertyMap = Dynamic()) =
             Request(appKey, sender, token, sessionId ?: error("missing session id"), input, attributes)
@@ -94,25 +96,28 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
 
     override fun close() {
         logger.info("close()")
-        if (isRecognitionStarted)
-            stopRecognition()
+        if (inputAudioStreamOpen)
+            inputAudioStreamClose(true)
         sttService.close()
     }
 
-    fun startRecognition(sttConfig: SttConfig) {
-        logger.info("startRecognition(sttConfig = $sttConfig)")
-        sttStream = sttService.createStream(sttConfig, expectedPhrases)
-        recognitionStartTime = System.currentTimeMillis()
+    fun inputAudioStreamOpen() {
+        if (sttStream == null) {
+            logger.info("STT STREAM OPEN")
+            sttStream = sttService.createStream(sttConfig, expectedPhrases)
+        }
+        sttStartTime = System.currentTimeMillis()
     }
 
-    fun stopRecognition(cancelled: Boolean = false) {
-        logger.info("stopRecognition(cancelled = $cancelled)")
-        isRecognitionCancelled = cancelled
-        sttStream?.close()
-        sttStream = null
+    fun inputAudioStreamClose(sttClose: Boolean = (sttConfig.mode != SttConfig.Mode.Duplex)) {
+        if (sttClose && inputAudioStreamOpen) {
+            logger.info("STT STREAM CLOSE")
+            sttStream?.close()
+            sttStream = null
+        }
     }
 
-    private fun isDetectingAudio(payload: ByteArray, offset: Int, length: Int): Boolean {
+    private fun isDetectingSpeech(payload: ByteArray, offset: Int, length: Int): Boolean {
         for (i in offset until offset + length step 2) {
             // expecting LINEAR16 in little endian.
             var s = payload[i + 1].toInt()
@@ -128,11 +133,11 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
 
     fun onInputAudio(payload: ByteArray, offset: Int, length: Int) {
         logger.debug("onInputAudio(payload[${payload.size}], offset = $offset, length = $length)")
-        if (isRecognitionStarted) {
-            if (isDetectingAudio(payload, offset, length))
-                recognitionStartTime = System.currentTimeMillis()
-            if (recognitionStartTime + 10000 < System.currentTimeMillis()) {
-                stopRecognition(true)
+        if (inputAudioStreamOpen) {
+            if (isDetectingSpeech(payload, offset, length))
+                sttStartTime = System.currentTimeMillis()
+            if ((state == BotClient.State.Listening) && (sttStartTime + 10000 < System.currentTimeMillis())) {
+                inputAudioStreamClose()
                 sendSilenceResponse()
             } else {
                 sttStream?.write(payload, offset, length)
@@ -169,7 +174,7 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
         sendResponse(response)
         if (response.sessionEnded) {
             sendEvent(BotEvent.SessionEnded())
-            stopRecognition()
+            inputAudioStreamClose(true)
             sessionId = null
         }
     }

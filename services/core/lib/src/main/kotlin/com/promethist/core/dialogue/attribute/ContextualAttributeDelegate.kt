@@ -2,7 +2,7 @@ package com.promethist.core.dialogue.attribute
 
 import kotlin.reflect.KClass
 import com.promethist.core.Context
-import com.promethist.core.dialogue.Dialogue
+import com.promethist.core.dialogue.AbstractDialogue
 
 class ContextualAttributeDelegate<V: Any>(
         private val scope: Scope,
@@ -13,7 +13,7 @@ class ContextualAttributeDelegate<V: Any>(
 
     enum class Scope { Turn, Session, User }
 
-    override val attributes get() = with (Dialogue.run.context) {
+    override val attributes get() = with (AbstractDialogue.run.context) {
         when (scope) {
             Scope.Session -> session.attributes
             Scope.User -> userProfile.attributes

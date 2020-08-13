@@ -1,6 +1,6 @@
 package com.promethist.core.dialogue.attribute
 
-import com.promethist.core.dialogue.Dialogue
+import com.promethist.core.dialogue.AbstractDialogue
 import com.promethist.core.type.NamedEntity
 import com.promethist.core.type.StringMutableList
 import kotlin.reflect.KProperty
@@ -12,7 +12,7 @@ class NamedEntityListAttributeDelegate<E: NamedEntity>(
 ) {
     private val attributeDelegate = ContextualAttributeDelegate(scope, StringMutableList::class, namespace) { StringMutableList() }
 
-    operator fun getValue(thisRef: Dialogue, property: KProperty<*>): MutableList<E> {
+    operator fun getValue(thisRef: AbstractDialogue, property: KProperty<*>): MutableList<E> {
         val names = attributeDelegate.getValue(thisRef, property)
         return object : ArrayList<E>(names.mapNotNull { name -> entities.find { it.name == name } }) {
             override fun add(entity: E): Boolean {

@@ -18,7 +18,7 @@ class Illusionist : Component {
     private val logger by LoggerDelegate()
 
     override fun process(context: Context): Context {
-        val models = context.irModels
+        val models = context.intentModels
         if (models.isEmpty()) {
             logger.info("processing IR - nothing to do")
             return context.pipeline.process(context)

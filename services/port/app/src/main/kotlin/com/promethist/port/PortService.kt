@@ -3,16 +3,12 @@ package com.promethist.port
 import com.mongodb.client.MongoDatabase
 import com.mongodb.client.gridfs.GridFSBuckets
 import com.promethist.common.AppConfig
-import com.promethist.core.model.Message
 import com.promethist.core.resources.FileResource
 import com.promethist.port.tts.TtsRequest
 import com.promethist.port.tts.TtsServiceFactory
 import com.promethist.util.LoggerDelegate
 import org.bson.types.ObjectId
-import org.litote.kmongo.and
-import org.litote.kmongo.eq
 import org.litote.kmongo.findOneById
-import org.slf4j.LoggerFactory
 import java.io.*
 import javax.activation.MimetypesFileTypeMap
 import javax.inject.Inject
@@ -126,22 +122,5 @@ class PortService {
             }
         }
         return audio
-    }
-
-    fun pushMessage(appKey: String, message: Message): Boolean {
-        logger.info("pushMessage(appKey = $appKey, message = $message)")
-
-        val col = database.getCollection("message-queue", Message::class.java)
-        col.insertOne(message)
-        return true
-    }
-
-    fun popMessages(appKey: String, recipient: String, limit: Int): List<Message> {
-        val col = database.getCollection("message-queue", Message::class.java)
-        val query = and(Message::recipient eq recipient)
-        val messages = col.find(query).toList()
-        logger.debug("popMessages(appKey = $appKey, limit = $limit, messages = $messages)")
-        col.deleteMany(query)
-        return messages
     }
 }

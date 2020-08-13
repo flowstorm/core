@@ -25,7 +25,7 @@ class Cassandra : Component {
 
         try {
             context.turn.input =
-                    webTarget.path("/ner/default").queryParam("language", context.input.locale.toString())
+                    webTarget.path("/all/default").queryParam("language", context.input.locale.toString())
                             .request().post(Entity.json(context.input), object : GenericType<Input>() {})
         } catch (t:Throwable) {
             //TODO we are not using cassandra - exception should not block pipeline processing

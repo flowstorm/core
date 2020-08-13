@@ -49,7 +49,7 @@ class Application : JerseyApplication() {
                         .queryParam("key", AppConfig.instance["illusionist.apiKey"])
                 bind(illusionist).to(Component::class.java).named("illusionist")
 
-                bind(Command::class.java).to(Component::class.java).named("commandResolver")
+                bind(Action::class.java).to(Component::class.java).named("actionResolver")
 
                 // DM component (third - dialog user input decides whether to process the rest of pipeline or not)
                 val dialogueFactory = DialogueFactory(FileResourceLoader(filestore, "dialogue",
@@ -80,9 +80,6 @@ class Application : JerseyApplication() {
                 bindTo(MongoDatabase::class.java,
                         KMongo.createClient(ConnectionString(AppConfig.instance["database.url"]))
                                 .getDatabase(AppConfig.instance["name"] + "-" + AppConfig.instance["namespace"]))
-
-                // dialogue manager helena (support of running V1 dialogue models)
-                bindTo(BotService::class.java, ServiceUrlResolver.getEndpointUrl("helena") + "/dm")
 
                 bindTo(CoreResourceImpl::class.java)
 

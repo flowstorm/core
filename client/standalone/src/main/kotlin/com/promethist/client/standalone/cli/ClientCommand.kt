@@ -23,6 +23,7 @@ import com.promethist.client.util.FileDynamic
 import com.promethist.client.util.InetInterface
 import com.promethist.common.AppConfig
 import com.promethist.common.ServiceUrlResolver
+import com.promethist.core.model.SttConfig
 import com.promethist.core.model.Voice
 import com.promethist.core.type.Dynamic
 import cz.alry.jcommander.CommandRunner
@@ -76,6 +77,9 @@ class ClientCommand: CommandRunner<Application.Params, ClientCommand.Params> {
         @Parameter(names = ["-scr", "--screen"], order = 30, description = "Screen view (none, window, fullscreen)")
         var screen = "none"
 
+        @Parameter(names = ["-stt"], order = 60, description = "STT mode (Default, SingleUtterance, Duplex)")
+        var sttMode = SttConfig.Mode.Default
+
         @Parameter(names = ["-nia", "--no-input-audio"], order = 70, description = "No input audio (text input only)")
         var noInputAudio = false
 
@@ -88,7 +92,7 @@ class ClientCommand: CommandRunner<Application.Params, ClientCommand.Params> {
         @Parameter(names = ["-log", "--show-logs"], order = 72, description = "Output ")
         var logs = false
 
-        @Parameter(names = ["-aru", "--audio-record-upload"], order = 73, description = "Audio record with upload (none, night, always)")
+        @Parameter(names = ["-aru", "--audio-record-upload"], order = 73, description = "Audio record with upload (none, local, night, immediate)")
         var audioRecordUpload = FileAudioRecorder.UploadMode.none
 
         @Parameter(names = ["-ex", "--exceptions"], order = 79, description = "Raise exceptions")
@@ -107,7 +111,7 @@ class ClientCommand: CommandRunner<Application.Params, ClientCommand.Params> {
         var distUrl = "https://repository.promethist.ai/dist"
     }
 
-    override fun run(globalParams: Application.Params, params: ClientCommand.Params) {
+    override fun run(globalParams: Application.Params, params: Params) {
         (LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME) as Logger).level = Level.toLevel(globalParams.logLevel)
         val writer = OutputStreamWriter(
             if (params.output == "stdout")
@@ -216,6 +220,8 @@ class ClientCommand: CommandRunner<Application.Params, ClientCommand.Params> {
                     BotConfig.TtsType.None
                 else
                     BotConfig.TtsType.RequiredLinks,
+                // STT mode
+                params.sttMode,
                 // audio recorder
                 if (params.noInputAudio || (params.audioRecordUpload == FileAudioRecorder.UploadMode.none))
                     null
@@ -235,7 +241,7 @@ class ClientCommand: CommandRunner<Application.Params, ClientCommand.Params> {
                 Screen.launch()
             }
         }
-        println("{$context}")
+        println("{context = $context, inputAudioDevice = ${client.inputAudioDevice}, sttMode = ${client.sttMode}}")
         if (listOf("rpi", "model1", "model2").contains(params.device)) {
             val gpio = GpioFactory.getInstance()
             light = if (params.device == "model2")

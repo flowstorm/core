@@ -16,7 +16,7 @@ import java.time.Duration
 import kotlin.random.Random
 import kotlin.reflect.full.memberProperties
 
-abstract class BasicDialogue : Dialogue() {
+abstract class BasicDialogue : AbstractDialogue() {
 
     companion object {
 

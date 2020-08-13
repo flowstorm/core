@@ -209,7 +209,7 @@ class ToolCommand: CommandRunner<Application.Params, ToolCommand.Params> {
                 if (header == null) {
                     done = true
                 } else {
-                    val sample = Companion.decoder.decodeFrame(header, bitStream) as SampleBuffer
+                    val sample = decoder.decodeFrame(header, bitStream) as SampleBuffer
                     val buffer = ByteBuffer.allocate(sample.buffer.size * 2).order(ByteOrder.BIG_ENDIAN)
                     buffer.asShortBuffer().put(sample.buffer)
               }

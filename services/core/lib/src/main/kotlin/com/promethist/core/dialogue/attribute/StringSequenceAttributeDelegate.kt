@@ -1,6 +1,6 @@
 package com.promethist.core.dialogue.attribute
 
-import com.promethist.core.dialogue.Dialogue
+import com.promethist.core.dialogue.AbstractDialogue
 import com.promethist.core.type.MemoryMutableSet
 import kotlin.reflect.KProperty
 
@@ -12,7 +12,7 @@ class StringSequenceAttributeDelegate(
 ) {
     private val attributeDelegate = ContextualAttributeDelegate(scope, MemoryMutableSet::class, namespace) { MemoryMutableSet<String>() }
 
-    operator fun getValue(thisRef: Dialogue, property: KProperty<*>): SequenceAttribute<String, String> {
+    operator fun getValue(thisRef: AbstractDialogue, property: KProperty<*>): SequenceAttribute<String, String> {
         val memories = attributeDelegate.getValue(thisRef, property)
         return object : SequenceAttribute<String, String>(entities, memories, nextValue) {
             override fun toMemoryValue(e: String) = e

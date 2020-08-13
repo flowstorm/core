@@ -14,8 +14,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
         JsonSubTypes.Type(value = BotEvent.SessionStarted::class, name = "SessionStarted"),
         JsonSubTypes.Type(value = BotEvent.SessionEnded::class, name = "SessionEnded"),
         JsonSubTypes.Type(value = BotEvent.InputAudioStreamOpen::class, name = "InputAudioStreamOpen"),
-        JsonSubTypes.Type(value = BotEvent.InputAudioStreamClose::class, name = "InputAudioStreamClose"),
-        JsonSubTypes.Type(value = BotEvent.InputAudioStreamCancel::class, name = "InputAudioStreamCancel")
+        JsonSubTypes.Type(value = BotEvent.InputAudioStreamClose::class, name = "InputAudioStreamClose")
 )
 open class BotEvent {
     data class Init(val key: String, val sender: String, val token: String? = null, val config: BotConfig) : BotEvent()
@@ -28,7 +27,6 @@ open class BotEvent {
     class SessionEnded : BotEvent()
     class InputAudioStreamOpen : BotEvent()
     class InputAudioStreamClose : BotEvent()
-    class InputAudioStreamCancel : BotEvent()
 
     override fun toString(): String = if (this::class.isData) super.toString() else this::class.simpleName!!
 }

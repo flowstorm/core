@@ -1,7 +1,7 @@
 package com.promethist.core.dialogue.attribute
 
 import com.promethist.core.Context
-import com.promethist.core.dialogue.Dialogue
+import com.promethist.core.dialogue.AbstractDialogue
 import com.promethist.core.model.Community
 import kotlin.reflect.KClass
 
@@ -12,7 +12,7 @@ class CommunityAttributeDelegate<V: Any>(
         default: (Context.() -> V)
 ) : AttributeDelegate<V>(clazz, namespace, default) {
 
-    private val community get() = with (Dialogue.run.context) {
+    private val community get() = with (AbstractDialogue.run.context) {
         communities.getOrPut(communityName) {
             communityResource.get(communityName, organizationId = session.properties["organization_id"] as String) ?: Community(name = communityName, organization_id = session.properties["organization_id"] as String?).apply {
                 communityResource.create(this)

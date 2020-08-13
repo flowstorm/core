@@ -12,7 +12,7 @@ import java.time.LocalTime
 
 class FileAudioRecorder(val dir: File, val filestoreUrl: String, val uploadMode: UploadMode = UploadMode.night) : AudioRecorder, Runnable {
 
-    enum class UploadMode { none, night, immediate }
+    enum class UploadMode { none, local, night, immediate }
 
     override var outputStream: OutputStream? = null
     var sessionId: String? = null
@@ -20,7 +20,7 @@ class FileAudioRecorder(val dir: File, val filestoreUrl: String, val uploadMode:
     var wavFile: File? = null
 
     init {
-        if (uploadMode != FileAudioRecorder.UploadMode.none)
+        if (uploadMode != UploadMode.none)
             Thread(this).start()
     }
 
@@ -50,7 +50,7 @@ class FileAudioRecorder(val dir: File, val filestoreUrl: String, val uploadMode:
     override fun run() {
         while (true) {
             val now = LocalTime.now()
-            if ((uploadMode == UploadMode.immediate) || (now.hour in 3..5)) {
+            if ((uploadMode == UploadMode.immediate) || ((uploadMode == UploadMode.night) && (now.hour in 3..5))) {
                 try {
                     dir.walk().forEach { file ->
                         if (file.extension == "wav") {

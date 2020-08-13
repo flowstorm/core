@@ -3,8 +3,8 @@ package com.promethist.port.stt
 import com.google.cloud.speech.v1.RecognitionConfig
 import com.google.cloud.speech.v1.SpeechClient
 import com.google.cloud.speech.v1.SpeechContext
-import com.promethist.common.AppConfig
 import com.promethist.core.ExpectedPhrase
+import com.promethist.core.model.SttConfig
 import java.util.concurrent.TimeUnit
 
 class GoogleSttService(private val callback: SttCallback) : SttService {
@@ -12,7 +12,7 @@ class GoogleSttService(private val callback: SttCallback) : SttService {
     private val client = SpeechClient.create()
 
     override fun createStream(config: SttConfig, expectedPhrases: List<ExpectedPhrase>): GoogleSttStream {
-        val singleUtterance = AppConfig.instance.getOrNull("google.stt.singleUtterance") == "true"
+        val singleUtterance = (config.mode == SttConfig.Mode.SingleUtterance)
 
         val recognitionConfig = RecognitionConfig.newBuilder()
                 .setEncoding(when (config.encoding) {

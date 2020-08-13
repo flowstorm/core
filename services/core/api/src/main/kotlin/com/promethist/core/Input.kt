@@ -16,7 +16,7 @@ data class Input(
 ) {
     data class Transcript(val text: String, val confidence: Float = 1.0F)
 
-    data class Class(val type: Type, val name: String, val score: Float = 1.0F) {
+    data class Class(val type: Type, val name: String, val score: Float = 1.0F, val model_id: String = "") {
         enum class Type { Intent, Entity }
     }
 
@@ -39,7 +39,7 @@ data class Input(
 
     data class Punctuation(override val text: String) : Token(text)
 
-    data class Entity(val className: String, var value: String, var confidence: Float)
+    data class Entity(val className: String, var value: String, var confidence: Float, val modelId: String)
 
     class WordList(words: List<Word>) : ArrayList<Word>() {
         init {
@@ -69,11 +69,12 @@ data class Input(
         return numbers
     }
 
-    var command: String? = null
+    var action: String? = null
 
     @get:JsonIgnore
     val entityMap: Map<String, List<Entity>> by lazy {
         val map = mutableMapOf<String, MutableList<Entity>>()
+        var prevOutside = true
         words.forEach { word ->
             word.classes.forEach {
                 if (it.type == Class.Type.Entity) {
@@ -82,16 +83,25 @@ data class Input(
                     val className = if (beginning || inside) it.name.substring(2) else it.name
                     if (!map.containsKey(className))
                         map[className] = mutableListOf()
-                    else if (inside) {
-                        val last = map[className]!!.size - 1
-                        map[className]!![last].value += " " + word.text
-                        var length = map[className]!![last].value.split(" ").size
-                        map[className]!![last].confidence += (it.score - map[className]!![last].confidence) / length
+                    if (inside) {
+                        try {
+                            // May throw NoSuchElementException if the annotation is not valid
+                            val last = map[className]!!.last { last -> last.modelId == it.model_id && !prevOutside && last.className == className }
+                            if (last.modelId == it.model_id) {
+                                last.value += " " + word.text
+                                var length = last.value.split(" ").size
+                                last.confidence += (it.score - last.confidence) / length
+                            }
+                        } catch (e: NoSuchElementException) {
+                            // Inalid annotation (an entity starts with I tag). Treating I as B
+                            map[className]!!.add(Entity(className, word.text, it.score, it.model_id))
+                        }
                     }
                     if (!inside)
-                        map[className]!!.add(Entity(className, word.text, it.score))
+                        map[className]!!.add(Entity(className, word.text, it.score, it.model_id))
                 }
             }
+            prevOutside = !word.classes.any { it.type == Class.Type.Entity }
         }
         map
     }

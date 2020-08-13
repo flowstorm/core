@@ -7,6 +7,8 @@ import com.promethist.common.Reloadable
 import com.promethist.core.Input
 import com.promethist.core.Request
 import com.promethist.core.Response
+import com.promethist.core.model.SttConfig
+import com.promethist.core.model.TtsConfig
 import com.promethist.util.LoggerDelegate
 import java.util.UUID
 
@@ -19,6 +21,7 @@ class BotClient(
         val inputAudioDevice: AudioDevice? = null,
         val callback: BotClientCallback,
         val tts: BotConfig.TtsType = BotConfig.TtsType.RequiredLinks,
+        val sttMode: SttConfig.Mode = SttConfig.Mode.Default,
         val inputAudioRecorder: AudioRecorder? = null
 ) : BotSocket.Listener {
 
@@ -58,8 +61,12 @@ class BotClient(
             lastStateDuration = currentTime - lastTime
             lastTime = currentTime
             logger.info("onStateChange(state = $state)")
-            callback.onBotStateChange(this, state)
-            field = state
+            if ((state == State.Responding) && (sttMode == SttConfig.Mode.Duplex) && !inputAudioStreamOpen) {
+                inputAudioStreamOpen()
+            } else {
+                callback.onBotStateChange(this, state)
+                field = state
+            }
         }
     private val logger by LoggerDelegate()
     private var lostThread: LazyThread? = null
@@ -103,7 +110,7 @@ class BotClient(
     override fun onOpen() {
         logger.info("onOpen()")
         state = State.Open
-        val config = BotConfig(tts = tts, voice = context.voice)
+        val config = BotConfig(tts = tts, voice = context.voice, sttMode = sttMode)
         socket.sendEvent(BotEvent.Init(context.key, context.sender, context.token, config))
     }
 
@@ -174,6 +181,7 @@ class BotClient(
 
     private fun onSessionEnded() {
         logger.info("onSessionEnded()")
+        inputAudioStreamClose(false)
         context.sessionId = null
         callback.onSessionId(this, context.sessionId)
         state = State.Sleeping
@@ -215,9 +223,11 @@ class BotClient(
     private fun onRecognized(text: String) {
         logger.info("onRecognized(text = $text)")
         callback.onRecognized(this, text)
+        outputAudioPlayCancel()
         builtinAudio("out")
         state = State.Processing
-        inputAudioStreamClose()
+        if (sttMode != SttConfig.Mode.Duplex)
+           inputAudioStreamClose()
     }
 
     fun touch(openInputAudio: Boolean = true) {
@@ -238,8 +248,10 @@ class BotClient(
                     state = State.Paused
             State.Paused ->
                 state = State.Responding
-            State.Sleeping ->
+            State.Sleeping -> {
+                outputAudioPlayCancel()
                 doIntro()
+            }
         }
     }
 

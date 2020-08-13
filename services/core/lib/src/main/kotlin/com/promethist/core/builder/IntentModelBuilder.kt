@@ -1,6 +1,6 @@
 package com.promethist.core.builder
 
-import com.promethist.core.dialogue.Dialogue
+import com.promethist.core.dialogue.AbstractDialogue
 import java.util.*
 
 interface IntentModelBuilder {
@@ -10,9 +10,9 @@ interface IntentModelBuilder {
         data class Item(val questions: Array<out String>, val answer: String, val threshold: Float)
     }
 
-    fun build(modelId: String, name: String, language: Locale, intents: List<Dialogue.Intent>)
+    fun build(modelId: String, name: String, language: Locale, intents: List<AbstractDialogue.Intent>)
 
-    fun build(irModel: IrModel, language: Locale, intents: List<Dialogue.Intent>)
+    fun build(irModel: IntentModel, language: Locale, intents: List<AbstractDialogue.Intent>)
 
     fun build(modelId: String, name: String, language: Locale, intents: Map<String, Output.Item>)
 }
