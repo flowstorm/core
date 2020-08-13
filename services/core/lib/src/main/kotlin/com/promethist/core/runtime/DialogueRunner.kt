@@ -3,6 +3,7 @@ package com.promethist.core.runtime
 import com.promethist.common.TextConsole
 import com.promethist.common.RestClient
 import com.promethist.core.*
+import com.promethist.core.builder.IntentModel
 import com.promethist.core.model.*
 import com.promethist.core.dialogue.AbstractDialogue
 import com.promethist.core.provider.LocalFileStorage
@@ -61,12 +62,10 @@ class DialogueRunner(
         private fun initModels(dialogue: AbstractDialogue) {
             val map = mutableMapOf<Model, Map<Int, List<String>>>()
 
-            map.put(com.promethist.core.builder.IntentModel(dialogue.buildId, dialogue.dialogueName, null),
-                    dialogue.globalIntents.map { it.id to it.utterances.toList() }.toMap())
+            map.put(IntentModel(dialogue.buildId, dialogue.dialogueId, null), dialogue.globalIntents.map { it.id to it.utterances.toList() }.toMap())
 
             dialogue.userInputs.forEach {
-                map.put(com.promethist.core.builder.IntentModel(dialogue.buildId, dialogue.dialogueName, it.id),
-                        it.intents.map { it.id to it.utterances.toList() }.toMap())
+                map.put(IntentModel(dialogue.buildId, dialogue.dialogueId, it.id), it.intents.map { it.id to it.utterances.toList() }.toMap())
             }
 
             models = map.toMap()
