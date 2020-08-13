@@ -217,7 +217,7 @@ abstract class BasicDialogue : AbstractDialogue() {
                     ObjectUtil.defaultMapper.readValue<T>(it, typeRef)
                 }
             path.startsWith("./") ->
-                loader.loadObject(dialogueName + path.substring(1).substringBeforeLast(".json"), typeRef)
+                loader.loadObject(dialogueId + path.substring(1).substringBeforeLast(".json"), typeRef)
             else ->
                 loader.loadObject(path.substringBeforeLast(".json"), typeRef)
         }

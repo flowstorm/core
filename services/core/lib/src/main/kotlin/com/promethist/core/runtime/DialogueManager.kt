@@ -160,7 +160,7 @@ class DialogueManager : Component {
                         }
                     }
                     is AbstractDialogue.StopDialogue -> {
-                        while (frame.id == node.dialogue.dialogueName) {
+                        while (frame.id == node.dialogue.dialogueId) {
                             if (session.dialogueStack.isEmpty()) {
                                 inputRequested = false
                                 break
