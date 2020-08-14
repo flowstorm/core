@@ -1,0 +1,14 @@
+[
+  {
+    "body": "34C",
+    "start": 0,
+    "value": {
+      "value": 34,
+      "type": "value",
+      "unit": "celsius"
+    },
+    "end": 3,
+    "dim": "temperature",
+    "latent": false
+  }
+]

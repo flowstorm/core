@@ -25,10 +25,12 @@ class Duckling: Component {
                             .param("locale", context.input.locale.toString())
                             .param("tz", context.input.zoneId.id)
                             .param("text", context.input.transcript.text)), object : GenericType<List<NumericEntity>>() {})
-            if (!context.turn.input.entityMap.containsKey("TIME")) { // Accessing lazy entityMap in every turn!!!
-                context.turn.input.entityMap["TIME"] = mutableListOf()
+            for (entity in response) {
+                if (!context.turn.input.entityMap.containsKey(entity.className)) {
+                    context.turn.input.entityMap[entity.className] = mutableListOf()
+                }
+                context.turn.input.entityMap[entity.className]!!.add(entity)
             }
-            context.turn.input.entityMap["TIME"]!!.addAll(response)
         } catch (t:Throwable) {
             // The exception should not block pipeline processing
             context.logger.error("Call to Duckling failed: " + t.message)

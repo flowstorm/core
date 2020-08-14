@@ -1,0 +1,13 @@
+[
+  {
+    "body": "420 777 777 777",
+    "start": 1,
+    "value": {
+      "value": "420777777777",
+      "type": "value"
+    },
+    "end": 16,
+    "dim": "phone-number",
+    "latent": false
+  }
+]

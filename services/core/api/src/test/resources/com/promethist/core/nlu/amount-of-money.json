@@ -1,0 +1,26 @@
+[
+  {
+    "body": "22 euro",
+    "start": 0,
+    "value": {
+      "value": 22,
+      "type": "value",
+      "unit": "EUR"
+    },
+    "end": 7,
+    "dim": "amount-of-money",
+    "latent": false
+  },
+  {
+    "body": "five dollars",
+    "start": 9,
+    "value": {
+      "value": 5,
+      "type": "value",
+      "unit": "$"
+    },
+    "end": 21,
+    "dim": "amount-of-money",
+    "latent": false
+  }
+]

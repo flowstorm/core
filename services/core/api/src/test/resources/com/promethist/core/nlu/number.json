@@ -1,0 +1,13 @@
+[
+  {
+    "body": "twenty two thousands",
+    "start": 0,
+    "value": {
+      "value": 22000,
+      "type": "value"
+    },
+    "end": 20,
+    "dim": "number",
+    "latent": false
+  }
+]

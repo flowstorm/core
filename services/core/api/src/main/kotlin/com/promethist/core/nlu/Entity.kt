@@ -3,7 +3,7 @@ package com.promethist.core.nlu
 import com.promethist.core.Input
 import java.util.NoSuchElementException
 
-open class Entity(val className: String,
+open class Entity(var className: String,
                   open var text: String,
                   var confidence: Float,
                   val modelId: String) {
