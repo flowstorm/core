@@ -3,52 +3,45 @@ package com.promethist.client.standalone.cli
 import com.promethist.client.standalone.Application
 import com.beust.jcommander.Parameter
 import com.beust.jcommander.Parameters
-import com.promethist.client.standalone.io.Microphone
+import com.pi4j.io.gpio.GpioFactory
+import com.pi4j.io.gpio.PinPullResistance
+import com.pi4j.io.gpio.PinState
+import com.pi4j.io.gpio.RaspiPin
+import com.pi4j.io.gpio.event.GpioPinListenerDigital
+import com.promethist.client.standalone.io.*
 import com.promethist.client.util.AudioCallback
 import com.promethist.client.util.AudioDevice
 import com.promethist.core.model.TtsConfig
 import cz.alry.jcommander.CommandRunner
-import javazoom.jl.decoder.*
-import javazoom.jl.player.JavaSoundAudioDevice
 import javazoom.jl.player.Player
 import java.io.*
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
 import java.util.*
 import javax.sound.sampled.*
 
-
 class ToolCommand: CommandRunner<Application.Params, ToolCommand.Params> {
 
-    enum class Action { tts, voices, play, test }
+    enum class Action { voices, play, sample, audio, test, respeaker2 }
 
-    val BUF_SIZE = 3200
+    private val BUF_SIZE = 3200
 
     @Parameters(commandNames = ["tool"], commandDescription = "Tool actions")
     class Params : ClientParams() {
 
         @Parameter(names = ["-a", "--action"], order = 0, description = "Action")
-        var action = Action.tts
+        var action = Action.audio
 
-        @Parameter(names = ["-m", "--microphone"], order = 10, description = "Enable microphone")
+        @Parameter(names = ["-m", "--microphone"], order = 1, description = "User microphone")
         var microphone = false
     }
 
-    /*
-    fun tts(params: Params) {
-        println("Processing TTS from \"${params.input}\" to ${params.output}")
-        val port = RestClient.instance(PortResource::class.java, params.url)
-        val data = port.tts(params.key, TtsRequest(TtsConfig.defaultVoice(params.language), params.input!!))
-        File(params.output).writeBytes(data)
-    }
-    */
-    fun play(params: Params) {
+    private fun play(params: Params) {
         val buf = ByteArrayOutputStream()
         var mic: Microphone? = null
         if (params.microphone) {
-            mic = Microphone()
+            val micChannel = params.micChannel.split(':').map { it.toInt() }
+            mic = Microphone(SpeechDeviceFactory.getSpeechDevice(params.speechDeviceName), micChannel[0], micChannel[1])
             mic.callback = object : AudioCallback {
-                override fun onStart() = println("Microphone started (buffer size = ${mic.bufferSize})")
+                override fun onStart() = println("Microphone started")
                 override fun onStop() = println("Microphone stopped")
                 override fun onData(data: ByteArray, size: Int): Boolean {
                     buf.write(data, 0, size)
@@ -63,15 +56,14 @@ class ToolCommand: CommandRunner<Application.Params, ToolCommand.Params> {
         if (params.input.endsWith(".mp3")) {
             // play MP3
             println("Playing from ${params.input}")
-            Player(FileInputStream(params.input), object : JavaSoundAudioDevice() {
+            Player(FileInputStream(params.input), object : OutputAudioDevice(params.speakerName) {
                 override fun toByteArray(samples: ShortArray?, offs: Int, len: Int): ByteArray {
                     val b = super.toByteArray(samples, offs, len)
-                    if (!params.microphone)
+                    if (params.microphone)
                         buf.write(b, 0, len * 2)
                     return b
                 }
             }).play()
-            val b: Bitstream
         } else {
             // play PCM
             val audioFormat = AudioDevice.Format.DEFAULT
@@ -113,7 +105,7 @@ class ToolCommand: CommandRunner<Application.Params, ToolCommand.Params> {
 
     }
 
-    fun test(params: Params) {
+    private fun sample(params: Params) {
         // input PCM
         val inputFile = File(params.input)
         val inputStream = BufferedInputStream(FileInputStream(inputFile))
@@ -185,36 +177,66 @@ class ToolCommand: CommandRunner<Application.Params, ToolCommand.Params> {
         inputStream.close()
     }
 
+    private fun audio() {
+        for (mixerInfo in AudioSystem.getMixerInfo()) {
+            println("MIXER ${mixerInfo}")
+            val mixer = AudioSystem.getMixer(mixerInfo)
+            for (info in mixer.sourceLineInfo) {
+                println(" SOURCE $info")
+            }
+            for (info in mixer.targetLineInfo) {
+                println(" TARGET $info")
+            }
+            println()
+        }
+
+        if (AudioSystem.isLineSupported(Port.Info.MICROPHONE)) {
+            val line = AudioSystem.getLine(Port.Info.MICROPHONE)
+            println("MICROPHONE line = line")
+        } else {
+            println("NO MICROPHONE")
+        }
+    }
+
+    private fun test() {
+
+        val gpio = GpioFactory.getInstance()
+        val button = gpio.provisionDigitalInputPin(RaspiPin.GPIO_04, PinPullResistance.PULL_DOWN)
+        button.setShutdownOptions(true, PinState.LOW)
+        button.addListener(GpioPinListenerDigital { event ->
+            when (event.state) {
+                PinState.LOW -> {
+                    println("LOW")
+                }
+                PinState.HIGH -> {
+                    println("HIGH")
+                }
+            }
+        })
+        Thread.sleep(60000)
+/*
+        var channel = 1
+
+        val src = FileInputStream("testmic6.pcm").readAllBytes()
+        val dst = ByteArray(src.size / 6)
+        var j = 0
+        for (i in 0 until src.size step 12) {
+            dst[j++] = src[i + channel * 2]
+            dst[j++] = src[i + 1 + channel * 2]
+        }
+        File("testmicx.pcm").writeBytes(dst)
+*/
+    }
+
     override fun run(globalParams: Application.Params, params: Params) {
         when (params.action) {
             //Action.tts -> tts(params)
             Action.voices -> TtsConfig.values.forEach { println(it) }
+            Action.respeaker2 -> RespeakerMicArrayV2.test()
+            Action.audio -> audio()
+            Action.test -> test()
+            Action.sample -> sample(params)
             Action.play -> play(params)
-            Action.test -> test(params)
-        }
-    }
-
-    companion object {
-
-        val decoder = Decoder()
-
-        fun recode(input: InputStream, output: ByteArrayOutputStream) {
-            val bitStream = Bitstream(input)
-            var done = false
-            var i = 0
-            while (!done) {
-                val header: Header? = bitStream.readFrame()
-                if (i++ == 0)
-                    println(header)
-                if (header == null) {
-                    done = true
-                } else {
-                    val sample = decoder.decodeFrame(header, bitStream) as SampleBuffer
-                    val buffer = ByteBuffer.allocate(sample.buffer.size * 2).order(ByteOrder.BIG_ENDIAN)
-                    buffer.asShortBuffer().put(sample.buffer)
-              }
-                bitStream.closeFrame()
-            }
         }
     }
 }

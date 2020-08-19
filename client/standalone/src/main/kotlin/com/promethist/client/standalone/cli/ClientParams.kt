@@ -23,4 +23,13 @@ open class ClientParams {
 
     @Parameter(names = ["-l", "--language"], order = 6, description = "Preferred conversation language")
     var language = "en"
+
+    @Parameter(names = ["-sd", "--speech-device"], order = 7, description = "Speech device (respeaker2)")
+    var speechDeviceName = "none"
+
+    @Parameter(names = ["-mc", "--mic-channel"], order = 8, description = "Microphone channel (count:selected)")
+    var micChannel: String = "1:0"
+
+    @Parameter(names = ["-spk", "--speaker"], order = 9, description = "Speaker name")
+    var speakerName: String? = null
 }

@@ -325,7 +325,10 @@ class BotClient(
         }
     }
 
-    fun sendInputAudioData(data: ByteArray, count: Int) = socket.sendAudioData(data, count)
+    fun sendInputAudioData(data: ByteArray, count: Int) {
+        logger.debug("sendInputAudioData($count bytes)")
+        socket.sendAudioData(data, count)
+    }
 
     fun doText(text: String) {
         if (context.sessionId == null)
