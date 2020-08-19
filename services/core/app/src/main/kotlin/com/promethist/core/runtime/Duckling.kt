@@ -26,10 +26,7 @@ class Duckling: Component {
                             .param("tz", context.input.zoneId.id)
                             .param("text", context.input.transcript.text)), object : GenericType<List<NumericEntity>>() {})
             for (entity in response) {
-                if (!context.turn.input.entityMap.containsKey(entity.className)) {
-                    context.turn.input.entityMap[entity.className] = mutableListOf()
-                }
-                context.turn.input.entityMap[entity.className]!!.add(entity)
+                context.turn.input.entityMap.getOrPut(entity.className, { mutableListOf() }).add(entity)
             }
         } catch (t:Throwable) {
             // The exception should not block pipeline processing
