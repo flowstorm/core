@@ -36,15 +36,15 @@ class NumericEntity: Entity("NUMERIC", "", 1.0F, "duckling") {
     data class GrainedTime(val value: DateTime, val grain: String = ""): Time()
     data class Interval(val from: GrainedTime, val to: GrainedTime): Time()
 
-    data class Quantity(val value: Float = 0.0F, val product: String = "", val unit: String = ""): Value()
-    data class Unit(val value: Float = 0.0F, val unit: String = ""): Value()
-    data class CreditCard(val value: String = "", val issuer: String = ""): Value()
-    data class Duration(val value: Float = 0.0F, val unit: String = "", val year: Float = 0.0F, val month: Float = 0.0F,
-                        val week: Float = 0.0F, val day: Float = 0.0F, val hour: Float = 0.0F, val minute: Float = 0.0F,
-                        val second: Float = 0.0F, val normalized: Unit = Unit(0.0F, "second")): Value()
-    data class StringValue(val value: String = ""): Value()
-    data class NumericValue(val value: Float = 0.0F): Value()
-    data class URL(val value: String = "", val domain: String = ""): Value()
+    data class Quantity(val value: Float, val product: String = "", val unit: String = ""): Value()
+    data class Unit(val value: Float, val unit: String = ""): Value()
+    data class CreditCard(val value: String, val issuer: String = ""): Value()
+    data class Duration(val value: Float, val unit: String = "", val year: Float = 0.0F, val month: Float = 0.0F,
+                        val week: Float, val day: Float = 0.0F, val hour: Float = 0.0F, val minute: Float = 0.0F,
+                        val second: Float, val normalized: Unit = Unit(0.0F, "second")): Value()
+    data class StringValue(val value: String): Value()
+    data class NumericValue(val value: Float): Value()
+    data class URL(val value: String, val domain: String = ""): Value()
 
     @JsonProperty("value")
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "dim", include = JsonTypeInfo.As.EXTERNAL_PROPERTY, visible = true)
