@@ -3,7 +3,9 @@ package com.promethist.core
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
-import com.promethist.core.nlu.Entity
+import com.promethist.core.type.InputEntity
+import com.promethist.core.type.value.Amount
+import com.promethist.core.type.value.Value
 import java.time.*
 import java.util.*
 
@@ -55,7 +57,7 @@ data class Input(
     val intents get() = classes.filter { it.type == Class.Type.Intent }
 
     @get:JsonIgnore
-    val intent get() = intents.firstOrNull()?:error("No intent class recognized in input")
+    val intent get() = intents.firstOrNull() ?: error("No intent class recognized in input")
 
     @get:JsonIgnore
     val numbers: List<Number> get() {
@@ -71,7 +73,23 @@ data class Input(
     var action: String? = null
 
     @get:JsonIgnore
-    val entityMap: MutableMap<String, MutableList<Entity>> by lazy { Entity.fromAnnotation(words) }
+    val entityMap: MutableMap<String, MutableList<InputEntity>> by lazy { InputEntity.fromAnnotation(words) }
 
-    fun entities(className: String) = entityMap[className]?.map { it.text } ?: listOf()
+    fun containsEntity(className: String) = entityMap.containsKey(className)
+
+    inline fun <reified V : Value> containsEntity() = containsEntity(V::class.simpleName!!)
+
+    fun entities(className: String) = entityMap[className] ?: listOf<InputEntity>()
+
+    inline fun <reified V : Value> entities(): List<V> {
+        val className = V::class.simpleName!!
+        return if (entityMap.containsKey(className))
+            entityMap[className]?.map { it.value as V } ?: listOf()
+        else
+            listOf()
+    }
+
+    fun entity(className: String) = entities(className).first()
+
+    inline fun <reified V : Value> entity(): V = entities<V>().first()
 }

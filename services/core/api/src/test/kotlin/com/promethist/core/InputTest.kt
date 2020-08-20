@@ -27,7 +27,7 @@ class InputTest {
         )
         assertEquals(intentName, input.intent.name)
         assertEquals(2, input.entityMap.size)
-        assertEquals(listOf("dog", "cat"), input.entities("animal"))
+        assertEquals(listOf("dog", "cat"), input.entities("animal").map { it.text })
     }
 
     @Test
@@ -55,8 +55,8 @@ class InputTest {
         )
         assertEquals(intentName, input.intent.name)
         assertEquals(2, input.entityMap.size)
-        assertEquals(listOf("dog"), input.entities("animal"))
-        assertEquals(listOf("president barack obama", "barack obama", "michelle obama"), input.entities("PER"))
+        assertEquals(listOf("dog"), input.entities("animal").map { it.text })
+        assertEquals(listOf("president barack obama", "barack obama", "michelle obama"), input.entities("PER").map { it.text })
     }
 
     @Test
@@ -81,7 +81,7 @@ class InputTest {
         )
         assertEquals(intentName, input.intent.name)
         assertEquals(1, input.entityMap.size)
-        assertEquals(listOf("barack obama", "barack obama", "michelle obama"), input.entities("PER"))
+        assertEquals(listOf("barack obama", "barack obama", "michelle obama"), input.entities("PER").map { it.text })
     }
 
     @Test
@@ -101,7 +101,7 @@ class InputTest {
         )
         assertEquals(intentName, input.intent.name)
         assertEquals(2, input.entityMap.size)
-        assertEquals(listOf("barack"), input.entities("PER"))
-        assertEquals(listOf("obama"), input.entities("LOC"))
+        assertEquals(listOf("barack"), input.entities("PER").map { it.text })
+        assertEquals(listOf("obama"), input.entities("LOC").map { it.text })
     }
 }

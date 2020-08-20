@@ -1,18 +1,21 @@
-package com.promethist.core.nlu
+package com.promethist.core.type
 
 import com.promethist.core.Input
+import com.promethist.core.type.value.Text
+import com.promethist.core.type.value.Value
 import java.util.NoSuchElementException
 
-open class Entity(var className: String,
-                  open var text: String,
-                  var confidence: Float,
-                  val modelId: String) {
+open class InputEntity(var className: String,
+                       open var text: String,
+                       var confidence: Float,
+                       val modelId: String) {
 
+    open val value: Value get() = Text(text)
 
     companion object {
 
-        fun fromAnnotation(words: List<Input.Word>): MutableMap<String, MutableList<Entity>> {
-            val map = mutableMapOf<String, MutableList<Entity>>()
+        fun fromAnnotation(words: List<Input.Word>): MutableMap<String, MutableList<InputEntity>> {
+            val map = mutableMapOf<String, MutableList<InputEntity>>()
             var prevOutside = true
             words.forEach { word ->
                 word.classes.forEach {
@@ -33,11 +36,11 @@ open class Entity(var className: String,
                                 }
                             } catch (e: NoSuchElementException) {
                                 // Invalid annotation (an entity starts with I tag). Treating I as B
-                                map[className]!!.add(Entity(className, word.text, it.score, it.model_id))
+                                map[className]!!.add(InputEntity(className, word.text, it.score, it.model_id))
                             }
                         }
                         if (!inside)
-                            map[className]!!.add(Entity(className, word.text, it.score, it.model_id))
+                            map[className]!!.add(InputEntity(className, word.text, it.score, it.model_id))
                     }
                 }
                 prevOutside = !word.classes.any { it.type == Input.Class.Type.Entity }
@@ -47,14 +50,14 @@ open class Entity(var className: String,
     }
 
     override fun toString(): String {
-        return "Entity(className='$className', text='$text', confidence=$confidence, modelId='$modelId')"
+        return "InputEntity(className='$className', text='$text', confidence=$confidence, modelId='$modelId')"
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as Entity
+        other as InputEntity
 
         if (className != other.className) return false
         if (text != other.text) return false
