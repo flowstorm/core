@@ -29,6 +29,7 @@ class FileAudioRecorder(val dir: File, val filestoreUrl: String, val uploadMode:
         pcmFile = File(dir, "$sessionId.pcm")
         wavFile = File(dir, "$sessionId.wav")
         outputStream = FileOutputStream(pcmFile)
+        println("{Recording $pcmFile}")
     }
 
     override fun stop() {
@@ -38,6 +39,7 @@ class FileAudioRecorder(val dir: File, val filestoreUrl: String, val uploadMode:
             if (pcmFile!!.exists()) {
                 val length = pcmFile!!.length()
                 FileInputStream(pcmFile).use { input ->
+                    println("{Copying $length bytes from .pcm to $wavFile}")
                     FileOutputStream(wavFile).use { output ->
                         DataConverter.pcmToWav(input, output, length)
                     }
