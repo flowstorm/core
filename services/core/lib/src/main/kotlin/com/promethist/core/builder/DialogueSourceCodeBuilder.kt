@@ -126,6 +126,7 @@ class DialogueSourceCodeBuilder(val dialogueId: String, val buildId: String, val
                 .appendln()
                 .appendln("import com.promethist.core.*")
                 .appendln("import com.promethist.core.type.*")
+                .appendln("import com.promethist.core.type.value.*")
                 .appendln("import com.promethist.core.model.*")
                 .appendln("import com.promethist.core.dialogue.*")
                 .appendln("import com.promethist.core.runtime.*")
