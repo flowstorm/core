@@ -71,6 +71,13 @@ abstract class BasicDialogue : AbstractDialogue() {
     var sessionSpeakingVolumeGain by session(defaultNamespace) { 1.0 }
     var userSpeakingVolumeGain by user(defaultNamespace) { 1.0 }
 
+    var _basicId = 1
+    val _basicStop = GlobalIntent(_basicId++, "basicStopGlobalIntent", 0.99F, "stop")
+
+    init {
+        _basicStop.next = stopSession
+    }
+
     inline fun <reified V: Any> temp(noinline default: (Context.() -> V)? = null) = TempAttributeDelegate(default)
 
     inline fun <reified V: Any> turn(namespace: String? = null, noinline default: (Context.() -> V)) =

@@ -20,31 +20,30 @@ abstract class BasicCzechDialogue() : BasicDialogue() {
         replace(Regex("(?<=\\.)\\s+(?=[A-ZĚŠČŘŽÝÁÍÉÚŮŤĎŇ])"), "</s> <s>")
     }
 
-    var basicId = 1
     //Nodes
-    val _goBack = GoBack(basicId++, repeat = true)
-    val _basicVersionGlobalIntent = GlobalIntent(basicId++, "basicVersionGlobalIntent", 0.99F, "verze")
-    val _basicVersionResponse = Response(basicId++, false,{ "Verze serveru ${AppConfig.version}, prostředí ${AppConfig.instance.get("namespace", "unknown")}, dialog $dialogueName, verze dialogu $version" })
+    val _goBack = GoBack(_basicId++, repeat = true)
+    val _basicVersionGlobalIntent = GlobalIntent(_basicId++, "basicVersionGlobalIntent", 0.99F, "verze")
+    val _basicVersionResponse = Response(_basicId++, false,{ "Verze serveru ${AppConfig.version}, prostředí ${AppConfig.instance.get("namespace", "unknown")}, dialog $dialogueName, verze dialogu $version" })
 
-    val _basicVolumeUpGlobalIntent = GlobalIntent(basicId++, "basicVolumeUpGlobalIntent", 0.99F, "zvýšit hlasitost", "mluv hlasitěji")
-    val _basicVolumeUpResponse = Response(basicId++, false,{ "#volume_up zvyšuji hlasitost" })
+    val _basicVolumeUpGlobalIntent = GlobalIntent(_basicId++, "basicVolumeUpGlobalIntent", 0.99F, "zvýšit hlasitost", "mluv hlasitěji")
+    val _basicVolumeUpResponse = Response(_basicId++, false,{ "#volume_up zvyšuji hlasitost" })
 
-    val _basicVolumeDownGlobalIntent = GlobalIntent(basicId++, "basicVolumeDownGlobalIntent", 0.99F, "snížit hlasitost", "mluv tišeji")
-    val _basicVolumeDownResponse = Response(basicId++, false,{ "#volume_down snižuji hlasitost" })
+    val _basicVolumeDownGlobalIntent = GlobalIntent(_basicId++, "basicVolumeDownGlobalIntent", 0.99F, "snížit hlasitost", "mluv tišeji")
+    val _basicVolumeDownResponse = Response(_basicId++, false,{ "#volume_down snižuji hlasitost" })
 
-    val _basicLogApplicationErrorGlobalIntent = GlobalIntent(basicId++, "basicLogApplicationErrorGlobalIntent", 0.99F, "chyba aplikace", "problém aplikace")
-    val _basicLogApplicationErrorResponse1 = Response(basicId++, {"O co jde?"})
-    val _basicLogApplicationErrorResponse2 = Response(basicId++, false, {"Díky, pojďme zpátky."})
-    val _basicLogApplicationErrorUserInput = UserInput(basicId++, arrayOf(), arrayOf()) {
+    val _basicLogApplicationErrorGlobalIntent = GlobalIntent(_basicId++, "basicLogApplicationErrorGlobalIntent", 0.99F, "chyba aplikace", "problém aplikace")
+    val _basicLogApplicationErrorResponse1 = Response(_basicId++, {"O co jde?"})
+    val _basicLogApplicationErrorResponse2 = Response(_basicId++, false, {"Díky, pojďme zpátky."})
+    val _basicLogApplicationErrorUserInput = UserInput(_basicId++, arrayOf(), arrayOf()) {
         val transition = Transition(_basicLogApplicationErrorResponse2)
         dialogueEvent = DialogueEvent(this, this@BasicCzechDialogue, DialogueEvent.Type.UserError, input.alternatives[0].text)
         transition
     }
 
-    val _basicLogApplicationCommentGlobalIntent = GlobalIntent(basicId++, "basicLogApplicationCommentGlobalIntent", 0.99F, "komentář aplikace")
-    val _basicLogApplicationCommentResponse1 = Response(basicId++, {"O co jde?"})
-    val _basicLogApplicationCommentResponse2 = Response(basicId++, false, {"Díky, pojďme zpátky."})
-    val _basicLogApplicationCommentUserInput = UserInput(basicId++, arrayOf(), arrayOf()) {
+    val _basicLogApplicationCommentGlobalIntent = GlobalIntent(_basicId++, "basicLogApplicationCommentGlobalIntent", 0.99F, "komentář aplikace")
+    val _basicLogApplicationCommentResponse1 = Response(_basicId++, {"O co jde?"})
+    val _basicLogApplicationCommentResponse2 = Response(_basicId++, false, {"Díky, pojďme zpátky."})
+    val _basicLogApplicationCommentUserInput = UserInput(_basicId++, arrayOf(), arrayOf()) {
         val transition = Transition(_basicLogApplicationCommentResponse2)
         dialogueEvent = DialogueEvent(this, this@BasicCzechDialogue, DialogueEvent.Type.UserComment, input.alternatives[0].text)
         transition
