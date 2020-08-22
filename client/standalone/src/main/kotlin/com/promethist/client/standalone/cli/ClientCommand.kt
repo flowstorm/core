@@ -77,6 +77,9 @@ class ClientCommand: CommandRunner<Application.Params, ClientCommand.Params> {
         @Parameter(names = ["-scr", "--screen"], order = 30, description = "Screen view (none, window, fullscreen)")
         var screen = "none"
 
+        @Parameter(names = ["-nan", "--no-animations"], order = 31, description = "No animations")
+        var noAnimations = false
+
         @Parameter(names = ["-stt"], order = 60, description = "STT mode (Default, SingleUtterance, Duplex)")
         var sttMode = SttConfig.Mode.Default
 
@@ -238,6 +241,7 @@ class ClientCommand: CommandRunner<Application.Params, ClientCommand.Params> {
         if (params.screen != "none") {
             Screen.client = client
             Screen.fullScreen = (params.screen == "fullscreen")
+            Screen.animations = !params.noAnimations
             thread {
                 Screen.launch()
             }
