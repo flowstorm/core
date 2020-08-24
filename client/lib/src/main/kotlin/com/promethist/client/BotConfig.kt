@@ -11,7 +11,7 @@ data class BotConfig(
         var locale: Locale = Defaults.locale,
         var zoneId: ZoneId = Defaults.zoneId,
         var stt: Boolean = false,
-        val sttMode: SttConfig.Mode = SttConfig.Mode.Default,
+        val sttMode: SttConfig.Mode = SttConfig.Mode.SingleUtterance,
         var sttSampleRate: Int = 16000,
         var tts: TtsType = TtsType.None,
         var returnSsml: Boolean = false,

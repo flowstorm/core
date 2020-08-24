@@ -1,0 +1,53 @@
+{
+  "groups": [
+    {
+      "name": "wake",
+      "text": "#intro",
+      "signals": [
+        {
+          "name": "wake",
+          "type": "Flag",
+          "resetValue": true
+        }
+      ]
+    },
+    {
+      "name": "other",
+      "text": "#signal",
+      "signals": [
+        {
+          "name": "stressLevel",
+          "type": "Number",
+          "threshold": 2
+        },
+        {
+          "name": "clientSpeechAngle",
+          "type": "Number",
+          "threshold": 5
+        }
+      ]
+    }
+  ],
+  "providers": [
+    {
+      "name": "wake",
+      "type": "SignalProcessProvider",
+      "command": "python3 wake-word-detect.py",
+      "format": "Value"
+    },
+    {
+      "name": "signals-from-file",
+      "type": "SignalFileProvider",
+      "file": "signal.properties",
+      "format": "Properties",
+      "timeout": 1000
+    },
+    {
+      "name": "signals-from-url",
+      "type": "SignalUrlProvider",
+      "url": "https://port.promethist.port/check",
+      "format": "JSON",
+      "timeout": 1000
+    }
+  ]
+}
