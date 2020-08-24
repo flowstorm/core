@@ -1,7 +1,6 @@
-package com.promethist.core
+package com.promethist.core.type
 
 import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.module.kotlin.readValue
 import com.mongodb.ConnectionString
 import com.promethist.common.ObjectUtil.defaultMapper as mapper
 import com.promethist.common.AppConfig

@@ -94,7 +94,10 @@ class BotClient(
                 override fun onStop() = logger.info("Audio input stop")
                 override fun onData(buf: ByteArray, count: Int): Boolean {
                     val data = buf.copyOf(count)
-                    inputAudioRecorder?.outputStream?.write(data)
+                    inputAudioRecorder?.outputStream?.apply {
+                        write(data)
+                        flush()
+                    }
                     return if (inputAudioStreamOpen) inputAudioQueue.add(data) else true
                 }
             }
@@ -325,7 +328,10 @@ class BotClient(
         }
     }
 
-    fun sendInputAudioData(data: ByteArray, count: Int) = socket.sendAudioData(data, count)
+    fun sendInputAudioData(data: ByteArray, count: Int) {
+        logger.debug("sendInputAudioData($count bytes)")
+        socket.sendAudioData(data, count)
+    }
 
     fun doText(text: String) {
         if (context.sessionId == null)

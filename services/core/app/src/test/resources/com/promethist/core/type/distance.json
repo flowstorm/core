@@ -1,0 +1,14 @@
+[
+  {
+    "body": "six kilometers and five meters",
+    "start": 0,
+    "value": {
+      "value": 6005,
+      "type": "value",
+      "unit": "metre"
+    },
+    "end": 30,
+    "dim": "distance",
+    "latent": false
+  }
+]

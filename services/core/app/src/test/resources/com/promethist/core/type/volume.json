@@ -1,0 +1,14 @@
+[
+  {
+    "body": "four liters",
+    "start": 0,
+    "value": {
+      "value": 4,
+      "type": "value",
+      "unit": "litre"
+    },
+    "end": 11,
+    "dim": "volume",
+    "latent": false
+  }
+]

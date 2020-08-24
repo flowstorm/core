@@ -77,6 +77,9 @@ class ClientCommand: CommandRunner<Application.Params, ClientCommand.Params> {
         @Parameter(names = ["-scr", "--screen"], order = 30, description = "Screen view (none, window, fullscreen)")
         var screen = "none"
 
+        @Parameter(names = ["-nan", "--no-animations"], order = 31, description = "No animations")
+        var noAnimations = false
+
         @Parameter(names = ["-stt"], order = 60, description = "STT mode (Default, SingleUtterance, Duplex)")
         var sttMode = SttConfig.Mode.Default
 
@@ -89,7 +92,7 @@ class ClientCommand: CommandRunner<Application.Params, ClientCommand.Params> {
         @Parameter(names = ["-nol", "--no-output-logs"], order = 72, description = "No output logs")
         var noOutputLogs = false
 
-        @Parameter(names = ["-log", "--show-logs"], order = 72, description = "Output ")
+        @Parameter(names = ["-log", "--show-logs"], order = 72, description = "Show contextual logs")
         var logs = false
 
         @Parameter(names = ["-aru", "--audio-record-upload"], order = 73, description = "Audio record with upload (none, local, night, immediate)")
@@ -201,6 +204,7 @@ class ClientCommand: CommandRunner<Application.Params, ClientCommand.Params> {
         )
         if (params.introText != null)
             context.introText = params.introText!!
+        val micChannel = params.micChannel.split(':').map { it.toInt() }
         val client = BotClient(
                 context,
                 // web socket
@@ -212,7 +216,7 @@ class ClientCommand: CommandRunner<Application.Params, ClientCommand.Params> {
                 if (params.noInputAudio)
                     null
                 else
-                    Microphone(),
+                    Microphone(SpeechDeviceFactory.getSpeechDevice(params.speechDeviceName), micChannel[0], micChannel[1]),
                 // bot callback
                 callback,
                 // TTS type
@@ -237,12 +241,16 @@ class ClientCommand: CommandRunner<Application.Params, ClientCommand.Params> {
         if (params.screen != "none") {
             Screen.client = client
             Screen.fullScreen = (params.screen == "fullscreen")
+            Screen.animations = !params.noAnimations
             thread {
                 Screen.launch()
             }
         }
-        println("{context = $context, inputAudioDevice = ${client.inputAudioDevice}, sttMode = ${client.sttMode}}")
-        if (listOf("rpi", "model1", "model2").contains(params.device)) {
+        println("{context = $context}")
+        println("{inputAudioDevice = ${client.inputAudioDevice}}")
+        println("{sttMode = ${client.sttMode}}")
+        println("{device = ${params.device}}")
+        if (listOf("rpi", "model1", "model2", "model3").contains(params.device)) {
             val gpio = GpioFactory.getInstance()
             light = if (params.device == "model2")
                 Vk2ColorLed().apply {

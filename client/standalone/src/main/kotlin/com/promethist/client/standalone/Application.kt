@@ -1,7 +1,6 @@
 package com.promethist.client.standalone
 
 import com.promethist.client.standalone.cli.ClientCommand
-import com.promethist.client.standalone.cli.DiagCommand
 import com.promethist.client.standalone.cli.ToolCommand
 import com.promethist.client.standalone.cli.VersionCommand
 import com.beust.jcommander.Parameter
@@ -22,7 +21,6 @@ object Application {
         controller.addCommand(VersionCommand.Params(), VersionCommand())
         controller.addCommand(ClientCommand.Params(), ClientCommand())
         controller.addCommand(ToolCommand.Params(), ToolCommand())
-        controller.addCommand(DiagCommand.Params(), DiagCommand())
         controller.run(args)
     }
 }

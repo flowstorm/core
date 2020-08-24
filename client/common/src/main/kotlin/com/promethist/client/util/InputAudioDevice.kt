@@ -2,10 +2,9 @@ package com.promethist.client.util
 
 import com.promethist.util.LoggerDelegate
 
-abstract class InputAudioDevice(val format: AudioDevice.Format = AudioDevice.Format.DEFAULT) : AudioDevice, Runnable {
+abstract class InputAudioDevice(val speechDevice: SpeechDevice) : AudioDevice, Runnable {
 
     private val logger by LoggerDelegate()
-    val limit = 1024 * 128 // audio capture limit in bytes
     var started = false
         private set
     var closed = false
@@ -14,6 +13,7 @@ abstract class InputAudioDevice(val format: AudioDevice.Format = AudioDevice.For
     override var callback: AudioCallback? = null
         get() = field
         set(value) { field = value }
+    private val buffer = ByteArray(100000)
 
     override fun start() {
         logger.info("start()")
@@ -42,12 +42,12 @@ abstract class InputAudioDevice(val format: AudioDevice.Format = AudioDevice.For
             while (!close) {
                 if (started) {
                     callback!!.onStart()
-                    val buffer = ByteArray(bufferSize)
-                    while (started/* && totalCount < limit*/) {
+                    while (started) {
                         val count = read(buffer)
                         if (count > 0) {
+                            //if (!speechDevice.isSpeechDetected) buffer.fill(0, 0, count - 1)
+                            //else println("INPUT $count")
                             callback!!.onData(buffer, count)
-                            //totalCount += count
                         }
                     }
                     callback!!.onStop()

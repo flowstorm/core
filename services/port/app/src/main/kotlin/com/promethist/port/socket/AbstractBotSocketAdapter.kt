@@ -1,6 +1,6 @@
 package com.promethist.port.socket
 
-import com.promethist.client.BotClient
+import com.google.api.gax.rpc.OutOfRangeException
 import com.promethist.client.BotConfig
 import com.promethist.client.BotEvent
 import com.promethist.client.BotSocket
@@ -39,6 +39,8 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
                     inputAudioStreamClose()
                     sendEvent(BotEvent.Recognized(input.transcript.text))
                     onRequest(createRequest(input))
+                } else {
+                    inputAudioTime = System.currentTimeMillis()
                 }
             } catch (e: IOException) {
                 onError(e)
@@ -46,9 +48,13 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
         }
 
         override fun onError(e: Throwable) {
-            logger.error("STT callback error", e)
-            if (isConnected)
-                sendEvent(BotEvent.Error(e.message ?: ""))
+            logger.error("BotSttCallback.onError", e)
+            if (isConnected) {
+                if (e is OutOfRangeException)
+                    onSilence()
+                else
+                    sendEvent(BotEvent.Error(e.message ?: ""))
+            }
         }
 
         override fun onOpen() {
@@ -59,10 +65,8 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
             silence = true
             thread {
                 Thread.sleep(1500)
-                if (silence) {
-                    inputAudioStreamClose()
-                    sendSilenceResponse()
-                }
+                if (silence)
+                    onSilence()
             }
         }
     }
@@ -83,7 +87,7 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
     protected var locale: Locale? = null
     protected var sessionId: String? = null
     private var expectedPhrases: List<ExpectedPhrase> = listOf()
-    private var sttStartTime: Long = 0
+    private var inputAudioTime: Long = 0
     private val sttService: SttService = SttServiceFactory.create("Google", BotSttCallback())
     private var sttStream: SttStream? = null
     abstract val sttConfig: SttConfig
@@ -106,7 +110,7 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
             logger.info("STT STREAM OPEN")
             sttStream = sttService.createStream(sttConfig, expectedPhrases)
         }
-        sttStartTime = System.currentTimeMillis()
+        inputAudioTime = System.currentTimeMillis()
     }
 
     fun inputAudioStreamClose(sttClose: Boolean = (sttConfig.mode != SttConfig.Mode.Duplex)) {
@@ -117,35 +121,18 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
         }
     }
 
-    private fun isDetectingSpeech(payload: ByteArray, offset: Int, length: Int): Boolean {
-        for (i in offset until offset + length step 2) {
-            // expecting LINEAR16 in little endian.
-            var s = payload[i + 1].toInt()
-            if (s < 0) s *= -1
-            s = s shl 8
-            s += Math.abs(payload[i].toInt())
-            if (s > 1500/*AMPLITUDE_THRESHOLD*/) {
-                return true
-            }
-        }
-        return false
-    }
-
     fun onInputAudio(payload: ByteArray, offset: Int, length: Int) {
         logger.debug("onInputAudio(payload[${payload.size}], offset = $offset, length = $length)")
         if (inputAudioStreamOpen) {
-            if (isDetectingSpeech(payload, offset, length))
-                sttStartTime = System.currentTimeMillis()
-            if ((state == BotClient.State.Listening) && (sttStartTime + 10000 < System.currentTimeMillis())) {
-                inputAudioStreamClose()
-                sendSilenceResponse()
-            } else {
+            if (inputAudioTime + 5000 < System.currentTimeMillis())
+                onSilence()
+            else
                 sttStream?.write(payload, offset, length)
-            }
         }
     }
 
-    private fun sendSilenceResponse() {
+    private fun onSilence() {
+        inputAudioStreamClose()
         sendEvent(BotEvent.Recognized(ACTION_SILENCE))
         onRequest(createRequest(Input(config.locale, config.zoneId, Input.Transcript(ACTION_SILENCE))))
     }

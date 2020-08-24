@@ -1,0 +1,19 @@
+[
+  {
+    "body": "five weeks and one hour",
+    "start": 0,
+    "value": {
+      "value": 841,
+      "hour": 841,
+      "type": "value",
+      "unit": "hour",
+      "normalized": {
+        "value": 3027600,
+        "unit": "second"
+      }
+    },
+    "end": 23,
+    "dim": "duration",
+    "latent": false
+  }
+]

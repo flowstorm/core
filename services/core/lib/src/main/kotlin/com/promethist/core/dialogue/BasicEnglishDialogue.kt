@@ -5,31 +5,30 @@ import com.promethist.core.model.DialogueEvent
 
 abstract class BasicEnglishDialogue() : BasicDialogue() {
 
-    var basicId = 1
     //Nodes
-    val _goBack = GoBack(basicId++, repeat = true)
-    val _basicVersionGlobalIntent = GlobalIntent(basicId++, "basicVersionGlobalIntent", 0.99F, "version")
-    val _basicVersionResponse = Response(basicId++, false,{ "Server version ${AppConfig.version}, environment ${AppConfig.instance.get("namespace", "unknown")}, dialogue $dialogueName, dialogue version $version" })
+    val _goBack = GoBack(_basicId++, repeat = true)
+    val _basicVersionGlobalIntent = GlobalIntent(_basicId++, "basicVersionGlobalIntent", 0.99F, "version")
+    val _basicVersionResponse = Response(_basicId++, false,{ "Server version ${AppConfig.version}, environment ${AppConfig.instance.get("namespace", "unknown")}, dialogue $dialogueName, dialogue version $version" })
 
-    val _basicVolumeUpGlobalIntent = GlobalIntent(basicId++, "basicVolumeUpGlobalIntent", 0.99F, "volume up", "louder")
-    val _basicVolumeUpResponse = Response(basicId++, false,{ "#volume_up setting volume up" })
+    val _basicVolumeUpGlobalIntent = GlobalIntent(_basicId++, "basicVolumeUpGlobalIntent", 0.99F, "volume up", "louder")
+    val _basicVolumeUpResponse = Response(_basicId++, false,{ "#volume_up setting volume up" })
 
-    val _basicVolumeDownGlobalIntent = GlobalIntent(basicId++, "basicVolumeDownGlobalIntent", 0.99F, "volume down", "quieter")
-    val _basicVolumeDownResponse = Response(basicId++, false,{ "#volume_down setting volume down" })
+    val _basicVolumeDownGlobalIntent = GlobalIntent(_basicId++, "basicVolumeDownGlobalIntent", 0.99F, "volume down", "quieter")
+    val _basicVolumeDownResponse = Response(_basicId++, false,{ "#volume_down setting volume down" })
 
-    val _basicLogApplicationErrorGlobalIntent = GlobalIntent(basicId++, "basicLogApplicationErrorGlobalIntent", 0.99F,  "application error", "application problem")
-    val _basicLogApplicationErrorResponse1 = Response(basicId++, {"What's the problem?"})
-    val _basicLogApplicationErrorResponse2 = Response(basicId++, false, {"Thanks. Let's get back."})
-    val _basicLogApplicationErrorUserInput = UserInput(basicId++, arrayOf(), arrayOf()) {
+    val _basicLogApplicationErrorGlobalIntent = GlobalIntent(_basicId++, "basicLogApplicationErrorGlobalIntent", 0.99F,  "application error", "application problem")
+    val _basicLogApplicationErrorResponse1 = Response(_basicId++, {"What's the problem?"})
+    val _basicLogApplicationErrorResponse2 = Response(_basicId++, false, {"Thanks. Let's get back."})
+    val _basicLogApplicationErrorUserInput = UserInput(_basicId++, arrayOf(), arrayOf()) {
         val transition = Transition(_basicLogApplicationErrorResponse2)
         dialogueEvent = DialogueEvent(this, this@BasicEnglishDialogue, DialogueEvent.Type.UserError, input.alternatives[0].text)
         transition
     }
 
-    val _basicLogApplicationCommentGlobalIntent = GlobalIntent(basicId++, "basicLogApplicationCommentGlobalIntent", 0.99F, "application command", "application comment")
-    val _basicLogApplicationCommentResponse1 = Response(basicId++, {"What's the comment?"})
-    val _basicLogApplicationCommentResponse2 = Response(basicId++, false, {"Thanks. Let's get back"})
-    val _basicLogApplicationCommentUserInput = UserInput(basicId++, arrayOf(), arrayOf()) {
+    val _basicLogApplicationCommentGlobalIntent = GlobalIntent(_basicId++, "basicLogApplicationCommentGlobalIntent", 0.99F, "application command", "application comment")
+    val _basicLogApplicationCommentResponse1 = Response(_basicId++, {"What's the comment?"})
+    val _basicLogApplicationCommentResponse2 = Response(_basicId++, false, {"Thanks. Let's get back"})
+    val _basicLogApplicationCommentUserInput = UserInput(_basicId++, arrayOf(), arrayOf()) {
         val transition = Transition(_basicLogApplicationCommentResponse2)
         dialogueEvent = DialogueEvent(this, this@BasicEnglishDialogue, DialogueEvent.Type.UserComment, input.alternatives[0].text)
         transition

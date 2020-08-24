@@ -2,9 +2,9 @@ package com.promethist.core.runtime
 
 import com.promethist.common.AppConfig
 import com.promethist.core.dialogue.BasicDialogue
+import com.promethist.core.type.DateTime
 import com.promethist.core.type.Dynamic
-import java.time.LocalDate
-import java.util.*
+import java.time.format.DateTimeFormatter
 
 class TmdbApi(dialogue: BasicDialogue) : DialogueApi(dialogue) {
     enum class SearchType {
@@ -24,26 +24,34 @@ class TmdbApi(dialogue: BasicDialogue) : DialogueApi(dialogue) {
     fun search(query: String, type: SearchType = SearchType.MULTI)
         = get<Dynamic>(target.path("/search/$type")
                 .queryParam("query", query)
-                .queryParam("include_adult", false))("results") as List<LinkedHashMap<String, Any>>
+                .queryParam("include_adult", false)).list("results")
+
+    fun details(movieName: String, type: SearchType? = null): Dynamic {
+        if (type == SearchType.MULTI) {
+            throw IllegalArgumentException("Details search is not supported for type MULTI.")
+        }
+        val movie = search(movieName).getOrElse(0) { return Dynamic.EMPTY }
+        val typeString: String = type?.toString() ?: movie["media_type"].toString()
+        return get(target.path("/${typeString}/${movie["id"]}"))
+    }
 
     fun credits(movieName: String): Dynamic {
-        val movie = search(movieName)[0]
-        return get(target.path("/${movie["media_type"]}/${movie["id"]}/credits").queryParam("movie_id", movie["id"]))
-
+        val movie = search(movieName).getOrElse(0) { return Dynamic.EMPTY }
+        return get(target.path("/${movie["media_type"]}/${movie["id"]}/credits"))
     }
 
     fun personCredits(personName: String): Dynamic {
         val person = search(personName, type = SearchType.PERSON)[0]
-        return get(target.path("/person/${person["id"]}/combined_credits").queryParam("person_id", person["id"]))
+        return get(target.path("/person/${person["id"]}/combined_credits"))
     }
 
-    fun popularMovies(releasedAfter: LocalDate, releasedBefore: LocalDate = LocalDate.now(), region: String = "US")
+    fun popularMovies(releasedAfter: DateTime, releasedBefore: DateTime = DateTime.now(), region: String = "US")
         = get<Dynamic>(target.path("/discover/movie")
                 .queryParam("region", region)
                 .queryParam("sort_by", "popularity.desc")
-                .queryParam("primary_release_date.gte", releasedAfter.toString())
-                .queryParam("primary_release_date.lte", releasedBefore.toString())
-                .queryParam("include_adult", false))("results") as List<LinkedHashMap<String, Any>>
+                .queryParam("primary_release_date.gte", releasedAfter.format(DateTimeFormatter.ISO_LOCAL_DATE))
+                .queryParam("primary_release_date.lte", releasedBefore.format(DateTimeFormatter.ISO_LOCAL_DATE))
+                .queryParam("include_adult", false)).list("results")
 
     fun movieTitle(id: Int): String = get<Dynamic>(target.path("/movie/$id").queryParam("include_adult", false))("title") as String
 

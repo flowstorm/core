@@ -10,8 +10,6 @@ interface AudioDevice {
     }
 
     var callback: AudioCallback?
-    
-    var bufferSize: Int
 
     /**
      * Start audio processing.

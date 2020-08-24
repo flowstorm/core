@@ -1,0 +1,62 @@
+[
+  {
+    "body": "6 in the morning",
+    "start": 0,
+    "value": {
+      "values": [
+        {
+          "value": "2020-08-13T06:00:00.000+02:00",
+          "grain": "hour",
+          "type": "value"
+        },
+        {
+          "value": "2020-08-14T06:00:00.000+02:00",
+          "grain": "hour",
+          "type": "value"
+        },
+        {
+          "value": "2020-08-15T06:00:00.000+02:00",
+          "grain": "hour",
+          "type": "value"
+        }
+      ],
+      "value": "2020-08-13T06:00:00.000+02:00",
+      "grain": "hour",
+      "type": "value"
+    },
+    "end": 16,
+    "dim": "time",
+    "latent": false
+  },
+  {
+    "body": "after work",
+    "start": 17,
+    "value": {
+      "values": [
+        {
+          "to": {
+            "value": "2020-08-12T21:00:00.000+02:00",
+            "grain": "hour"
+          },
+          "from": {
+            "value": "2020-08-12T17:00:00.000+02:00",
+            "grain": "hour"
+          },
+          "type": "interval"
+        }
+      ],
+      "to": {
+        "value": "2020-08-12T21:00:00.000+02:00",
+        "grain": "hour"
+      },
+      "from": {
+        "value": "2020-08-12T17:00:00.000+02:00",
+        "grain": "hour"
+      },
+      "type": "interval"
+    },
+    "end": 27,
+    "dim": "time",
+    "latent": false
+  }
+]

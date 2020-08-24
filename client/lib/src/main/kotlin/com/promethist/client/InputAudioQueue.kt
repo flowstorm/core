@@ -1,6 +1,5 @@
 package com.promethist.client
 
-import com.promethist.client.BotClient
 import java.util.*
 
 class InputAudioQueue(val client: BotClient) : LinkedList<ByteArray>(), Runnable {

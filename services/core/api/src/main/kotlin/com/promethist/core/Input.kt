@@ -3,6 +3,9 @@ package com.promethist.core
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import com.promethist.core.type.InputEntity
+import com.promethist.core.type.value.Amount
+import com.promethist.core.type.value.Value
 import java.time.*
 import java.util.*
 
@@ -39,8 +42,6 @@ data class Input(
 
     data class Punctuation(override val text: String) : Token(text)
 
-    data class Entity(val className: String, var value: String, var confidence: Float, val modelId: String)
-
     class WordList(words: List<Word>) : ArrayList<Word>() {
         init {
             addAll(words)
@@ -56,7 +57,7 @@ data class Input(
     val intents get() = classes.filter { it.type == Class.Type.Intent }
 
     @get:JsonIgnore
-    val intent get() = intents.firstOrNull()?:error("No intent class recognized in input")
+    val intent get() = intents.firstOrNull() ?: error("No intent class recognized in input")
 
     @get:JsonIgnore
     val numbers: List<Number> get() {
@@ -72,39 +73,23 @@ data class Input(
     var action: String? = null
 
     @get:JsonIgnore
-    val entityMap: Map<String, List<Entity>> by lazy {
-        val map = mutableMapOf<String, MutableList<Entity>>()
-        var prevOutside = true
-        words.forEach { word ->
-            word.classes.forEach {
-                if (it.type == Class.Type.Entity) {
-                    val beginning = it.name.startsWith("B-")
-                    val inside = it.name.startsWith("I-")
-                    val className = if (beginning || inside) it.name.substring(2) else it.name
-                    if (!map.containsKey(className))
-                        map[className] = mutableListOf()
-                    if (inside) {
-                        try {
-                            // May throw NoSuchElementException if the annotation is not valid
-                            val last = map[className]!!.last { last -> last.modelId == it.model_id && !prevOutside && last.className == className }
-                            if (last.modelId == it.model_id) {
-                                last.value += " " + word.text
-                                var length = last.value.split(" ").size
-                                last.confidence += (it.score - last.confidence) / length
-                            }
-                        } catch (e: NoSuchElementException) {
-                            // Inalid annotation (an entity starts with I tag). Treating I as B
-                            map[className]!!.add(Entity(className, word.text, it.score, it.model_id))
-                        }
-                    }
-                    if (!inside)
-                        map[className]!!.add(Entity(className, word.text, it.score, it.model_id))
-                }
-            }
-            prevOutside = !word.classes.any { it.type == Class.Type.Entity }
-        }
-        map
+    val entityMap: MutableMap<String, MutableList<InputEntity>> by lazy { InputEntity.fromAnnotation(words) }
+
+    fun containsEntity(className: String) = entityMap.containsKey(className)
+
+    inline fun <reified V : Value> containsEntity() = containsEntity(V::class.simpleName!!)
+
+    fun entities(className: String) = entityMap[className] ?: listOf<InputEntity>()
+
+    inline fun <reified V : Value> entities(): List<V> {
+        val className = V::class.simpleName!!
+        return if (entityMap.containsKey(className))
+            entityMap[className]?.map { it.value as V } ?: listOf()
+        else
+            listOf()
     }
 
-    fun entities(className: String) = entityMap[className]?.map { it.value } ?: listOf()
+    fun entity(className: String) = entities(className).first()
+
+    inline fun <reified V : Value> entity(): V = entities<V>().first()
 }
