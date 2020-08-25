@@ -12,11 +12,11 @@ class IllusionistModelBuilder(val apiUrl: String, val apiKey: String) : IntentMo
 
     private val logger by LoggerDelegate()
 
-    override fun build(irModel: IntentModel, language: Locale, intents: List<AbstractDialogue.Intent>, , oodExamples: List<SourceCodeBuilder.GlobalIntent>) {
-        build(irModel.id, irModel.name, language, intents)
+    override fun build(irModel: IntentModel, language: Locale, intents: List<AbstractDialogue.Intent>, oodExamples: List<DialogueSourceCodeBuilder.GlobalIntent>) {
+        build(irModel.id, irModel.name, language, intents, oodExamples)
     }
 
-    override fun build(modelId: String, name: String, language: Locale, intents: List<AbstractDialogue.Intent>, , oodExamples: List<SourceCodeBuilder.GlobalIntent>) {
+    override fun build(modelId: String, name: String, language: Locale, intents: List<AbstractDialogue.Intent>, oodExamples: List<DialogueSourceCodeBuilder.GlobalIntent>) {
         val items = mutableMapOf<String, Output.Item>()
         intents.forEach { intent ->
             items[intent.name] = Output.Item(intent.utterances, intent.id.toString(), intent.threshold)

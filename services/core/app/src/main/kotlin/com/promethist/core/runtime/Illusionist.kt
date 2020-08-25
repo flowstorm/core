@@ -30,7 +30,7 @@ class Illusionist : Component {
         val responses = webTarget.path("/multi_model").request().post(Entity.json(request), object : GenericType<List<Response>>() {})
 
         if (responses[0].answer == "OOD") {
-            context.input.command  = "#outOfDomain"
+            context.input.action  = "#outOfDomain"
         }
 
         for (response in responses) {

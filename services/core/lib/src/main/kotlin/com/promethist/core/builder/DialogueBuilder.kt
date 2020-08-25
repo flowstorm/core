@@ -44,7 +44,7 @@ class DialogueBuilder(
 
         val buildId = "id" + md5(random.nextLong().toString())
         val source = DialogueSourceCodeBuilder(dialogueId, buildId, dialogueName)
-        var oodExamples = listOf<SourceCodeBuilder.GlobalIntent>()
+        var oodExamples = listOf<DialogueSourceCodeBuilder.GlobalIntent>()
         val classFiles = mutableListOf<File>()
         val resources: MutableList<Resource> = mutableListOf()
         val basePath = "dialogue/$dialogueId/"
@@ -226,7 +226,7 @@ class DialogueBuilder(
             }
         }
 
-        private fun buildIntentModels(dialogue: AbstractDialogue, oodExamples: List<SourceCodeBuilder.GlobalIntent>) {
+        private fun buildIntentModels(dialogue: AbstractDialogue, oodExamples: List<DialogueSourceCodeBuilder.GlobalIntent>) {
             logger.info("building intent models for dialogue model $dialogueId")
             val irModels = mutableListOf<IntentModel>()
             val language = Locale(dialogue.language)
@@ -240,7 +240,7 @@ class DialogueBuilder(
             dialogue.userInputs.forEach {
                 val irModel = IntentModel(buildId, dialogueId, it.id)
                 irModels.add(irModel)
-                intentModelBuilder.build(irModel, language, it.intents.asList(), (oodExamples + dialogue.globalIntents.map { SourceCodeBuilder.GlobalIntent(it.id, it.name, it.threshold, it.utterances.toList()) } ))
+                intentModelBuilder.build(irModel, language, it.intents.asList(), (oodExamples + dialogue.globalIntents.map { DialogueSourceCodeBuilder.GlobalIntent(it.id, it.name, it.threshold, it.utterances.toList()) } ))
             }
             logger.info("built ${irModels.size} intent models")
         }
