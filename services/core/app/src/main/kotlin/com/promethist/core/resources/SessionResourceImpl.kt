@@ -4,6 +4,7 @@ import com.mongodb.client.MongoDatabase
 import com.mongodb.client.model.Filters
 import com.promethist.common.query.MongoFiltersFactory
 import com.promethist.common.query.Query
+import com.promethist.core.model.Application
 import com.promethist.core.model.Session
 import com.promethist.core.model.User
 import org.bson.conversions.Bson
@@ -44,11 +45,18 @@ class SessionResourceImpl: SessionResource {
             pipeline.add(match(Session::user / User::_id `in` it.value.split(",").map { WrappedObjectId<User>(it) }))
         }
 
+        query.filters.firstOrNull { it.name == "sessionId" && it.operator == Query.Operator.eq }?.let {
+            pipeline.add(match(Filters.eq(it.name, it.value)))
+        }
+
         query.filters.firstOrNull { it.name.startsWith("properties.") && it.operator == Query.Operator.eq }?.let {
             pipeline.add(match(Filters.eq(it.name, it.value)))
         }
         query.filters.firstOrNull { it.name.startsWith("application.") && it.operator == Query.Operator.eq }?.let {
             pipeline.add(match(Filters.eq(it.name, it.value)))
+        }
+        query.filters.firstOrNull { it.name == "application.name" && it.operator == Query.Operator.like }?.let {
+            pipeline.add(match(Session::application / Application::name regex ".*${it.value}.*"))
         }
 
         pipeline.add(limit(query.limit))
