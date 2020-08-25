@@ -52,11 +52,11 @@ class SessionResourceImpl: SessionResource {
         query.filters.firstOrNull { it.name.startsWith("properties.") && it.operator == Query.Operator.eq }?.let {
             pipeline.add(match(Filters.eq(it.name, it.value)))
         }
-        query.filters.firstOrNull { it.name.startsWith("application.") && it.operator == Query.Operator.eq }?.let {
+        query.filters.firstOrNull { it.name.startsWith("application.") && !it.name.endsWith("._id") && it.operator == Query.Operator.eq }?.let {
             pipeline.add(match(Filters.eq(it.name, it.value)))
         }
-        query.filters.firstOrNull { it.name == "application.name" && it.operator == Query.Operator.like }?.let {
-            pipeline.add(match(Session::application / Application::name regex ".*${it.value}.*"))
+        query.filters.firstOrNull { it.name == "application._id" && it.operator == Query.Operator.eq }?.let {
+            pipeline.add(match(Session::application / Application::_id eq WrappedObjectId(it.value)))
         }
 
         pipeline.add(limit(query.limit))
