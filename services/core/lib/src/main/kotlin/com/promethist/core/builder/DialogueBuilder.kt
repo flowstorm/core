@@ -159,6 +159,7 @@ class DialogueBuilder(
                     "/usr/local/bin/kotlinc",
                     "-cp", classPath,
                     "-d", workDir.absolutePath,
+                    "-jvm-target", "1.8",
                     sourceFile.absolutePath
             ).apply {
                 redirectErrorStream(true)
