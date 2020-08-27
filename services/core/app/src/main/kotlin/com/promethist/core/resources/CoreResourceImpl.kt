@@ -73,9 +73,9 @@ class CoreResourceImpl : CoreResource {
                 turn.responseItems.forEach {
                     it.voice = it.voice ?: session.application.voice ?: TtsConfig.defaultVoice(locale?.language ?: "en")
                 }
-                Response(context.locale, turn.responseItems, dialogueLog.log,
+                Response(locale, turn.responseItems, dialogueLog.log,
                         turn.attributes[AbstractDialogue.defaultNamespace].map { it.key to (it.value as Memory<*>).value }.toMap().toMutableMap(),
-                        expectedPhrases, sessionEnded)
+                        turn.sttMode, turn.expectedPhrases, sessionEnded)
             }
         } catch (e: Throwable) {
             processException(request, e)
@@ -191,7 +191,7 @@ class CoreResourceImpl : CoreResource {
                     add(Response.Item(voice = TtsConfig.defaultVoice("en"),
                         text = text))
             }
-        }, dialogueLog.log, mutableMapOf<String, Any>(), mutableListOf(), sessionEnded = true)
+        }, dialogueLog.log, mutableMapOf(), null, mutableListOf(), sessionEnded = true)
     }
 
     private fun getMessageResourceString(language: String, type: String, params: List<Any> = listOf()): String {

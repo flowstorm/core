@@ -127,6 +127,7 @@ class DialogueManager : Component {
                         } else {
                             //last user input in turn
                             addExpectedPhrases(context, node.intents.asList())
+                            context.turn.sttMode = node.sttMode ?: node.dialogue.sttMode
                             frame.copy(nodeId = node.id).let {
                                 turn.endFrame = it
                                 session.dialogueStack.push(it)
@@ -231,15 +232,15 @@ class DialogueManager : Component {
                     val rat = intent.utterances.size / maxPhrasesPerIntent.toFloat()
                     var idx = 0.0F
                     for (i in 0 until maxPhrasesPerIntent) {
-                        context.expectedPhrases.add(ExpectedPhrase(intent.utterances[idx.roundToInt()]))
+                        context.turn.expectedPhrases.add(ExpectedPhrase(intent.utterances[idx.roundToInt()]))
                         idx += rat
                     }
                 } else {
-                    context.expectedPhrases.addAll(intent.utterances.map { text -> ExpectedPhrase(text) })
+                    context.turn.expectedPhrases.addAll(intent.utterances.map { text -> ExpectedPhrase(text) })
                 }
             }
         }
 
-        logger.info("${context.expectedPhrases.size} expected phrase(s) added")
+        logger.info("${context.turn.expectedPhrases.size} expected phrase(s) added")
     }
 }

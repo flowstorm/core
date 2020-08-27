@@ -1,14 +1,13 @@
 package com.promethist.client
 
-import com.promethist.client.util.AudioCallback
-import com.promethist.client.util.AudioDevice
-import com.promethist.client.util.AudioRecorder
+import com.promethist.client.audio.AudioCallback
+import com.promethist.client.audio.AudioDevice
+import com.promethist.client.audio.AudioRecorder
 import com.promethist.common.Reloadable
 import com.promethist.core.Input
 import com.promethist.core.Request
 import com.promethist.core.Response
 import com.promethist.core.model.SttConfig
-import com.promethist.core.model.TtsConfig
 import com.promethist.util.LoggerDelegate
 import java.util.UUID
 
@@ -94,10 +93,7 @@ class BotClient(
                 override fun onStop() = logger.info("Audio input stop")
                 override fun onData(buf: ByteArray, count: Int): Boolean {
                     val data = buf.copyOf(count)
-                    inputAudioRecorder?.outputStream?.apply {
-                        write(data)
-                        flush()
-                    }
+                    inputAudioRecorder?.write(data)
                     return if (inputAudioStreamOpen) inputAudioQueue.add(data) else true
                 }
             }
@@ -279,7 +275,6 @@ class BotClient(
 
     override fun onFailure(t: Throwable) {
         if (socket.state == BotSocket.State.Failed && state != State.Failed) {
-            inputAudioRecorder?.stop()
             inputAudioStreamClose(false)
             if (lostThread == null || !lostThread!!.running)
                 lostThread = object : LazyThread(20) {
@@ -296,10 +291,6 @@ class BotClient(
         outputQueue.add(OutputQueue.Item.Audio(builtinAudioData[name]
                 ?: error("missing builtin audio $name"), OutputQueue.Item.Type.Local))
     }
-
-
-    // called by OutputMediaQueue when empty and bot is sleeping
-    fun silent() = inputAudioRecorder?.stop()
 
     fun inputAudioStreamOpen() {
         if (inputAudioDevice != null) {
@@ -336,8 +327,6 @@ class BotClient(
     fun doText(text: String) {
         if (context.sessionId == null)
             context.sessionId = UUID.randomUUID().toString()
-        if (context.attributes is Reloadable)
-            context.attributes.reload()
         val request = Request(context.key, context.sender, context.token, context.sessionId!!, Input(context.locale, context.zoneId, Input.Transcript(text)), context.attributes)
         socket.sendEvent(BotEvent.Request(request))
     }

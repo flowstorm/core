@@ -1,12 +1,14 @@
 package com.promethist.client.standalone.io
 
-import com.promethist.client.util.SpeechDevice
+import com.promethist.client.signal.SignalProcessor
+import com.promethist.client.signal.SignalProvider
+import com.promethist.client.audio.SpeechDevice
 import org.usb4java.*
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import kotlin.experimental.or
 
-object RespeakerMicArrayV2 : SpeechDevice {
+object RespeakerMicArrayV2 : SpeechDevice, SignalProvider {
 
     private const val VENDOR_ID = 0x2886.toShort()
     private const val PRODUCT_ID = 0x0018.toShort()
@@ -15,6 +17,7 @@ object RespeakerMicArrayV2 : SpeechDevice {
     private const val VOICE_ACTIVITY_PARAMETER_ID: Short = 19
     private const val VOICE_ACTIVITY__PARAMETER_OFFSET: Short = 32
 
+    override lateinit var processor: SignalProcessor
     private val context = Context()
     private val deviceHandle by lazy {
         var result = LibUsb.init(context)
@@ -46,11 +49,19 @@ object RespeakerMicArrayV2 : SpeechDevice {
         LibUsb.exit(context)
     }
 
+    override fun run() {
+        while (true) {
+            processor.process(mapOf(
+                    "clientSpeechDetected" to isSpeechDetected,
+                    "clientSpeechAngle" to speechAngle
+            ))
+            Thread.sleep(500)
+        }
+    }
+
     fun test() {
         var i = 0
         while (i < 1000) {
-            val angle = read(deviceHandle, DOA_PARAMETER_ID, DOA_PARAMETER_OFFSET)
-            val activity = read(deviceHandle, VOICE_ACTIVITY_PARAMETER_ID, VOICE_ACTIVITY__PARAMETER_OFFSET)
             println("angle = $speechAngle\tspeech = $isSpeechDetected")
             i++
             Thread.sleep(50)

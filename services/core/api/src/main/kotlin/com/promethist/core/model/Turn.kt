@@ -1,5 +1,6 @@
 package com.promethist.core.model
 
+import com.promethist.core.ExpectedPhrase
 import com.promethist.core.Input
 import com.promethist.core.Response
 import com.promethist.core.model.Session.DialogueStackFrame
@@ -12,6 +13,8 @@ data class Turn(
         var attributes: Attributes = Attributes(),
         var endFrame: DialogueStackFrame? = null, //where the turn ends (input node)
         val responseItems: MutableList<Response.Item> = mutableListOf(),
+        @Transient val expectedPhrases: MutableList<ExpectedPhrase> = mutableListOf(),
+        var sttMode: SttConfig.Mode? = null,
         val log: MutableList<LogEntry> = mutableListOf()
 ) {
 

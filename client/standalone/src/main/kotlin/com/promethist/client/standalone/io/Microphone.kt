@@ -1,8 +1,8 @@
 package com.promethist.client.standalone.io
 
-import com.promethist.client.util.AudioDevice.Format
+import com.promethist.client.audio.AudioDevice.Format
 import com.promethist.client.util.InputAudioDevice
-import com.promethist.client.util.SpeechDevice
+import com.promethist.client.audio.SpeechDevice
 import javax.sound.sampled.AudioFormat
 import javax.sound.sampled.AudioSystem
 import javax.sound.sampled.DataLine

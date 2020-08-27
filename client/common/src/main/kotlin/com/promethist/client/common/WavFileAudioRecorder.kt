@@ -1,23 +1,18 @@
 package com.promethist.client.common
 
 import com.promethist.client.HttpRequest
-import com.promethist.client.util.AudioRecorder
+import com.promethist.client.audio.AudioRecorder
 import com.promethist.client.util.HttpUtil
 import com.promethist.util.DataConverter
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.OutputStream
+import java.io.*
 import java.time.LocalTime
 
-class FileAudioRecorder(val dir: File, val filestoreUrl: String, val uploadMode: UploadMode = UploadMode.night) : AudioRecorder, Runnable {
+class WavFileAudioRecorder(val dir: File, val filestoreUrl: String, val uploadMode: UploadMode = UploadMode.night) : AudioRecorder, Runnable {
 
     enum class UploadMode { none, local, night, immediate }
 
-    override var outputStream: OutputStream? = null
+    var file: File? = null
     var sessionId: String? = null
-    var pcmFile: File? = null
-    var wavFile: File? = null
 
     init {
         if (uploadMode != UploadMode.none)
@@ -26,27 +21,30 @@ class FileAudioRecorder(val dir: File, val filestoreUrl: String, val uploadMode:
 
     override fun start(sessionId: String) {
         this.sessionId = sessionId
-        pcmFile = File(dir, "$sessionId.pcm")
-        wavFile = File(dir, "$sessionId.wav")
-        outputStream = FileOutputStream(pcmFile)
-        println("{Recording $pcmFile}")
+        file = File(dir, "$sessionId.wav")
+        println("{Starting recording $file}")
+    }
+
+    override fun write(data: ByteArray) {
+        if (file != null) {
+            RandomAccessFile(file, "rws").apply {
+                val length = length()
+                if (length == 0L) {
+                    write(DataConverter.wavHeader(0))
+                } else {
+                    seek(length)
+                    write(data)
+                    seek(40)
+                    writeInt(length.toInt() + data.size - 44)
+                }
+                close()
+            }
+        }
     }
 
     override fun stop() {
-        if (outputStream != null) {
-            outputStream!!.close()
-            outputStream = null
-            if (pcmFile!!.exists()) {
-                val length = pcmFile!!.length()
-                FileInputStream(pcmFile).use { input ->
-                    println("{Copying $length bytes from .pcm to $wavFile}")
-                    FileOutputStream(wavFile).use { output ->
-                        DataConverter.pcmToWav(input, output, length)
-                    }
-                }
-                pcmFile?.delete()
-            }
-        }
+        println("{Stopping recording $file}")
+        file = null
     }
 
     override fun run() {

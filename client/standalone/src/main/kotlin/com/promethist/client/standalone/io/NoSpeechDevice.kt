@@ -1,6 +1,6 @@
 package com.promethist.client.standalone.io
 
-import com.promethist.client.util.SpeechDevice
+import com.promethist.client.audio.SpeechDevice
 
 object NoSpeechDevice : SpeechDevice {
 

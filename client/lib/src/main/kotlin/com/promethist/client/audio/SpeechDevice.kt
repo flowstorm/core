@@ -1,4 +1,4 @@
-package com.promethist.client.util
+package com.promethist.client.audio
 
 import java.io.Closeable
 

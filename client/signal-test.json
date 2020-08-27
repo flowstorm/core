@@ -1,0 +1,80 @@
+{
+  "signalProcessor": {
+    "groups": [
+      {
+        "name": "wake",
+        "action": "#intro",
+        "signals": [
+          {
+            "name": "clientWakeWord",
+            "requiredValue": true,
+            "resetValue": true
+          }
+        ]
+      },
+      {
+        "name": "other",
+        "action": "#signal",
+        "signals": [
+          {
+            "name": "clientLocation",
+            "threshold": 0.001,
+            "timeout": 5000
+          },
+          {
+            "name": "clientSpeechDetected",
+            "requiredValue": true,
+            "resetValue": true
+          },
+          {
+            "name": "clientSpeechAngle",
+            "threshold": 5
+          },
+          {
+            "name": "stressLevel",
+            "threshold": 2
+          },
+          {
+            "name": "health",
+            "threshold": 0.1
+          }
+        ]
+      }
+    ],
+    "providers": [
+      {
+        "name": "clientWakeWord",
+        "type": "process",
+        "command": "python3 signal-test.py",
+        "format": "Simple",
+        "continuous": true
+      },
+      {
+        "name": "clientLocation",
+        "type": "socket",
+        "host": "192.168.1.223",
+        "port": 11123,
+        "format": "NMEA",
+        "continuous": true
+      },
+      {
+        "name": "signals-from-file",
+        "type": "file",
+        "file": "signal-test.properties",
+        "format": "Properties",
+        "sleep": 1000
+      },
+      {
+        "name": "signals-from-url",
+        "type": "url",
+        "url": "https://port.promethist.com/check",
+        "method": "GET",
+        "headers": {
+          "X-Test": 1
+        },
+        "format": "JSON",
+        "sleep": 1000
+      }
+    ]
+  }
+}

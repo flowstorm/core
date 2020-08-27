@@ -4,6 +4,8 @@ import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
 import com.beust.jcommander.Parameter
 import com.beust.jcommander.Parameters
+import com.fasterxml.jackson.core.JsonFactory
+import com.fasterxml.jackson.core.type.TypeReference
 import com.pi4j.io.gpio.GpioFactory
 import com.pi4j.io.gpio.PinPullResistance
 import com.pi4j.io.gpio.PinState
@@ -13,19 +15,22 @@ import com.promethist.client.BotClient
 import com.promethist.client.BotConfig
 import com.promethist.client.BotContext
 import com.promethist.client.client.JwsBotClientSocket
-import com.promethist.client.common.FileAudioRecorder
+import com.promethist.client.common.WavFileAudioRecorder
 import com.promethist.client.common.OkHttp3BotClientSocket
+import com.promethist.client.signal.SignalProcessor
+import com.promethist.client.signal.SignalProvider
 import com.promethist.client.standalone.Application
 import com.promethist.client.standalone.DeviceClientCallback
 import com.promethist.client.standalone.io.*
 import com.promethist.client.standalone.ui.Screen
-import com.promethist.client.util.FileDynamic
 import com.promethist.client.util.InetInterface
 import com.promethist.common.AppConfig
+import com.promethist.common.ObjectUtil.defaultMapper
 import com.promethist.common.ServiceUrlResolver
 import com.promethist.core.model.SttConfig
 import com.promethist.core.model.Voice
 import com.promethist.core.type.Dynamic
+import com.promethist.core.type.PropertyMap
 import cz.alry.jcommander.CommandRunner
 import org.slf4j.LoggerFactory
 import java.awt.Color
@@ -41,65 +46,68 @@ class ClientCommand: CommandRunner<Application.Params, ClientCommand.Params> {
     @Parameters(commandNames = ["client"], commandDescription = "Run client (press Ctrl+C to quit)")
     class Params : ClientParams() {
 
-        @Parameter(names = ["-d", "--device"], order = 0, description = "Device type (e.g. desktop, rpi)")
+        @Parameter(names = ["-c", "--config-file"], order = 0, description = "Config file")
+        var configFile: String? = null
+
+        @Parameter(names = ["-d", "--device"], order = 1, description = "Device type (e.g. desktop, rpi)")
         var device = "desktop"
 
-        @Parameter(names = ["-e", "--environment"], order = 9, description = "Environment (develop, preview) - this superseeds -u value")
+        @Parameter(names = ["-e", "--environment"], order = 2, description = "Environment (develop, preview) - this superseeds -u value")
         var environment: String? = null
 
-        @Parameter(names = ["-s", "--sender"], order = 10, description = "Sender identification")
-        var sender = "standalone:" + (InetInterface.getActive()?.hardwareAddress ?: "default")
-
-        @Parameter(names = ["-v", "--voice"], order = 11, description = "TTS voice")
-        var voice: Voice? = null
-
-        @Parameter(names = ["-pn", "--port-name"], order = 12, description = "Audio output port name")
-        var portName: String = "SPEAKER"
-
-        @Parameter(names = ["-vo", "--volume"], order = 13, description = "Audio output volume")
-        var volume: Int? = null
-
-        @Parameter(names = ["-nc", "--no-cache"], order = 15, description = "Do not cache anything")
+        @Parameter(names = ["-nc", "--no-cache"], order = 3, description = "Do not cache anything")
         var noCache = false
 
-        @Parameter(names = ["-it", "--intro-text"], order = 15, description = "Intro text")
+        @Parameter(names = ["-s", "--sender"], order = 4, description = "Sender identification")
+        var sender = "standalone:" + (InetInterface.getActive()?.hardwareAddress ?: "default")
+
+        @Parameter(names = ["-it", "--intro-text"], order = 5, description = "Intro text")
         var introText: String? = null
 
-        @Parameter(names = ["-af", "--attribute-file"], order = 16, description = "Client attributes file")
-        var attributeFile: String? = null
-
-        @Parameter(names = ["-as", "--auto-start"], order = 20, description = "Start conversation automatically")
+        @Parameter(names = ["-as", "--auto-start"], order = 6, description = "Start conversation automatically")
         var autoStart = false
 
-        @Parameter(names = ["-na", "--no-auto-start"], order = 21, description = "Obsolete (will be removed in the future)")
-        var noAutoStart = false
+        @Parameter(names = ["-ex", "--exceptions"], order = 7, description = "Raise exceptions")
+        var exitOnError = false
 
-        @Parameter(names = ["-scr", "--screen"], order = 30, description = "Screen view (none, window, fullscreen)")
-        var screen = "none"
-
-        @Parameter(names = ["-nan", "--no-animations"], order = 31, description = "No animations")
-        var noAnimations = false
-
-        @Parameter(names = ["-stt"], order = 60, description = "STT mode (Default, SingleUtterance, Duplex)")
-        var sttMode = SttConfig.Mode.Default
-
-        @Parameter(names = ["-nia", "--no-input-audio"], order = 70, description = "No input audio (text input only)")
-        var noInputAudio = false
-
-        @Parameter(names = ["-noa", "--no-output-audio"], order = 71, description = "No output audio (text output only)")
-        var noOutputAudio = false
-
-        @Parameter(names = ["-nol", "--no-output-logs"], order = 72, description = "No output logs")
+        @Parameter(names = ["-nol", "--no-output-logs"], order = 8, description = "No output logs")
         var noOutputLogs = false
 
-        @Parameter(names = ["-log", "--show-logs"], order = 72, description = "Show contextual logs")
+        @Parameter(names = ["-log", "--show-logs"], order = 9, description = "Show contextual logs")
         var logs = false
 
-        @Parameter(names = ["-aru", "--audio-record-upload"], order = 73, description = "Audio record with upload (none, local, night, immediate)")
-        var audioRecordUpload = FileAudioRecorder.UploadMode.none
+        // audio
 
-        @Parameter(names = ["-ex", "--exceptions"], order = 79, description = "Raise exceptions")
-        var exitOnError = false
+        @Parameter(names = ["-stt"], order = 30, description = "STT mode (Default, SingleUtterance, Duplex)")
+        var sttMode = SttConfig.Mode.SingleUtterance
+
+        @Parameter(names = ["-v", "--voice"], order = 31, description = "TTS voice")
+        var voice: Voice? = null
+
+        @Parameter(names = ["-pn", "--port-name"], order = 32, description = "Audio output port name")
+        var portName: String = "SPEAKER"
+
+        @Parameter(names = ["-vo", "--volume"], order = 33, description = "Audio output volume")
+        var volume: Int? = null
+
+        @Parameter(names = ["-nia", "--no-input-audio"], order = 34, description = "No input audio (text input only)")
+        var noInputAudio = false
+
+        @Parameter(names = ["-noa", "--no-output-audio"], order = 35, description = "No output audio (text output only)")
+        var noOutputAudio = false
+
+        @Parameter(names = ["-aru", "--audio-record-upload"], order = 36, description = "Audio record with upload (none, local, night, immediate)")
+        var audioRecordUpload = WavFileAudioRecorder.UploadMode.none
+
+        // GUI
+
+        @Parameter(names = ["-scr", "--screen"], order = 40, description = "Screen view (none, window, fullscreen)")
+        var screen = "none"
+
+        @Parameter(names = ["-nan", "--no-animations"], order = 41, description = "No animations")
+        var noAnimations = false
+
+        // networking
 
         @Parameter(names = ["-sp", "--socket-ping"], order = 80, description = "Socket ping period (in seconds, 0 = do not ping)")
         var socketPing = 10L
@@ -107,11 +115,13 @@ class ClientCommand: CommandRunner<Application.Params, ClientCommand.Params> {
         @Parameter(names = ["-st", "--socket-type"], order = 81, description = "Socket implementation type (okhttp3, jetty, jws)")
         var socketType = ClientCommand.BotSocketType.OkHttp3
 
-        @Parameter(names = ["-aa", "--auto-update"], order = 90, description = "Auto update JAR file")
+        @Parameter(names = ["-aa", "--auto-update"], order = 82, description = "Auto update JAR file")
         var autoUpdate = false
 
-        @Parameter(names = ["-du", "--dist-url"], order = 91, description = "Distribution URL for auto updates")
+        @Parameter(names = ["-du", "--dist-url"], order = 83, description = "Distribution URL for auto updates")
         var distUrl = "https://repository.promethist.ai/dist"
+
+        val signalProcessor: SignalProcessor? = null
     }
 
     override fun run(globalParams: Application.Params, params: Params) {
@@ -122,6 +132,13 @@ class ClientCommand: CommandRunner<Application.Params, ClientCommand.Params> {
             else
                 FileOutputStream(params.output)
         )
+        if (params.configFile != null) {
+            FileInputStream(params.configFile).use {
+                defaultMapper.readerForUpdating(params).readValue(JsonFactory().createParser(it), object : TypeReference<Params>() {})
+            }
+            println("{Using configuration ${params.configFile} " + (if (params.signalProcessor != null) "with" else "without") + " signal processor}")
+        }
+
         if (params.volume != null) {
             OutputAudioDevice.volume(params.portName, params.volume!!)
             writer.write("{Volume ${params.portName} set to ${params.volume}}\n")
@@ -197,14 +214,12 @@ class ClientCommand: CommandRunner<Application.Params, ClientCommand.Params> {
                 voice = params.voice,
                 autoStart = params.autoStart,
                 locale = Locale(params.language, Locale.getDefault().country),
-                attributes = if (params.attributeFile != null)
-                    FileDynamic(File(params.attributeFile), attributes)
-                else
-                    attributes
+                attributes = attributes
         )
         if (params.introText != null)
             context.introText = params.introText!!
         val micChannel = params.micChannel.split(':').map { it.toInt() }
+        val speechDevice = SpeechDeviceFactory.getSpeechDevice(params.speechDeviceName)
         val client = BotClient(
                 context,
                 // web socket
@@ -216,7 +231,7 @@ class ClientCommand: CommandRunner<Application.Params, ClientCommand.Params> {
                 if (params.noInputAudio)
                     null
                 else
-                    Microphone(SpeechDeviceFactory.getSpeechDevice(params.speechDeviceName), micChannel[0], micChannel[1]),
+                    Microphone(speechDevice, micChannel[0], micChannel[1]),
                 // bot callback
                 callback,
                 // TTS type
@@ -227,10 +242,10 @@ class ClientCommand: CommandRunner<Application.Params, ClientCommand.Params> {
                 // STT mode
                 params.sttMode,
                 // audio recorder
-                if (params.noInputAudio || (params.audioRecordUpload == FileAudioRecorder.UploadMode.none))
+                if (params.noInputAudio || (params.audioRecordUpload == WavFileAudioRecorder.UploadMode.none))
                     null
                 else
-                    FileAudioRecorder(File("."),
+                    WavFileAudioRecorder(File("."),
                             if (context.url.startsWith("http://localhost"))
                                 ServiceUrlResolver.getEndpointUrl("filestore", ServiceUrlResolver.RunMode.local)
                             else
@@ -246,6 +261,20 @@ class ClientCommand: CommandRunner<Application.Params, ClientCommand.Params> {
                 Screen.launch()
             }
         }
+        params.signalProcessor?.apply {
+            println("{enabling signal processor}")
+            emitter = { action: String, values: PropertyMap ->
+                context.attributes.putAll(values)
+                if (client.state == BotClient.State.Sleeping) {
+                    println("{Signal '$action' values $values}")
+                    client.doText(action)
+                }
+            }
+            if (speechDevice is SignalProvider)
+                providers.add(speechDevice)
+            run()
+        }
+
         println("{context = $context}")
         println("{inputAudioDevice = ${client.inputAudioDevice}}")
         println("{sttMode = ${client.sttMode}}")

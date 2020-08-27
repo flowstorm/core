@@ -9,8 +9,9 @@ import com.pi4j.io.gpio.PinState
 import com.pi4j.io.gpio.RaspiPin
 import com.pi4j.io.gpio.event.GpioPinListenerDigital
 import com.promethist.client.standalone.io.*
-import com.promethist.client.util.AudioCallback
-import com.promethist.client.util.AudioDevice
+import com.promethist.client.audio.AudioCallback
+import com.promethist.client.audio.AudioDevice
+import com.promethist.client.gps.NMEA
 import com.promethist.core.model.TtsConfig
 import cz.alry.jcommander.CommandRunner
 import javazoom.jl.player.Player
@@ -20,7 +21,7 @@ import javax.sound.sampled.*
 
 class ToolCommand: CommandRunner<Application.Params, ToolCommand.Params> {
 
-    enum class Action { voices, play, sample, audio, test, respeaker2 }
+    enum class Action { voices, play, sample, audio, test, respeaker2, nmea }
 
     private val BUF_SIZE = 3200
 
@@ -235,6 +236,7 @@ class ToolCommand: CommandRunner<Application.Params, ToolCommand.Params> {
             Action.respeaker2 -> RespeakerMicArrayV2.test()
             Action.audio -> audio()
             Action.test -> test()
+            Action.nmea -> NMEA.test(params.input)
             Action.sample -> sample(params)
             Action.play -> play(params)
         }
