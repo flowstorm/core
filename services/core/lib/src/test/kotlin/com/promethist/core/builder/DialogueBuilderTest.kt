@@ -17,7 +17,7 @@ internal class DialogueBuilderTest {
 
     @Test
     fun `test dialogue building`() {
-        dialogueBuilder.create("dialogue1", "product/dialogue/1").apply {
+        dialogueBuilder.create("dialogue1", "product/dialogue").apply {
             source.apply {
                 parameters = mapOf("str" to "bla", "num" to 123, "chk" to true)
                 initCode = "data class Test(val i: Int)\nfun time() = System.currentTimeMillis()\nval i = 1"
