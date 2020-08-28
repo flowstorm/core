@@ -9,7 +9,7 @@ class SignalProcessProvider(name: String, format: Format, enabled: Boolean = tru
             load(proc.inputStream)
             val exit = proc.waitFor()
             if (exit != 0)
-                logger.error("$this error: $exit")
+                logger.error("${this@SignalProcessProvider} error $exit")
         }
     }
 

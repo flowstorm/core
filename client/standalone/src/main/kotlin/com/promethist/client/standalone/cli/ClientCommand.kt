@@ -17,6 +17,7 @@ import com.promethist.client.BotContext
 import com.promethist.client.client.JwsBotClientSocket
 import com.promethist.client.common.WavFileAudioRecorder
 import com.promethist.client.common.OkHttp3BotClientSocket
+import com.promethist.client.signal.SignalGroup
 import com.promethist.client.signal.SignalProcessor
 import com.promethist.client.signal.SignalProvider
 import com.promethist.client.standalone.Application
@@ -263,11 +264,16 @@ class ClientCommand: CommandRunner<Application.Params, ClientCommand.Params> {
         }
         params.signalProcessor?.apply {
             println("{enabling signal processor}")
-            emitter = { action: String, values: PropertyMap ->
+            emitter = { signalGroup: SignalGroup, values: PropertyMap ->
                 context.attributes.putAll(values)
-                if (client.state == BotClient.State.Sleeping) {
-                    println("{Signal '$action' values $values}")
-                    client.doText(action)
+                when (signalGroup.type) {
+                    SignalGroup.Type.Text ->
+                        if (client.state == BotClient.State.Sleeping) {
+                            println("{Signal text '${signalGroup.name}' values $values}")
+                            client.doText(signalGroup.name)
+                        }
+                    SignalGroup.Type.Touch ->
+                        client.touch()
                 }
             }
             if (speechDevice is SignalProvider)

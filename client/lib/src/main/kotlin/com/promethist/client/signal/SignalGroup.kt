@@ -1,3 +1,5 @@
 package com.promethist.client.signal
 
-class SignalGroup(val name: String, val action: String, val signals: Array<Signal>)
+class SignalGroup(val name: String, val type: Type = Type.Text, val signals: Array<Signal>) {
+    enum class Type { Text, Touch }
+}

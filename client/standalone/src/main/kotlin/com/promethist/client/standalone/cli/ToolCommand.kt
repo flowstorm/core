@@ -1,5 +1,7 @@
 package com.promethist.client.standalone.cli
 
+import ch.qos.logback.classic.Level
+import ch.qos.logback.classic.Logger
 import com.promethist.client.standalone.Application
 import com.beust.jcommander.Parameter
 import com.beust.jcommander.Parameters
@@ -12,16 +14,18 @@ import com.promethist.client.standalone.io.*
 import com.promethist.client.audio.AudioCallback
 import com.promethist.client.audio.AudioDevice
 import com.promethist.client.gps.NMEA
+import com.promethist.client.signal.SignalProcessor
 import com.promethist.core.model.TtsConfig
 import cz.alry.jcommander.CommandRunner
 import javazoom.jl.player.Player
+import org.slf4j.LoggerFactory
 import java.io.*
 import java.util.*
 import javax.sound.sampled.*
 
 class ToolCommand: CommandRunner<Application.Params, ToolCommand.Params> {
 
-    enum class Action { voices, play, sample, audio, test, respeaker2, nmea }
+    enum class Action { voices, play, sample, audio, test, respeaker2, nmea, signal }
 
     private val BUF_SIZE = 3200
 
@@ -230,12 +234,14 @@ class ToolCommand: CommandRunner<Application.Params, ToolCommand.Params> {
     }
 
     override fun run(globalParams: Application.Params, params: Params) {
+        (LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME) as Logger).level = Level.toLevel(globalParams.logLevel)
         when (params.action) {
             //Action.tts -> tts(params)
             Action.voices -> TtsConfig.values.forEach { println(it) }
             Action.respeaker2 -> RespeakerMicArrayV2.test()
             Action.audio -> audio()
             Action.test -> test()
+            Action.signal -> SignalProcessor.test(params.input)
             Action.nmea -> NMEA.test(params.input)
             Action.sample -> sample(params)
             Action.play -> play(params)

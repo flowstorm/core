@@ -24,7 +24,7 @@ class SignalProcessor(
     val providers: MutableList<SignalProvider>) : Runnable {
 
     private val logger by LoggerDelegate()
-    lateinit var emitter: ((String, PropertyMap) -> Unit)
+    lateinit var emitter: ((SignalGroup, PropertyMap) -> Unit)
     private val signalValues = mutableMapOf<String, SignalValue>()
 
     fun process(values: Map<String, Any>) {
@@ -56,8 +56,8 @@ class SignalProcessor(
                 }
             }
             if (groupValues.isNotEmpty()) {
-                logger.info("signal group '${group.name}' action ${group.action} values $groupValues")
-                emitter(group.action, groupValues)
+                logger.info("signal group '${group.name}' type ${group.type} values $groupValues")
+                emitter(group, groupValues)
             }
         }
     }
@@ -90,19 +90,19 @@ class SignalProcessor(
 
     companion object {
 
-        fun create(config: InputStream, emitter: (String, PropertyMap) -> Unit) =
+        fun create(config: InputStream, emitter: (SignalGroup, PropertyMap) -> Unit) =
                 defaultMapper.readValue<SignalProcessor>(config).apply {
                     this.emitter = emitter
                 }
 
-        @JvmStatic
-        fun main(args: Array<String>) {
-            with (defaultMapper.readValue<Test>(FileInputStream("signal-test.json")).signalProcessor) {
-                emitter = { text, values ->
-                    println("emitting $text values $values")
-                }
-                run()
+        fun test(config: String) = with (defaultMapper.readValue<Test>(FileInputStream(config)).signalProcessor) {
+            emitter = { group, values ->
+                println("signal group '${group.name}' type ${group.type} values $values")
             }
+            run()
         }
+
+        @JvmStatic
+        fun main(args: Array<String>) = test("signal-test.json")
     }
 }

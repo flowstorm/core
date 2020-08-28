@@ -8,6 +8,7 @@ import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.lang.Exception
+import java.util.*
 
 abstract class SignalConfigurableProvider(val name: String, val format: Format, val enabled: Boolean, val sleep: Long, val continuous: Boolean) : SignalProvider {
 
@@ -22,6 +23,13 @@ abstract class SignalConfigurableProvider(val name: String, val format: Format, 
         do {
             if (format == Format.JSON) {
                 values.putAll(defaultMapper.readValue(reader))
+            } else if (format == Format.Properties && !continuous) {
+                // read all properties
+                while (true) {
+                    (reader.readLine() ?: break).split('=').let {
+                        values[it[0]] = loadValueFromString(it[1])
+                    }
+                }
             } else {
                 val line = reader.readLine() ?: break
                 when (format) {

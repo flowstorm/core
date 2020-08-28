@@ -2,8 +2,18 @@
   "signalProcessor": {
     "groups": [
       {
-        "name": "wake",
-        "action": "#intro",
+        "name": "touch",
+        "type": "Touch",
+        "signals": [
+          {
+            "name": "button",
+            "requiredValue": "DOWN"
+          }
+        ]
+      },
+      {
+        "name": "#intro",
+        "type": "Text",
         "signals": [
           {
             "name": "clientWakeWord",
@@ -13,8 +23,8 @@
         ]
       },
       {
-        "name": "other",
-        "action": "#signal",
+        "name": "#signal",
+        "type": "Text",
         "signals": [
           {
             "name": "clientLocation",
