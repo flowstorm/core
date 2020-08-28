@@ -98,7 +98,7 @@ class DialogueSourceCodeBuilder(val dialogueId: String, val buildId: String, val
     data class Intent(val nodeId: Int, val nodeName: String, val threshold: Float, val utterances: List<String>) : Node
     data class GlobalIntent(val nodeId: Int, val nodeName: String, val threshold: Float, val utterances: List<String>) : Node
     data class UserInput(val nodeId: Int, val nodeName: String, val intentNames: List<String>, val actionNames: List<String>, val sttMode: SttConfig.Mode? = null, val skipGlobalIntents: Boolean, val transitions: Map<String, String>, val code: CharSequence = "") : Node
-    data class Speech(val nodeId: Int, val nodeName: String, val repeatable: Boolean, val texts: List<String>) : Node
+    data class Speech(val nodeId: Int, val nodeName: String, val background: String? = null, val repeatable: Boolean, val texts: List<String>) : Node
     data class Sound(val nodeId: Int, val nodeName: String, val source: String) : Node
     data class Image(val nodeId: Int, val nodeName: String, val source: String) : Node
     data class Function(val nodeId: Int, val nodeName: String, val transitions: Map<String, String>, val code: CharSequence) : Node
@@ -260,7 +260,8 @@ class DialogueSourceCodeBuilder(val dialogueId: String, val buildId: String, val
     }
 
     private fun write(speech: Speech) = with(speech) {
-        source.append("\tval $nodeName = Response($nodeId, $repeatable")
+        source.append("\tval $nodeName = Response($nodeId, $repeatable, " +
+                (if (background != null) "\"$background\"" else "null"))
         texts.forEach { text ->
             source.append(", { \"\"\"").append(enumerateExpressions(text)).append("\"\"\" }")
         }

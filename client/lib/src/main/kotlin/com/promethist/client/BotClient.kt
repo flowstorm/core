@@ -3,7 +3,6 @@ package com.promethist.client
 import com.promethist.client.audio.AudioCallback
 import com.promethist.client.audio.AudioDevice
 import com.promethist.client.audio.AudioRecorder
-import com.promethist.common.Reloadable
 import com.promethist.core.Input
 import com.promethist.core.Request
 import com.promethist.core.Response
@@ -54,8 +53,11 @@ class BotClient(
     private var builtinAudioData = mutableMapOf<String, ByteArray>()
     private var lastTime = System.currentTimeMillis()
     private var lastStateDuration = 0L
+    private var waking = false
     var state = State.Closed
         set(state) {
+            if (state != State.Sleeping)
+                waking = false
             val currentTime = System.currentTimeMillis()
             lastStateDuration = currentTime - lastTime
             lastTime = currentTime
@@ -230,7 +232,7 @@ class BotClient(
     }
 
     fun touch(openInputAudio: Boolean = true) {
-        logger.info("buttonClick(openInputAudio = $openInputAudio, state = $state)")
+        logger.info("touch(openInputAudio = $openInputAudio), state = $state")
         when (state) {
             State.Closed, State.Failed -> {
                 if (lostThread != null && lostThread!!.running)
@@ -249,6 +251,7 @@ class BotClient(
                 state = State.Responding
             State.Sleeping -> {
                 outputAudioPlayCancel()
+                waking = true
                 doIntro()
             }
         }
