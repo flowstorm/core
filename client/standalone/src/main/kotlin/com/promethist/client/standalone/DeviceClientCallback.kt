@@ -99,7 +99,11 @@ open class DeviceClientCallback(
             BotClient.Volume._down -> OutputAudioDevice.VOLUME_DOWN
             else -> volume.toString().substring(1).toInt()
         })
-        println("{Volume${volume}:${value}}")
+        output.println("{Volume${volume}:${value}}")
+    }
+
+    override fun onWakeWord(client: BotClient) {
+        output.println("{Wake word detected}")
     }
 
     override fun audio(client: BotClient, data: ByteArray) {

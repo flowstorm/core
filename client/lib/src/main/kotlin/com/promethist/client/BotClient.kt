@@ -20,6 +20,7 @@ class BotClient(
         val callback: BotClientCallback,
         val tts: BotConfig.TtsType = BotConfig.TtsType.RequiredLinks,
         val sttMode: SttConfig.Mode = SttConfig.Mode.Default,
+        val pauseMode: Boolean = false,
         val inputAudioRecorder: AudioRecorder? = null
 ) : BotSocket.Listener {
 
@@ -93,10 +94,14 @@ class BotClient(
             inputAudioDevice.callback = object : AudioCallback {
                 override fun onStart() = logger.info("Audio input start")
                 override fun onStop() = logger.info("Audio input stop")
-                override fun onData(buf: ByteArray, count: Int): Boolean {
-                    val data = buf.copyOf(count)
-                    inputAudioRecorder?.write(data)
-                    return if (inputAudioStreamOpen) inputAudioQueue.add(data) else true
+                override fun onData(buf: ByteArray, count: Int) = buf.copyOf(count).let {
+                    inputAudioRecorder?.write(it)
+                    if (inputAudioStreamOpen) inputAudioQueue.add(it) else true
+                }
+
+                override fun onWake() {
+                    callback.onWakeWord(this@BotClient)
+                    touch()
                 }
             }
             inputAudioDevice.start()
@@ -244,11 +249,19 @@ class BotClient(
                 if (openInputAudio)
                     inputAudioStreamOpen()
             }
-            State.Responding ->
-                if (inputAudioDevice != null)
-                    state = State.Paused
-            State.Paused ->
+            State.Responding -> {
+                if (pauseMode) {
+                    if (inputAudioDevice != null)
+                        state = State.Paused
+                } else {
+                    outputAudioPlayCancel()
+                    if (sttMode != SttConfig.Mode.Duplex)
+                        inputAudioStreamOpen()
+                }
+            }
+            State.Paused -> {
                 state = State.Responding
+            }
             State.Sleeping -> {
                 outputAudioPlayCancel()
                 waking = true

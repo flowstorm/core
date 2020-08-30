@@ -15,10 +15,9 @@ import com.promethist.client.BotClient
 import com.promethist.client.BotConfig
 import com.promethist.client.BotContext
 import com.promethist.client.client.JwsBotClientSocket
-import com.promethist.client.common.WavFileAudioRecorder
+import com.promethist.client.audio.WavFileAudioRecorder
 import com.promethist.client.common.OkHttp3BotClientSocket
 import com.promethist.client.signal.SignalGroup
-import com.promethist.client.signal.SignalProcessor
 import com.promethist.client.signal.SignalProvider
 import com.promethist.client.standalone.Application
 import com.promethist.client.standalone.DeviceClientCallback
@@ -40,12 +39,12 @@ import java.util.*
 import kotlin.concurrent.thread
 import kotlin.system.exitProcess
 
-class ClientCommand: CommandRunner<Application.Params, ClientCommand.Params> {
+class ClientCommand: CommandRunner<Application.Config, ClientCommand.Config> {
 
     enum class BotSocketType { OkHttp3, JWS }
 
     @Parameters(commandNames = ["client"], commandDescription = "Run client (press Ctrl+C to quit)")
-    class Params : ClientParams() {
+    class Config : ClientConfig() {
 
         @Parameter(names = ["-c", "--config-file"], order = 0, description = "Config file")
         var configFile: String? = null
@@ -60,7 +59,7 @@ class ClientCommand: CommandRunner<Application.Params, ClientCommand.Params> {
         var noCache = false
 
         @Parameter(names = ["-s", "--sender"], order = 4, description = "Sender identification")
-        var sender = "standalone:" + (InetInterface.getActive()?.hardwareAddress ?: "default")
+        var sender = "standalone_" + (InetInterface.getActive()?.hardwareAddress?.replace(":", "") ?: "default")
 
         @Parameter(names = ["-it", "--intro-text"], order = 5, description = "Intro text")
         var introText: String? = null
@@ -100,6 +99,9 @@ class ClientCommand: CommandRunner<Application.Params, ClientCommand.Params> {
         @Parameter(names = ["-aru", "--audio-record-upload"], order = 36, description = "Audio record with upload (none, local, night, immediate)")
         var audioRecordUpload = WavFileAudioRecorder.UploadMode.none
 
+        @Parameter(names = ["-pm", "--pause-mode"], order = 37, description = "Pause mode (wake word or button will pause output audio instead of stopping it and listening)")
+        var pauseMode = false
+
         // GUI
 
         @Parameter(names = ["-scr", "--screen"], order = 40, description = "Screen view (none, window, fullscreen)")
@@ -121,41 +123,39 @@ class ClientCommand: CommandRunner<Application.Params, ClientCommand.Params> {
 
         @Parameter(names = ["-du", "--dist-url"], order = 83, description = "Distribution URL for auto updates")
         var distUrl = "https://repository.promethist.ai/dist"
-
-        val signalProcessor: SignalProcessor? = null
     }
 
-    override fun run(globalParams: Application.Params, params: Params) {
-        (LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME) as Logger).level = Level.toLevel(globalParams.logLevel)
+    override fun run(globalConfig: Application.Config, config: Config) {
+        (LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME) as Logger).level = Level.toLevel(globalConfig.logLevel)
         val writer = OutputStreamWriter(
-            if (params.output == "stdout")
+            if (config.output == "stdout")
                 System.out
             else
-                FileOutputStream(params.output)
+                FileOutputStream(config.output)
         )
-        if (params.configFile != null) {
-            FileInputStream(params.configFile).use {
-                defaultMapper.readerForUpdating(params).readValue(JsonFactory().createParser(it), object : TypeReference<Params>() {})
+        if (config.configFile != null) {
+            FileInputStream(config.configFile).use {
+                defaultMapper.readerForUpdating(config).readValue(JsonFactory().createParser(it), object : TypeReference<Config>() {})
             }
-            println("{Using configuration ${params.configFile} " + (if (params.signalProcessor != null) "with" else "without") + " signal processor}")
+            println("{Using configuration ${config.configFile}}")
         }
 
-        if (params.volume != null) {
-            OutputAudioDevice.volume(params.portName, params.volume!!)
-            writer.write("{Volume ${params.portName} set to ${params.volume}}\n")
+        if (config.volume != null) {
+            OutputAudioDevice.volume(config.portName, config.volume!!)
+            writer.write("{Volume ${config.portName} set to ${config.volume}}\n")
         }
         var light: Light? = null
         val output = PrintWriter(writer, true)
         var responded = false
         val callback = object : DeviceClientCallback(
                 output,
-                params.distUrl,
-                params.autoUpdate,
-                params.noCache,
-                params.noOutputAudio,
-                params.noOutputLogs,
-                params.portName,
-                logs = params.logs
+                config.distUrl,
+                config.autoUpdate,
+                config.noCache,
+                config.noOutputAudio,
+                config.noOutputLogs,
+                config.portName,
+                logs = config.logs
         ) {
             override fun onBotStateChange(client: BotClient, newState: BotClient.State) {
                 super.onBotStateChange(client, newState)
@@ -197,53 +197,48 @@ class ClientCommand: CommandRunner<Application.Params, ClientCommand.Params> {
         }
         val attributes = Dynamic(
                 "clientType" to "standalone:${AppConfig.version}",
-                "clientScreen" to (params.screen != "none")
+                "clientScreen" to (config.screen != "none")
         )
         val context = BotContext(
-                url = if (params.environment != null) {
-                    val env = if (listOf("production", "default").contains(params!!.environment))
+                url = if (config.environment != null) {
+                    val env = if (listOf("production", "default").contains(config!!.environment))
                         ""
                     else
-                        ".${params.environment}"
-                    if (params.environment == "local")
+                        ".${config.environment}"
+                    if (config.environment == "local")
                         "http://localhost:8080" else
                         "https://port$env.promethist.com"
                 } else
-                    params.url,
-                key = params.key,
-                sender = params.sender,
-                voice = params.voice,
-                autoStart = params.autoStart,
-                locale = Locale(params.language, Locale.getDefault().country),
+                    config.url,
+                key = config.key,
+                sender = config.sender,
+                voice = config.voice,
+                autoStart = config.autoStart,
+                locale = Locale(config.language, Locale.getDefault().country),
                 attributes = attributes
         )
-        if (params.introText != null)
-            context.introText = params.introText!!
-        val micChannel = params.micChannel.split(':').map { it.toInt() }
-        val speechDevice = SpeechDeviceFactory.getSpeechDevice(params.speechDeviceName)
+        if (config.introText != null)
+            context.introText = config.introText!!
+        val micChannel = config.micChannel.split(':').map { it.toInt() }
+        val speechDevice = SpeechDeviceFactory.getSpeechDevice(config.speechDeviceName)
         val client = BotClient(
                 context,
-                // web socket
-                when (params.socketType) {
-                    BotSocketType.JWS -> JwsBotClientSocket(context.url, params.exitOnError, params.socketPing)
-                    else -> OkHttp3BotClientSocket(context.url, params.exitOnError, params.socketPing)
+                when (config.socketType) {
+                    BotSocketType.JWS -> JwsBotClientSocket(context.url, config.exitOnError, config.socketPing)
+                    else -> OkHttp3BotClientSocket(context.url, config.exitOnError, config.socketPing)
                 },
-                // input audio device
-                if (params.noInputAudio)
+                if (config.noInputAudio)
                     null
                 else
-                    Microphone(speechDevice, micChannel[0], micChannel[1]),
-                // bot callback
+                    Microphone(speechDevice, config.wakeWord, micChannel[0], micChannel[1]),
                 callback,
-                // TTS type
-                if (params.noOutputAudio)
+                if (config.noOutputAudio)
                     BotConfig.TtsType.None
                 else
                     BotConfig.TtsType.RequiredLinks,
-                // STT mode
-                params.sttMode,
-                // audio recorder
-                if (params.noInputAudio || (params.audioRecordUpload == WavFileAudioRecorder.UploadMode.none))
+                config.sttMode,
+                config.pauseMode,
+                if (config.noInputAudio || (config.audioRecordUpload == WavFileAudioRecorder.UploadMode.none))
                     null
                 else
                     WavFileAudioRecorder(File("."),
@@ -251,18 +246,18 @@ class ClientCommand: CommandRunner<Application.Params, ClientCommand.Params> {
                                 ServiceUrlResolver.getEndpointUrl("filestore", ServiceUrlResolver.RunMode.local)
                             else
                                 context.url.replace("port", "filestore"),
-                            params.audioRecordUpload
+                            config.audioRecordUpload
                     )
         )
-        if (params.screen != "none") {
+        if (config.screen != "none") {
             Screen.client = client
-            Screen.fullScreen = (params.screen == "fullscreen")
-            Screen.animations = !params.noAnimations
+            Screen.fullScreen = (config.screen == "fullscreen")
+            Screen.animations = !config.noAnimations
             thread {
                 Screen.launch()
             }
         }
-        params.signalProcessor?.apply {
+        config.signalProcessor?.apply {
             println("{enabling signal processor}")
             emitter = { signalGroup: SignalGroup, values: PropertyMap ->
                 context.attributes.putAll(values)
@@ -284,10 +279,10 @@ class ClientCommand: CommandRunner<Application.Params, ClientCommand.Params> {
         println("{context = $context}")
         println("{inputAudioDevice = ${client.inputAudioDevice}}")
         println("{sttMode = ${client.sttMode}}")
-        println("{device = ${params.device}}")
-        if (listOf("rpi", "model1", "model2", "model3").contains(params.device)) {
+        println("{device = ${config.device}}")
+        if (listOf("rpi", "model1", "model2", "model3").contains(config.device)) {
             val gpio = GpioFactory.getInstance()
-            light = if (params.device == "model2")
+            light = if (config.device == "model2")
                 Vk2ColorLed().apply {
                     set(Color.MAGENTA)
                 }
@@ -310,12 +305,12 @@ class ClientCommand: CommandRunner<Application.Params, ClientCommand.Params> {
             })
         }
         client.open()
-        if (params.input != "none") {
+        if (config.input != "none") {
             InputStreamReader(
-                if (params.input == "stdin")
+                if (config.input == "stdin")
                     System.`in`
                 else
-                    FileInputStream(params.input)
+                    FileInputStream(config.input)
             ).use {
                 val input = BufferedReader(it)
                 while (true) {

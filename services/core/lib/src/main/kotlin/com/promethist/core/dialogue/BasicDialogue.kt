@@ -57,7 +57,6 @@ abstract class BasicDialogue : AbstractDialogue() {
     var clientTemperature by client { -273.15 }
     var clientAmbientLight by client { 0.0 }
     var clientSpatialMotion by client { 0.0 }
-    var clientWakeWord by client { false }
     var clientSpeechAngle by client { -1 }
     var clientSpeechDetected by client { false }
     val clientSpeechDirection get() = clientSpeechAngle.let {

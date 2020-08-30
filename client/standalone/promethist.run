@@ -1,15 +1,30 @@
 #!/bin/bash
-# config
-. ./promethist.env
+JAR=promethist.jar
+MEM=512m
+LOG_LEVEL=WARN
+if [ "$1" == "bg" ]
+then
+  IN_FILE=none
+  OUT_FILE=promethist.out
+  LOG_FILE=promethist.log
+else
+  IN_FILE=stdin
+  OUT_FILE=stdout
+  LOG_FILE=/dev/stdout
+fi
+CMD="/opt/jdk11/bin/java --module-path /opt/armv6hf-sdk/lib --add-modules=javafx.controls,javafx.media -Dembedded=monocle -Dglass.platform=Monocle"
+CMD="$CMD -Xms$MEM -Xmx$MEM -jar $JAR -l $LOG_LEVEL client -c promethist.json -i $IN_FILE -o $OUT_FILE"
 
-amixer set Master $VOLUME
+export DISPLAY=:0.0
+xset s off
+xset -dpms
+xrandr >> $LOG_FILE 2>&1
 
-# code
 cd "$(dirname "$0")"
 while true
 do
-  echo "Starting $JAR"
-  $JAVA_HOME/bin/java -Xms$MEM -Xmx$MEM -jar $JAR -l $LOG_LEVEL client -d $DEVICE -s $SENDER -u $URL -k $KEY -l $LNG -i $IN_FILE -o $OUT_FILE -na -aa >> $LOG_FILE 2>&1
+  echo $CMD
+  $CMD >> $LOG_FILE 2>&1
   if [ $? -eq 1 ]
   then
     echo "Updating $JAR"
@@ -19,3 +34,4 @@ do
   fi
   sleep 5
 done
+
