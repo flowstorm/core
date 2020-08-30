@@ -40,7 +40,7 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
                     sendEvent(BotEvent.Recognized(input.transcript.text))
                     onRequest(createRequest(input))
                 } else {
-                    inputAudioTime = System.currentTimeMillis()
+                    sttLastTime = System.currentTimeMillis()
                 }
             } catch (e: IOException) {
                 onError(e)
@@ -87,11 +87,12 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
     protected var locale: Locale? = null
     protected var sessionId: String? = null
     private var expectedPhrases: List<ExpectedPhrase> = listOf()
-    private var inputAudioTime: Long = 0
+    private var sttLastTime: Long = 0
     private val sttService: SttService = SttServiceFactory.create("Google", BotSttCallback())
     private var sttStream: SttStream? = null
     abstract val sttConfig: SttConfig
     protected val inputAudioStreamOpen get() = (sttStream != null)
+    protected val attributes = mutableMapOf<String, Any>()
 
     fun createRequest(input: Input, attributes: MutablePropertyMap = Dynamic()) =
             Request(appKey, sender, token, sessionId ?: error("missing session id"), input, attributes)
@@ -110,7 +111,7 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
             logger.info("STT STREAM OPEN")
             sttStream = sttService.createStream(sttConfig, expectedPhrases)
         }
-        inputAudioTime = System.currentTimeMillis()
+        sttLastTime = System.currentTimeMillis()
     }
 
     fun inputAudioStreamClose(sttClose: Boolean = (sttConfig.mode != SttConfig.Mode.Duplex)) {
@@ -124,7 +125,7 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
     fun onInputAudio(payload: ByteArray, offset: Int, length: Int) {
         logger.debug("onInputAudio(payload[${payload.size}], offset = $offset, length = $length)")
         if (inputAudioStreamOpen) {
-            if ((inputAudioTime + 5000 < System.currentTimeMillis()) && (sttConfig.mode != SttConfig.Mode.Duplex))
+            if ((sttLastTime + 5000 < System.currentTimeMillis()) && (sttConfig.mode != SttConfig.Mode.Duplex))
                 onSilence()
             else
                 sttStream?.write(payload, offset, length)
@@ -152,10 +153,16 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
             sessionId = request.sessionId
             sendEvent(BotEvent.SessionStarted(request.sessionId))
         }
+        attributes.putAll(request.attributes)
+        request.attributes = attributes
         val response = coreResource.process(request)
+        attributes.clear()
         if (response.expectedPhrases != null) {
             expectedPhrases = response.expectedPhrases!!
             response.expectedPhrases = null
+        }
+        if (response.sttMode != null) {
+            sttConfig.mode = response.sttMode!!
         }
         locale = response.locale
         sendResponse(response)

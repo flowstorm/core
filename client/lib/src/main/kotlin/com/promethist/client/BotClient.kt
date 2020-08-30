@@ -1,14 +1,12 @@
 package com.promethist.client
 
-import com.promethist.client.util.AudioCallback
-import com.promethist.client.util.AudioDevice
-import com.promethist.client.util.AudioRecorder
-import com.promethist.common.Reloadable
+import com.promethist.client.audio.AudioCallback
+import com.promethist.client.audio.AudioDevice
+import com.promethist.client.audio.AudioRecorder
 import com.promethist.core.Input
 import com.promethist.core.Request
 import com.promethist.core.Response
 import com.promethist.core.model.SttConfig
-import com.promethist.core.model.TtsConfig
 import com.promethist.util.LoggerDelegate
 import java.util.UUID
 
@@ -22,6 +20,7 @@ class BotClient(
         val callback: BotClientCallback,
         val tts: BotConfig.TtsType = BotConfig.TtsType.RequiredLinks,
         val sttMode: SttConfig.Mode = SttConfig.Mode.Default,
+        val pauseMode: Boolean = false,
         val inputAudioRecorder: AudioRecorder? = null
 ) : BotSocket.Listener {
 
@@ -55,8 +54,11 @@ class BotClient(
     private var builtinAudioData = mutableMapOf<String, ByteArray>()
     private var lastTime = System.currentTimeMillis()
     private var lastStateDuration = 0L
+    private var waking = false
     var state = State.Closed
         set(state) {
+            if (state != State.Sleeping)
+                waking = false
             val currentTime = System.currentTimeMillis()
             lastStateDuration = currentTime - lastTime
             lastTime = currentTime
@@ -92,13 +94,14 @@ class BotClient(
             inputAudioDevice.callback = object : AudioCallback {
                 override fun onStart() = logger.info("Audio input start")
                 override fun onStop() = logger.info("Audio input stop")
-                override fun onData(buf: ByteArray, count: Int): Boolean {
-                    val data = buf.copyOf(count)
-                    inputAudioRecorder?.outputStream?.apply {
-                        write(data)
-                        flush()
-                    }
-                    return if (inputAudioStreamOpen) inputAudioQueue.add(data) else true
+                override fun onData(buf: ByteArray, count: Int) = buf.copyOf(count).let {
+                    inputAudioRecorder?.write(it)
+                    if (inputAudioStreamOpen) inputAudioQueue.add(it) else true
+                }
+
+                override fun onWake() {
+                    callback.onWakeWord(this@BotClient)
+                    touch()
                 }
             }
             inputAudioDevice.start()
@@ -234,7 +237,7 @@ class BotClient(
     }
 
     fun touch(openInputAudio: Boolean = true) {
-        logger.info("buttonClick(openInputAudio = $openInputAudio, state = $state)")
+        logger.info("touch(openInputAudio = $openInputAudio), state = $state")
         when (state) {
             State.Closed, State.Failed -> {
                 if (lostThread != null && lostThread!!.running)
@@ -246,13 +249,22 @@ class BotClient(
                 if (openInputAudio)
                     inputAudioStreamOpen()
             }
-            State.Responding ->
-                if (inputAudioDevice != null)
-                    state = State.Paused
-            State.Paused ->
+            State.Responding -> {
+                if (pauseMode) {
+                    if (inputAudioDevice != null)
+                        state = State.Paused
+                } else {
+                    outputAudioPlayCancel()
+                    if (sttMode != SttConfig.Mode.Duplex)
+                        inputAudioStreamOpen()
+                }
+            }
+            State.Paused -> {
                 state = State.Responding
+            }
             State.Sleeping -> {
                 outputAudioPlayCancel()
+                waking = true
                 doIntro()
             }
         }
@@ -279,7 +291,6 @@ class BotClient(
 
     override fun onFailure(t: Throwable) {
         if (socket.state == BotSocket.State.Failed && state != State.Failed) {
-            inputAudioRecorder?.stop()
             inputAudioStreamClose(false)
             if (lostThread == null || !lostThread!!.running)
                 lostThread = object : LazyThread(20) {
@@ -296,10 +307,6 @@ class BotClient(
         outputQueue.add(OutputQueue.Item.Audio(builtinAudioData[name]
                 ?: error("missing builtin audio $name"), OutputQueue.Item.Type.Local))
     }
-
-
-    // called by OutputMediaQueue when empty and bot is sleeping
-    fun silent() = inputAudioRecorder?.stop()
 
     fun inputAudioStreamOpen() {
         if (inputAudioDevice != null) {
@@ -336,8 +343,6 @@ class BotClient(
     fun doText(text: String) {
         if (context.sessionId == null)
             context.sessionId = UUID.randomUUID().toString()
-        if (context.attributes is Reloadable)
-            context.attributes.reload()
         val request = Request(context.key, context.sender, context.token, context.sessionId!!, Input(context.locale, context.zoneId, Input.Transcript(text)), context.attributes)
         socket.sendEvent(BotEvent.Request(request))
     }

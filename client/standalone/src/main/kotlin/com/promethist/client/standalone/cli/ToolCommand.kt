@@ -1,5 +1,7 @@
 package com.promethist.client.standalone.cli
 
+import ch.qos.logback.classic.Level
+import ch.qos.logback.classic.Logger
 import com.promethist.client.standalone.Application
 import com.beust.jcommander.Parameter
 import com.beust.jcommander.Parameters
@@ -9,23 +11,26 @@ import com.pi4j.io.gpio.PinState
 import com.pi4j.io.gpio.RaspiPin
 import com.pi4j.io.gpio.event.GpioPinListenerDigital
 import com.promethist.client.standalone.io.*
-import com.promethist.client.util.AudioCallback
-import com.promethist.client.util.AudioDevice
+import com.promethist.client.audio.AudioCallback
+import com.promethist.client.audio.AudioDevice
+import com.promethist.client.gps.NMEA
+import com.promethist.client.signal.SignalProcessor
 import com.promethist.core.model.TtsConfig
 import cz.alry.jcommander.CommandRunner
 import javazoom.jl.player.Player
+import org.slf4j.LoggerFactory
 import java.io.*
 import java.util.*
 import javax.sound.sampled.*
 
-class ToolCommand: CommandRunner<Application.Params, ToolCommand.Params> {
+class ToolCommand: CommandRunner<Application.Config, ToolCommand.Config> {
 
-    enum class Action { voices, play, sample, audio, test, respeaker2 }
+    enum class Action { voices, play, sample, audio, test, respeaker2, nmea, signal, props }
 
     private val BUF_SIZE = 3200
 
     @Parameters(commandNames = ["tool"], commandDescription = "Tool actions")
-    class Params : ClientParams() {
+    class Config : ClientConfig() {
 
         @Parameter(names = ["-a", "--action"], order = 0, description = "Action")
         var action = Action.audio
@@ -34,12 +39,12 @@ class ToolCommand: CommandRunner<Application.Params, ToolCommand.Params> {
         var microphone = false
     }
 
-    private fun play(params: Params) {
+    private fun play(config: Config) {
         val buf = ByteArrayOutputStream()
         var mic: Microphone? = null
-        if (params.microphone) {
-            val micChannel = params.micChannel.split(':').map { it.toInt() }
-            mic = Microphone(SpeechDeviceFactory.getSpeechDevice(params.speechDeviceName), micChannel[0], micChannel[1])
+        if (config.microphone) {
+            val micChannel = config.micChannel.split(':').map { it.toInt() }
+            mic = Microphone(SpeechDeviceFactory.getSpeechDevice(config.speechDeviceName), config.wakeWord, micChannel[0], micChannel[1])
             mic.callback = object : AudioCallback {
                 override fun onStart() = println("Microphone started")
                 override fun onStop() = println("Microphone stopped")
@@ -47,19 +52,23 @@ class ToolCommand: CommandRunner<Application.Params, ToolCommand.Params> {
                     buf.write(data, 0, size)
                     return true
                 }
+
+                override fun onWake() {
+                    println("Wake word detected")
+                }
             }
             mic.start()
             Thread(mic).start()
             while (!mic.started)
                 Thread.sleep(50)
         }
-        if (params.input.endsWith(".mp3")) {
+        if (config.input.endsWith(".mp3")) {
             // play MP3
-            println("Playing from ${params.input}")
-            Player(FileInputStream(params.input), object : OutputAudioDevice(params.speakerName) {
+            println("Playing from ${config.input}")
+            Player(FileInputStream(config.input), object : OutputAudioDevice(config.speakerName) {
                 override fun toByteArray(samples: ShortArray?, offs: Int, len: Int): ByteArray {
                     val b = super.toByteArray(samples, offs, len)
-                    if (params.microphone)
+                    if (config.microphone)
                         buf.write(b, 0, len * 2)
                     return b
                 }
@@ -68,8 +77,8 @@ class ToolCommand: CommandRunner<Application.Params, ToolCommand.Params> {
             // play PCM
             val audioFormat = AudioDevice.Format.DEFAULT
             val format = AudioFormat(audioFormat.sampleRate.toFloat(), audioFormat.sampleSize, audioFormat.channels, true, false)
-            val pcm = File(params.input).readBytes()
-            println("Playing PCM from ${params.input} (size ${pcm.size} bytes)")
+            val pcm = File(config.input).readBytes()
+            println("Playing PCM from ${config.input} (size ${pcm.size} bytes)")
             val info = DataLine.Info(SourceDataLine::class.java, format)
             val line = AudioSystem.getLine(info) as SourceDataLine
             line.open(format, BUF_SIZE)
@@ -80,9 +89,9 @@ class ToolCommand: CommandRunner<Application.Params, ToolCommand.Params> {
             line.close()
         }
         mic?.close(true)
-        if (params.output != "stdout") {
-            println("Writing PCM to ${params.output}")
-            File(params.output).writeBytes(buf.toByteArray())
+        if (config.output != "stdout") {
+            println("Writing PCM to ${config.output}")
+            File(config.output).writeBytes(buf.toByteArray())
         }
     }
 
@@ -105,12 +114,12 @@ class ToolCommand: CommandRunner<Application.Params, ToolCommand.Params> {
 
     }
 
-    private fun sample(params: Params) {
+    private fun sample(config: Config) {
         // input PCM
-        val inputFile = File(params.input)
+        val inputFile = File(config.input)
         val inputStream = BufferedInputStream(FileInputStream(inputFile))
-        val micFile = File("${params.output}.mic.pcm")
-        val spkFile = File("${params.output}.spk.pcm")
+        val micFile = File("${config.output}.mic.pcm")
+        val spkFile = File("${config.output}.spk.pcm")
         val micStream = BufferedOutputStream(FileOutputStream(micFile))
         val spkStream = BufferedOutputStream(FileOutputStream(spkFile))
         val inputSize = inputFile.length()
@@ -228,15 +237,21 @@ class ToolCommand: CommandRunner<Application.Params, ToolCommand.Params> {
 */
     }
 
-    override fun run(globalParams: Application.Params, params: Params) {
-        when (params.action) {
-            //Action.tts -> tts(params)
+    override fun run(globalConfig: Application.Config, config: Config) {
+        (LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME) as Logger).level = Level.toLevel(globalConfig.logLevel)
+        when (config.action) {
+            //Action.tts -> tts(config)
             Action.voices -> TtsConfig.values.forEach { println(it) }
             Action.respeaker2 -> RespeakerMicArrayV2.test()
             Action.audio -> audio()
             Action.test -> test()
-            Action.sample -> sample(params)
-            Action.play -> play(params)
+            Action.signal -> SignalProcessor.test(config.input)
+            Action.nmea -> NMEA.test(config.input)
+            Action.sample -> sample(config)
+            Action.play -> play(config)
+            Action.props -> System.getProperties().forEach {
+                println("${it.key} = ${it.value}")
+            }
         }
     }
 }

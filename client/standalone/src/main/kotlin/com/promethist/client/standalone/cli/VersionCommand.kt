@@ -2,16 +2,15 @@ package com.promethist.client.standalone.cli
 
 import com.promethist.client.standalone.Application
 import com.beust.jcommander.Parameters
-import com.promethist.client.standalone.io.RespeakerMicArrayV2
 import com.promethist.common.AppConfig
 import cz.alry.jcommander.CommandRunner
 
-class VersionCommand: CommandRunner<Application.Params, VersionCommand.Params> {
+class VersionCommand: CommandRunner<Application.Config, VersionCommand.Config> {
 
     @Parameters(commandNames = ["version"], commandDescription = "Show application version")
-    class Params
+    class Config
 
-    override fun run(globalParams: Application.Params, params: Params) {
+    override fun run(globalConfig: Application.Config, config: Config) {
         System.out.println("${AppConfig.instance["app.version"]} commit ${AppConfig.instance["git.commit"]}")
     }
 }

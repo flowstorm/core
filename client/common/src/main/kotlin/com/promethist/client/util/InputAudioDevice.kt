@@ -1,5 +1,8 @@
 package com.promethist.client.util
 
+import com.promethist.client.audio.AudioCallback
+import com.promethist.client.audio.AudioDevice
+import com.promethist.client.audio.SpeechDevice
 import com.promethist.util.LoggerDelegate
 
 abstract class InputAudioDevice(val speechDevice: SpeechDevice) : AudioDevice, Runnable {

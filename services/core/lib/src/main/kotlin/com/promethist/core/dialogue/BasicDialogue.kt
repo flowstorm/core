@@ -33,6 +33,10 @@ abstract class BasicDialogue : AbstractDialogue() {
         private val expander = ExampleExpander()
     }
 
+    enum class SpeechDirection {
+        Unknown, Front, FrontLeft, FrontRight, Left, Right, BackLeft, BackRight, Back
+    }
+
     val now: DateTime get() = DateTime.now(run.context.turn.input.zoneId)
     val today get() = now.date
     val tomorrow get() = today + 1.day
@@ -47,12 +51,28 @@ abstract class BasicDialogue : AbstractDialogue() {
             this >= today + range.first.day && this < today + range.last.day + 1.day
     infix fun DateTime.isDay(day: Int) = this isDay day..day
 
-    override var clientLocation by session(defaultNamespace) { Location() }
-    var clientType by session(defaultNamespace) { "unknown" }
-    var clientScreen by session(defaultNamespace) { false }
-    var clientTemperature by session(defaultNamespace) { -273.15 }
-    var clientAmbientLight by session(defaultNamespace) { 0.0 }
-    var clientSpatialMotion by session(defaultNamespace) { 0.0 }
+    override var clientLocation by client { Location() }
+    var clientType by client { "unknown" }
+    var clientScreen by client { false }
+    var clientTemperature by client { -273.15 }
+    var clientAmbientLight by client { 0.0 }
+    var clientSpatialMotion by client { 0.0 }
+    var clientSpeechAngle by client { -1 }
+    var clientSpeechDetected by client { false }
+    val clientSpeechDirection get() = clientSpeechAngle.let {
+        when (it) {
+            in 0..21 -> SpeechDirection.Right
+            in 22..67 -> SpeechDirection.FrontRight
+            in 68..111 -> SpeechDirection.Front
+            in 112..157 -> SpeechDirection.FrontLeft
+            in 158..201 -> SpeechDirection.Left
+            in 202..247 -> SpeechDirection.BackLeft
+            in 248..291 -> SpeechDirection.Back
+            in 292..337 -> SpeechDirection.BackRight
+            in 338..359 -> SpeechDirection.Right
+            else -> SpeechDirection.Unknown
+        }
+    }
 
     var nickname by user(defaultNamespace, true) { user.nickname }
     var gender by user(defaultNamespace) { "" }

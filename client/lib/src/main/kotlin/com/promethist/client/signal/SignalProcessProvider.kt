@@ -1,9 +1,27 @@
 package com.promethist.client.signal
 
-class SignalProcessProvider(name: String, format: Format, enabled: Boolean = true, val command: String) :
-        SignalConfigProvider(name, format, enabled) {
+import java.io.BufferedReader
+import java.io.InputStreamReader
 
-    override fun run() {
-        TODO("Not yet implemented")
+class SignalProcessProvider(name: String, format: Format, enabled: Boolean = true, continuous: Boolean = true, private val command: String) :
+        SignalConfigurableProvider(name, format, enabled, 0, continuous) {
+
+    override fun load() {
+        ProcessBuilder(*command.split(' ').toTypedArray()).apply {
+            val proc = start()
+            Thread {
+                BufferedReader(InputStreamReader(proc.errorStream)).use {
+                    while (true) println(it.readLine() ?: break)
+                }
+            }.start()
+            load(proc.inputStream)
+            val exit = proc.waitFor()
+            if (exit != 0) {
+                logger.error("${this@SignalProcessProvider} error $exit")
+                Thread.sleep(5000)
+            }
+        }
     }
+
+    override fun toString() = this::class.simpleName + "(name = $name, format = $format, continuous = $continuous, command = '$command')"
 }

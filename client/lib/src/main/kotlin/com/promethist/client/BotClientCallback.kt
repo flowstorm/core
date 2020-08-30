@@ -26,6 +26,8 @@ interface BotClientCallback {
 
     fun onVolumeChange(client: BotClient, volume: BotClient.Volume)
 
+    fun onWakeWord(client: BotClient)
+
     // content operations
 
     fun text(client: BotClient, text: String)

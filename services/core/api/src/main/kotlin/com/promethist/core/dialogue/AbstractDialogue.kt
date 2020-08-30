@@ -2,6 +2,7 @@ package com.promethist.core.dialogue
 
 import com.promethist.core.Context
 import com.promethist.core.model.DialogueModel
+import com.promethist.core.model.SttConfig
 import com.promethist.core.model.TtsConfig
 import com.promethist.core.model.Voice
 import com.promethist.core.runtime.Loader
@@ -19,7 +20,8 @@ abstract class AbstractDialogue : DialogueModel {
     //dialogue config - must/may be overrided
     open val buildId: String = "unknown" // used for generated classes, others are unknown
     open val language get() = TtsConfig.forVoice(voice)?.locale.language ?: error("unknown voice")
-
+    open val sttMode: SttConfig.Mode? = null
+    open val background: String? = null
     open val voice = Voice.Grace
     val locale by lazy { Locale(language) }
 
@@ -60,16 +62,20 @@ abstract class AbstractDialogue : DialogueModel {
     inner class UserInput(
             override val id: Int,
             var skipGlobalIntents: Boolean,
+            val sttMode: SttConfig.Mode? = null,
             val intents: Array<Intent>,
             val actions: Array<Action>,
             val lambda: (Context.(UserInput) -> Transition?)
     ): Node(id) {
 
+        constructor(id: Int, skipGlobalIntents: Boolean, intents: Array<Intent>, actions: Array<Action>, lambda: (Context.(UserInput) -> Transition?)) :
+                this(id, skipGlobalIntents, null, intents, actions, lambda)
+
         constructor(id: Int, intents: Array<Intent>, actions: Array<Action>, lambda: (Context.(UserInput) -> Transition?)) :
-                this(id, false, intents, actions, lambda)
+                this(id, false, null, intents, actions, lambda)
 
         constructor(intents: Array<Intent>, actions: Array<Action>, lambda: (Context.(UserInput) -> Transition?)) :
-                this(nextId--, false, intents, actions, lambda)
+                this(nextId--, false, null, intents, actions, lambda)
 
         fun process(context: Context): Transition? {
             val transition = run(context, this) { lambda(context, this) } as Transition?
@@ -119,6 +125,7 @@ abstract class AbstractDialogue : DialogueModel {
     open inner class Response(
             override val id: Int,
             val isRepeatable: Boolean = true,
+            val background: String? = null,
             val image: String? = null,
             val audio: String? = null,
             val video: String? = null,
@@ -126,7 +133,9 @@ abstract class AbstractDialogue : DialogueModel {
     ): TransitNode(id) {
         val texts = text
 
-        constructor(id: Int, isRepeatable: Boolean, vararg text: (Context.(Response) -> String)) : this(id, isRepeatable,null, null, null, *text)
+        constructor(id: Int, isRepeatable: Boolean, background: String?, vararg text: (Context.(Response) -> String)) : this(id, isRepeatable, background, null, null, null, *text)
+
+        constructor(id: Int, isRepeatable: Boolean, vararg text: (Context.(Response) -> String)) : this(id, isRepeatable, null, null, null, null, *text)
 
         constructor(id: Int, vararg text: (Context.(Response) -> String)) : this(id, true, *text)
 

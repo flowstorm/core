@@ -25,7 +25,6 @@ data class Context(
     val previousTurns get() = session.turns.reversed()
     val sessionEnded get() = session.dialogueStack.isEmpty()
     fun processPipeline() = pipeline.process(this)
-
-    // other properties
-    val expectedPhrases: MutableList<ExpectedPhrase> = mutableListOf()
+    @Deprecated("Use turn.expectedPhrases instead", replaceWith = ReplaceWith("turn.expectedPhrases"))
+    val expectedPhrases get() = turn.expectedPhrases
 }

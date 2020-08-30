@@ -37,6 +37,11 @@
             <version>${kotlin.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>ai.kitt</groupId>
+            <artifactId>snowboy</artifactId>
+            <version>1.3.0</version>
+        </dependency>
     </dependencies>
 
     <repositories>

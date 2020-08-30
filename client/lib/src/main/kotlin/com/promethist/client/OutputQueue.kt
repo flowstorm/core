@@ -30,8 +30,8 @@ class OutputQueue(val botClient: BotClient) : LinkedList<OutputQueue.Item>(), Ru
                     if (isEmpty()) {
                         if (!outputCancelled && (state != BotClient.State.Sleeping) && (item.type == Item.Type.Server)) {
                             inputAudioStreamOpen()
-                        } else if (state == BotClient.State.Sleeping) {
-                            silent()
+                        } else if (state == BotClient.State.Sleeping && (botClient.context.sessionId == null)) {
+                            botClient.inputAudioRecorder?.stop()
                         }
                     }
                 }

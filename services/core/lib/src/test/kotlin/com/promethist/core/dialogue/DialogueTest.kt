@@ -15,7 +15,7 @@ open class DialogueTest {
 
     class TestDialogue : BasicDialogue() {
         override val dialogueId = "dialogue1"
-        override val dialogueName = "product/dialogue/1"
+        override val dialogueName = "product/dialogue"
         override var clientLocation = DEFAULT_LOCATION
         var metric by MetricDelegate("namespace.name")
 

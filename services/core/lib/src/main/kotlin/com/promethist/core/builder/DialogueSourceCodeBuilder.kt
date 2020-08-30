@@ -1,5 +1,6 @@
 package com.promethist.core.builder
 
+import com.promethist.core.model.SttConfig
 import com.promethist.core.model.TtsConfig
 import com.promethist.core.model.Voice
 import com.promethist.core.type.PropertyMap
@@ -31,8 +32,8 @@ class DialogueSourceCodeBuilder(val dialogueId: String, val buildId: String, val
     private val names: MutableList<String>
 
     init {
-        if (!name.matches(Regex("([\\w\\-]+)/([\\w\\-]+)/(\\d+)")))
-            error("dialogue name $name does not conform to naming convention (product-name/dialogue-name/dialogue-version)")
+        if (!name.matches(Regex("([\\w\\-]+)/([\\w\\-]+)")))
+            error("dialogue name $name does not conform to naming convention (product-name/dialogue-name)")
         names = name.split("/").toMutableList()
         className = "Model"// + names.removeAt(names.size - 1)
     }
@@ -96,8 +97,8 @@ class DialogueSourceCodeBuilder(val dialogueId: String, val buildId: String, val
 
     data class Intent(val nodeId: Int, val nodeName: String, val threshold: Float, val utterances: List<String>) : Node
     data class GlobalIntent(val nodeId: Int, val nodeName: String, val threshold: Float, val utterances: List<String>) : Node
-    data class UserInput(val nodeId: Int, val nodeName: String, val intentNames: List<String>, val actionNames: List<String>, val skipGlobalIntents: Boolean, val transitions: Map<String, String>, val code: CharSequence = "") : Node
-    data class Speech(val nodeId: Int, val nodeName: String, val repeatable: Boolean, val texts: List<String>) : Node
+    data class UserInput(val nodeId: Int, val nodeName: String, val intentNames: List<String>, val actionNames: List<String>, val sttMode: SttConfig.Mode? = null, val skipGlobalIntents: Boolean, val transitions: Map<String, String>, val code: CharSequence = "") : Node
+    data class Speech(val nodeId: Int, val nodeName: String, val background: String? = null, val repeatable: Boolean, val texts: List<String>) : Node
     data class Sound(val nodeId: Int, val nodeName: String, val source: String) : Node
     data class Image(val nodeId: Int, val nodeName: String, val source: String) : Node
     data class Function(val nodeId: Int, val nodeName: String, val transitions: Map<String, String>, val code: CharSequence) : Node
@@ -219,7 +220,9 @@ class DialogueSourceCodeBuilder(val dialogueId: String, val buildId: String, val
         val intents  = intentNames.joinToString(", ")
         val actions = actionNames.joinToString(", ")
 
-        source.append("\tval $nodeName = UserInput($nodeId, $skipGlobalIntents, arrayOf($intents), arrayOf($actions) ) {")
+        source.append("\tval $nodeName = UserInput($nodeId, $skipGlobalIntents, "
+                + (if (userInput.sttMode == null) "null" else "SttConfig.Mode.${userInput.sttMode}")
+                + ", arrayOf($intents), arrayOf($actions) ) {")
         transitions.forEach { source.appendln("\t\tval ${it.key} = Transition(${it.value})") }
         source.appendln("//--code-start;type:userInput;name:$nodeName")
         if (code.isNotEmpty()) {
@@ -257,7 +260,8 @@ class DialogueSourceCodeBuilder(val dialogueId: String, val buildId: String, val
     }
 
     private fun write(speech: Speech) = with(speech) {
-        source.append("\tval $nodeName = Response($nodeId, $repeatable")
+        source.append("\tval $nodeName = Response($nodeId, $repeatable, " +
+                (if (background != null) "\"$background\"" else "null"))
         texts.forEach { text ->
             source.append(", { \"\"\"").append(enumerateExpressions(text)).append("\"\"\" }")
         }

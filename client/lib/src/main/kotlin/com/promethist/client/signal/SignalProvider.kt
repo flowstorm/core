@@ -1,5 +1,6 @@
 package com.promethist.client.signal
 
-abstract class SignalProvider : Runnable {
+interface SignalProvider : Runnable {
 
+    var processor: SignalProcessor
 }
