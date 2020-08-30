@@ -8,7 +8,7 @@ import cz.alry.jcommander.CommandController
 
 object Application {
 
-    class Params {
+    class Config {
 
         @Parameter(names = ["-l", "--log"], description = "Set logging severity")
         var logLevel: String? = "WARN"
@@ -17,10 +17,10 @@ object Application {
     @JvmStatic
     fun main(args: Array<String>) {
         //Sentry.init(AppConfig.instance["sentry.url"] + "?stacktrace.app.packages=com.promethistai,ai.promethist")
-        val controller = CommandController(Params())
-        controller.addCommand(VersionCommand.Params(), VersionCommand())
-        controller.addCommand(ClientCommand.Params(), ClientCommand())
-        controller.addCommand(ToolCommand.Params(), ToolCommand())
+        val controller = CommandController(Config())
+        controller.addCommand(VersionCommand.Config(), VersionCommand())
+        controller.addCommand(ClientCommand.Config(), ClientCommand())
+        controller.addCommand(ToolCommand.Config(), ToolCommand())
         controller.run(args)
     }
 }

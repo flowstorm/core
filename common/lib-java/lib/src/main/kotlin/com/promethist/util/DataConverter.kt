@@ -31,6 +31,12 @@ object DataConverter {
      */
     @Throws(IOException::class)
     fun pcmToWav(input: InputStream, output: OutputStream, size: Long, sampleRate: Int = 16000, channels: Int = 1, sampleSizeInBits: Int = 16) {
+        val header = wavHeader(size, sampleRate, channels, sampleSizeInBits)
+        output.write(header, 0, header.size)
+        input.copyTo(output)
+    }
+
+    fun wavHeader(size: Long, sampleRate: Int = 16000, channels: Int = 1, sampleSizeInBits: Int = 16): ByteArray {
         val header = ByteArray(44)
         //val data = get16BitPcm(pcmdata)
 
@@ -82,8 +88,7 @@ object DataConverter {
         header[42] = (size shr 16 and 0xff).toByte()
         header[43] = (size shr 24 and 0xff).toByte()
 
-        output.write(header, 0, 44)
-        input.copyTo(output)
+        return header
     }
 
     fun valueFromString(name: String, type: String, str: String): Any = when (type) {

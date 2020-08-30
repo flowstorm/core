@@ -1,18 +1,20 @@
 package com.promethist.core
 
 import com.promethist.core.model.LogEntry
+import com.promethist.core.model.SttConfig
 import com.promethist.core.model.TtsConfig
 import com.promethist.core.model.Voice
+import com.promethist.core.type.PropertyMap
 import java.util.*
 
-//TODO after removing Message class, change atrributes type to PropertyMap
-open class Response(
-        open var locale: Locale? = null,
-        open var items: MutableList<Item>,
-        open var logs: MutableList<LogEntry>,
-        open val attributes: MutableMap<String, *>, //TODO after removing Message class, change atrributes type to PropertyMap
-        open var expectedPhrases: MutableList<ExpectedPhrase>?,
-        open var sessionEnded: Boolean = false
+class Response(
+        var locale: Locale? = null,
+        var items: MutableList<Item>,
+        var logs: MutableList<LogEntry>,
+        val attributes: PropertyMap,
+        val sttMode: SttConfig.Mode?,
+        var expectedPhrases: MutableList<ExpectedPhrase>?,
+        var sessionEnded: Boolean = false
 ) {
     data class Item (
             /**

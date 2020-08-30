@@ -2,8 +2,7 @@ package com.promethist.client
 
 import com.promethist.core.Defaults
 import com.promethist.core.model.Voice
-import com.promethist.core.type.Dynamic
-import com.promethist.core.type.PropertyMap
+import com.promethist.core.type.MutablePropertyMap
 import java.time.ZoneId
 import java.util.*
 
@@ -11,7 +10,7 @@ data class BotContext(
         var url: String,
         var key: String,
         var sender: String,
-        val attributes: PropertyMap,
+        val attributes: MutablePropertyMap,
         var introText: String = "#intro",
         var token: String? = null,
         var voice: Voice? = null,

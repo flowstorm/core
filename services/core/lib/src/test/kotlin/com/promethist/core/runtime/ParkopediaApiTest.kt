@@ -9,14 +9,6 @@ import org.junit.jupiter.api.Assertions.*
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class ParkopediaApiTest : DialogueTest() {
 
-
-    @Test
-    fun test1() {
-        with (dialogue) {
-            println(parkopedia.nearParking())
-        }
-    }
-
     @Test
     fun testAddingData() {
         with (dialogue) {

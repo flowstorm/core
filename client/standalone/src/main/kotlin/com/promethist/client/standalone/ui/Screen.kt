@@ -83,7 +83,7 @@ class Screen : Application(), AnimatedImage.Callback {
             }
 
     override fun onLastFrame() {
-        if (animationQueue.isNotEmpty()) {
+        if (animations && animationQueue.isNotEmpty()) {
             currentAnimation?.stop()
             currentAnimation = animationQueue.remove()
             currentAnimation?.play()
@@ -138,16 +138,16 @@ class Screen : Application(), AnimatedImage.Callback {
         title = AppConfig.instance["title"]
         //fullScreenExitHint = ""
         fullScreenExitKeyCombination = KeyCombination.NO_MATCH
-        scene = if (Screen.Companion.fullScreen) {
+        scene = if (fullScreen) {
             isFullScreen = true
             isMaximized = true
-            Scene(grid, Screen.Companion.background)
+            Scene(grid, background)
         } else {
-            Scene(grid, 1000.0, 500.0, Screen.Companion.background)
+            Scene(grid, 1000.0, 500.0, background)
         }
-        scene.onKeyPressed = EventHandler { Screen.Companion.client?.touch() }
-        scene.onMouseClicked = EventHandler { Screen.Companion.client?.touch() }
-        Screen.Companion.instance = this@Screen
+        scene.onKeyPressed = EventHandler { client?.touch() }
+        scene.onMouseClicked = EventHandler { client?.touch() }
+        instance = this@Screen
         animationQueue.add(sleepingAnimation)
         onLastFrame()
         show()
@@ -217,6 +217,7 @@ class Screen : Application(), AnimatedImage.Callback {
 
         val background = Color.rgb(7, 0, 30)
         var fullScreen = false
+        var animations = true
         var client: BotClient? = null
         var instance: Screen? = null
 
@@ -225,8 +226,8 @@ class Screen : Application(), AnimatedImage.Callback {
         @JvmStatic
         fun main(args: Array<String>) {
             thread {
-                Screen.Companion.fullScreen = false
-                Screen.Companion.launch()
+                fullScreen = false
+                launch()
             }
         }
     }

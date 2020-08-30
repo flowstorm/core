@@ -25,7 +25,7 @@ fun BasicDialogue.describe(data: Collection<String>) = enumerate(data)
 fun BasicDialogue.describe(data: Memory<*>) = describe(data.value) + indent(describe(data.time, BasicDialogue.HIGH))
 
 fun BasicDialogue.describe(data: Location) =
-        if (data.isEmpty) {
+        if (data.isEmpty || data.latitude == null || data.longitude == null) {
             when (language) {
                 "en" -> "unknown"
                 "de" -> "unbekannt"
@@ -34,13 +34,13 @@ fun BasicDialogue.describe(data: Location) =
             }
         } else {
             try {
-                var latSec = (data.latitude * 3600).roundToInt()
+                var latSec = (data.latitude!! * 3600).roundToInt()
                 val latDeg = latSec / 3600
                 latSec = Math.abs(latSec % 3600)
                 val latMin = latSec / 60
                 latSec %= 60
 
-                var lngSec = (data.longitude * 3600).roundToInt()
+                var lngSec = (data.longitude!! * 3600).roundToInt()
                 val lngDeg = lngSec / 3600
                 lngSec = Math.abs(lngSec % 3600)
                 val lngMin = lngSec / 60
