@@ -10,7 +10,7 @@ object Application {
 
     class Config {
 
-        @Parameter(names = ["-l", "--log"], description = "Set logging severity")
+        @Parameter(names = ["-l", "--logLevel"], description = "Set logging severity")
         var logLevel: String? = "WARN"
     }
 

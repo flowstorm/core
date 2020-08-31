@@ -26,13 +26,13 @@ open class ClientConfig {
     @Parameter(names = ["-l", "--language"], order = 15, description = "Preferred conversation language")
     var language = "en"
 
-    @Parameter(names = ["-sd", "--speech-device"], order = 16, description = "Speech device (respeaker2)")
+    @Parameter(names = ["-sd", "--speechDeviceName"], order = 16, description = "Speech device name (respeaker2)")
     var speechDeviceName = "none"
 
-    @Parameter(names = ["-mc", "--mic-channel"], order = 17, description = "Microphone channel (count:selected)")
+    @Parameter(names = ["-mc", "--micChannel"], order = 17, description = "Microphone channel (count:selected)")
     var micChannel: String = "1:0"
 
-    @Parameter(names = ["-spk", "--speaker"], order = 18, description = "Speaker name")
+    @Parameter(names = ["-spk", "--speakerName"], order = 18, description = "Speaker name")
     var speakerName: String? = null
 
     val signalProcessor: SignalProcessor? = null
