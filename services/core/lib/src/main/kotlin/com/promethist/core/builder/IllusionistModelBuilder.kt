@@ -8,7 +8,7 @@ import java.net.URL
 import java.util.*
 import javax.ws.rs.WebApplicationException
 
-class IllusionistModelBuilder(val apiUrl: String, val apiKey: String) : IntentModelBuilder {
+class IllusionistModelBuilder(val apiUrl: String, val apiKey: String, val approach: String) : IntentModelBuilder {
 
     private val logger by LoggerDelegate()
 
@@ -31,7 +31,7 @@ class IllusionistModelBuilder(val apiUrl: String, val apiKey: String) : IntentMo
     }
 
     override fun build(modelId: String, name: String, language: Locale, intents: Map<String, Output.Item>) {
-        val output = Output(Output.Model(name, language.toString()), intents)
+        val output = Output(Output.Model(name, language.toString(), approach = approach), intents)
 
         val url = URL("$apiUrl/models/$modelId?key=$apiKey")
 //        logger.info("$url < $output")
