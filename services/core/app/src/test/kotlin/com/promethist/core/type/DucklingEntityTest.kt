@@ -6,7 +6,9 @@ import com.promethist.core.type.value.*
 import com.promethist.core.type.value.Number
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import java.time.Month
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class DucklingEntityTest {
@@ -22,8 +24,11 @@ class DucklingEntityTest {
         assertEquals("+02:00", (res[0].value as GrainedTime).value.zone.id)
         assertEquals("GrainedTime", res[0].className)
 
-        assertEquals(17, (res[1].value as Interval).from.value.hour)
-        assertEquals(21, (res[1].value as Interval).to.value.hour)
+        assertEquals(17, (res[1].value as Interval).from!!.value.hour)
+        assertEquals(21, (res[1].value as Interval).to!!.value.hour)
+
+        assertEquals(Month.FEBRUARY, (res[2].value as Interval).from!!.value.month)
+        assertNull((res[2].value as Interval).to)
     }
 
     @Test

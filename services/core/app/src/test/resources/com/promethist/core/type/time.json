@@ -58,5 +58,28 @@
     "end": 27,
     "dim": "time",
     "latent": false
+  },
+  {
+    "body": "since February 2020",
+    "start": 0,
+    "value": {
+      "values": [
+        {
+          "from": {
+            "value": "2020-02-01T00:00:00.000+01:00",
+            "grain": "month"
+          },
+          "type": "interval"
+        }
+      ],
+      "from": {
+        "value": "2020-02-01T00:00:00.000+01:00",
+        "grain": "month"
+      },
+      "type": "interval"
+    },
+    "end": 19,
+    "dim": "time",
+    "latent": false
   }
 ]

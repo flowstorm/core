@@ -15,8 +15,9 @@ open class Time: Value() {
         override fun deserialize(jsonParser: JsonParser, deserializationContext: DeserializationContext?): Time {
             val value: JsonNode = ObjectUtil.defaultMapper.readTree(jsonParser)
             return if (value.has("type") && value["type"].asText() == "interval") {
-                Interval(ObjectUtil.defaultMapper.treeToValue(value["from"], GrainedTime::class.java),
-                        ObjectUtil.defaultMapper.treeToValue(value["to"], GrainedTime::class.java))
+                val from = if (value.has("from")) ObjectUtil.defaultMapper.treeToValue(value["from"], GrainedTime::class.java) else null
+                val to = if (value.has("to")) ObjectUtil.defaultMapper.treeToValue(value["to"], GrainedTime::class.java) else null
+                Interval(from, to)
             } else {
                 GrainedTime(DateTime.parse(value["value"].asText()), value["grain"].asText())
             }
