@@ -8,25 +8,30 @@ import java.net.URL
 import java.util.*
 import javax.ws.rs.WebApplicationException
 
-class IllusionistModelBuilder(val apiUrl: String, val apiKey: String) : IntentModelBuilder {
+class IllusionistModelBuilder(val apiUrl: String, val apiKey: String, val approach: String) : IntentModelBuilder {
 
     private val logger by LoggerDelegate()
 
-    override fun build(irModel: IntentModel, language: Locale, intents: List<AbstractDialogue.Intent>) {
-        build(irModel.id, irModel.name, language, intents)
+    override fun build(irModel: IntentModel, language: Locale, intents: List<AbstractDialogue.Intent>, oodExamples: List<DialogueSourceCodeBuilder.GlobalIntent>) {
+        build(irModel.id, irModel.name, language, intents, oodExamples)
     }
 
-    override fun build(modelId: String, name: String, language: Locale, intents: List<AbstractDialogue.Intent>) {
+    override fun build(modelId: String, name: String, language: Locale, intents: List<AbstractDialogue.Intent>, oodExamples: List<DialogueSourceCodeBuilder.GlobalIntent>) {
         val items = mutableMapOf<String, Output.Item>()
         intents.forEach { intent ->
             items[intent.name] = Output.Item(intent.utterances, intent.id.toString(), intent.threshold)
         }
 
+        val oodStrings = mutableListOf<String>()
+        oodExamples.forEach { intent -> oodStrings.addAll(intent.utterances) }
+
+        items["OOD"] = Output.Item(oodStrings.toTypedArray(), "OOD", 0.0F)
+
         build(modelId, name, language, items)
     }
 
     override fun build(modelId: String, name: String, language: Locale, intents: Map<String, Output.Item>) {
-        val output = Output(Output.Model(name, language.toString()), intents)
+        val output = Output(Output.Model(name, language.toString(), approach = approach), intents)
 
         val url = URL("$apiUrl/models/$modelId?key=$apiKey")
 //        logger.info("$url < $output")

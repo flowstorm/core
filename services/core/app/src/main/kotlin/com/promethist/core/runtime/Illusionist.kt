@@ -29,6 +29,10 @@ class Illusionist : Component {
         val request = Request(context.input.transcript.text, models.map { it.id })
         val responses = webTarget.path("/multi_model").request().post(Entity.json(request), object : GenericType<List<Response>>() {})
 
+        if (responses[0].answer == "OOD") {
+            context.input.action  = "#outOfDomain"
+        }
+
         for (response in responses) {
             val name = response._id + "#" + response.answer
 

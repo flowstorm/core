@@ -46,7 +46,7 @@ class ClientCommand: CommandRunner<Application.Config, ClientCommand.Config> {
     @Parameters(commandNames = ["client"], commandDescription = "Run client (press Ctrl+C to quit)")
     class Config : ClientConfig() {
 
-        @Parameter(names = ["-c", "--config-file"], order = 0, description = "Config file")
+        @Parameter(names = ["-c", "--configFile"], order = 0, description = "Config file")
         var configFile: String? = null
 
         @Parameter(names = ["-d", "--device"], order = 1, description = "Device type (e.g. desktop, rpi)")
@@ -55,51 +55,51 @@ class ClientCommand: CommandRunner<Application.Config, ClientCommand.Config> {
         @Parameter(names = ["-e", "--environment"], order = 2, description = "Environment (develop, preview) - this superseeds -u value")
         var environment: String? = null
 
-        @Parameter(names = ["-nc", "--no-cache"], order = 3, description = "Do not cache anything")
+        @Parameter(names = ["-nc", "--noCache"], order = 3, description = "Do not cache anything")
         var noCache = false
 
         @Parameter(names = ["-s", "--sender"], order = 4, description = "Sender identification")
         var sender = "standalone_" + (InetInterface.getActive()?.hardwareAddress?.replace(":", "") ?: "default")
 
-        @Parameter(names = ["-it", "--intro-text"], order = 5, description = "Intro text")
+        @Parameter(names = ["-it", "--introText"], order = 5, description = "Intro text")
         var introText: String? = null
 
-        @Parameter(names = ["-as", "--auto-start"], order = 6, description = "Start conversation automatically")
+        @Parameter(names = ["-as", "--autoStart"], order = 6, description = "Start conversation automatically")
         var autoStart = false
 
-        @Parameter(names = ["-ex", "--exceptions"], order = 7, description = "Raise exceptions")
+        @Parameter(names = ["-ex", "--exitOnError"], order = 7, description = "Raise exceptions")
         var exitOnError = false
 
-        @Parameter(names = ["-nol", "--no-output-logs"], order = 8, description = "No output logs")
+        @Parameter(names = ["-nol", "--noOutputLogs"], order = 8, description = "No output logs")
         var noOutputLogs = false
 
-        @Parameter(names = ["-log", "--show-logs"], order = 9, description = "Show contextual logs")
-        var logs = false
+        @Parameter(names = ["-log", "--showLogs"], order = 9, description = "Show contextual logs")
+        var showLogs = false
 
         // audio
 
-        @Parameter(names = ["-stt"], order = 30, description = "STT mode (Default, SingleUtterance, Duplex)")
+        @Parameter(names = ["-stt", "--sttMode"], order = 30, description = "STT mode (Default, SingleUtterance, Duplex)")
         var sttMode = SttConfig.Mode.SingleUtterance
 
         @Parameter(names = ["-v", "--voice"], order = 31, description = "TTS voice")
         var voice: Voice? = null
 
-        @Parameter(names = ["-pn", "--port-name"], order = 32, description = "Audio output port name")
+        @Parameter(names = ["-pn", "--portName"], order = 32, description = "Audio output port name")
         var portName: String = "SPEAKER"
 
         @Parameter(names = ["-vo", "--volume"], order = 33, description = "Audio output volume")
         var volume: Int? = null
 
-        @Parameter(names = ["-nia", "--no-input-audio"], order = 34, description = "No input audio (text input only)")
+        @Parameter(names = ["-nia", "--noInputAudio"], order = 34, description = "No input audio (text input only)")
         var noInputAudio = false
 
-        @Parameter(names = ["-noa", "--no-output-audio"], order = 35, description = "No output audio (text output only)")
+        @Parameter(names = ["-noa", "--noOutputAudio"], order = 35, description = "No output audio (text output only)")
         var noOutputAudio = false
 
-        @Parameter(names = ["-aru", "--audio-record-upload"], order = 36, description = "Audio record with upload (none, local, night, immediate)")
+        @Parameter(names = ["-aru", "--audioRecordUpload"], order = 36, description = "Audio record with upload (none, local, night, immediate)")
         var audioRecordUpload = WavFileAudioRecorder.UploadMode.none
 
-        @Parameter(names = ["-pm", "--pause-mode"], order = 37, description = "Pause mode (wake word or button will pause output audio instead of stopping it and listening)")
+        @Parameter(names = ["-pm", "--pauseMode"], order = 37, description = "Pause mode (wake word or button will pause output audio instead of stopping it and listening)")
         var pauseMode = false
 
         // GUI
@@ -107,21 +107,21 @@ class ClientCommand: CommandRunner<Application.Config, ClientCommand.Config> {
         @Parameter(names = ["-scr", "--screen"], order = 40, description = "Screen view (none, window, fullscreen)")
         var screen = "none"
 
-        @Parameter(names = ["-nan", "--no-animations"], order = 41, description = "No animations")
+        @Parameter(names = ["-nan", "--noAnimations"], order = 41, description = "No animations")
         var noAnimations = false
 
         // networking
 
-        @Parameter(names = ["-sp", "--socket-ping"], order = 80, description = "Socket ping period (in seconds, 0 = do not ping)")
+        @Parameter(names = ["-sp", "--socketPing"], order = 80, description = "Socket ping period (in seconds, 0 = do not ping)")
         var socketPing = 10L
 
-        @Parameter(names = ["-st", "--socket-type"], order = 81, description = "Socket implementation type (okhttp3, jetty, jws)")
+        @Parameter(names = ["-st", "--socketType"], order = 81, description = "Socket implementation type (okhttp3, jetty, jws)")
         var socketType = ClientCommand.BotSocketType.OkHttp3
 
-        @Parameter(names = ["-aa", "--auto-update"], order = 82, description = "Auto update JAR file")
+        @Parameter(names = ["-aa", "--autoUpdate"], order = 82, description = "Auto update JAR file")
         var autoUpdate = false
 
-        @Parameter(names = ["-du", "--dist-url"], order = 83, description = "Distribution URL for auto updates")
+        @Parameter(names = ["-du", "--distUrl"], order = 83, description = "Distribution URL for auto updates")
         var distUrl = "https://repository.promethist.ai/dist"
     }
 
@@ -155,7 +155,7 @@ class ClientCommand: CommandRunner<Application.Config, ClientCommand.Config> {
                 config.noOutputAudio,
                 config.noOutputLogs,
                 config.portName,
-                logs = config.logs
+                logs = config.showLogs
         ) {
             override fun onBotStateChange(client: BotClient, newState: BotClient.State) {
                 super.onBotStateChange(client, newState)
