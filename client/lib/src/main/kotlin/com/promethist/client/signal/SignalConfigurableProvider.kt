@@ -61,10 +61,11 @@ abstract class SignalConfigurableProvider(val name: String, val format: Format, 
         while (true) {
             try {
                 load()
+                Thread.sleep(sleep)
             } catch (e: Exception) {
                 logger.error("signal load failed", e)
+                Thread.sleep(5000)
             }
-            Thread.sleep(sleep)
         }
     }
 

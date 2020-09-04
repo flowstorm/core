@@ -26,8 +26,8 @@ open class ClientConfig {
     @Parameter(names = ["-l", "--language"], order = 15, description = "Preferred conversation language")
     var language = "en"
 
-    @Parameter(names = ["-sd", "--speechDeviceName"], order = 16, description = "Speech device name (respeaker2)")
-    var speechDeviceName = "none"
+    @Parameter(names = ["-sd", "--speechDevice"], order = 16, description = "Speech device (respeaker2)")
+    var speechDevice = "none"
 
     @Parameter(names = ["-mc", "--micChannel"], order = 17, description = "Microphone channel (count:selected)")
     var micChannel: String = "1:0"

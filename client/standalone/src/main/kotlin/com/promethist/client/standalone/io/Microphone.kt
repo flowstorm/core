@@ -19,7 +19,7 @@ class Microphone(speechDevice: SpeechDevice, wakeWord: WakeWordConfig? = null, p
     private val lineBuffer = ByteArray(line.bufferSize / 4)
     private val wakeWordDetector by lazy {
         when (wakeWord?.type ?: WakeWordConfig.Type.none) {
-            WakeWordConfig.Type.snowboy -> SnowboyWakeWordDetector(wakeWord!!, lineBuffer.size / 2)
+            WakeWordConfig.Type.snowboy -> SnowboyWakeWordDetector(wakeWord!!, lineBuffer.size / 2 / channels)
             WakeWordConfig.Type.none -> null
         }
     }

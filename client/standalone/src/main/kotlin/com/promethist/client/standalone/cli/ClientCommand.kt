@@ -220,7 +220,7 @@ class ClientCommand: CommandRunner<Application.Config, ClientCommand.Config> {
         if (config.introText != null)
             context.introText = config.introText!!
         val micChannel = config.micChannel.split(':').map { it.toInt() }
-        val speechDevice = SpeechDeviceFactory.getSpeechDevice(config.speechDeviceName)
+        val speechDevice = SpeechDeviceFactory.getSpeechDevice(config.speechDevice)
         val client = BotClient(
                 context,
                 when (config.socketType) {

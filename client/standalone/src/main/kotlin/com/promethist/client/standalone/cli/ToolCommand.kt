@@ -44,7 +44,7 @@ class ToolCommand: CommandRunner<Application.Config, ToolCommand.Config> {
         var mic: Microphone? = null
         if (config.microphone) {
             val micChannel = config.micChannel.split(':').map { it.toInt() }
-            mic = Microphone(SpeechDeviceFactory.getSpeechDevice(config.speechDeviceName), config.wakeWord, micChannel[0], micChannel[1])
+            mic = Microphone(SpeechDeviceFactory.getSpeechDevice(config.speechDevice), config.wakeWord, micChannel[0], micChannel[1])
             mic.callback = object : AudioCallback {
                 override fun onStart() = println("Microphone started")
                 override fun onStop() = println("Microphone stopped")

@@ -23,7 +23,10 @@ class SnowboyWakeWordDetector(config: WakeWordConfig, bufferSize: Int) : WakeWor
             "windows" -> "dll"
             else -> error("unsupported OS $osName")
         }
-        val libFile = File(tempDir, libName)
+        val libFile = if (config.libFile != null)
+            File(config.dir, config.libFile)
+        else
+            File(tempDir, libName)
         listOf("snowboy.res", "snowboy.umdl", libName).forEach { name ->
             FileOutputStream(File(tempDir, name)).use {
                 javaClass.getResourceAsStream("/$name").copyTo(it)
@@ -36,7 +39,7 @@ class SnowboyWakeWordDetector(config: WakeWordConfig, bufferSize: Int) : WakeWor
             if (exists()) this else File(tempDir, "snowboy.umdl")
         }
 
-        logger.info("loading $libFile, resFile = $resFile, modelFile = $modelFile")
+        logger.info("loading $libFile, resFile = $resFile, modelFile = $modelFile, wakeWordBuffer.size = ${wakeWordBuffer.size}")
         System.load(libFile.absolutePath)
         detector = SnowboyDetect(resFile.absolutePath, modelFile.absolutePath).apply {
             SetSensitivity(config.sensitivity.toString())
