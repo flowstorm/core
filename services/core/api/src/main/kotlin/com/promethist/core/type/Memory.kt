@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.promethist.core.dialogue.AbstractDialogue
-import java.math.BigDecimal
 
 open class Memory<V: Any>(
         @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "_type", include = JsonTypeInfo.As.EXTERNAL_PROPERTY)
@@ -16,7 +15,7 @@ open class Memory<V: Any>(
             JsonSubTypes.Type(value = Long::class, name = "Long"),
             JsonSubTypes.Type(value = Float::class, name = "Float"),
             JsonSubTypes.Type(value = Double::class, name = "Double"),
-            JsonSubTypes.Type(value = BigDecimal::class, name = "BigDecimal"),
+            JsonSubTypes.Type(value = Decimal::class, name = "BigDecimal"),
             JsonSubTypes.Type(value = DateTime::class, name = "ZonedDateTime"),
             JsonSubTypes.Type(value = Dynamic::class, name = "Dynamic"),
             JsonSubTypes.Type(value = Location::class, name = "Location"),
@@ -49,7 +48,7 @@ open class Memory<V: Any>(
 
     companion object {
         fun canContain(it: Any) =
-                it is Boolean || it is String || it is Int || it is Long || it is Float || it is Double || it is BigDecimal || it is DateTime || it is Dynamic || it is Location || it is ValueCollection
+                it is Boolean || it is String || it is Int || it is Long || it is Float || it is Double || it is Decimal || it is DateTime || it is Dynamic || it is Location || it is ValueCollection
     }
 
     @get:JsonIgnore

@@ -4,11 +4,9 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.mongodb.ConnectionString
 import com.promethist.common.ObjectUtil.defaultMapper as mapper
 import com.promethist.common.AppConfig
-import com.promethist.core.type.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.litote.kmongo.*
-import java.math.BigDecimal
 import java.time.ZonedDateTime
 
 typealias ValueMutableList2 = MutableList<Memory<*>>
@@ -40,7 +38,7 @@ class DummyTest {
             put("lvl", MemoryMutableList(Memory(1), Memory(2)))
             put("fvl", MemoryMutableList(Memory(.0F), Memory(.0F)))
             put("dvl", MemoryMutableList(Memory(.0), Memory(.0)))
-            put("bdvl", MemoryMutableList(Memory(BigDecimal.valueOf(1)), Memory(BigDecimal.valueOf(2))))
+            put("bdvl", MemoryMutableList(Memory(Decimal.valueOf(1)), Memory(Decimal.valueOf(2))))
 
             put("bvs", MemoryMutableSet(Memory(true), Memory(false)))
             put("svs", MemoryMutableSet(Memory("c"), Memory("d")))
@@ -48,7 +46,7 @@ class DummyTest {
             put("lvs", MemoryMutableSet(Memory(3), Memory(4)))
             put("fvs", MemoryMutableSet(Memory(.1F), Memory(.1F)))
             put("dvs", MemoryMutableSet(Memory(.1), Memory(.1)))
-            put("bdvs", MemoryMutableSet(Memory(BigDecimal.valueOf(3)), Memory(BigDecimal.valueOf(4))))
+            put("bdvs", MemoryMutableSet(Memory(Decimal.valueOf(3)), Memory(Decimal.valueOf(4))))
         }
     }
 

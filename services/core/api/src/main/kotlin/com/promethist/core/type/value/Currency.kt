@@ -1,5 +1,5 @@
 package com.promethist.core.type.value
 
-import java.math.BigDecimal
+import com.promethist.core.type.Decimal
 
-data class Currency(override val value: BigDecimal, override val unit: String) : Amount(value, unit)
+data class Currency(override val value: Decimal, override val unit: String) : Amount(value, unit)

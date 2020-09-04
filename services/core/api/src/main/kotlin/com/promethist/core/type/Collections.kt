@@ -1,7 +1,5 @@
 package com.promethist.core.type
 
-import java.math.BigDecimal
-
 typealias PropertyMap = Map<String, Any>
 typealias MutablePropertyMap = MutableMap<String, Any>
 
@@ -40,9 +38,9 @@ class DoubleMutableList(values: Collection<Double>) : ValueList<Double>(values) 
     constructor(vararg values: Double) : this(values.asList())
 }
 
-class BigDecimalMutableList(values: Collection<BigDecimal>) : ValueList<BigDecimal>(values) {
+class BigDecimalMutableList(values: Collection<Decimal>) : ValueList<Decimal>(values) {
     constructor() : this(emptyList())
-    constructor(vararg values: BigDecimal) : this(values.asList())
+    constructor(vararg values: Decimal) : this(values.asList())
 }
 
 class DateTimeMutableList(values: Collection<DateTime>) : ValueList<DateTime>(values) {
@@ -90,9 +88,9 @@ class DoubleMutableSet(values: Collection<Double>) : ValueSet<Double>(values) {
     constructor(vararg values: Double) : this(values.asList())
 }
 
-class BigDecimalMutableSet(values: Collection<BigDecimal>) : ValueSet<BigDecimal>(values) {
+class BigDecimalMutableSet(values: Collection<Decimal>) : ValueSet<Decimal>(values) {
     constructor() : this(emptySet())
-    constructor(vararg values: BigDecimal) : this(values.asList())
+    constructor(vararg values: Decimal) : this(values.asList())
 }
 
 class DateTimeMutableSet(values: Collection<DateTime>) : ValueSet<DateTime>(values) {
@@ -140,6 +138,6 @@ fun MemoryCollection<Int>.add(value: Int) = add(Memory(value))
 fun MemoryCollection<Long>.add(value: Long) = add(Memory(value))
 fun MemoryCollection<Float>.add(value: Float) = add(Memory(value))
 fun MemoryCollection<Double>.add(value: Double) = add(Memory(value))
-fun MemoryCollection<BigDecimal>.add(value: BigDecimal) = add(Memory(value))
+fun MemoryCollection<Decimal>.add(value: Decimal) = add(Memory(value))
 fun MemoryCollection<DateTime>.add(value: DateTime) = add(Memory(value))
 fun MemoryCollection<Location>.add(value: Location) = add(Memory(value))

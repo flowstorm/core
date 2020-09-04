@@ -1,5 +1,5 @@
 package com.promethist.core.type.value
 
-import java.math.BigDecimal
+import com.promethist.core.type.Decimal
 
-open class Amount(open val value: BigDecimal, open val unit: String = ""): Value()
+open class Amount(open val value: Decimal, open val unit: String = ""): Value()
