@@ -20,6 +20,9 @@ class DucklingEntity: InputEntity("Text", "", 1.0F, "duckling") {
             }.javaField!!.getAnnotation(JsonSubTypes::class.java).value.find {
                 it.name == value
             }?.value?.simpleName ?: error("cannot find value class for duckling dim \"$value\"")
+            if (className == "Time") {
+                className = this.value::class.simpleName!!
+            }
         }
 
     @JsonProperty("body")
@@ -28,7 +31,7 @@ class DucklingEntity: InputEntity("Text", "", 1.0F, "duckling") {
     @JsonProperty("value")
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "dim", include = JsonTypeInfo.As.EXTERNAL_PROPERTY, visible = true)
     @JsonSubTypes(value = [
-        JsonSubTypes.Type(value = GrainedTime::class, name = "time"),
+        JsonSubTypes.Type(value = Time::class, name = "time"),
         JsonSubTypes.Type(value = Quantity::class, name = "quantity"),
         JsonSubTypes.Type(value = Currency::class, name = "amount-of-money"),
         JsonSubTypes.Type(value = Distance::class, name = "distance"),
