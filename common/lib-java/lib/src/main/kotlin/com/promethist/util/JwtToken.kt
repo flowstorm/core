@@ -13,7 +13,13 @@ class JwtToken(val decodedJWT: DecodedJWT) {
         }
     }
     val username: String
-        get() = decodedJWT.getClaim("email").asString()
+        get() {
+            //backward compatibility we switched from id_token to access_token
+            var claim = decodedJWT.getClaim("https://promethist/user.email")
+            if (claim.isNull) claim = decodedJWT.getClaim("email")
+
+            return claim.asString()
+        }
     val payload: Payload
         get() = Payload(decodedJWT)
     data class Payload(private val decodedJWT: DecodedJWT) {

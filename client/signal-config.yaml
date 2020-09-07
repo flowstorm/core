@@ -1,0 +1,22 @@
+signalGroups:
+  intro:
+    - type: flag
+      state: sleeping
+      reset: true
+      text: '#intro'
+  stressLevel:
+    type: number
+    state: sleeping
+    threshold: 2 # default is 1
+    text: '#signal'
+sources:
+  wakeWordScript:
+    type: process
+    command: python3 detect-wake-word.py
+    format: value
+    name: wake
+    action: '#intro'
+  someFile:
+    type: file
+    path: signal.properties
+    timeout: 1000

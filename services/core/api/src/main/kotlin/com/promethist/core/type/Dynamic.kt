@@ -1,6 +1,5 @@
 package com.promethist.core.type
 
-import java.math.BigDecimal
 import java.time.ZonedDateTime
 import kotlin.reflect.KClass
 
@@ -23,7 +22,7 @@ open class Dynamic : LinkedHashMap<String, Any>, MutablePropertyMap {
                     Long::class -> 0L
                     Float::class -> 0.0F
                     Double::class -> 0.0
-                    BigDecimal::class -> BigDecimal(0)
+                    Decimal::class -> Decimal(0)
                     String::class -> ""
                     Boolean::class -> false
                     MutableList::class -> mutableListOf<V>()

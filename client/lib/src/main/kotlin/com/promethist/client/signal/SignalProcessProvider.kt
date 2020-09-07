@@ -7,6 +7,7 @@ class SignalProcessProvider(name: String, format: Format, enabled: Boolean = tru
         SignalConfigurableProvider(name, format, enabled, 0, continuous) {
 
     override fun load() {
+        logger.debug("loading signal data from process $command")
         ProcessBuilder(*command.split(' ').toTypedArray()).apply {
             val proc = start()
             Thread {

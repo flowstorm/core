@@ -132,7 +132,6 @@ class DialogueSourceCodeBuilder(val dialogueId: String, val buildId: String, val
                 .appendln("import com.promethist.core.dialogue.*")
                 .appendln("import com.promethist.core.runtime.*")
                 .appendln("import kotlin.random.Random")
-                .appendln("import java.time.*")
                 .appendln("import java.util.*")
                 .appendln()
     }
@@ -278,10 +277,21 @@ class DialogueSourceCodeBuilder(val dialogueId: String, val buildId: String, val
 
     private fun write(function: Function) = with(function) {
         source.appendln("\tval $nodeName = Function($nodeId) {")
-        transitions.forEach { source.appendln("\t\tval ${it.key} = Transition(${it.value})") }
+        source.appendln("\tval transitions = mutableListOf<Transition>()")
+        transitions.forEach {
+            if (code.indexOf(it.key) >= 0)
+                source.append("\t\tval ${it.key} = ")
+            source.appendln("Transition(${it.value}).apply { transitions.add(this) }")
+        }
         source.appendln("//--code-start;type:function;name:$nodeName")
         source.appendln(code)
-        source.appendln("//--code-end;type:function;name:$nodeName").appendln("\t}")
+        source.appendln("//--code-end;type:function;name:$nodeName")
+        if (transitions.size == 1) {
+            transitions.entries.first().let {
+                source.appendln("Transition(${it.value})")
+            }
+        }
+        source.appendln("\t}")
     }
 
     private fun write(subDialogue: SubDialogue) = with(subDialogue) {

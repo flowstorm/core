@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.promethist.core.type.InputEntity
-import com.promethist.core.type.value.Amount
 import com.promethist.core.type.value.Value
 import java.time.*
 import java.util.*

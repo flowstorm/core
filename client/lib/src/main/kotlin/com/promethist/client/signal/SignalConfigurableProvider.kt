@@ -8,13 +8,13 @@ import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.lang.Exception
-import java.util.*
 
 abstract class SignalConfigurableProvider(val name: String, val format: Format, val enabled: Boolean, val sleep: Long, val continuous: Boolean) : SignalProvider {
 
     enum class Format { Simple, Properties, JSON, NMEA }
 
     override lateinit var processor: SignalProcessor
+    var isPaused = false
     protected val logger by LoggerDelegate()
 
     protected fun load(input: InputStream) {
@@ -45,12 +45,12 @@ abstract class SignalConfigurableProvider(val name: String, val format: Format, 
                         values[name] = loadValueFromString(line)
                 }
             }
-            if (continuous) {
+            if (continuous && !isPaused) {
                 processor.process(values)
                 values.clear()
             }
         } while (continuous)
-        if (!continuous)
+        if (!continuous && !isPaused)
             processor.process(values)
     }
 
@@ -61,10 +61,13 @@ abstract class SignalConfigurableProvider(val name: String, val format: Format, 
         while (true) {
             try {
                 load()
+                do {
+                    Thread.sleep(sleep)
+                } while (!continuous && isPaused)
             } catch (e: Exception) {
                 logger.error("signal load failed", e)
+                Thread.sleep(5000)
             }
-            Thread.sleep(sleep)
         }
     }
 
