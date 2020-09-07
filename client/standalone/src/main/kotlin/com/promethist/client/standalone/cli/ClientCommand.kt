@@ -147,6 +147,28 @@ class ClientCommand: CommandRunner<Application.Config, ClientCommand.Config> {
         var light: Light? = null
         val output = PrintWriter(writer, true)
         var responded = false
+        val attributes = Dynamic(
+                "clientType" to "standalone:${AppConfig.version}",
+                "clientScreen" to (config.screen != "none")
+        )
+        val context = BotContext(
+                url = if (config.environment != null) {
+                    val env = if (listOf("production", "default").contains(config!!.environment))
+                        ""
+                    else
+                        ".${config.environment}"
+                    if (config.environment == "local")
+                        "http://localhost:8080" else
+                        "https://port$env.promethist.com"
+                } else
+                    config.url,
+                key = config.key,
+                sender = config.sender,
+                voice = config.voice,
+                autoStart = config.autoStart,
+                locale = Locale(config.language, Locale.getDefault().country),
+                attributes = attributes
+        )
         val callback = object : DeviceClientCallback(
                 output,
                 config.distUrl,
@@ -159,6 +181,13 @@ class ClientCommand: CommandRunner<Application.Config, ClientCommand.Config> {
         ) {
             override fun onBotStateChange(client: BotClient, newState: BotClient.State) {
                 super.onBotStateChange(client, newState)
+                config.signalProcessor?.apply {
+                    if (context.sessionId != null) {
+                        if (pause())
+                            println("{Signal processor paused}")
+                    } else if (unpause())
+                        println("{Signal processor unpaused}")
+                }
                 when (newState) {
                     BotClient.State.Listening ->
                         if (light is ColorLight)
@@ -195,28 +224,6 @@ class ClientCommand: CommandRunner<Application.Config, ClientCommand.Config> {
                 responded = true
             }
         }
-        val attributes = Dynamic(
-                "clientType" to "standalone:${AppConfig.version}",
-                "clientScreen" to (config.screen != "none")
-        )
-        val context = BotContext(
-                url = if (config.environment != null) {
-                    val env = if (listOf("production", "default").contains(config!!.environment))
-                        ""
-                    else
-                        ".${config.environment}"
-                    if (config.environment == "local")
-                        "http://localhost:8080" else
-                        "https://port$env.promethist.com"
-                } else
-                    config.url,
-                key = config.key,
-                sender = config.sender,
-                voice = config.voice,
-                autoStart = config.autoStart,
-                locale = Locale(config.language, Locale.getDefault().country),
-                attributes = attributes
-        )
         if (config.introText != null)
             context.introText = config.introText!!
         val micChannel = config.micChannel.split(':').map { it.toInt() }

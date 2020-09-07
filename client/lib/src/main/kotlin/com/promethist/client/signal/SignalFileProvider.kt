@@ -7,7 +7,10 @@ class SignalFileProvider(name: String, format: Format, val file: String, enabled
 
     private var sequenceId = 1
 
-    override fun load() = load(FileInputStream(file.replace("##", sequenceId++.toString().padStart(2, '0'))))
+    override fun load() = file.replace("##", sequenceId++.toString().padStart(2, '0')).let {
+        logger.debug("loading signal data from file $it")
+        load(FileInputStream(it))
+    }
 
     override fun toString() = this::class.simpleName + "(name = $name, format = $format, continuous = $continuous, file = $file)"
 }
