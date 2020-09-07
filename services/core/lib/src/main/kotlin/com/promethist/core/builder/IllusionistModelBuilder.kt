@@ -25,7 +25,9 @@ class IllusionistModelBuilder(val apiUrl: String, val apiKey: String, val approa
         val oodStrings = mutableListOf<String>()
         oodExamples.forEach { intent -> oodStrings.addAll(intent.utterances) }
 
-        items["OOD"] = Output.Item(oodStrings.toTypedArray(), "OOD", 0.0F)
+        if (approach == "logistic") {
+            items["OOD"] = Output.Item(oodStrings.toTypedArray(), "OOD", 0.0F)
+        }
 
         build(modelId, name, language, items)
     }
