@@ -26,6 +26,25 @@ class SignalProcessor(
     private val logger by LoggerDelegate()
     lateinit var emitter: ((SignalGroup, PropertyMap) -> Unit)
     private val signalValues = mutableMapOf<String, SignalValue>()
+    private var isPaused = false
+
+    fun pause() = if (!isPaused) {
+        providers.filterIsInstance<SignalConfigurableProvider>().forEach {
+            it.isPaused = true
+        }
+        isPaused = true
+        true
+    } else
+        false
+
+    fun unpause() = if (isPaused) {
+        providers.filterIsInstance<SignalConfigurableProvider>().forEach {
+            it.isPaused = false
+        }
+        isPaused = false
+        true
+    } else
+        false
 
     fun process(values: Map<String, Any>) {
         val time = System.currentTimeMillis()
