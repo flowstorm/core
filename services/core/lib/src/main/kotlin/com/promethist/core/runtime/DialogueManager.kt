@@ -45,7 +45,16 @@ class DialogueManager : Component {
     }
 
     private fun getIntentFrame(models: List<IntentModel>, frame: Frame, context: Context): Frame {
-        val (modelId, nodeId) = context.input.intent.name.split("#")
+        val inputNode = getNode(frame, context) as AbstractDialogue.UserInput
+        val recognizedEntities = context.input.entityMap.keys.filter { context.input.entityMap[it]?.isNotEmpty() ?: false }
+
+        val intent = context.input.intents.firstOrNull { intent ->
+            val nodeId = intent.name.split("#")[1]
+            val requiredEntities = inputNode.intents.first { it.id == nodeId.toInt() }.entities
+            recognizedEntities.containsAll(requiredEntities)
+        }?: error("No intent for the given input and recognized entities $recognizedEntities found.")
+
+        val (modelId, nodeId) = intent.name.split("#")
         val model = models.first { it.id == modelId }
         val dialogueName = model.dialogueId
 

@@ -91,10 +91,12 @@ abstract class AbstractDialogue : DialogueModel {
             id: Int,
             open val name: String,
             open val threshold: Float,
+            open val entities: List<String>,
             vararg utterance: String
     ): TransitNode(id) {
         val utterances = utterance
 
+        constructor(id: Int, name: String, threshold: Float, vararg utterance: String) : this(id, name, threshold, listOf(), *utterance)
         constructor(id: Int, name: String, vararg utterance: String) : this(id, name, 0.0F, *utterance)
         constructor(name: String, vararg utterance: String) : this(nextId--, name, *utterance)
     }
@@ -103,8 +105,10 @@ abstract class AbstractDialogue : DialogueModel {
              id: Int,
              override val name: String,
              override val threshold: Float,
+             override val entities: List<String>,
              vararg utterance: String
     ): Intent(id, name, threshold, *utterance) {
+        constructor(id: Int, name: String, threshold: Float, vararg utterance: String) : this(id, name, threshold, listOf(), *utterance)
         constructor(id: Int, name: String, vararg utterance: String) : this(id, name, 0.0F, *utterance)
     }
 
