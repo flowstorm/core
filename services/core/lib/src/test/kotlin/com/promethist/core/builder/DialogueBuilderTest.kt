@@ -24,8 +24,8 @@ internal class DialogueBuilderTest {
 
                 var nodeId = 0
                 addNode(Speech(--nodeId, "response1", null, true, listOf("hello, say some animal", "hi, say some animal")))
-                addNode(Intent(--nodeId, "intent1", 0F, listOf("no", "nope", "quit", "stop")))
-                addNode(Intent(--nodeId, "intent2", 0F, listOf("dog", "cat", "tiger")))
+                addNode(Intent(--nodeId, "intent1", 0F, listOf("no", "nope", "quit", "stop"), listOf()))
+                addNode(Intent(--nodeId, "intent2", 0F, listOf("dog", "cat", "tiger"), listOf()))
                 addNode(Function(--nodeId, "function1", mapOf("trans1" to "stop"), "println(trans1)\ntrans1"))
                 addNode(Speech(--nodeId, "response2", null, true, listOf("Your response was \${input.transcript.text}. Intent node \${input.intent.name}.")))
                 addNode(UserInput(--nodeId, "input1", listOf("intent1", "intent2"), listOf(), null, false, mapOf(), ""))

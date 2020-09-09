@@ -240,7 +240,9 @@ class DialogueBuilder(
             dialogue.userInputs.forEach {
                 val irModel = IntentModel(buildId, dialogueId, it.id)
                 irModels.add(irModel)
-                intentModelBuilder.build(irModel, language, it.intents.asList(), (oodExamples + dialogue.globalIntents.map { DialogueSourceCodeBuilder.GlobalIntent(it.id, it.name, it.threshold, it.utterances.toList()) } ))
+                intentModelBuilder.build(irModel, language, it.intents.asList(), (oodExamples + dialogue.globalIntents.map {
+                    DialogueSourceCodeBuilder.GlobalIntent(it.id, it.name, it.threshold, it.utterances.toList(), it.entities)
+                } ))
             }
             logger.info("built ${irModels.size} intent models")
         }
