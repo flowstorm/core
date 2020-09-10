@@ -174,7 +174,7 @@ class ClientCommand: CommandRunner<Application.Config, ClientCommand.Config> {
         } else if (config.serverConfig) {
             val url = Application.getServiceUrl("admin", config.environment ?: "production") + "/client/deviceConfig/${config.sender}"
             try {
-                HttpUtil.httpRequestStream(url, cache = false, raiseExceptions = true)?.let {
+                HttpUtil.httpRequestStream(url, raiseExceptions = true)?.let {
                     loadConfig(it)
                     out.println("{Configuration from $url}")
                 }

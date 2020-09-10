@@ -15,35 +15,36 @@ object HttpUtil {
     private val tmpDir = File(System.getProperty("java.io.tmpdir"))
     private val logger by LoggerDelegate()
 
-    fun httpRequestStream(url: String, httpRequest: HttpRequest? = null, cache: Boolean = true, raiseExceptions: Boolean = false): InputStream? {
-        val tmpFile = File(tmpDir, "http-cache" + url.hashCode().toString() + ".bin")
-        if (((httpRequest == null) || (httpRequest.method == "GET") && cache) && tmpFile.exists()) {
-            logger.debug("httpRequest HIT $tmpFile")
-            return tmpFile.inputStream()
-        } else {
-            val builder = Request.Builder().url(url)
-            if (httpRequest != null) {
-                when (httpRequest.method) {
-                    "POST" -> builder.post(RequestBody.create(httpRequest.contentType.toMediaType(), httpRequest.body))
-                    "PUT" -> builder.put(RequestBody.create(httpRequest.contentType.toMediaType(), httpRequest.body))
-                    "DELETE" -> builder.delete()
-                }
-                for (header in httpRequest.headers.entries)
-                    builder.addHeader(header.key, header.value)
+    fun httpRequestStream(url: String, httpRequest: HttpRequest? = null, raiseExceptions: Boolean = false): InputStream? {
+        val builder = Request.Builder().url(url)
+        if (httpRequest != null) {
+            when (httpRequest.method) {
+                "POST" -> builder.post(RequestBody.create(httpRequest.contentType.toMediaType(), httpRequest.body))
+                "PUT" -> builder.put(RequestBody.create(httpRequest.contentType.toMediaType(), httpRequest.body))
+                "DELETE" -> builder.delete()
             }
-            val request = builder.build()
-            val response = httpClient.newCall(request).execute()
-            if (response.code > 399 && raiseExceptions)
-                error("HTTP request failed with result ${response.code} ${response.message}")
-            val stream = response.body?.byteStream()
-            if ((stream != null) && (request == null) || (request.method == "GET" && cache)) {
-                logger.debug("httpRequest SAVE $tmpFile")
-                stream!!.copyTo(tmpFile.outputStream())
-            }
-            return stream
+            for (header in httpRequest.headers.entries)
+                builder.addHeader(header.key, header.value)
         }
+        val request = builder.build()
+        val response = httpClient.newCall(request).execute()
+        if (response.code > 399 && raiseExceptions)
+            error("HTTP request failed with result ${response.code} ${response.message}")
+        return response.body?.byteStream()
     }
 
-    fun httpRequest(url: String, httpRequest: HttpRequest? = null, cache: Boolean = true) =
-            httpRequestStream(url, httpRequest, cache)?.readBytes()
+    fun httpRequest(url: String, httpRequest: HttpRequest? = null, cache: Boolean = true): ByteArray? {
+        val tmpFile = File(tmpDir, "http-cache" + url.hashCode().toString() + ".bin")
+        return if (((httpRequest == null) || (httpRequest.method == "GET") && cache) && tmpFile.exists()) {
+            logger.debug("httpRequest HIT $tmpFile")
+            tmpFile.readBytes()
+        } else {
+            val data = httpRequestStream(url, httpRequest)?.readBytes()
+            if ((data != null) && (httpRequest == null || (httpRequest!!.method == "GET" && cache))) {
+                logger.debug("httpRequest SAVE $tmpFile")
+                tmpFile.writeBytes(data!!)
+            }
+            data
+        }
+    }
 }
