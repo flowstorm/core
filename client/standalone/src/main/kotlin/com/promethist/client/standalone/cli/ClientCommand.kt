@@ -14,6 +14,7 @@ import com.pi4j.io.gpio.event.GpioPinListenerDigital
 import com.promethist.client.BotClient
 import com.promethist.client.BotConfig
 import com.promethist.client.BotContext
+import com.promethist.client.audio.SpeechDevice
 import com.promethist.client.client.JwsBotClientSocket
 import com.promethist.client.audio.WavFileAudioRecorder
 import com.promethist.client.common.OkHttp3BotClientSocket
@@ -23,6 +24,7 @@ import com.promethist.client.standalone.Application
 import com.promethist.client.standalone.DeviceClientCallback
 import com.promethist.client.standalone.io.*
 import com.promethist.client.standalone.ui.Screen
+import com.promethist.client.util.HttpUtil
 import com.promethist.client.util.InetInterface
 import com.promethist.common.AppConfig
 import com.promethist.common.ObjectUtil.defaultMapper
@@ -34,6 +36,7 @@ import com.promethist.core.type.PropertyMap
 import cz.alry.jcommander.CommandRunner
 import org.slf4j.LoggerFactory
 import java.awt.Color
+import java.awt.GraphicsEnvironment
 import java.io.*
 import java.util.*
 import kotlin.concurrent.thread
@@ -46,8 +49,13 @@ class ClientCommand: CommandRunner<Application.Config, ClientCommand.Config> {
     @Parameters(commandNames = ["client"], commandDescription = "Run client (press Ctrl+C to quit)")
     class Config : ClientConfig() {
 
-        @Parameter(names = ["-c", "--configFile"], order = 0, description = "Config file")
-        var configFile: String? = null
+        var version = 1
+
+        @Parameter(names = ["-c", "--config"], order = 0, description = "Configuration file")
+        var fileConfig: String? = null
+
+        @Parameter(names = ["-sc", "--serverConfig"], order = 0, description = "Allow server configuration")
+        var serverConfig = false
 
         @Parameter(names = ["-d", "--device"], order = 1, description = "Device type (e.g. desktop, rpi)")
         var device = "desktop"
@@ -125,52 +133,81 @@ class ClientCommand: CommandRunner<Application.Config, ClientCommand.Config> {
         var distUrl = "https://repository.promethist.ai/dist"
     }
 
-    override fun run(globalConfig: Application.Config, config: Config) {
-        (LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME) as Logger).level = Level.toLevel(globalConfig.logLevel)
-        val writer = OutputStreamWriter(
-            if (config.output == "stdout")
-                System.out
-            else
-                FileOutputStream(config.output)
-        )
-        if (config.configFile != null) {
-            FileInputStream(config.configFile).use {
-                defaultMapper.readerForUpdating(config).readValue(JsonFactory().createParser(it), object : TypeReference<Config>() {})
-            }
-            println("{Using configuration ${config.configFile}}")
-        }
+    lateinit var out: PrintWriter
+    lateinit var config: Config
+    lateinit var context: BotContext
+    lateinit var client: BotClient
+    lateinit var callback: DeviceClientCallback
+    lateinit var speechDevice: SpeechDevice
+    var light: Light? = null
+    var responded = false
 
+    private fun exit() {
+        exitProcess(0)
+    }
+
+    private fun setOutput() {
+        out = PrintWriter(
+                OutputStreamWriter(
+                if (config.output == "stdout")
+                    System.out
+                else
+                    FileOutputStream(config.output)
+        ), true)
+    }
+
+    private fun setVolume() {
         if (config.volume != null) {
             OutputAudioDevice.volume(config.portName, config.volume!!)
-            writer.write("{Volume ${config.portName} set to ${config.volume}}\n")
+            out.println("{Volume ${config.portName} set to ${config.volume}}\n")
         }
-        var light: Light? = null
-        val output = PrintWriter(writer, true)
-        var responded = false
-        val attributes = Dynamic(
-                "clientType" to "standalone:${AppConfig.version}",
-                "clientScreen" to (config.screen != "none")
-        )
-        val context = BotContext(
-                url = if (config.environment != null) {
-                    val env = if (listOf("production", "default").contains(config!!.environment))
-                        ""
-                    else
-                        ".${config.environment}"
-                    if (config.environment == "local")
-                        "http://localhost:8080" else
-                        "https://port$env.promethist.com"
-                } else
+    }
+
+    private fun loadConfig(input: InputStream) = input.use {
+        defaultMapper.readerForUpdating(config).readValue(JsonFactory().createParser(it), object : TypeReference<Config>() {})
+    }
+
+    private fun loadConfig() {
+        if (config.fileConfig != null) {
+            println("{Configuration from ${config.fileConfig}}")
+            loadConfig(FileInputStream(config.fileConfig))
+        } else if (config.serverConfig) {
+            val url = Application.getServiceUrl("admin", config.environment ?: "production") + "/client/deviceConfig/${config.sender}"
+            try {
+                HttpUtil.httpRequestStream(url, cache = false, raiseExceptions = true)?.let {
+                    loadConfig(it)
+                    out.println("{Configuration from $url}")
+                }
+            } catch (e: Throwable) {
+                out.println("{Configuration from $url error - ${e.message}}")
+            }
+        }
+    }
+
+    private fun createContext() {
+        ServiceUrlResolver
+        context = BotContext(
+                url = if (config.environment != null)
+                    Application.getServiceUrl("port", config.environment ?: "production")
+                else
                     config.url,
                 key = config.key,
                 sender = config.sender,
                 voice = config.voice,
                 autoStart = config.autoStart,
                 locale = Locale(config.language, Locale.getDefault().country),
-                attributes = attributes
+                attributes = Dynamic(
+                        "clientType" to "standalone:${AppConfig.version}",
+                        "clientScreen" to (config.screen != "none")
+                )
         )
-        val callback = object : DeviceClientCallback(
-                output,
+        if (config.introText != null)
+            context.introText = config.introText!!
+    }
+
+    private fun createCallback() {
+        callback = object : DeviceClientCallback(
+                out,
                 config.distUrl,
                 config.autoUpdate,
                 config.noCache,
@@ -223,12 +260,40 @@ class ClientCommand: CommandRunner<Application.Config, ClientCommand.Config> {
                 super.onFailure(client, t)
                 responded = true
             }
+
+            override fun onSessionId(client: BotClient, sessionId: String?) {
+                super.onSessionId(client, sessionId)
+                if (sessionId == null) {
+                    val version = config.version
+                    loadConfig()
+                    if (version != config.version) {
+                        out.println("{Configuration version changed from $version to ${config.version} - exiting to be reloaded}")
+                        Thread.sleep(5000)
+                        exit()
+                    }
+                }
+            }
         }
-        if (config.introText != null)
-            context.introText = config.introText!!
+    }
+
+    private fun setSpeechDevice() {
+        speechDevice = SpeechDeviceFactory.getSpeechDevice(config.speechDevice)
+    }
+
+    private fun launchScreen() {
+        if (config.screen != "none") {
+            Screen.client = client
+            Screen.fullScreen = (config.screen == "fullscreen")
+            Screen.animations = !config.noAnimations
+            thread {
+                Screen.launch()
+            }
+        }
+    }
+
+    private fun createClient() {
         val micChannel = config.micChannel.split(':').map { it.toInt() }
-        val speechDevice = SpeechDeviceFactory.getSpeechDevice(config.speechDevice)
-        val client = BotClient(
+        client = BotClient(
                 context,
                 when (config.socketType) {
                     BotSocketType.JWS -> JwsBotClientSocket(context.url, config.exitOnError, config.socketPing)
@@ -256,37 +321,28 @@ class ClientCommand: CommandRunner<Application.Config, ClientCommand.Config> {
                             config.audioRecordUpload
                     )
         )
-        if (config.screen != "none") {
-            Screen.client = client
-            Screen.fullScreen = (config.screen == "fullscreen")
-            Screen.animations = !config.noAnimations
-            thread {
-                Screen.launch()
-            }
-        }
-        config.signalProcessor?.apply {
-            println("{enabling signal processor}")
-            emitter = { signalGroup: SignalGroup, values: PropertyMap ->
-                context.attributes.putAll(values)
-                when (signalGroup.type) {
-                    SignalGroup.Type.Text ->
-                        if (client.state == BotClient.State.Sleeping) {
-                            println("{Signal text '${signalGroup.name}' values $values}")
-                            client.doText(signalGroup.name)
-                        }
-                    SignalGroup.Type.Touch ->
-                        client.touch()
-                }
-            }
-            if (speechDevice is SignalProvider)
-                providers.add(speechDevice)
-            run()
-        }
+    }
 
-        println("{context = $context}")
-        println("{inputAudioDevice = ${client.inputAudioDevice}}")
-        println("{sttMode = ${client.sttMode}}")
-        println("{device = ${config.device}}")
+    private fun enableSignalProcessing() = config.signalProcessor?.apply {
+        out.println("{enabling signal processor}")
+        emitter = { signalGroup: SignalGroup, values: PropertyMap ->
+            context.attributes.putAll(values)
+            when (signalGroup.type) {
+                SignalGroup.Type.Text ->
+                    if (client.state == BotClient.State.Sleeping) {
+                        println("{Signal text '${signalGroup.name}' values $values}")
+                        client.doText(signalGroup.name)
+                    }
+                SignalGroup.Type.Touch ->
+                    client.touch()
+            }
+        }
+        if (speechDevice is SignalProvider)
+            providers.add(speechDevice as SignalProvider)
+        run()
+    }
+
+    private fun enableHardware() {
         if (listOf("rpi", "model1", "model2", "model3").contains(config.device)) {
             val gpio = GpioFactory.getInstance()
             light = if (config.device == "model2")
@@ -311,40 +367,66 @@ class ClientCommand: CommandRunner<Application.Config, ClientCommand.Config> {
                 }
             })
         }
-        client.open()
-        if (config.input != "none") {
-            InputStreamReader(
-                if (config.input == "stdin")
+    }
+
+    private fun handleInput(input: String) {
+        InputStreamReader(
+                if (input == "stdin")
                     System.`in`
                 else
-                    FileInputStream(config.input)
-            ).use {
-                val input = BufferedReader(it)
-                while (true) {
-                    val text = input.readLine()!!.trim()
-                    client.outputQueue.clear()
-                    when (text) {
-                        "" -> {
-                            println("[Click when ${client.state}]")
-                            client.touch()
-                        }
-                        "exit", "quit" -> {
-                            exitProcess(0)
-                        }
-                        else -> {
-                            if (text.startsWith("audio:"))
-                                client.socket.sendAudioData(File(text.substring(6)).readBytes())
-                            else if (client.state == BotClient.State.Responding) {
-                                responded = false
-                                client.doText(text)
-                            }
+                    FileInputStream(input)
+        ).use {
+            val input = BufferedReader(it)
+            while (true) {
+                val text = input.readLine()!!.trim()
+                client.outputQueue.clear()
+                when (text) {
+                    "" -> {
+                        println("[Click when ${client.state}]")
+                        client.touch()
+                    }
+                    "exit", "quit" -> {
+                        exit()
+                    }
+                    else -> {
+                        if (text.startsWith("audio:"))
+                            client.socket.sendAudioData(File(text.substring(6)).readBytes())
+                        else if (client.state == BotClient.State.Responding) {
+                            responded = false
+                            client.doText(text)
                         }
                     }
-                    while (!responded && client.state != BotClient.State.Failed) {
-                        Thread.sleep(50)
-                    }
+                }
+                while (!responded && client.state != BotClient.State.Failed) {
+                    Thread.sleep(50)
                 }
             }
         }
+    }
+
+    override fun run(globalConfig: Application.Config, config: Config) {
+        (LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME) as Logger).level = Level.toLevel(globalConfig.logLevel)
+        this.config = config
+
+        setOutput()
+        loadConfig()
+        setVolume()
+        createContext()
+        createCallback()
+        setSpeechDevice()
+        createClient()
+        launchScreen()
+        enableSignalProcessing()
+        enableHardware()
+
+        out.apply {
+            println("{context = $context}")
+            println("{inputAudioDevice = ${client.inputAudioDevice}}")
+            println("{sttMode = ${client.sttMode}}")
+            println("{device = ${config.device}}")
+        }
+        client.open()
+        if (config.input != "none")
+            handleInput(config.input)
     }
 }

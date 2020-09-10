@@ -7,6 +7,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
 import java.io.File
+import java.io.InputStream
 
 object HttpUtil {
 
@@ -14,11 +15,11 @@ object HttpUtil {
     private val tmpDir = File(System.getProperty("java.io.tmpdir"))
     private val logger by LoggerDelegate()
 
-    fun httpRequest(url: String, httpRequest: HttpRequest? = null, cache: Boolean = true): ByteArray? {
+    fun httpRequestStream(url: String, httpRequest: HttpRequest? = null, cache: Boolean = true, raiseExceptions: Boolean = false): InputStream? {
         val tmpFile = File(tmpDir, "http-cache" + url.hashCode().toString() + ".bin")
         if (((httpRequest == null) || (httpRequest.method == "GET") && cache) && tmpFile.exists()) {
             logger.debug("httpRequest HIT $tmpFile")
-            return tmpFile.readBytes()
+            return tmpFile.inputStream()
         } else {
             val builder = Request.Builder().url(url)
             if (httpRequest != null) {
@@ -32,12 +33,17 @@ object HttpUtil {
             }
             val request = builder.build()
             val response = httpClient.newCall(request).execute()
-            val data = response.body?.byteStream()?.readBytes()
-            if ((data != null) && (request == null) || (request.method == "GET" && cache)) {
+            if (response.code > 399 && raiseExceptions)
+                error("HTTP request failed with result ${response.code} ${response.message}")
+            val stream = response.body?.byteStream()
+            if ((stream != null) && (request == null) || (request.method == "GET" && cache)) {
                 logger.debug("httpRequest SAVE $tmpFile")
-                tmpFile.writeBytes(data!!)
+                stream!!.copyTo(tmpFile.outputStream())
             }
-            return data
+            return stream
         }
     }
+
+    fun httpRequest(url: String, httpRequest: HttpRequest? = null, cache: Boolean = true) =
+            httpRequestStream(url, httpRequest, cache)?.readBytes()
 }

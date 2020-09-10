@@ -75,6 +75,11 @@
             <artifactId>javafx-media</artifactId>
             <version>14</version>
         </dependency>
+        <dependency>
+            <groupId>com.twilio.sdk</groupId>
+            <artifactId>twilio</artifactId>
+            <version>7.55.1</version>
+        </dependency>
         <!-- just to prevent graalvm 20 problems with logback -->
         <dependency>
             <groupId>org.codehaus.janino</groupId>
