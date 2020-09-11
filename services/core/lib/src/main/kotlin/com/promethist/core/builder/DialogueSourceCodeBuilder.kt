@@ -97,7 +97,7 @@ class DialogueSourceCodeBuilder(val dialogueId: String, val buildId: String, val
 
     data class Intent(val nodeId: Int, val nodeName: String, val threshold: Float, val utterances: List<String>) : Node
     data class GlobalIntent(val nodeId: Int, val nodeName: String, val threshold: Float, val utterances: List<String>) : Node
-    data class UserInput(val nodeId: Int, val nodeName: String, val intentNames: List<String>, val actionNames: List<String>, val sttMode: SttConfig.Mode? = null, val skipGlobalIntents: Boolean, val transitions: Map<String, String>, val code: CharSequence = "") : Node
+    data class UserInput(val nodeId: Int, val nodeName: String, val intentNames: List<String>, val actionNames: List<String>, val sttMode: SttConfig.Mode? = null, val skipGlobalIntents: Boolean, val transitions: Map<String, String>, val expectedPhrases: CharSequence = "", val code: CharSequence = "") : Node
     data class Speech(val nodeId: Int, val nodeName: String, val background: String? = null, val repeatable: Boolean, val texts: List<String>) : Node
     data class Sound(val nodeId: Int, val nodeName: String, val source: String) : Node
     data class Image(val nodeId: Int, val nodeName: String, val source: String) : Node
@@ -218,10 +218,12 @@ class DialogueSourceCodeBuilder(val dialogueId: String, val buildId: String, val
     private fun write(userInput: UserInput) = with(userInput) {
         val intents  = intentNames.joinToString(", ")
         val actions = actionNames.joinToString(", ")
+        val expectedPhrases = this.expectedPhrases.toString().replace('\n', ',')
+                .split(',').joinToString(", ") { """ExpectedPhrase("${it.trim()}")""" }
 
         source.append("\tval $nodeName = UserInput($nodeId, $skipGlobalIntents, "
                 + (if (userInput.sttMode == null) "null" else "SttConfig.Mode.${userInput.sttMode}")
-                + ", arrayOf($intents), arrayOf($actions) ) {")
+                + ", listOf($expectedPhrases), arrayOf($intents), arrayOf($actions) ) {")
         transitions.forEach { source.appendln("\t\tval ${it.key} = Transition(${it.value})") }
         source.appendln("//--code-start;type:userInput;name:$nodeName")
         if (code.isNotEmpty()) {

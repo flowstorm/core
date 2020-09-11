@@ -1,6 +1,7 @@
 package com.promethist.core.dialogue
 
 import com.promethist.core.Context
+import com.promethist.core.ExpectedPhrase
 import com.promethist.core.model.DialogueModel
 import com.promethist.core.model.SttConfig
 import com.promethist.core.model.TtsConfig
@@ -62,10 +63,14 @@ abstract class AbstractDialogue : DialogueModel {
             override val id: Int,
             var skipGlobalIntents: Boolean,
             val sttMode: SttConfig.Mode? = null,
+            val expectedPhrases: List<ExpectedPhrase>,
             val intents: Array<Intent>,
             val actions: Array<Action>,
             val lambda: (Context.(UserInput) -> Transition?)
     ): Node(id) {
+
+        constructor(id: Int, skipGlobalIntents: Boolean, sttMode: SttConfig.Mode? = null, intents: Array<Intent>, actions: Array<Action>, lambda: (Context.(UserInput) -> Transition?)) :
+                this(id, skipGlobalIntents, null, listOf(), intents, actions, lambda)
 
         constructor(id: Int, skipGlobalIntents: Boolean, intents: Array<Intent>, actions: Array<Action>, lambda: (Context.(UserInput) -> Transition?)) :
                 this(id, skipGlobalIntents, null, intents, actions, lambda)
