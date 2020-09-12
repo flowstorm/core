@@ -280,7 +280,11 @@ class DialogueSourceCodeBuilder(val dialogueId: String, val buildId: String, val
     private fun write(function: Function) = with(function) {
         source.appendln("\tval $nodeName = Function($nodeId) {")
         source.appendln("\tval transitions = mutableListOf<Transition>()")
+        val lastLine = code.toString().trim().substringAfterLast('\n')
+        var lastLineTransition = (lastLine.indexOf("Transition(") >= 0)
         transitions.forEach {
+            if (lastLine.indexOf(it.key) >= 0)
+                lastLineTransition = true
             if (code.indexOf(it.key) >= 0)
                 source.append("\t\tval ${it.key} = ")
             source.appendln("Transition(${it.value}).apply { transitions.add(this) }")
@@ -288,7 +292,8 @@ class DialogueSourceCodeBuilder(val dialogueId: String, val buildId: String, val
         source.appendln("//--code-start;type:function;name:$nodeName")
         source.appendln(code)
         source.appendln("//--code-end;type:function;name:$nodeName")
-        if (transitions.size == 1) {
+
+        if (transitions.size == 1 && !lastLineTransition) {
             transitions.entries.first().let {
                 source.appendln("Transition(${it.value})")
             }

@@ -94,8 +94,8 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
     protected val inputAudioStreamOpen get() = (sttStream != null)
     protected val attributes = mutableMapOf<String, Any>()
 
-    fun createRequest(input: Input, attributes: MutablePropertyMap = Dynamic()) =
-            Request(appKey, sender, token, sessionId ?: error("missing session id"), input, attributes)
+    fun createRequest(input: Input, initiationId: String? = null, attributes: MutablePropertyMap = Dynamic()) =
+            Request(appKey, sender, token, sessionId ?: error("missing session id"), initiationId, input, attributes)
 
     override fun open() = logger.info("open()")
 

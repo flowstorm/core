@@ -60,6 +60,7 @@ class BotCallSocketAdapter : AbstractBotSocketAdapter() {
     override val sttConfig
         get() = SttConfig(locale
                 ?: config.locale, config.zoneId, config.sttSampleRate, SttConfig.Encoding.MULAW, config.sttMode)
+    private var streamSid: String? = null
     private val workDir = File(System.getProperty("java.io.tmpdir"))
     private val outSound = javaClass.getResourceAsStream("/audio/out.mp3").readBytes()
 
@@ -69,11 +70,11 @@ class BotCallSocketAdapter : AbstractBotSocketAdapter() {
         logger.info("call event $event")
         when (event) {
             is BotEvent.SessionEnded -> {
-                val mark = OutputMessage.Mark(sessionId!!, Mark("Sleeping"))
+                val mark = OutputMessage.Mark(streamSid!!, Mark("Sleeping"))
                 sendMessage(mark)
             }
             is BotEvent.Recognized -> {
-                sendMessage(OutputMessage.Clear(sessionId!!))
+                sendMessage(OutputMessage.Clear(streamSid!!))
                 sendAudioData(outSound)
                 if (!inputAudioStreamOpen/* && sttConfig.mode == SttConfig.Mode.Duplex*/)
                     inputAudioStreamOpen()
@@ -83,7 +84,7 @@ class BotCallSocketAdapter : AbstractBotSocketAdapter() {
 
     override fun sendAudioData(data: ByteArray, count: Int?) {
         val payload = getMulawData(data)
-        val message = OutputMessage.Media(sessionId!!, OutputMessage.Media.Media(payload))
+        val message = OutputMessage.Media(streamSid!!, OutputMessage.Media.Media(payload))
         logger.info("call media ${data.size} (MP3) > ${payload.size} (MULAW) bytes")
         sendMessage(message)
     }
@@ -91,18 +92,26 @@ class BotCallSocketAdapter : AbstractBotSocketAdapter() {
     override fun onWebSocketText(json: String?) {
         when (val message = defaultMapper.readValue(json, InputMessage::class.java)) {
             is InputMessage.Start -> {
-                sessionId = message.streamSid
+                streamSid = message.streamSid
+                sessionId = message.start.callSid
                 message.start.customParameters.let {
                     sender = it["sender"] ?: "anonymous"
                     appKey = it["appKey"] ?: "promethist"
+                    val initiationId: String? = it["initiationId"]
                     if (it.containsKey("locale"))
                         config.locale = Locale.forLanguageTag(it["locale"])
                     //TODO zoneId from zip/city/state/country
+
+                    logger.info("call from $sender")
+                    onRequest(
+                        createRequest(
+                            Input(transcript = Input.Transcript("#intro")),
+                            initiationId,
+                            Dynamic("clientType" to "call:" + AppConfig.instance.get("git.ref", "unknown"))
+                        )
+                    )
+                    inputAudioStreamOpen()
                 }
-                logger.info("call from $sender")
-                onRequest(createRequest(Input(transcript = Input.Transcript("#intro")), Dynamic(
-                        "clientType" to "call:" + AppConfig.instance.get("git.ref", "unknown"))))
-                inputAudioStreamOpen()
             }
             is InputMessage.Stop -> {
                 session.close()

@@ -181,7 +181,12 @@ abstract class AbstractDialogue : DialogueModel {
 
     inner class StopSession(override val id: Int) : Node(id)
 
-    val dialogueNameWithoutVersion get() = dialogueName.substringBeforeLast("/")
+    val dialogueNameWithoutVersion get() = with (dialogueName) {
+        if (count { it == '/' } > 1)
+            substringBeforeLast("/")
+        else
+            this
+    }
 
     @Deprecated("Use dialogueName instead", ReplaceWith("dialogueName"))
     open val name get() = dialogueName
