@@ -29,11 +29,11 @@ object ServiceUrlResolver {
         }
     }
 
-    fun getEndpointUrl(serviceName: String, runMode: RunMode = RunMode.detect): String =
+    fun getEndpointUrl(serviceName: String, runMode: RunMode = RunMode.detect, protocol: String = "http"): String =
             when (runMode) {
-                RunMode.local -> "http://localhost:${servicePorts[serviceName]}"
-                RunMode.docker -> "http://${serviceName}:8080"
-                RunMode.dist -> "https://${serviceName}" +
+                RunMode.local -> "${protocol}://localhost:${servicePorts[serviceName]}"
+                RunMode.docker -> "${protocol}://${serviceName}:8080"
+                RunMode.dist -> "${protocol}s://${serviceName}" +
                         (if (AppConfig.instance["namespace"] != "default")
                             "." + AppConfig.instance["namespace"]
                         else
