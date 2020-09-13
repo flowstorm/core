@@ -218,9 +218,13 @@ class DialogueSourceCodeBuilder(val dialogueId: String, val buildId: String, val
     private fun write(userInput: UserInput) = with(userInput) {
         val intents  = intentNames.joinToString(", ")
         val actions = actionNames.joinToString(", ")
-        val expectedPhrases = this.expectedPhrases.toString().replace('\n', ',')
-                .split(',').joinToString(", ") { """ExpectedPhrase("${it.trim()}")""" }
-
+        val expectedPhrases = this.expectedPhrases.toString().let { s ->
+            if (s.isBlank())
+                ""
+            else
+                s.replace('\n', ',')
+                    .split(',').joinToString(", ") { """ExpectedPhrase("${it.trim()}")""" }
+        }
         source.append("\tval $nodeName = UserInput($nodeId, $skipGlobalIntents, "
                 + (if (userInput.sttMode == null) "null" else "SttConfig.Mode.${userInput.sttMode}")
                 + ", listOf($expectedPhrases), arrayOf($intents), arrayOf($actions) ) {")
