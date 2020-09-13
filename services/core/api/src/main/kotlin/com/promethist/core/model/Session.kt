@@ -2,6 +2,7 @@ package com.promethist.core.model
 
 import com.promethist.core.model.metrics.Metric
 import com.promethist.core.type.*
+import jdk.nashorn.internal.ir.annotations.Ignore
 import org.litote.kmongo.Id
 import org.litote.kmongo.newId
 import java.util.*
@@ -13,12 +14,14 @@ data class Session(
         var user: User,
         var application: Application,
         var location: Location? = null,
+        val initiationId: String? = null,
         val turns: MutableList<Turn> = mutableListOf(),
         val metrics: MutableList<Metric> = mutableListOf(),
         val properties: MutablePropertyMap = mutableMapOf(),
         val attributes: Attributes = Attributes(),
         val dialogueStack: DialogueStack = LinkedList()
 ) {
+    val isInitiated get() = initiationId != null
     val clientType get()  = attributes[DialogueModel.defaultNamespace]?.get("clientType")?.let {
         (it as Memory<String>).value
     } ?: "unknown"

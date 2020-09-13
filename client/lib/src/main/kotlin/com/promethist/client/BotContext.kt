@@ -16,6 +16,7 @@ data class BotContext(
         var voice: Voice? = null,
         var autoStart: Boolean = true,
         var sessionId: String? = null,
+        var initiationId: String? = null,
         var locale: Locale = Defaults.locale,
         var zoneId: ZoneId = ZoneId.systemDefault()
 )

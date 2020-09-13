@@ -126,7 +126,7 @@ class DialogueManager : Component {
                             }
                         } else {
                             //last user input in turn
-                            addExpectedPhrases(context, node.intents.asList())
+                            addExpectedPhrases(context, node.expectedPhrases, node.intents.asList())
                             context.turn.sttMode = node.sttMode ?: node.dialogue.sttMode
                             frame.copy(nodeId = node.id).let {
                                 turn.endFrame = it
@@ -223,7 +223,8 @@ class DialogueManager : Component {
         } while (rest.isNotEmpty())
     }
 
-    private fun addExpectedPhrases(context: Context, intents: Collection<AbstractDialogue.Intent>) {
+    private fun addExpectedPhrases(context: Context, expectedPhrases: List<ExpectedPhrase>, intents: Collection<AbstractDialogue.Intent>) {
+        context.turn.expectedPhrases.addAll(expectedPhrases)
         if (intents.isNotEmpty()) {
             //note: google has limit 5000 (+100k per whole ASR request), we use lower value to be more comfortable with even longer phrases
             val maxPhrasesPerIntent = 2000 / intents.size

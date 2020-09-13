@@ -343,7 +343,7 @@ class BotClient(
     fun doText(text: String) {
         if (context.sessionId == null)
             context.sessionId = UUID.randomUUID().toString()
-        val request = Request(context.key, context.sender, context.token, context.sessionId!!, Input(context.locale, context.zoneId, Input.Transcript(text)), context.attributes)
+        val request = Request(context.key, context.sender, context.token, context.sessionId!!, context.initiationId, Input(context.locale, context.zoneId, Input.Transcript(text)), context.attributes)
         socket.sendEvent(BotEvent.Request(request))
     }
 

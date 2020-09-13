@@ -50,7 +50,7 @@ class CoreResourceImpl : CoreResource {
         dialogueLog.level = Level.ALL
 
         val session = try {
-            initSession(appKey, sender,token, sessionId, input)
+            initSession(appKey, sender,token, sessionId, initiationId, input)
         } catch (e: Exception) {
             return processException(request, e)
         }
@@ -118,7 +118,7 @@ class CoreResourceImpl : CoreResource {
         }
     }
 
-    private fun initSession(key: String, sender: String, token: String?, sessionId: String, input: Input): Session {
+    private fun initSession(key: String, sender: String, token: String?, sessionId: String, initiationId: String?, input: Input): Session {
         val storedSession = sessionResource.get(sessionId)
         val session = if (storedSession != null) {
             logger.info("Restoring the existing session.")
@@ -128,7 +128,7 @@ class CoreResourceImpl : CoreResource {
             val contentResponse = contentDistributionResource.resolve(
                     ContentRequest(sender, token, key, input.locale.language)
             )
-            Session(sessionId = sessionId, user = contentResponse.user, application = contentResponse.application, properties = contentResponse.sessionProperties)
+            Session(sessionId = sessionId, initiationId = initiationId, user = contentResponse.user, application = contentResponse.application, properties = contentResponse.sessionProperties)
         }
         sessionResource.update(session)
         return session
