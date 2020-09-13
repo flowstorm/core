@@ -13,7 +13,7 @@ else
   LOG_FILE=/dev/stdout
 fi
 CMD="/opt/jdk11/bin/java --module-path /opt/armv6hf-sdk/lib --add-modules=javafx.controls,javafx.media -Dembedded=monocle -Dglass.platform=Monocle"
-CMD="$CMD -Xms$MEM -Xmx$MEM -jar $JAR -l $LOG_LEVEL client -c promethist.json -i $IN_FILE -o $OUT_FILE"
+CMD="$CMD -Xms$MEM -Xmx$MEM -jar $JAR -l $LOG_LEVEL client -c promethist.json -sc -i $IN_FILE -o $OUT_FILE"
 
 export DISPLAY=:0.0
 xset s off

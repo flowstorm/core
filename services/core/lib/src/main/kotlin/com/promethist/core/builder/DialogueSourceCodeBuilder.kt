@@ -97,9 +97,9 @@ class DialogueSourceCodeBuilder(val dialogueId: String, val buildId: String, val
 
     data class Intent(val nodeId: Int, val nodeName: String, val threshold: Float, val utterances: List<String>) : Node
     data class GlobalIntent(val nodeId: Int, val nodeName: String, val threshold: Float, val utterances: List<String>) : Node
-    data class UserInput(val nodeId: Int, val nodeName: String, val intentNames: List<String>, val actionNames: List<String>, val sttMode: SttConfig.Mode? = null, val skipGlobalIntents: Boolean, val transitions: Map<String, String>, val code: CharSequence = "") : Node
+    data class UserInput(val nodeId: Int, val nodeName: String, val intentNames: List<String>, val actionNames: List<String>, val sttMode: SttConfig.Mode? = null, val skipGlobalIntents: Boolean, val transitions: Map<String, String>, val expectedPhrases: CharSequence = "", val code: CharSequence = "") : Node
     data class Speech(val nodeId: Int, val nodeName: String, val background: String? = null, val repeatable: Boolean, val texts: List<String>) : Node
-    data class Sound(val nodeId: Int, val nodeName: String, val source: String) : Node
+    data class Sound(val nodeId: Int, val nodeName: String, val source: String, val repeatable: Boolean) : Node
     data class Image(val nodeId: Int, val nodeName: String, val source: String) : Node
     data class Function(val nodeId: Int, val nodeName: String, val transitions: Map<String, String>, val code: CharSequence) : Node
     data class SubDialogue(val nodeId: Int, val nodeName: String, val subDialogueId: String, val code: CharSequence = "") : Node
@@ -218,10 +218,16 @@ class DialogueSourceCodeBuilder(val dialogueId: String, val buildId: String, val
     private fun write(userInput: UserInput) = with(userInput) {
         val intents  = intentNames.joinToString(", ")
         val actions = actionNames.joinToString(", ")
-
+        val expectedPhrases = this.expectedPhrases.toString().let { s ->
+            if (s.isBlank())
+                ""
+            else
+                s.replace('\n', ',')
+                    .split(',').joinToString(", ") { """ExpectedPhrase("${it.trim()}")""" }
+        }
         source.append("\tval $nodeName = UserInput($nodeId, $skipGlobalIntents, "
                 + (if (userInput.sttMode == null) "null" else "SttConfig.Mode.${userInput.sttMode}")
-                + ", arrayOf($intents), arrayOf($actions) ) {")
+                + ", listOf($expectedPhrases), arrayOf($intents), arrayOf($actions) ) {")
         transitions.forEach { source.appendln("\t\tval ${it.key} = Transition(${it.value})") }
         source.appendln("//--code-start;type:userInput;name:$nodeName")
         if (code.isNotEmpty()) {
@@ -272,13 +278,17 @@ class DialogueSourceCodeBuilder(val dialogueId: String, val buildId: String, val
     }
 
     private fun write(sound: Sound) = with(sound) {
-        this@DialogueSourceCodeBuilder.source.appendln("\tval $nodeName = Response($nodeId, audio = \"${source}\")")
+        this@DialogueSourceCodeBuilder.source.appendln("\tval $nodeName = Response($nodeId, audio = \"${source}\", isRepeatable = ${sound.repeatable})")
     }
 
     private fun write(function: Function) = with(function) {
         source.appendln("\tval $nodeName = Function($nodeId) {")
         source.appendln("\tval transitions = mutableListOf<Transition>()")
+        val lastLine = code.toString().trim().substringAfterLast('\n')
+        var lastLineTransition = (lastLine.indexOf("Transition(") >= 0)
         transitions.forEach {
+            if (lastLine.indexOf(it.key) >= 0)
+                lastLineTransition = true
             if (code.indexOf(it.key) >= 0)
                 source.append("\t\tval ${it.key} = ")
             source.appendln("Transition(${it.value}).apply { transitions.add(this) }")
@@ -286,7 +296,8 @@ class DialogueSourceCodeBuilder(val dialogueId: String, val buildId: String, val
         source.appendln("//--code-start;type:function;name:$nodeName")
         source.appendln(code)
         source.appendln("//--code-end;type:function;name:$nodeName")
-        if (transitions.size == 1) {
+
+        if (transitions.size == 1 && !lastLineTransition) {
             transitions.entries.first().let {
                 source.appendln("Transition(${it.value})")
             }
