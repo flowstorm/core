@@ -128,7 +128,14 @@ class CoreResourceImpl : CoreResource {
             val contentResponse = contentDistributionResource.resolve(
                     ContentRequest(sender, token, key, input.locale.language)
             )
-            Session(sessionId = sessionId, initiationId = initiationId, user = contentResponse.user, application = contentResponse.application, properties = contentResponse.sessionProperties)
+            Session(
+                    sessionId = sessionId,
+                    initiationId = initiationId,
+                    user = contentResponse.user,
+                    test = contentResponse.test,
+                    application = contentResponse.application,
+                    properties = contentResponse.sessionProperties
+            )
         }
         sessionResource.update(session)
         return session

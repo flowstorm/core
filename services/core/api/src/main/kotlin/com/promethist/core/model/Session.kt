@@ -7,10 +7,11 @@ import org.litote.kmongo.Id
 import org.litote.kmongo.newId
 import java.util.*
 
-data class Session(
+data class  Session(
         val _id: Id<Session> = newId(),
         val datetime: Date = Date(),
         val sessionId: String,
+        val test: Boolean = false,
         var user: User,
         var application: Application,
         var location: Location? = null,

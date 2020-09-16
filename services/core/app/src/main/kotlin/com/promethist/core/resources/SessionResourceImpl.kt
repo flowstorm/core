@@ -49,6 +49,10 @@ class SessionResourceImpl: SessionResource {
             pipeline.add(match(Filters.eq(it.name, it.value)))
         }
 
+        query.filters.firstOrNull { it.name == "test" && it.operator == Query.Operator.eq }?.let {
+            pipeline.add(match(Filters.eq(it.name, it.value)))
+        }
+
         query.filters.firstOrNull { it.name.startsWith("properties.") && it.operator == Query.Operator.eq }?.let {
             pipeline.add(match(Filters.eq(it.name, it.value)))
         }
