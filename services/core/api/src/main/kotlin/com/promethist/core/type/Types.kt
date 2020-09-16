@@ -6,6 +6,7 @@ import java.time.ZonedDateTime
 
 typealias DateTime = ZonedDateTime
 typealias Decimal = BigDecimal
+typealias Random = kotlin.random.Random
 
 const val ZERO_TEMPERATURE = -273.15
 val ZERO_TIME = DateTime.of(0, 1, 1, 0, 0, 0, 0, Defaults.zoneId)
