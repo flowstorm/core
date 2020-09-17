@@ -71,7 +71,7 @@ class CoreResourceImpl : CoreResource {
                     }
                 }
                 turn.responseItems.forEach {
-                    it.voice = it.voice ?: session.application.voice ?: TtsConfig.defaultVoice(locale?.language ?: "en")
+                    it.voice = it.voice ?: TtsConfig.defaultVoice(locale?.language ?: "en")
                 }
                 Response(locale, turn.responseItems, dialogueLog.log,
                         turn.attributes[AbstractDialogue.defaultNamespace].map { it.key to (it.value as Memory<*>).value }.toMap().toMutableMap(),

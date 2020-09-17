@@ -97,9 +97,11 @@ class DialogueManager : Component {
 
         try {
             while (inputRequested == null) {
-                if (processedNodes.size > 20) error("Too much steps in processing dialogue (infinite loop?)")
-
+                if (processedNodes.size >= 40)
+                    error("Too many steps in dialogue turn (${processedNodes.size})")
                 node = getNode(frame, context)
+                if (node !is AbstractDialogue.UserInput && processedNodes.contains(node))
+                    error("$node is repeating in turn")
                 processedNodes.add(node)
                 if (node.id < 0)
                     turn.attributes[AbstractDialogue.defaultNamespace].set("nodeId", node.id)
