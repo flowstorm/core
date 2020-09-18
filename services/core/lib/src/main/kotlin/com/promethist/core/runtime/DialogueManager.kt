@@ -73,6 +73,12 @@ class DialogueManager : Component {
         }
     }
 
+    private fun markRequiredEntities(frame: Frame, context: Context) {
+        val inputNode = getNode(frame, context) as AbstractDialogue.UserInput
+        val entities = inputNode.intents.map { it.entities }.flatten().toSet()
+        context.input.entityMap.values.flatten().forEach { it.required = entities.contains(it.className) }
+    }
+
     private fun getActionFrame(frame: Frame, context: Context): Frame {
         val node = getNode(frame, context) as AbstractDialogue.UserInput
         val dialogue = dialogueFactory.get(frame)
@@ -126,6 +132,7 @@ class DialogueManager : Component {
                             frame = if (transition != null) {
                                 frame.copy(nodeId = transition.node.id)
                             } else {
+                                markRequiredEntities(frame, context)
                                 // intent recognition
                                 processPipeline()
 
