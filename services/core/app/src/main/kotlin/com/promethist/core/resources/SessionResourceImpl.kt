@@ -42,8 +42,8 @@ class SessionResourceImpl: SessionResource {
             add(match(*MongoFiltersFactory.createFilters(Session::class, query, includeSeek = false).toTypedArray()))
         }
 
-        query.filters.firstOrNull { it.name == "user._id" && it.operator == Query.Operator.`in` }?.let {
-            pipeline.add(match(Session::user / User::_id `in` it.value.split(",").map { WrappedObjectId<User>(it) }))
+        query.filters.firstOrNull { it.name == "user._id" && it.operator == Query.Operator.eq }?.let {
+            pipeline.add(match(Session::user / User::_id eq WrappedObjectId(it.value)))
         }
 
         query.filters.firstOrNull { it.name == "sessionId" && it.operator == Query.Operator.eq }?.let {
