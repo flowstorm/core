@@ -40,18 +40,16 @@ abstract class AbstractDialogue : DialogueModel {
     var stopSession = StopSession(Int.MAX_VALUE - 1)
     var repeat = Repeat(Int.MAX_VALUE - 2)
 
-    abstract inner class Node(open val id: Int) {
+    abstract inner class Node(val id: Int) {
         val dialogue get() = this@AbstractDialogue
+        val isSingleton by lazy { this is StartDialogue || this is StopDialogue || this is StopSession || this is Repeat }
         init { nodes.add(this) }
-
         override fun hashCode(): Int = id
-
+        override fun equals(other: Any?) = if (other is Node) other.id == id else false
         override fun toString(): String = "${javaClass.simpleName}" + (if (isSingleton) "" else "#$id")
-
-        val isSingleton = this is StartDialogue || this is StopDialogue || this is StopSession || this is Repeat
     }
 
-    abstract inner class TransitNode(override val id: Int): Node(id) {
+    abstract inner class TransitNode(id: Int): Node(id) {
         lateinit var next: Node
         fun isNextInitialized() = ::next.isInitialized
         override fun toString(): String = "${javaClass.simpleName}(id=$id, next=$next)"
@@ -60,7 +58,7 @@ abstract class AbstractDialogue : DialogueModel {
     data class Transition(val node: Node)
 
     inner class UserInput(
-            override val id: Int,
+            id: Int,
             var skipGlobalIntents: Boolean,
             val sttMode: SttConfig.Mode? = null,
             val expectedPhrases: List<ExpectedPhrase>,
@@ -90,28 +88,32 @@ abstract class AbstractDialogue : DialogueModel {
     }
 
     open inner class Intent(
-            override val id: Int,
+            id: Int,
             open val name: String,
             open val threshold: Float,
+            open val entities: List<String>,
             vararg utterance: String
     ): TransitNode(id) {
         val utterances = utterance
 
+        constructor(id: Int, name: String, threshold: Float, vararg utterance: String) : this(id, name, threshold, listOf(), *utterance)
         constructor(id: Int, name: String, vararg utterance: String) : this(id, name, 0.0F, *utterance)
         constructor(name: String, vararg utterance: String) : this(nextId--, name, *utterance)
     }
 
     inner class GlobalIntent(
-             override val id: Int,
+             id: Int,
              override val name: String,
              override val threshold: Float,
+             override val entities: List<String>,
              vararg utterance: String
     ): Intent(id, name, threshold, *utterance) {
+        constructor(id: Int, name: String, threshold: Float, vararg utterance: String) : this(id, name, threshold, listOf(), *utterance)
         constructor(id: Int, name: String, vararg utterance: String) : this(id, name, 0.0F, *utterance)
     }
 
     open inner class Action(
-            override val id: Int,
+            id: Int,
             open val name: String,
             open val action: String
     ): TransitNode(id) {
@@ -119,7 +121,7 @@ abstract class AbstractDialogue : DialogueModel {
     }
 
     inner class GlobalAction(
-            override val id: Int,
+            id: Int,
             override val name: String,
             override val action: String
     ): Action(id, name, action) {
@@ -127,7 +129,7 @@ abstract class AbstractDialogue : DialogueModel {
     }
 
     open inner class Response(
-            override val id: Int,
+            id: Int,
             val isRepeatable: Boolean = true,
             val background: String? = null,
             val image: String? = null,
@@ -151,10 +153,10 @@ abstract class AbstractDialogue : DialogueModel {
     }
 
     @Deprecated("Use goBack node instead.")
-    inner class Repeat(override val id: Int): Node(id)
+    inner class Repeat(id: Int): Node(id)
 
     inner class Function(
-            override val id: Int,
+            id: Int,
             val lambda: (Context.(Function) -> Transition)
     ): Node(id) {
         constructor(lambda: (Context.(Function) -> Transition)) : this(nextId--, lambda)
@@ -163,7 +165,7 @@ abstract class AbstractDialogue : DialogueModel {
     }
 
     inner class SubDialogue(
-            override val id: Int,
+            id: Int,
             val dialogueId: String,
             val lambda: Context.(SubDialogue) -> PropertyMap): TransitNode(id) {
 
@@ -173,13 +175,13 @@ abstract class AbstractDialogue : DialogueModel {
         fun create(vararg args: Pair<String, Any>): PropertyMap = args.toMap()
     }
 
-    inner class StartDialogue(override val id: Int) : TransitNode(id)
+    inner class StartDialogue(id: Int) : TransitNode(id)
 
-    open inner class GoBack(override val id: Int, val repeat: Boolean = false) : Node(id)
+    open inner class GoBack(id: Int, val repeat: Boolean = false) : Node(id)
 
-    inner class StopDialogue(override val id: Int) : Node(id)
+    inner class StopDialogue(id: Int) : Node(id)
 
-    inner class StopSession(override val id: Int) : Node(id)
+    inner class StopSession(id: Int) : Node(id)
 
     val dialogueNameWithoutVersion get() = with (dialogueName) {
         if (count { it == '/' } > 1)

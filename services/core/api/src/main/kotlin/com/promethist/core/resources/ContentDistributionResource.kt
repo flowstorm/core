@@ -26,5 +26,10 @@ interface ContentDistributionResource {
             val language: String?
     )
 
-    data class ContentResponse(val application: Application, val user: User, val sessionProperties: MutablePropertyMap)
+    data class ContentResponse(
+            val application: Application,
+            val user: User,
+            val test: Boolean,
+            val sessionProperties: MutablePropertyMap
+    )
 }

@@ -26,7 +26,10 @@ class Illusionist : Component {
 
         context.logger.info("processing IR with models $models")
 
-        val request = Request(context.input.transcript.text, models.map { it.id })
+        // The ER needs to be triggered before IR
+        var text = context.input.transcript.text
+        context.input.entityMap.values.flatten().forEach { if (it.required) text = text.replace(it.text, it.className) } // Better to replace by index
+        val request = Request(text, models.map { it.id })
         val responses = webTarget.path("/multi_model").request().post(Entity.json(request), object : GenericType<List<Response>>() {})
 
         if (responses[0].answer == "OOD") {
@@ -58,6 +61,6 @@ class Illusionist : Component {
             val allowedAnswers: List<List<String?>?> = listOf(),
             @field:JsonProperty("use_threshold")
             val useThreshold: Boolean = true,
-            val n: Int = 3 //number of maximum results for each model, ordered by confidence
+            val n: Int = 0 //number of maximum results, ordered by confidence, default 0 == no limit
     )
 }

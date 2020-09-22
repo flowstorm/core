@@ -91,7 +91,7 @@ class DialogueRunner(
     private val dm = DialogueManager().apply {
         dialogueFactory = dmf
     }
-    private val app = Application(name = "test", dialogue_id = ObjectId(dialogueId).toId(), voice = Voice.Grace, properties = properties)
+    private val app = Application(name = "test", dialogue_id = ObjectId(dialogueId).toId(), properties = properties)
     private val session = Session(sessionId = "T-E-S-T", user = user, application = app)
     private val turn = Turn(Input(locale, zoneId, Input.Transcript("")))
     private val context = Context(SimplePipeline(LinkedList(listOf(dm, ir))), profile, session, turn, logger, locale, SimpleCommunityResource())

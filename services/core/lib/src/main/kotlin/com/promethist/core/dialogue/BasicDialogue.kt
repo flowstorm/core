@@ -46,7 +46,7 @@ abstract class BasicDialogue : AbstractDialogue() {
     val DateTime.isYesterday get() = this isDay -1..-1
     val DateTime.isHoliday get() = isWeekend // && TODO check holidays in context.turn.input.locale.country
     val DateTime.holidayName get() = null // && TODO check holidays in context.turn.input.locale.country
-    val DateTime.isPast get() = Duration.between(this, now).isNegative
+    val DateTime.isPast get() = !Duration.between(this, now).isNegative
     infix fun DateTime.isDay(range: IntRange) =
             this >= today + range.first.day && this < today + range.last.day + 1.day
     infix fun DateTime.isDay(day: Int) = this isDay day..day
