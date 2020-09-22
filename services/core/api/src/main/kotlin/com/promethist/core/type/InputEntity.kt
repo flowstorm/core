@@ -8,7 +8,8 @@ import java.util.NoSuchElementException
 open class InputEntity(var className: String,
                        open var text: String,
                        var confidence: Float,
-                       val modelId: String) {
+                       val modelId: String,
+                       var required: Boolean = false) {
 
     open val value: Value get() = Text(text)
 

@@ -41,7 +41,7 @@ fun BasicDialogue.plural(input: String, count: Int = 2) =
                     when (language) {
                         "en" -> English.irregularPlurals.getOrElse(word) {
                             when {
-                                word.endsWith("y") ->
+                                word.endsWith("y") && !word.endsWith(listOf("ay", "ey", "iy", "oy", "uy", "yy")) ->
                                     word.substring(0, word.length - 1) + "ies"
                                 word.endsWith(listOf("s", "sh", "ch", "x", "z", "o")) ->
                                     word + "es"

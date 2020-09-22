@@ -69,7 +69,8 @@ class MongoFiltersFactory {
             }
             return when (property.returnType) {
                 Int::class.createType() -> value.toInt()
-                Date::class.createType()-> getDateFromString(value)
+                Date::class.createType() -> getDateFromString(value)
+                Boolean::class.createType() -> value.toBoolean()
                 else -> value
             }
         }

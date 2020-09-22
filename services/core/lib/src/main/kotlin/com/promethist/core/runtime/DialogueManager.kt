@@ -45,7 +45,16 @@ class DialogueManager : Component {
     }
 
     private fun getIntentFrame(models: List<IntentModel>, frame: Frame, context: Context): Frame {
-        val (modelId, nodeId) = context.input.intent.name.split("#")
+        val inputNode = getNode(frame, context) as AbstractDialogue.UserInput
+        val recognizedEntities = context.input.entityMap.keys.filter { context.input.entityMap[it]?.isNotEmpty() ?: false }
+
+        val intent = context.input.intents.firstOrNull { intent ->
+            val nodeId = intent.name.split("#")[1]
+            val requiredEntities = inputNode.intents.first { it.id == nodeId.toInt() }.entities
+            recognizedEntities.containsAll(requiredEntities)
+        }?: error("No intent for the given input and recognized entities $recognizedEntities found.")
+
+        val (modelId, nodeId) = intent.name.split("#")
         val model = models.first { it.id == modelId }
         val dialogueName = model.dialogueId
 
@@ -62,6 +71,12 @@ class DialogueManager : Component {
             }
             else -> error("Dialogue $dialogueName matched by IR is not on current stack.")
         }
+    }
+
+    private fun markRequiredEntities(frame: Frame, context: Context) {
+        val inputNode = getNode(frame, context) as AbstractDialogue.UserInput
+        val entities = inputNode.intents.map { it.entities }.flatten().toSet()
+        context.input.entityMap.values.flatten().forEach { it.required = entities.contains(it.className) }
     }
 
     private fun getActionFrame(frame: Frame, context: Context): Frame {
@@ -97,9 +112,11 @@ class DialogueManager : Component {
 
         try {
             while (inputRequested == null) {
-                if (processedNodes.size > 20) error("Too much steps in processing dialogue (infinite loop?)")
-
+                if (processedNodes.size >= 40)
+                    error("Too many steps in dialogue turn (${processedNodes.size})")
                 node = getNode(frame, context)
+                if (node !is AbstractDialogue.UserInput && processedNodes.contains(node))
+                    error("$node is repeating in turn")
                 processedNodes.add(node)
                 if (node.id < 0)
                     turn.attributes[AbstractDialogue.defaultNamespace].set("nodeId", node.id)
@@ -115,6 +132,7 @@ class DialogueManager : Component {
                             frame = if (transition != null) {
                                 frame.copy(nodeId = transition.node.id)
                             } else {
+                                markRequiredEntities(frame, context)
                                 // intent recognition
                                 processPipeline()
 

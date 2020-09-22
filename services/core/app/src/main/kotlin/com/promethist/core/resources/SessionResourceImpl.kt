@@ -5,6 +5,7 @@ import com.mongodb.client.model.Filters
 import com.promethist.common.query.MongoFiltersFactory
 import com.promethist.common.query.Query
 import com.promethist.core.model.Application
+import com.promethist.core.model.DialogueModel
 import com.promethist.core.model.Session
 import com.promethist.core.model.User
 import org.bson.conversions.Bson
@@ -41,8 +42,8 @@ class SessionResourceImpl: SessionResource {
             add(match(*MongoFiltersFactory.createFilters(Session::class, query, includeSeek = false).toTypedArray()))
         }
 
-        query.filters.firstOrNull { it.name == "user._id" && it.operator == Query.Operator.`in` }?.let {
-            pipeline.add(match(Session::user / User::_id `in` it.value.split(",").map { WrappedObjectId<User>(it) }))
+        query.filters.firstOrNull { it.name == "user._id" && it.operator == Query.Operator.eq }?.let {
+            pipeline.add(match(Session::user / User::_id eq WrappedObjectId(it.value)))
         }
 
         query.filters.firstOrNull { it.name == "sessionId" && it.operator == Query.Operator.eq }?.let {
@@ -52,9 +53,15 @@ class SessionResourceImpl: SessionResource {
         query.filters.firstOrNull { it.name.startsWith("properties.") && it.operator == Query.Operator.eq }?.let {
             pipeline.add(match(Filters.eq(it.name, it.value)))
         }
-        query.filters.firstOrNull { it.name.startsWith("application.") && !it.name.endsWith("._id") && it.operator == Query.Operator.eq }?.let {
+
+        query.filters.firstOrNull { it.name.startsWith("application.") && !it.name.endsWith("._id") && !it.name.endsWith(".dialogue_id") && it.operator == Query.Operator.eq }?.let {
             pipeline.add(match(Filters.eq(it.name, it.value)))
         }
+
+        query.filters.firstOrNull { it.name == "application.dialogue_id" && it.operator == Query.Operator.eq }?.let {
+            pipeline.add(match(Session::application / Application::dialogue_id eq WrappedObjectId<DialogueModel>(it.value) as Id<DialogueModel> ))
+        }
+
         query.filters.firstOrNull { it.name == "application._id" && it.operator == Query.Operator.eq }?.let {
             pipeline.add(match(Session::application / Application::_id eq WrappedObjectId(it.value)))
         }

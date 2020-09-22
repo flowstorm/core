@@ -182,24 +182,24 @@ fun BasicDialogue.describeDate(data: DateTime = now, detail: Int = 0): String {
         }
     } else if (data.year == now.year - 1) {
         return mapOf(
-                "en" to "last year" + (if (detail == 1) " in ${data.month}" else if (detail > 1) ", ${dateInMonth(data)}" else ""),
-                "de" to "letztes Jahr" + (if (detail == 1) " im ${data.month}" else if (detail > 1) ", ${dateInMonth(data)}" else ""),
-                "cs" to "minulý rok" + (if (detail == 1) " v ${data.month}" else if (detail > 1) ", ${dateInMonth(data)}" else ""),
-                "fr" to "l'année dernière" + (if (detail == 1) " en ${data.month}" else if (detail > 1) ", ${dateInMonth(data)}" else "")
+                "en" to "last year" + (if (detail == 1) " in ${data.monthName}" else if (detail > 1) ", ${dateInMonth(data)}" else ""),
+                "de" to "letztes Jahr" + (if (detail == 1) " im ${data.monthName}" else if (detail > 1) ", ${dateInMonth(data)}" else ""),
+                "cs" to "minulý rok" + (if (detail == 1) " v ${data.monthName}" else if (detail > 1) ", ${dateInMonth(data)}" else ""),
+                "fr" to "l'année dernière" + (if (detail == 1) " en ${data.monthName}" else if (detail > 1) ", ${dateInMonth(data)}" else "")
         )[language] ?: unsupportedLanguage()
     } else if (data.year == now.year + 1) {
         return mapOf(
-                "en" to "next year" + (if (detail == 1) " in ${data.month}" else if (detail > 1) ", ${dateInMonth(data)}" else ""),
-                "de" to "nächstes Jahr" + (if (detail == 1) " im ${data.month}" else if (detail > 1) ", ${dateInMonth(data)}" else ""),
-                "cs" to "příští rok" + (if (detail == 1) " v ${data.month}" else if (detail > 1) ", ${dateInMonth(data)}" else ""),
-                "fr" to "l'année prochaine" + (if (detail == 1) " en ${data.month}" else if (detail > 1) ", ${dateInMonth(data)}" else "")
+                "en" to "next year" + (if (detail == 1) " in ${data.monthName}" else if (detail > 1) ", ${dateInMonth(data)}" else ""),
+                "de" to "nächstes Jahr" + (if (detail == 1) " im ${data.monthName}" else if (detail > 1) ", ${dateInMonth(data)}" else ""),
+                "cs" to "příští rok" + (if (detail == 1) " v ${data.monthName}" else if (detail > 1) ", ${dateInMonth(data)}" else ""),
+                "fr" to "l'année prochaine" + (if (detail == 1) " en ${data.monthName}" else if (detail > 1) ", ${dateInMonth(data)}" else "")
         )[language] ?: unsupportedLanguage()
     } else {
         return mapOf(
-                "en" to (if (detail == 0) "in" else if (detail == 1) "in ${data.month}" else if (detail > 1) dateInMonth(data) else "") + " ${data.year}",
-                "de" to (if (detail == 0) "in" else if (detail == 1) "im ${data.month}" else if (detail > 1) dateInMonth(data) else "") + " ${data.year}",
-                "cs" to (if (detail == 0) "v roce" else if (detail == 1) "v ${data.month}" else if (detail > 1) dateInMonth(data) else "") + " ${data.year}",
-                "fr" to (if (detail == 0) "en" else if (detail == 1) "en ${data.month}" else if (detail > 1) dateInMonth(data) else "") + " ${data.year}"
+                "en" to (if (detail == 0) "in" else if (detail == 1) "in ${data.monthName}" else if (detail > 1) dateInMonth(data) else "") + " ${data.year}",
+                "de" to (if (detail == 0) "in" else if (detail == 1) "im ${data.monthName}" else if (detail > 1) dateInMonth(data) else "") + " ${data.year}",
+                "cs" to (if (detail == 0) "v roce" else if (detail == 1) "v ${data.monthName}" else if (detail > 1) dateInMonth(data) else "") + " ${data.year}",
+                "fr" to (if (detail == 0) "en" else if (detail == 1) "en ${data.monthName}" else if (detail > 1) dateInMonth(data) else "") + " ${data.year}"
         )[language] ?: unsupportedLanguage()
     }
 }
@@ -539,18 +539,18 @@ fun BasicDialogue.describeTime(data: DateTime = now, detail: Int = 0): String {
                 }
                 detail > 2 && delta.toMinutes().absoluteValue % 60 > 5 -> {
                     return mapOf(
-                            "en" to "${((delta.plusMinutes(5)).toHours().absoluteValue)} hours and ${((delta.toMinutes().absoluteValue) - ((delta.plusMinutes(5)).toHours().absoluteValue * 60)) / 5 * 5} minutes ago",
-                            "de" to "vor ${((delta.plusMinutes(5)).toHours().absoluteValue)} Stunden und ${((delta.toMinutes().absoluteValue) - ((delta.plusMinutes(5)).toHours().absoluteValue * 60)) / 5 * 5} Minuten",
-                            "cs" to "před ${((delta.plusMinutes(5)).toHours().absoluteValue)} hodinami a ${((delta.toMinutes().absoluteValue) - ((delta.plusMinutes(5)).toHours().absoluteValue * 60)) / 5 * 5} minutami",
-                            "fr" to "il y a ${((delta.plusMinutes(5)).toHours().absoluteValue)} heures and ${((delta.toMinutes().absoluteValue) - ((delta.plusMinutes(5)).toHours().absoluteValue * 60)) / 5 * 5} minutes"
+                            "en" to "${((delta.abs().plusMinutes(5)).toHours())} hours and ${((delta.abs().toMinutes()) - ((delta.abs().plusMinutes(5)).toHours() * 60)) / 5 * 5} minutes ago",
+                            "de" to "vor ${((delta.abs().plusMinutes(5)).toHours())} Stunden und ${((delta.abs().toMinutes()) - ((delta.abs().plusMinutes(5)).toHours() * 60)) / 5 * 5} Minuten",
+                            "cs" to "před ${((delta.abs().plusMinutes(5)).toHours())} hodinami a ${((delta.abs().toMinutes()) - ((delta.abs().plusMinutes(5)).toHours() * 60)) / 5 * 5} minutami",
+                            "fr" to "il y a ${((delta.abs().plusMinutes(5)).toHours())} heures and ${((delta.abs().toMinutes()) - ((delta.abs().plusMinutes(5)).toHours() * 60)) / 5 * 5} minutes"
                     )[language] ?: unsupportedLanguage()
                 }
                 detail > 0 -> {
                     return mapOf(
-                            "en" to "${((delta.plusMinutes(30)).toHours().absoluteValue)} hours ago",
-                            "de" to "vor ${((delta.plusMinutes(30)).toHours().absoluteValue)} Stunden",
-                            "cs" to "před ${((delta.plusMinutes(30)).toHours().absoluteValue)} hodinami",
-                            "fr" to "il y a ${((delta.plusMinutes(30)).toHours().absoluteValue)} heures"
+                            "en" to "${((delta.abs().plusMinutes(30)).toHours())} hours ago",
+                            "de" to "vor ${((delta.abs().plusMinutes(30)).toHours())} Stunden",
+                            "cs" to "před ${((delta.abs().plusMinutes(30)).toHours())} hodinami",
+                            "fr" to "il y a ${((delta.abs().plusMinutes(30)).toHours())} heures"
                     )[language] ?: unsupportedLanguage()
                 }
                 else -> {
@@ -574,26 +574,26 @@ fun BasicDialogue.describeTime(data: DateTime = now, detail: Int = 0): String {
                 }
                 detail > 2 && delta.toMinutes().absoluteValue % 60 < 5 -> {
                     return mapOf(
-                            "en" to "in ${((delta.plusMinutes(5)).toHours().absoluteValue)} hours",
-                            "de" to "in ${((delta.plusMinutes(5)).toHours().absoluteValue)} Stunden",
-                            "cs" to "za ${((delta.plusMinutes(5)).toHours().absoluteValue)} hodiny",
-                            "fr" to "dans ${((delta.plusMinutes(5)).toHours().absoluteValue)} heures"
+                            "en" to "in ${((delta.abs().plusMinutes(5)).toHours())} hours",
+                            "de" to "in ${((delta.abs().plusMinutes(5)).toHours())} Stunden",
+                            "cs" to "za ${((delta.abs().plusMinutes(5)).toHours())} hodiny",
+                            "fr" to "dans ${((delta.abs().plusMinutes(5)).toHours())} heures"
                     )[language] ?: unsupportedLanguage()
                 }
                 detail > 2 && delta.toMinutes().absoluteValue % 60 > 5 -> {
                     return mapOf(
-                            "en" to "in ${((delta.plusMinutes(5)).toHours().absoluteValue)} hours and ${((delta.toMinutes().absoluteValue) - ((delta.plusMinutes(5)).toHours().absoluteValue * 60)) / 5 * 5} minutes",
-                            "de" to "in ${((delta.plusMinutes(5)).toHours().absoluteValue)} Stunden und ${((delta.toMinutes().absoluteValue) - ((delta.plusMinutes(5)).toHours().absoluteValue * 60)) / 5 * 5} Minuten",
-                            "cs" to "za ${((delta.plusMinutes(5)).toHours().absoluteValue)} hodin a ${((delta.toMinutes().absoluteValue) - ((delta.plusMinutes(5)).toHours().absoluteValue * 60)) / 5 * 5} minut",
-                            "fr" to "dans ${((delta.plusMinutes(5)).toHours().absoluteValue)} heures and ${((delta.toMinutes().absoluteValue) - ((delta.plusMinutes(5)).toHours().absoluteValue * 60)) / 5 * 5} minutes"
+                            "en" to "in ${((delta.abs().plusMinutes(5)).toHours())} hours and ${((delta.abs().toMinutes()) - ((delta.abs().plusMinutes(5)).toHours() * 60)) / 5 * 5} minutes",
+                            "de" to "in ${((delta.abs().plusMinutes(5)).toHours())} Stunden und ${((delta.abs().toMinutes()) - ((delta.abs().plusMinutes(5)).toHours() * 60)) / 5 * 5} Minuten",
+                            "cs" to "za ${((delta.abs().plusMinutes(5)).toHours())} hodin a ${((delta.abs().toMinutes()) - ((delta.abs().plusMinutes(5)).toHours() * 60)) / 5 * 5} minut",
+                            "fr" to "dans ${((delta.abs().plusMinutes(5)).toHours())} heures and ${((delta.abs().toMinutes()) - ((delta.abs().plusMinutes(5)).toHours() * 60)) / 5 * 5} minutes"
                     )[language] ?: unsupportedLanguage()
                 }
                 detail > 0 -> {
                     return mapOf(
-                            "en" to "in ${((delta.plusMinutes(30)).toHours().absoluteValue)} hours",
-                            "de" to "in ${((delta.plusMinutes(30)).toHours().absoluteValue)} Stunden",
-                            "cs" to "za ${((delta.plusMinutes(30)).toHours().absoluteValue)} hodiny",
-                            "fr" to "dans ${((delta.plusMinutes(30)).toHours().absoluteValue)} heures"
+                            "en" to "in ${((delta.abs().plusMinutes(30)).toHours())} hours",
+                            "de" to "in ${((delta.abs().plusMinutes(30)).toHours())} Stunden",
+                            "cs" to "za ${((delta.abs().plusMinutes(30)).toHours())} hodiny",
+                            "fr" to "dans ${((delta.abs().plusMinutes(30)).toHours())} heures"
                     )[language] ?: unsupportedLanguage()
                 }
                 else -> {
@@ -626,33 +626,33 @@ fun BasicDialogue.describeTime(data: DateTime = now, detail: Int = 0): String {
             }
             else -> {
                 return mapOf( //TODO: days in different languages
-                        "en" to "today " + timeOfDay(data, detail),
-                        "de" to "heute " + timeOfDay(data, detail),
-                        "cs" to "dnes " + timeOfDay(data, detail),
-                        "fr" to "aujourd'hui " + timeOfDay(data, detail)
+                        "en" to ("today " + timeOfDay(data, detail)).trim().replace("today in the evening", "tonight"),
+                        "de" to ("heute " + timeOfDay(data, detail)).trim(),
+                        "cs" to ("dnes " + timeOfDay(data, detail)).trim(),
+                        "fr" to ("aujourd'hui " + timeOfDay(data, detail)).trim()
                 )[language] ?: unsupportedLanguage()
             }
         }
     } else if (delta.seconds.absoluteValue < 172800 && (data.date.toLocalDate() == yesterday.toLocalDate())) {
         return mapOf( //TODO: days in different languages
-                "en" to "yesterday " + timeOfDay(data, detail),
-                "de" to "gestern " + timeOfDay(data, detail),
-                "cs" to "včera " + timeOfDay(data, detail),
-                "fr" to "heir " + timeOfDay(data, detail)
+                "en" to ("yesterday " + timeOfDay(data, detail)).trim(),
+                "de" to ("gestern " + timeOfDay(data, detail)).trim(),
+                "cs" to ("včera " + timeOfDay(data, detail)).trim(),
+                "fr" to ("heir " + timeOfDay(data, detail)).trim()
         )[language] ?: unsupportedLanguage()
     } else if (delta.seconds.absoluteValue < 172800 && (data.date.toLocalDate() == tomorrow.toLocalDate())) {
         return mapOf( //TODO: days in different languages
-                "en" to "tomorrow " + timeOfDay(data, detail),
-                "de" to "morgen " + timeOfDay(data, detail),
-                "cs" to "zítra " + timeOfDay(data, detail),
-                "fr" to "demain " + timeOfDay(data, detail)
+                "en" to ("tomorrow " + timeOfDay(data, detail)).trim(),
+                "de" to ("morgen " + timeOfDay(data, detail)).trim(),
+                "cs" to ("zítra " + timeOfDay(data, detail)).trim(),
+                "fr" to ("demain " + timeOfDay(data, detail)).trim()
         )[language] ?: unsupportedLanguage()
     } else if (delta.seconds.absoluteValue < 604800) { //TODO Gender of days in CZ, day name localization
         return mapOf( //TODO: days in different languages
-                "en" to (if (!delta.isNegative) "last" else "next") + " ${data.dayOfWeekName} " + timeOfDay(data, if (detail > 2) 2 else detail),
-                "de" to (if (!delta.isNegative) "letzten" else "nächsten") + " ${data.dayOfWeekName} " + timeOfDay(data, if (detail > 2) 2 else detail),
-                "cs" to (if (!delta.isNegative) "minulou" else "příští") + " ${data.dayOfWeekName} " + timeOfDay(data, if (detail > 2) 2 else detail),
-                "fr" to "${data.dayOfWeekName} " + (if (!delta.isNegative) "dernier" else "prochain") + " " + timeOfDay(data, if (detail > 2) 2 else detail)
+                "en" to ((if (!delta.isNegative) "last" else "next") + " ${data.dayOfWeekName} " + timeOfDay(data, if (detail > 2) 2 else detail)).trim(),
+                "de" to ((if (!delta.isNegative) "letzten" else "nächsten") + " ${data.dayOfWeekName} " + timeOfDay(data, if (detail > 2) 2 else detail)).trim(),
+                "cs" to ((if (!delta.isNegative) "minulou" else "příští") + " ${data.dayOfWeekName} " + timeOfDay(data, if (detail > 2) 2 else detail)).trim(),
+                "fr" to ("${data.dayOfWeekName} " + (if (!delta.isNegative) "dernier" else "prochain") + " " + timeOfDay(data, if (detail > 2) 2 else detail)).trim()
         )[language] ?: unsupportedLanguage()
     } else if (delta.seconds.absoluteValue < 864000) { // events with longer time difference
         when {
@@ -689,7 +689,7 @@ fun BasicDialogue.describeTime(data: DateTime = now, detail: Int = 0): String {
                 )[language] ?: unsupportedLanguage()
             }
             else -> {
-                return dateInMonth(data) + " " + timeOfDay(data, (if (detail == 2) 0 else 2))
+                return (dateInMonth(data) + " " + timeOfDay(data, (if (detail == 2) 0 else 2))).trim()
             }
         }
     } else if (delta.seconds.absoluteValue < 1382400) {
@@ -727,7 +727,7 @@ fun BasicDialogue.describeTime(data: DateTime = now, detail: Int = 0): String {
                 )[language] ?: unsupportedLanguage()
             }
             else -> {
-                return dateInMonth(data) + " " + timeOfDay(data, (if (detail == 2) 0 else 2))
+                return (dateInMonth(data) + " " + timeOfDay(data, (if (detail == 2) 0 else 2))).trim()
             }
         }
     } else if (delta.seconds.absoluteValue < 2678400 && data.monthValue == now.monthValue) {
@@ -765,7 +765,7 @@ fun BasicDialogue.describeTime(data: DateTime = now, detail: Int = 0): String {
                 )[language] ?: unsupportedLanguage()
             }
             else -> {
-                return dateInMonth(data) + " " + timeOfDay(data, (if (detail == 2) 0 else 2))
+                return (dateInMonth(data) + " " + timeOfDay(data, (if (detail == 2) 0 else 2))).trim()
             }
         }
     } else if (delta.seconds.absoluteValue < 5356800 && (data.monthValue == now.monthValue - 1 || (data.monthValue == 12 && now.monthValue == 1))) {
@@ -777,7 +777,7 @@ fun BasicDialogue.describeTime(data: DateTime = now, detail: Int = 0): String {
                     "fr" to "le mois dernier"
             )[language] ?: unsupportedLanguage()
         } else {
-            dateInMonth(data) + " " + timeOfDay(data, (if (detail < 3) 0 else 2))
+            (dateInMonth(data) + " " + timeOfDay(data, (if (detail < 3) 0 else 2))).trim()
         }
     } else if (delta.seconds.absoluteValue < 5356800 && (data.monthValue == now.monthValue + 1 || (data.monthValue == 1 && now.monthValue == 12))) {
         return if (detail == 0) {
@@ -788,7 +788,7 @@ fun BasicDialogue.describeTime(data: DateTime = now, detail: Int = 0): String {
                     "fr" to "le mois prochain"
             )[language] ?: unsupportedLanguage()
         } else {
-            dateInMonth(data) + " " + timeOfDay(data, (if (detail < 3) 0 else 2))
+            (dateInMonth(data) + " " + timeOfDay(data, (if (detail < 3) 0 else 2))).trim()
         }
     } else if (data.year == now.year) {
         return if (detail < 2) {
@@ -799,7 +799,7 @@ fun BasicDialogue.describeTime(data: DateTime = now, detail: Int = 0): String {
                     "fr" to "en ${data.monthName}"
             )[language] ?: unsupportedLanguage()
         } else {
-            dateInMonth(data) + " " + timeOfDay(data, detail - 2)
+            (dateInMonth(data) + " " + timeOfDay(data, detail - 2)).trim()
         }
     } else return describeDate(data, detail)
 }
@@ -825,10 +825,10 @@ fun BasicDialogue.timeOfDay(data: DateTime = now, detail: Int = 0): String {
         }
         detail > 2 -> {
             return mapOf(
-                    "en" to "at " + (if (data.hour < 13) "${data.hour}" else "${data.hour - 12}") + ":${data.minute} " + (if (data.hour < 12) " AM" else " PM"),
-                    "de" to "um ${data.hour}:${data.minute} Uhr",
-                    "cs" to "v ${data.hour}:${data.minute}",
-                    "fr" to "à ${data.hour}:${data.minute}"
+                    "en" to "at " + (if (data.hour < 13) "${data.hour}" else "${data.hour - 12}") + ":${String.format("%02d", data.minute)}" + (if (data.hour < 12) " AM" else " PM"),
+                    "de" to "um ${data.hour}:${String.format("%02d", data.minute)} Uhr",
+                    "cs" to "v ${data.hour}:${String.format("%02d", data.minute)}",
+                    "fr" to "à ${data.hour}:${String.format("%02d", data.minute)}"
             )[language] ?: unsupportedLanguage()
         }
         detail > 1 -> {
@@ -847,7 +847,7 @@ fun BasicDialogue.timeOfDay(data: DateTime = now, detail: Int = 0): String {
                     "fr" to "matin"
             )[language] ?: unsupportedLanguage()
         }
-        detail > 0 && (data.hour < 18) -> {
+        detail > 0 && (data.hour > 3) && (data.hour < 18) -> {
             return mapOf(
                     "en" to "in the afternoon",
                     "de" to "nachmittag",
@@ -855,12 +855,20 @@ fun BasicDialogue.timeOfDay(data: DateTime = now, detail: Int = 0): String {
                     "fr" to "dans l'après-midi"
             )[language] ?: unsupportedLanguage()
         }
-        detail > 0 -> {
+        detail > 0 && (data.hour >= 18 ) && (data.hour < 22) -> {
             return mapOf(
                     "en" to "in the evening",
                     "de" to "abends",
                     "cs" to "večer",
                     "fr" to "dans la soirée"
+            )[language] ?: unsupportedLanguage()
+        }
+        detail > 0 -> {
+            return mapOf(
+                    "en" to "at night",
+                    "de" to "nachts",
+                    "cs" to "v noci",
+                    "fr" to "la nuit"
             )[language] ?: unsupportedLanguage()
         }
     }
@@ -869,9 +877,9 @@ fun BasicDialogue.timeOfDay(data: DateTime = now, detail: Int = 0): String {
 
 fun BasicDialogue.dateInMonth(data: DateTime = now): String { //TODO Lokalizace mesicu
     return mapOf(
-            "en" to "on ${data.month} ${data.dayOfMonth},",
-            "de" to "am ${data.dayOfMonth} ${data.month}",
-            "cs" to "${data.dayOfMonth} ${data.month}",
-            "fr" to "le ${data.dayOfMonth} ${data.month}"
+            "en" to "on ${data.monthName} ${data.dayOfMonth},",
+            "de" to "am ${data.dayOfMonth} ${data.monthName}",
+            "cs" to "${data.dayOfMonth} ${data.monthName}",
+            "fr" to "le ${data.dayOfMonth} ${data.monthName}"
     )[language] ?: unsupportedLanguage()
 }
