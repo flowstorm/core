@@ -50,7 +50,7 @@ class DialogueManager : Component {
 
         val intent = context.input.intents.firstOrNull { intent ->
             val nodeId = intent.name.split("#")[1]
-            val requiredEntities = inputNode.intents.first { it.id == nodeId.toInt() }.entities
+            val requiredEntities = inputNode.intents.firstOrNull { it.id == nodeId.toInt() }?.entities ?: listOf()
             recognizedEntities.containsAll(requiredEntities)
         }?: error("No intent for the given input and recognized entities $recognizedEntities found.")
 
