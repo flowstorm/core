@@ -30,6 +30,7 @@ object Application {
     @JvmStatic
     fun main(args: Array<String>) {
         //Sentry.init(AppConfig.instance["sentry.url"] + "?stacktrace.app.packages=com.promethistai,ai.promethist")
+
         val controller = CommandController(Config())
         controller.addCommand(VersionCommand.Config(), VersionCommand())
         controller.addCommand(ClientCommand.Config(), ClientCommand())

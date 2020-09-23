@@ -10,20 +10,14 @@ import com.promethist.core.resources.CoreResource
 import com.promethist.core.resources.FileResource
 import com.promethist.port.resources.PortResource
 import com.promethist.port.resources.PortResourceImpl
+import io.sentry.Sentry
 import org.litote.kmongo.KMongo
 import javax.ws.rs.NotFoundException
 
 class Application : JerseyApplication() {
 
-    companion object {
-        fun validateKey(appKey: String) {
-            if (AppConfig.instance.get("service.key", "promethist") !=
-                    if (appKey.contains(':')) appKey.substring(0, appKey.indexOf(':')) else appKey)
-                throw NotFoundException("Invalid key $appKey")
-        }
-    }
-
     init {
+        Sentry.init()
         register(object : ResourceBinder() {
             override fun configure() {
                 bindTo(AppConfig::class.java, AppConfig.instance)
