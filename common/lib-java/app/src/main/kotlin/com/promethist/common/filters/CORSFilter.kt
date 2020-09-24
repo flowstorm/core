@@ -13,7 +13,7 @@ class CORSFilter : ContainerResponseFilter {
     override fun filter(request: ContainerRequestContext,
                         response: ContainerResponseContext) {
         response.headers.add("Access-Control-Allow-Origin", "*")
-        response.headers.add("Access-Control-Allow-Headers", "origin, content-type, accept, authorization")
+        response.headers.add("Access-Control-Allow-Headers", "origin, content-type, accept, authorization, sentry-trace")
         response.headers.add("Access-Control-Allow-Credentials", "true")
         response.headers.add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD")
     }
