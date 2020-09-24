@@ -20,6 +20,7 @@ import com.promethist.port.PortService
 import com.promethist.port.stt.*
 import com.promethist.port.tts.TtsRequest
 import com.promethist.util.LoggerDelegate
+import io.sentry.Sentry
 import org.eclipse.jetty.websocket.api.WebSocketAdapter
 import java.io.IOException
 import java.util.*
@@ -48,6 +49,7 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
         }
 
         override fun onError(e: Throwable) {
+            Sentry.capture(e)
             logger.error("BotSttCallback.onError", e)
             if (isConnected) {
                 if (e is OutOfRangeException)

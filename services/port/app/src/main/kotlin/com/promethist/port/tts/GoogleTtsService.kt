@@ -2,6 +2,7 @@ package com.promethist.port.tts
 
 import com.google.cloud.texttospeech.v1beta1.*
 import com.promethist.core.model.TtsConfig
+import io.sentry.Sentry
 
 object GoogleTtsService: TtsService {
 
@@ -46,6 +47,7 @@ object GoogleTtsService: TtsService {
         try {
             client.close()
         } catch (e: Exception) {
+            Sentry.capture(e)
             e.printStackTrace()
         }
         client.close()

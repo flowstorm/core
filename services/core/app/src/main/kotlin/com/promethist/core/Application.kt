@@ -11,6 +11,7 @@ import com.promethist.core.runtime.*
 import com.promethist.core.profile.MongoProfileRepository
 import com.promethist.core.profile.ProfileRepository
 import com.promethist.core.resources.*
+import io.sentry.Sentry
 import org.glassfish.hk2.api.InjectionResolver
 import org.glassfish.hk2.api.PerLookup
 import org.glassfish.hk2.api.TypeLiteral
@@ -22,6 +23,7 @@ import javax.ws.rs.ext.ParamConverterProvider
 class Application : JerseyApplication() {
 
     init {
+        Sentry.init()
         register(object : ResourceBinder() {
             override fun configure() {
 

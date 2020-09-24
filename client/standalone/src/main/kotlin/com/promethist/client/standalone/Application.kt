@@ -5,8 +5,10 @@ import com.promethist.client.standalone.cli.ToolCommand
 import com.promethist.client.standalone.cli.VersionCommand
 import com.beust.jcommander.Parameter
 import com.promethist.client.standalone.cli.CallCommand
+import com.promethist.common.AppConfig
 import com.promethist.common.ServiceUrlResolver
 import cz.alry.jcommander.CommandController
+import io.sentry.Sentry
 
 object Application {
 
@@ -29,7 +31,9 @@ object Application {
 
     @JvmStatic
     fun main(args: Array<String>) {
-        //Sentry.init(AppConfig.instance["sentry.url"] + "?stacktrace.app.packages=com.promethistai,ai.promethist")
+        Sentry.init(AppConfig.instance["sentry.url"] + "?stacktrace.app.packages=com.promethist&release=" + AppConfig.instance["app.version"].let {
+            if (it.startsWith('$')) "unknown" else it
+        })
         val controller = CommandController(Config())
         controller.addCommand(VersionCommand.Config(), VersionCommand())
         controller.addCommand(ClientCommand.Config(), ClientCommand())

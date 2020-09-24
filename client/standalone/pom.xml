@@ -80,6 +80,11 @@
             <artifactId>twilio</artifactId>
             <version>7.55.1</version>
         </dependency>
+        <dependency>
+            <groupId>io.sentry</groupId>
+            <artifactId>sentry</artifactId>
+            <version>1.7.30</version>
+        </dependency>
         <!-- just to prevent graalvm 20 problems with logback -->
         <dependency>
             <groupId>org.codehaus.janino</groupId>

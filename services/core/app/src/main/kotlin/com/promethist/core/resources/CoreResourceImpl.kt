@@ -11,6 +11,9 @@ import com.promethist.core.resources.ContentDistributionResource.ContentRequest
 import com.promethist.core.runtime.DialogueLog
 import com.promethist.core.type.Memory
 import com.promethist.util.LoggerDelegate
+import io.sentry.Sentry
+import io.sentry.event.Event
+import io.sentry.event.EventBuilder
 import javax.inject.Inject
 import javax.ws.rs.*
 import java.util.*
@@ -101,17 +104,30 @@ class CoreResourceImpl : CoreResource {
                 messages.add(c::class.simpleName + ":" + c.message)
                 c = c.cause
             }
-            context.dialogueEvent = DialogueEvent(
-                    datetime = Date(),
-                    type = DialogueEvent.Type.ServerError,
-                    user = context.user,
-                    sessionId = context.session.sessionId,
-                    properties = context.session.properties,
-                    applicationName = context.application.name,
-                    dialogue_id = context.application.dialogue_id,
-                    //TODO Replace with actual node ID after node sequence is added in Context
-                    nodeId = 0,
-                    text = messages.joinToString(" \nCAUSED BY: "))
+            val text = messages.joinToString(" \nCAUSED BY: ")
+            with (context) {
+                dialogueEvent = DialogueEvent(
+                        datetime = Date(),
+                        type = DialogueEvent.Type.ServerError,
+                        user = user,
+                        sessionId = session.sessionId,
+                        properties = session.properties,
+                        applicationName = application.name,
+                        dialogue_id = application.dialogue_id,
+                        //TODO Replace with actual node ID after node sequence is added in Context
+                        nodeId = 0,
+                        text = text
+                )
+                Sentry.capture(
+                    EventBuilder()
+                        .withMessage(text)
+                        .withExtra("sessionId", session.sessionId)
+                        .withExtra("applicationName", application.name)
+                        .withExtra("dialogue_id", application.dialogue_id.toString())
+                        .withExtra("user_id", user._id.toString()
+                    )
+                )
+            }
             throw e
         } finally {
             if (context.dialogueEvent != null) dialogueEventResource.create(context.dialogueEvent!!)
