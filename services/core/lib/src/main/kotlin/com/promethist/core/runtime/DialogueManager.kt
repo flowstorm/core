@@ -196,12 +196,13 @@ class DialogueManager : Component {
                         when (node) {
                             is AbstractDialogue.Response -> {
                                 val text = node.getText(context)
+                                val background = node.dialogue.background ?: node.background
                                 if (node.dialogue is BasicDialogue) {
                                     AbstractDialogue.run(context, node) {
-                                        (node.dialogue as BasicDialogue).addResponseItem(text, image = node.image, audio = node.audio, video = node.video, repeatable = node.isRepeatable)
+                                        (node.dialogue as BasicDialogue).addResponseItem(text, image = node.image, audio = node.audio, video = node.video, background = background, repeatable = node.isRepeatable)
                                     }
                                 } else {
-                                    turn.addResponseItem(text, image = node.image, audio = node.audio, video = node.video, repeatable = node.isRepeatable)
+                                    turn.addResponseItem(text, image = node.image, audio = node.audio, video = node.video, background = background, repeatable = node.isRepeatable)
                                 }
                             }
                             is AbstractDialogue.GlobalIntent, is AbstractDialogue.GlobalAction -> {

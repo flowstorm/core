@@ -12,7 +12,6 @@ import com.promethist.core.runtime.DialogueLog
 import com.promethist.core.type.Memory
 import com.promethist.util.LoggerDelegate
 import io.sentry.Sentry
-import io.sentry.event.Event
 import io.sentry.event.EventBuilder
 import javax.inject.Inject
 import javax.ws.rs.*
@@ -118,6 +117,7 @@ class CoreResourceImpl : CoreResource {
                         nodeId = 0,
                         text = text
                 )
+                /*
                 Sentry.capture(
                     EventBuilder()
                         .withMessage(text)
@@ -127,6 +127,7 @@ class CoreResourceImpl : CoreResource {
                         .withExtra("user_id", user._id.toString()
                     )
                 )
+                 */
             }
             throw e
         } finally {
