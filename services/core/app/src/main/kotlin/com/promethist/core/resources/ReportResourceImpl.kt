@@ -87,8 +87,8 @@ class ReportResourceImpl: ReportResource {
             granularity: Report.Granularity,
             aggregations: List<Report.Aggregation>
     ): Report {
-        val start = getDateFromString(query.filters.firstOrNull() { it.name == Session::datetime.name && it.operator == Query.Operator.gte}!!.value)
-        val end = getDateFromString(query.filters.firstOrNull() { it.name == Session::datetime.name && it.operator == Query.Operator.lte}!!.value)
+        val start = getDateFromString(query.filters.firstOrNull() { it.path == Session::datetime.name && it.operator == Query.Operator.gte }!!.value)
+        val end = getDateFromString(query.filters.firstOrNull() { it.path == Session::datetime.name && it.operator == Query.Operator.lte }!!.value)
         val dates = getDatesBetween(start, end, granularity)
 
         val pipeline: MutableList<Bson> = mutableListOf()
@@ -96,27 +96,14 @@ class ReportResourceImpl: ReportResource {
         // Apply filters
         pipeline.add(match(*MongoFiltersFactory.createFilters(Session::class, query).toTypedArray()))
 
-        //filter session.properties
-        pipeline.add(match(*propertiesFilters().toTypedArray()))
-
         pipeline.add(unwind("\$metrics"))
 
-        val userFilter = query.filters.firstOrNull { it.name == "user._id" }
-        if (userFilter != null) {
-            pipeline.add(match(Session::user / User::_id `in` userFilter.value.split(",").map { WrappedObjectId<User>(it) }))
-        }
-
-
-        val metricFilter = query.filters.firstOrNull { it.name == "metric" }
-        if (metricFilter != null) {
-            pipeline.add(match(Session::metrics / Metric::name `in` metricFilter.value.split(",")))
-        }
-
-        val namespaceFilter = query.filters.firstOrNull { it.name == "namespace" }
-        if (namespaceFilter != null) {
-            pipeline.add(match(Session::metrics / Metric::namespace `in` namespaceFilter.value.split(",")))
-        }
-
+        //add some filters again after unwind
+        pipeline.add(match(*
+        query.filters.filter { it.path in listOf("metrics.name", "metrics.namespace") }
+                .map { MongoFiltersFactory.createFilter(Session::class, it) }
+                .toTypedArray()
+        ))
         // Add datetime in format based on granularity
         val dateFieldExpression = Document("\$dateToString", Document("date", "\$datetime").append("format", getMongoFormat(granularity)).append("timezone", "GMT"))
         pipeline.add(addFields(Field(MetricItem::date.name, dateFieldExpression)))
@@ -163,7 +150,7 @@ class ReportResourceImpl: ReportResource {
     }
 
     private fun propertiesFilters(): List<Bson> =
-            query.filters.filter { it.name.startsWith(Session::properties.name) }.map { Filters.eq(it.name, it.value) }
+            query.filters.filter { it.path.startsWith(Session::properties.name) }.map { Filters.eq(it.path, it.value) }
 
     private fun getDatasetKey(item: MetricItem): String =
             listOf(item.user_id.toString(), item.namespace, item.metric).joinToString(separator = ":")

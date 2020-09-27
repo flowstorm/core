@@ -1,7 +1,6 @@
 package com.promethist.core.resources
 
 import com.mongodb.client.MongoDatabase
-import com.mongodb.client.model.Filters
 import com.promethist.common.query.MongoFiltersFactory
 import com.promethist.common.query.Query
 import com.promethist.core.model.DialogueEvent
@@ -21,7 +20,6 @@ class DialogueEventResourceImpl: DialogueEventResource {
 
     private val dialogueEvents by lazy { database.getCollection<DialogueEvent>() }
 
-
     override fun getDialogueEvents(): List<DialogueEvent> {
         val pipeline: MutableList<Bson> = mutableListOf()
         pipeline.apply {
@@ -39,13 +37,9 @@ class DialogueEventResourceImpl: DialogueEventResource {
             add(sort(descending(DialogueEvent::datetime, DialogueEvent::_id)))
             add(match(*MongoFiltersFactory.createFilters(Session::class, query, includeSeek = false).toTypedArray()))
 
+            add(limit(query.limit))
         }
 
-        query.filters.firstOrNull { it.name.startsWith("properties.") && it.operator == Query.Operator.eq }?.let {
-            pipeline.add(match(Filters.eq(it.name, it.value)))
-        }
-
-        pipeline.add(limit(query.limit))
         return dialogueEvents.aggregate(pipeline).toMutableList()
     }
 
@@ -56,7 +50,4 @@ class DialogueEventResourceImpl: DialogueEventResource {
     override fun get(eventId: Id<DialogueEvent>): DialogueEvent? {
         return dialogueEvents.find(DialogueEvent::_id eq eventId).singleOrNull()
     }
-
-
-
 }

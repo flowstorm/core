@@ -40,33 +40,9 @@ class SessionResourceImpl: SessionResource {
 
             add(sort(descending(Session::datetime, Session::_id)))
             add(match(*MongoFiltersFactory.createFilters(Session::class, query, includeSeek = false).toTypedArray()))
+            add(limit(query.limit))
         }
 
-        query.filters.firstOrNull { it.name == "user._id" && it.operator == Query.Operator.eq }?.let {
-            pipeline.add(match(Session::user / User::_id eq WrappedObjectId(it.value)))
-        }
-
-        query.filters.firstOrNull { it.name == "sessionId" && it.operator == Query.Operator.eq }?.let {
-            pipeline.add(match(Filters.eq(it.name, it.value)))
-        }
-
-        query.filters.firstOrNull { it.name.startsWith("properties.") && it.operator == Query.Operator.eq }?.let {
-            pipeline.add(match(Filters.eq(it.name, it.value)))
-        }
-
-        query.filters.firstOrNull { it.name.startsWith("application.") && !it.name.endsWith("._id") && !it.name.endsWith(".dialogue_id") && it.operator == Query.Operator.eq }?.let {
-            pipeline.add(match(Filters.eq(it.name, it.value)))
-        }
-
-        query.filters.firstOrNull { it.name == "application.dialogue_id" && it.operator == Query.Operator.eq }?.let {
-            pipeline.add(match(Session::application / Application::dialogue_id eq WrappedObjectId<DialogueModel>(it.value) as Id<DialogueModel> ))
-        }
-
-        query.filters.firstOrNull { it.name == "application._id" && it.operator == Query.Operator.eq }?.let {
-            pipeline.add(match(Session::application / Application::_id eq WrappedObjectId(it.value)))
-        }
-
-        pipeline.add(limit(query.limit))
         return sessions.aggregate(pipeline).toMutableList()
     }
 
