@@ -5,7 +5,7 @@ import javax.ws.rs.client.WebTarget
 data class Query(
         val limit: Int = LIMIT_DEFAULT,
         val seek_id: String?,
-        val filters: MutableList<Filter> = mutableListOf()
+        val filters: List<Filter> = listOf<Filter>()
 ) {
     data class Filter(val path: String, val operator: Operator, val value: String)
 
