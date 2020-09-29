@@ -7,7 +7,7 @@
         "subcategory": [
           {
             "id": "136",
-            "name": "nearby landmark"
+            "name": "landmark"
           },
           {
             "id": "137",
@@ -15,11 +15,11 @@
           },
           {
             "id": "138",
-            "name": "religious building"
+            "name": "monument"
           },
           {
             "id": "139",
-            "name": "public building"
+            "name": "building"
           },
           {
             "id": "140",
@@ -27,11 +27,11 @@
           },
           {
             "id": "141",
-            "name": "monument"
+            "name": "place"
           },
           {
             "id": "142",
-            "name": "interesting body of water"
+            "name": "place"
           },
           {
             "id": "143",
@@ -43,7 +43,7 @@
           },
           {
             "id": "145",
-            "name": "zoo"
+            "name": "place"
           },
           {
             "id": "146",
@@ -51,11 +51,11 @@
           },
           {
             "id": "147",
-            "name": "brewery, or winery"
+            "name": "site"
           },
           {
             "id": "148",
-            "name": "beautiful panorama"
+            "name": "panorama"
           },
           {
             "id": "149",
