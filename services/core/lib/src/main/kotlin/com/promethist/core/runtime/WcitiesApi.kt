@@ -2,6 +2,7 @@ package com.promethist.core.runtime
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.JsonNode
 import com.promethist.common.AppConfig
@@ -24,8 +25,8 @@ class WcitiesApi(dialogue: BasicDialogue) : DialogueApi(dialogue) {
         }
 
         companion object {
-            val categoriesNames by lazy { RestClient.webTarget("https://filestore.develop.promethist.com/assets/data/wcities-categories.json")
-                    .request().get(Dynamic::class.java) }
+            val categoriesNames by lazy { mapper.readValue<Dynamic>(WcitiesApi::class.java.getResourceAsStream("wcities-categories.json"),
+                    object : TypeReference<Dynamic>(){}) }
 
             fun catNameById(id: String): String {
                 for (cat in categoriesNames.list("eventCategories.category")) {
@@ -59,6 +60,7 @@ class WcitiesApi(dialogue: BasicDialogue) : DialogueApi(dialogue) {
         @JsonProperty("open_hours")
         private fun extractOpenHours(openHours: String) {
             openingHours = openHours.replace("Mo", "Mon")
+                    .replace("Jan to Dec -", "")
                     .replace("Tu", "Tue")
                     .replace("We", "Wed")
                     .replace("Th", "Thu")
@@ -66,8 +68,14 @@ class WcitiesApi(dialogue: BasicDialogue) : DialogueApi(dialogue) {
                     .replace("Sa", "Sat")
                     .replace("Su", "Sun")
                     .replace(",", ", ")
+                    .replace("Jan", "January").replace("Feb", "February")
+                    .replace("Mar", "March").replace("Apr", "April")
+                    .replace("Jun", "June").replace("Jul", "July")
+                    .replace("Aug", "August").replace("Sep", "September")
+                    .replace("Oct", "October").replace("Nov", "November")
+                    .replace("Dec", "December")
         }
-        @JsonProperty("credit_cards")
+        @JsonProperty("credit_card")
         private fun extractOpenHours(cards: List<Map<String, String>>) {
             acceptCards = cards.isNotEmpty()
         }

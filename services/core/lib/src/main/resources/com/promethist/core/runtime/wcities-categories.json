@@ -1,0 +1,680 @@
+{
+  "eventCategories": {
+    "category": [
+      {
+        "id": "5",
+        "name": "Tourist Attractions & Sightseeing",
+        "subcategory": [
+          {
+            "id": "136",
+            "name": "nearby landmark"
+          },
+          {
+            "id": "137",
+            "name": "castle"
+          },
+          {
+            "id": "138",
+            "name": "religious building"
+          },
+          {
+            "id": "139",
+            "name": "public building"
+          },
+          {
+            "id": "140",
+            "name": "library"
+          },
+          {
+            "id": "141",
+            "name": "monument"
+          },
+          {
+            "id": "142",
+            "name": "interesting body of water"
+          },
+          {
+            "id": "143",
+            "name": "park"
+          },
+          {
+            "id": "144",
+            "name": "spa"
+          },
+          {
+            "id": "145",
+            "name": "zoo"
+          },
+          {
+            "id": "146",
+            "name": "amusement park"
+          },
+          {
+            "id": "147",
+            "name": "brewery, or winery"
+          },
+          {
+            "id": "148",
+            "name": "beautiful panorama"
+          },
+          {
+            "id": "149",
+            "name": "tourist information center"
+          },
+          {
+            "id": "150",
+            "name": "place for day trips"
+          },
+          {
+            "id": "151",
+            "name": "guided tours office"
+          },
+          {
+            "id": "152",
+            "name": "place for marine excursions"
+          },
+          {
+            "id": "153",
+            "name": "school"
+          }
+        ]
+      },
+
+      {
+        "id": "900",
+        "name": "Concerts",
+        "subcategory": [{
+          "id": "500",
+          "name": "Concerts of Classical Music"
+        }, {
+          "id": "501",
+          "name": "Jazz Concerts"
+        }, {
+          "id": "502",
+          "name": "Blues Concerts"
+        }, {
+          "id": "503",
+          "name": "Rock and Alternative Concerts"
+        }, {
+          "id": "504",
+          "name": "Pop Concerts"
+        }, {
+          "id": "505",
+          "name": "Hard Rock and Metal Concerts"
+        }, {
+          "id": "506",
+          "name": "Hip-Hop and Rap Concerts"
+        }, {
+          "id": "507",
+          "name": "Concerts of Electronic Music"
+        }, {
+          "id": "508",
+          "name": "Jam Sessions"
+        }, {
+          "id": "509",
+          "name": "R&B, Soul and Funk Concerts"
+        }, {
+          "id": "510",
+          "name": "World Music Concerts"
+        }, {
+          "id": "511",
+          "name": "Folk Concerts"
+        }, {
+          "id": "512",
+          "name": "Concert Packages"
+        }, {
+          "id": "643",
+          "name": "Indie Rock Concerts"
+        }, {
+          "id": "644",
+          "name": "Latin Music Concerts"
+        }, {
+          "id": "645",
+          "name": "Concerts of Country Music"
+        }, {
+          "id": "646",
+          "name": "Concerts of Religious Music"
+        }, {
+          "id": "700",
+          "name": "Concerts"
+        }]
+      }, {
+        "id": "901",
+        "name": "Theater",
+        "subcategory": [{
+          "id": "513",
+          "name": "Classical Theater"
+        }, {
+          "id": "514",
+          "name": "Contemporary Theater"
+        }, {
+          "id": "515",
+          "name": "Musicals"
+        }, {
+          "id": "516",
+          "name": "Theater Comedies"
+        }, {
+          "id": "517",
+          "name": "Theater Dramas"
+        }, {
+          "id": "518",
+          "name": "Cabaret and Revue Shows"
+        }, {
+          "id": "519",
+          "name": "Performing Arts"
+        }, {
+          "id": "520",
+          "name": "Opera"
+        }, {
+          "id": "521",
+          "name": "Regional Theater"
+        }, {
+          "id": "522",
+          "name": "Theater for Children"
+        }, {
+          "id": "647",
+          "name": "Stand-up Comedy"
+        }, {
+          "id": "701",
+          "name": "Theater"
+        }]
+      }, {
+        "id": "902",
+        "name": "Sport Events",
+        "subcategory": [{
+          "id": "523",
+          "name": "Baseball and Softball"
+        }, {
+          "id": "524",
+          "name": "Basketball"
+        }, {
+          "id": "525",
+          "name": "Soccer"
+        }, {
+          "id": "526",
+          "name": "American Football"
+        }, {
+          "id": "527",
+          "name": "Motorsports"
+        }, {
+          "id": "528",
+          "name": "Golf"
+        }, {
+          "id": "529",
+          "name": "Tennis"
+        }, {
+          "id": "530",
+          "name": "Equestrian"
+        }, {
+          "id": "531",
+          "name": "Winter Sports"
+        }, {
+          "id": "532",
+          "name": "Hockey"
+        }, {
+          "id": "533",
+          "name": "Extreme Sports"
+        }, {
+          "id": "534",
+          "name": "Running"
+        }, {
+          "id": "535",
+          "name": "Cycling"
+        }, {
+          "id": "536",
+          "name": "Sailing"
+        }, {
+          "id": "537",
+          "name": "Water Sports"
+        }, {
+          "id": "538",
+          "name": "World Tournaments"
+        }, {
+          "id": "539",
+          "name": "Sport Games"
+        }, {
+          "id": "540",
+          "name": "Local Sports"
+        }, {
+          "id": "648",
+          "name": "Rugby"
+        }, {
+          "id": "649",
+          "name": "Cricket"
+        }, {
+          "id": "713",
+          "name": "MMA"
+        }, {
+          "id": "712",
+          "name": "Boxing"
+        }, {
+          "id": "702",
+          "name": "Sport Events"
+        }]
+      }, {
+        "id": "903",
+        "name": "Arts & Museums",
+        "subcategory": [{
+          "id": "541",
+          "name": "Paintings"
+        }, {
+          "id": "542",
+          "name": "Sculpture"
+        }, {
+          "id": "543",
+          "name": "Architecture"
+        }, {
+          "id": "544",
+          "name": "Photography"
+        }, {
+          "id": "545",
+          "name": "History"
+        }, {
+          "id": "546",
+          "name": "Science"
+        }, {
+          "id": "547",
+          "name": "Contemporary Art"
+        }, {
+          "id": "548",
+          "name": "Fine Art"
+        }, {
+          "id": "549",
+          "name": "Performing Arts"
+        }, {
+          "id": "550",
+          "name": "Galleries"
+        }, {
+          "id": "551",
+          "name": "Art Openings"
+        }, {
+          "id": "552",
+          "name": "Multimedia and Digital Art"
+        }, {
+          "id": "553",
+          "name": "Folk Art"
+        }, {
+          "id": "554",
+          "name": "Exhibitions"
+        }, {
+          "id": "650",
+          "name": "Museums for Children"
+        }, {
+          "id": "703",
+          "name": "Arts and Museums"
+        }]
+      }, {
+        "id": "904",
+        "name": "Dance",
+        "subcategory": [{
+          "id": "555",
+          "name": "Classical Dance and Ballet"
+        }, {
+          "id": "556",
+          "name": "Jazz Dance"
+        }, {
+          "id": "557",
+          "name": "Contemporary Dance"
+        }, {
+          "id": "558",
+          "name": "Ballroom and Latin Dance"
+        }, {
+          "id": "559",
+          "name": "Swing and Tap Dance"
+        }, {
+          "id": "560",
+          "name": "Hip-Hop Dance"
+        }, {
+          "id": "561",
+          "name": "Dance Competitions"
+        }, {
+          "id": "651",
+          "name": "Cultural Dance"
+        }, {
+          "id": "704",
+          "name": "Dance"
+        }]
+      }, {
+        "id": "905",
+        "name": "Clubbing & Nightlife",
+        "subcategory": [{
+          "id": "562",
+          "name": "Rock and Pop Concerts"
+        }, {
+          "id": "563",
+          "name": "Salsa with Live music"
+        }, {
+          "id": "564",
+          "name": "Jazz Concerts"
+        }, {
+          "id": "565",
+          "name": "Blues Concerts"
+        }, {
+          "id": "566",
+          "name": "Concerts of Country Music"
+        }, {
+          "id": "567",
+          "name": "Cover Bands Concerts"
+        }, {
+          "id": "568",
+          "name": "Hard Rock and Metal Concerts"
+        }, {
+          "id": "569",
+          "name": "R&B and Hip Hop Concerts"
+        }, {
+          "id": "570",
+          "name": "Soul and Funk Concerts"
+        }, {
+          "id": "571",
+          "name": "World Music Concerts"
+        }, {
+          "id": "572",
+          "name": "Folk Concerts"
+        }, {
+          "id": "573",
+          "name": "Electronic DJs"
+        }, {
+          "id": "574",
+          "name": "R&B and Hip Hop DJs"
+        }, {
+          "id": "575",
+          "name": "Rock and Pop DJs"
+        }, {
+          "id": "576",
+          "name": "Salsa DJs"
+        }, {
+          "id": "577",
+          "name": "Disco and 80s DJs"
+        }, {
+          "id": "578",
+          "name": "Standards and Top 40 DJs"
+        }, {
+          "id": "579",
+          "name": "World Music DJs"
+        }, {
+          "id": "580",
+          "name": "All Genres DJs"
+        }, {
+          "id": "581",
+          "name": "LGBTQ Parties"
+        }, {
+          "id": "582",
+          "name": "Cabaret and Revue Events"
+        }, {
+          "id": "583",
+          "name": "Theme Parties"
+        }, {
+          "id": "584",
+          "name": "Karaoke"
+        }, {
+          "id": "652",
+          "name": "Indie Rock Concerts"
+        }, {
+          "id": "654",
+          "name": "Open Mic Events"
+        }, {
+          "id": "665",
+          "name": "SXSW"
+        }, {
+          "id": "705",
+          "name": "Clubbing and Nightlife"
+        }]
+      }, {
+        "id": "906",
+        "name": "Educational Events",
+        "subcategory": [{
+          "id": "585",
+          "name": "Talks and Lectures"
+        }, {
+          "id": "586",
+          "name": "Conferences"
+        }, {
+          "id": "587",
+          "name": "Book and Poetry Readings"
+        }, {
+          "id": "706",
+          "name": "Educational Events"
+        }]
+      }, {
+        "id": "907",
+        "name": "Festivals & Fairs",
+        "subcategory": [{
+          "id": "588",
+          "name": "All Genres Festivals"
+        }, {
+          "id": "589",
+          "name": "Rock and Pop Festivals"
+        }, {
+          "id": "590",
+          "name": "Hip Hop and Rap Festivals"
+        }, {
+          "id": "591",
+          "name": "Jazz Festivals"
+        }, {
+          "id": "592",
+          "name": "Blues Festivals"
+        }, {
+          "id": "593",
+          "name": "Classical Festivals"
+        }, {
+          "id": "594",
+          "name": "World Music Festivals"
+        }, {
+          "id": "595",
+          "name": "Folk Festivals"
+        }, {
+          "id": "596",
+          "name": "Film Festivals"
+        }, {
+          "id": "597",
+          "name": "Art and Crafts Fairs"
+        }, {
+          "id": "598",
+          "name": "Family Festivals"
+        }, {
+          "id": "599",
+          "name": "Cultural Festivals"
+        }, {
+          "id": "600",
+          "name": "Theater Festivals"
+        }, {
+          "id": "601",
+          "name": "Pop Culture Fairs"
+        }, {
+          "id": "602",
+          "name": "Food & Drink Fairs"
+        }, {
+          "id": "603",
+          "name": "Holiday Celebrations"
+        }, {
+          "id": "604",
+          "name": "Carnivals"
+        }, {
+          "id": "655",
+          "name": "Music Festivals"
+        }, {
+          "id": "656",
+          "name": "Books and Literature Fairs"
+        }, {
+          "id": "657",
+          "name": "Dance Festivals"
+        }, {
+          "id": "707",
+          "name": "Festivals and Fairs"
+        }]
+      }, {
+        "id": "908",
+        "name": "Family",
+        "subcategory": [{
+          "id": "606",
+          "name": "Music for Children"
+        }, {
+          "id": "607",
+          "name": "Theater for Children"
+        }, {
+          "id": "608",
+          "name": "Book Reading for Children"
+        }, {
+          "id": "609",
+          "name": "Circus"
+        }, {
+          "id": "610",
+          "name": "Zoos and Aquariums"
+        }, {
+          "id": "611",
+          "name": "Amusement Parks"
+        }, {
+          "id": "612",
+          "name": "Ice Shows"
+        }, {
+          "id": "613",
+          "name": "Magic Shows"
+        }, {
+          "id": "614",
+          "name": "Educational Events"
+        }, {
+          "id": "708",
+          "name": "Family Activities"
+        }]
+      }, {
+        "id": "909",
+        "name": "Community",
+        "subcategory": [{
+          "id": "615",
+          "name": "Farmer's Markets"
+        }, {
+          "id": "616",
+          "name": "Flea Markets"
+        }, {
+          "id": "617",
+          "name": "Clubs and Associations"
+        }, {
+          "id": "618",
+          "name": "Politics"
+        }, {
+          "id": "619",
+          "name": "Fundraising"
+        }, {
+          "id": "620",
+          "name": "Volunteering"
+        }, {
+          "id": "621",
+          "name": "Education and Learning"
+        }, {
+          "id": "622",
+          "name": "Activities for Children"
+        }, {
+          "id": "623",
+          "name": "Workshops"
+        }, {
+          "id": "658",
+          "name": "Cooking and Art Classes"
+        }, {
+          "id": "659",
+          "name": "Film Screenings"
+        }, {
+          "id": "660",
+          "name": "Outdoor Activities"
+        }, {
+          "id": "714",
+          "name": "Community Sports"
+        }, {
+          "id": "715",
+          "name": "Community Games"
+        }, {
+          "id": "716",
+          "name": "Food & Drink Events"
+        }, {
+          "id": "709",
+          "name": "Community Activities"
+
+        }]
+      }, {
+        "id": "910",
+        "name": "Business & Tech",
+        "subcategory": [{
+          "id": "624",
+          "name": "Business and Tech Conferences"
+        }, {
+          "id": "625",
+          "name": "Trade Shows"
+        }, {
+          "id": "626",
+          "name": "Fashion and Bridal Shows"
+        }, {
+          "id": "627",
+          "name": "Tech Shows"
+        }, {
+          "id": "628",
+          "name": "Art and Crafts Show"
+        }, {
+          "id": "629",
+          "name": "Business and Tech Fairs"
+        }, {
+          "id": "710",
+          "name": "Business and Tech Events"
+        }]
+      }, {
+        "id": "911",
+        "name": "Tours",
+        "subcategory": [{
+          "id": "630",
+          "name": "Cruise and Sailing Tours"
+        }, {
+          "id": "631",
+          "name": "Dinner Packages"
+        }, {
+          "id": "632",
+          "name": "Food & Wine Tours"
+        }, {
+          "id": "633",
+          "name": "Walking Tours"
+        }, {
+          "id": "634",
+          "name": "Bike Tours"
+        }, {
+          "id": "635",
+          "name": "Helicopter Tours"
+        }, {
+          "id": "636",
+          "name": "Shuttle and Airport Transfer Tours"
+        }, {
+          "id": "637",
+          "name": "Audio Tours"
+        }, {
+          "id": "638",
+          "name": "Tour Packages"
+        }, {
+          "id": "639",
+          "name": "Adventure and Extreme Tours"
+        }, {
+          "id": "640",
+          "name": "Sports Tours"
+        }, {
+          "id": "641",
+          "name": "Great Outdoors Tours"
+        }, {
+          "id": "642",
+          "name": "Tours"
+        }, {
+          "id": "661",
+          "name": "Bus and Boat Tours"
+        }, {
+          "id": "662",
+          "name": "Themed and Cultural Tours"
+        }, {
+          "id": "663",
+          "name": "Historical Tours"
+        }, {
+          "id": "664",
+          "name": "Museum Tours"
+        }, {
+          "id": "711",
+          "name": "Tours"
+        }]
+      }, {
+        "id": "912",
+        "name": "Specific Events"
+      }]
+  }
+}
