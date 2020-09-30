@@ -6,6 +6,7 @@ import com.mongodb.client.model.Field
 import com.mongodb.client.model.Filters
 import com.promethist.common.query.MongoFiltersFactory
 import com.promethist.common.query.Query
+import com.promethist.core.model.Application
 import com.promethist.core.model.Report
 import com.promethist.core.model.Session
 import com.promethist.core.model.User
@@ -111,20 +112,24 @@ class ReportResourceImpl: ReportResource {
         // Apply aggregations
         val aggregationFields = createAggregationFields(aggregations)
         val expression = Document.parse("{\$first: {\$concat: [\"\$user.name\", \" \", \"\$user.surname\"]}}")
+        val expression2 = Document.parse("{\$first: \"\$application.name\"}")
 
         pipeline.add(group(fields(*aggregationFields.toTypedArray()), MetricItem::value sum Session::metrics / Metric::value,
-                BsonField(MetricItem::username.name, expression)
+                BsonField(MetricItem::username.name, expression),
+                BsonField(MetricItem::applicationName.name, expression2)
 
         ))
 
         // Project final columns
         pipeline.add(project(
                 MetricItem::user_id from "\$_id.user_id",
+                MetricItem::application_id from "\$_id.application_id",
                 MetricItem::namespace from "\$_id.namespace",
                 MetricItem::metric from "\$_id.metric",
                 MetricItem::date from "\$_id.date",
                 MetricItem::value from MetricItem::value,
-                MetricItem::username from MetricItem::username
+                MetricItem::username from MetricItem::username,
+                MetricItem::applicationName from MetricItem::applicationName
         ))
 
         // Finally load data
@@ -153,7 +158,7 @@ class ReportResourceImpl: ReportResource {
             query.filters.filter { it.path.startsWith(Session::properties.name) }.map { Filters.eq(it.path, it.value) }
 
     private fun getDatasetKey(item: MetricItem): String =
-            listOf(item.user_id.toString(), item.namespace, item.metric).joinToString(separator = ":")
+            listOf(item.user_id.toString(), item.namespace, item.metric, item.application_id.toString()).joinToString(separator = ":")
 
 
     private fun getDatasetLabel(item: MetricItem, aggregations: List<Report.Aggregation>): String {
@@ -164,6 +169,7 @@ class ReportResourceImpl: ReportResource {
                 Report.Aggregation.USER -> item.username!!
                 Report.Aggregation.NAMESPACE -> item.namespace!!
                 Report.Aggregation.METRIC -> item.metric!!
+                Report.Aggregation.APPLICATION -> item.applicationName!!
             })
         }
 
@@ -183,6 +189,10 @@ class ReportResourceImpl: ReportResource {
 
         if (aggregation.contains(Report.Aggregation.METRIC)) {
             aggregationFields.add(MetricItem::metric from (Session::metrics / Metric::name))
+        }
+
+        if (aggregation.contains(Report.Aggregation.APPLICATION)) {
+            aggregationFields.add(MetricItem::application_id from (Session::application / Application::_id))
         }
 
         return aggregationFields
@@ -206,5 +216,14 @@ class ReportResourceImpl: ReportResource {
                 Report.Granularity.MONTH -> "yyyy-MM"
             }
 
-    data class MetricItem(val date: String, val user_id: Id<User>?, val username: String?, val namespace: String?, val metric: String?, val value: Long)
+    data class MetricItem(
+            val date: String,
+            val user_id: Id<User>?,
+            val username: String?,
+            val application_id: Id<Application>?,
+            val applicationName: String?,
+            val namespace: String?,
+            val metric: String?,
+            val value: Long
+    )
 }

@@ -7,6 +7,6 @@ data class Report(
     data class DataSet(val label: String, val data: MutableList<Long>)
 
     enum class Granularity { /*MINUTE,*/ HOUR, DAY, /*WEEK,*/ MONTH }
-    enum class Aggregation { USER, NAMESPACE, METRIC }
+    enum class Aggregation { USER, NAMESPACE, METRIC, APPLICATION }
 }
 
