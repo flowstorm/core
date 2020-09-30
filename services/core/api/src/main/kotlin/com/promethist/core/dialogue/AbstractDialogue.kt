@@ -183,6 +183,8 @@ abstract class AbstractDialogue : DialogueModel {
 
     inner class StopSession(id: Int) : Node(id)
 
+    inner class Sleep(id: Int, val timeout: Int = 60) : Node(id)
+
     val dialogueNameWithoutVersion get() = with (dialogueName) {
         if (count { it == '/' } > 1)
             substringBeforeLast("/")

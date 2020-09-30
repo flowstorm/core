@@ -77,7 +77,7 @@ class CoreResourceImpl : CoreResource {
                 }
                 Response(locale, turn.responseItems, dialogueLog.log,
                         turn.attributes[AbstractDialogue.defaultNamespace].map { it.key to (it.value as Memory<*>).value }.toMap().toMutableMap(),
-                        turn.sttMode, turn.expectedPhrases, sessionEnded)
+                        turn.sttMode, turn.expectedPhrases, sessionEnded, sleepTimeout)
             }
         } catch (e: Throwable) {
             processException(request, e)

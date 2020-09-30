@@ -107,16 +107,15 @@ class DialogueManager : Component {
             dialogueFactory.get(frame).apply { context.locale = locale }.node(frame.nodeId)
 
     /**
-     * @return true if next user input requested, false if session ended
+     * @return true if next user input requested, false if conversation ended
      */
-    private fun proceed(context: Context): Boolean = with(context) {
+    private fun proceed(context: Context): Unit = with(context) {
         var frame = session.dialogueStack.pop()
-        var inputRequested: Boolean? = null
         var node: AbstractDialogue.Node
         val processedNodes = mutableListOf<AbstractDialogue.Node>()
 
         try {
-            while (inputRequested == null) {
+            loop@ while (true) {
                 if (processedNodes.size >= 40)
                     error("Too many steps (over 40) in dialogue turn (${processedNodes.size})")
                 node = getNode(frame, context)
@@ -155,14 +154,8 @@ class DialogueManager : Component {
                                 turn.endFrame = it
                                 session.dialogueStack.push(it)
                             }
-                            inputRequested = true
+                            break@loop
                         }
-                    }
-                    is AbstractDialogue.Repeat -> {
-                        if (session.dialogueStack.isEmpty()) inputRequested = false
-                        frame = session.dialogueStack.pop()
-                        session.turns.last { it.endFrame == frame }
-                                .responseItems.forEach { if (it.repeatable) turn.responseItems.add(it) }
                     }
                     is AbstractDialogue.Function -> {
                         val transition = node.exec(context)
@@ -170,14 +163,19 @@ class DialogueManager : Component {
                     }
                     is AbstractDialogue.StopSession -> {
                         session.dialogueStack.clear()
-                        inputRequested = false
+                        break@loop
                     }
-                    is AbstractDialogue.GoBack -> {
+                    is AbstractDialogue.Sleep -> {
+                        sleepTimeout = node.timeout
+                        break@loop
+                    }
+                    is AbstractDialogue.GoBack,
+                    is AbstractDialogue.Repeat -> {
                         if (session.dialogueStack.isEmpty()) {
-                            inputRequested = false
+                            break@loop
                         } else {
                             frame = session.dialogueStack.pop()
-                            if (node.repeat) {
+                            if (node is AbstractDialogue.Repeat || (node as AbstractDialogue.GoBack).repeat) {
                                 session.turns.last { it.endFrame == frame }
                                         .responseItems.forEach { if (it.repeatable) turn.responseItems.add(it) }
                             }
@@ -186,8 +184,7 @@ class DialogueManager : Component {
                     is AbstractDialogue.StopDialogue -> {
                         while (frame.id == node.dialogue.dialogueId) {
                             if (session.dialogueStack.isEmpty()) {
-                                inputRequested = false
-                                break
+                                break@loop
                             }
                             frame = session.dialogueStack.pop()
                         }
@@ -219,8 +216,6 @@ class DialogueManager : Component {
                     }
                 }
             }
-            return inputRequested
-
         } finally {
             logNodes(processedNodes, logger)
         }

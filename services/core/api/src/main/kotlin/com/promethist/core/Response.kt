@@ -14,7 +14,8 @@ class Response(
         val attributes: PropertyMap,
         val sttMode: SttConfig.Mode?,
         var expectedPhrases: MutableList<ExpectedPhrase>?,
-        var sessionEnded: Boolean = false
+        var sessionEnded: Boolean = false,
+        var sleepTimeout: Int = 0
 ) {
     data class Item (
 

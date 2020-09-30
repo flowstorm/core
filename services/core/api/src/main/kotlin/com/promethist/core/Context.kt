@@ -15,7 +15,8 @@ data class Context(
         val communityResource: CommunityResource,
         val communities: MutableMap<String, Community> = mutableMapOf(),
         var intentModels: List<Model> = listOf(),
-        var dialogueEvent: DialogueEvent? = null
+        var dialogueEvent: DialogueEvent? = null,
+        var sleepTimeout: Int = 0
 ) {
     // aliases
     val input get() = turn.input

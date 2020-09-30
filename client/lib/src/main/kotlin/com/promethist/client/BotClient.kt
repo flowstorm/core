@@ -54,6 +54,7 @@ class BotClient(
     private var lastTime = System.currentTimeMillis()
     private var lastStateDuration = 0L
     private var waking = false
+    private var sleepLimitTime = 0L
     var state = State.Closed
         set(state) {
             if (state != State.Sleeping)
@@ -184,8 +185,13 @@ class BotClient(
         if (response.logs.isNotEmpty())
             callback.onLog(this, response.logs)
 
-        if (state != State.Responding)
+        if (response.sleepTimeout > 0) {
+            sleepLimitTime = System.currentTimeMillis() + response.sleepTimeout * 1000
+            state = State.Sleeping
+
+        } else if (state != State.Responding) {
             state = State.Responding
+        }
         outputQueue.suspended = true
         try {
             for (item in response.items) {
@@ -332,7 +338,7 @@ class BotClient(
     }
 
     fun doText(text: String) {
-        if (context.sessionId == null)
+        if (context.sessionId == null || sleepLimitTime < System.currentTimeMillis())
             context.sessionId = UUID.randomUUID().toString()
         val request = Request(context.key, context.sender, context.token, context.sessionId!!, context.initiationId, Input(context.locale, context.zoneId, Input.Transcript(text)), context.attributes)
         socket.sendEvent(BotEvent.Request(request))
