@@ -45,12 +45,12 @@ class DialogueManager : Component {
     }
 
     private fun getIntentFrame(models: List<IntentModel>, frame: Frame, context: Context): Frame {
-        val inputNode = getNode(frame, context) as AbstractDialogue.UserInput
+        val intentNodes = getIntentsByDialogueStack(frame, context)
         val recognizedEntities = context.input.entityMap.keys.filter { context.input.entityMap[it]?.isNotEmpty() ?: false }
 
         val intent = context.input.intents.firstOrNull { intent ->
             val nodeId = intent.name.split("#")[1]
-            val requiredEntities = inputNode.intents.firstOrNull { it.id == nodeId.toInt() }?.entities ?: listOf()
+            val requiredEntities = intentNodes.firstOrNull { it.id == nodeId.toInt() }?.entities ?: listOf()
             recognizedEntities.containsAll(requiredEntities)
         }?: error("No intent for the given input and recognized entities $recognizedEntities found.")
 
@@ -72,6 +72,11 @@ class DialogueManager : Component {
             else -> error("Dialogue $dialogueName matched by IR is not on current stack.")
         }
     }
+
+    private fun getIntentsByDialogueStack(currentFrame: Frame, context: Context): List<AbstractDialogue.Intent> =
+        context.session.dialogueStack.map { dialogueFactory.get(it).globalIntents }.flatten() +
+                dialogueFactory.get(currentFrame).globalIntents +
+                (getNode(currentFrame, context) as AbstractDialogue.UserInput).intents
 
     private fun markRequiredEntities(frame: Frame, context: Context) {
         val inputNode = getNode(frame, context) as AbstractDialogue.UserInput
