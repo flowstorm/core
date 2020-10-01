@@ -14,8 +14,8 @@ import com.promethist.core.model.metrics.Metric
 import com.promethist.core.type.PropertyMap
 import org.bson.Document
 import org.bson.conversions.Bson
+import org.bson.types.ObjectId
 import org.litote.kmongo.*
-import org.litote.kmongo.id.WrappedObjectId
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -124,6 +124,7 @@ class ReportResourceImpl: ReportResource {
         pipeline.add(project(
                 MetricItem::user_id from "\$_id.user_id",
                 MetricItem::application_id from "\$_id.application_id",
+                MetricItem::organization_id from "\$_id.organization_id",
                 MetricItem::namespace from "\$_id.namespace",
                 MetricItem::metric from "\$_id.metric",
                 MetricItem::date from "\$_id.date",
@@ -158,7 +159,7 @@ class ReportResourceImpl: ReportResource {
             query.filters.filter { it.path.startsWith(Session::properties.name) }.map { Filters.eq(it.path, it.value) }
 
     private fun getDatasetKey(item: MetricItem): String =
-            listOf(item.user_id.toString(), item.namespace, item.metric, item.application_id.toString()).joinToString(separator = ":")
+            listOf(item.user_id.toString(), item.namespace, item.metric, item.application_id.toString(), item.organization_id.toString()).joinToString(separator = ":")
 
 
     private fun getDatasetLabel(item: MetricItem, aggregations: List<Report.Aggregation>): String {
@@ -170,6 +171,7 @@ class ReportResourceImpl: ReportResource {
                 Report.Aggregation.NAMESPACE -> item.namespace!!
                 Report.Aggregation.METRIC -> item.metric!!
                 Report.Aggregation.APPLICATION -> item.applicationName!!
+                Report.Aggregation.ORGANIZATION -> "ORG[" + item.organization_id!! + "]"
             })
         }
 
@@ -193,6 +195,10 @@ class ReportResourceImpl: ReportResource {
 
         if (aggregation.contains(Report.Aggregation.APPLICATION)) {
             aggregationFields.add(MetricItem::application_id from (Session::application / Application::_id))
+        }
+
+        if (aggregation.contains(Report.Aggregation.ORGANIZATION)) {
+            aggregationFields.add(MetricItem::organization_id from "\$properties.organization_id")
         }
 
         return aggregationFields
@@ -222,6 +228,7 @@ class ReportResourceImpl: ReportResource {
             val username: String?,
             val application_id: Id<Application>?,
             val applicationName: String?,
+            val organization_id: String?,
             val namespace: String?,
             val metric: String?,
             val value: Long
