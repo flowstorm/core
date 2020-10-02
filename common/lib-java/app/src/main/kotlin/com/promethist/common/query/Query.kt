@@ -5,9 +5,9 @@ import javax.ws.rs.client.WebTarget
 data class Query(
         val limit: Int = LIMIT_DEFAULT,
         val seek_id: String?,
-        val filters: MutableList<Filter> = mutableListOf()
+        val filters: List<Filter> = listOf<Filter>()
 ) {
-    data class Filter(val name: String, val operator: Operator, val value: String)
+    data class Filter(val path: String, val operator: Operator, val value: String)
 
     enum class Operator {
         eq, gt, gte, lt, lte, `in`, like, regex
@@ -22,7 +22,7 @@ fun WebTarget.query(query: Query): WebTarget {
     wt = wt.queryParam(query::seek_id.name, query.seek_id)
 
     for (f in query.filters) {
-        wt = wt.queryParam("${f.name}[${f.operator.name}]", f.value)
+        wt = wt.queryParam("${f.path}[${f.operator.name}]", f.value)
     }
 
     return wt

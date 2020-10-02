@@ -6,6 +6,7 @@ import com.mongodb.client.model.Field
 import com.mongodb.client.model.Filters
 import com.promethist.common.query.MongoFiltersFactory
 import com.promethist.common.query.Query
+import com.promethist.core.model.Application
 import com.promethist.core.model.Report
 import com.promethist.core.model.Session
 import com.promethist.core.model.User
@@ -13,8 +14,8 @@ import com.promethist.core.model.metrics.Metric
 import com.promethist.core.type.PropertyMap
 import org.bson.Document
 import org.bson.conversions.Bson
+import org.bson.types.ObjectId
 import org.litote.kmongo.*
-import org.litote.kmongo.id.WrappedObjectId
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -87,8 +88,8 @@ class ReportResourceImpl: ReportResource {
             granularity: Report.Granularity,
             aggregations: List<Report.Aggregation>
     ): Report {
-        val start = getDateFromString(query.filters.firstOrNull() { it.name == Session::datetime.name && it.operator == Query.Operator.gte}!!.value)
-        val end = getDateFromString(query.filters.firstOrNull() { it.name == Session::datetime.name && it.operator == Query.Operator.lte}!!.value)
+        val start = getDateFromString(query.filters.firstOrNull() { it.path == Session::datetime.name && it.operator == Query.Operator.gte }!!.value)
+        val end = getDateFromString(query.filters.firstOrNull() { it.path == Session::datetime.name && it.operator == Query.Operator.lte }!!.value)
         val dates = getDatesBetween(start, end, granularity)
 
         val pipeline: MutableList<Bson> = mutableListOf()
@@ -96,27 +97,14 @@ class ReportResourceImpl: ReportResource {
         // Apply filters
         pipeline.add(match(*MongoFiltersFactory.createFilters(Session::class, query).toTypedArray()))
 
-        //filter session.properties
-        pipeline.add(match(*propertiesFilters().toTypedArray()))
-
         pipeline.add(unwind("\$metrics"))
 
-        val userFilter = query.filters.firstOrNull { it.name == "user._id" }
-        if (userFilter != null) {
-            pipeline.add(match(Session::user / User::_id `in` userFilter.value.split(",").map { WrappedObjectId<User>(it) }))
-        }
-
-
-        val metricFilter = query.filters.firstOrNull { it.name == "metric" }
-        if (metricFilter != null) {
-            pipeline.add(match(Session::metrics / Metric::name `in` metricFilter.value.split(",")))
-        }
-
-        val namespaceFilter = query.filters.firstOrNull { it.name == "namespace" }
-        if (namespaceFilter != null) {
-            pipeline.add(match(Session::metrics / Metric::namespace `in` namespaceFilter.value.split(",")))
-        }
-
+        //add some filters again after unwind
+        pipeline.add(match(*
+        query.filters.filter { it.path in listOf("metrics.name", "metrics.namespace") }
+                .map { MongoFiltersFactory.createFilter(Session::class, it) }
+                .toTypedArray()
+        ))
         // Add datetime in format based on granularity
         val dateFieldExpression = Document("\$dateToString", Document("date", "\$datetime").append("format", getMongoFormat(granularity)).append("timezone", "GMT"))
         pipeline.add(addFields(Field(MetricItem::date.name, dateFieldExpression)))
@@ -124,20 +112,25 @@ class ReportResourceImpl: ReportResource {
         // Apply aggregations
         val aggregationFields = createAggregationFields(aggregations)
         val expression = Document.parse("{\$first: {\$concat: [\"\$user.name\", \" \", \"\$user.surname\"]}}")
+        val expression2 = Document.parse("{\$first: \"\$application.name\"}")
 
         pipeline.add(group(fields(*aggregationFields.toTypedArray()), MetricItem::value sum Session::metrics / Metric::value,
-                BsonField(MetricItem::username.name, expression)
+                BsonField(MetricItem::username.name, expression),
+                BsonField(MetricItem::applicationName.name, expression2)
 
         ))
 
         // Project final columns
         pipeline.add(project(
                 MetricItem::user_id from "\$_id.user_id",
+                MetricItem::application_id from "\$_id.application_id",
+                MetricItem::organization_id from "\$_id.organization_id",
                 MetricItem::namespace from "\$_id.namespace",
                 MetricItem::metric from "\$_id.metric",
                 MetricItem::date from "\$_id.date",
                 MetricItem::value from MetricItem::value,
-                MetricItem::username from MetricItem::username
+                MetricItem::username from MetricItem::username,
+                MetricItem::applicationName from MetricItem::applicationName
         ))
 
         // Finally load data
@@ -163,10 +156,10 @@ class ReportResourceImpl: ReportResource {
     }
 
     private fun propertiesFilters(): List<Bson> =
-            query.filters.filter { it.name.startsWith(Session::properties.name) }.map { Filters.eq(it.name, it.value) }
+            query.filters.filter { it.path.startsWith(Session::properties.name) }.map { Filters.eq(it.path, it.value) }
 
     private fun getDatasetKey(item: MetricItem): String =
-            listOf(item.user_id.toString(), item.namespace, item.metric).joinToString(separator = ":")
+            listOf(item.user_id.toString(), item.namespace, item.metric, item.application_id.toString(), item.organization_id.toString()).joinToString(separator = ":")
 
 
     private fun getDatasetLabel(item: MetricItem, aggregations: List<Report.Aggregation>): String {
@@ -177,6 +170,8 @@ class ReportResourceImpl: ReportResource {
                 Report.Aggregation.USER -> item.username!!
                 Report.Aggregation.NAMESPACE -> item.namespace!!
                 Report.Aggregation.METRIC -> item.metric!!
+                Report.Aggregation.APPLICATION -> item.applicationName!!
+                Report.Aggregation.ORGANIZATION -> "ORG[" + item.organization_id!! + "]"
             })
         }
 
@@ -196,6 +191,14 @@ class ReportResourceImpl: ReportResource {
 
         if (aggregation.contains(Report.Aggregation.METRIC)) {
             aggregationFields.add(MetricItem::metric from (Session::metrics / Metric::name))
+        }
+
+        if (aggregation.contains(Report.Aggregation.APPLICATION)) {
+            aggregationFields.add(MetricItem::application_id from (Session::application / Application::_id))
+        }
+
+        if (aggregation.contains(Report.Aggregation.ORGANIZATION)) {
+            aggregationFields.add(MetricItem::organization_id from "\$properties.organization_id")
         }
 
         return aggregationFields
@@ -219,5 +222,15 @@ class ReportResourceImpl: ReportResource {
                 Report.Granularity.MONTH -> "yyyy-MM"
             }
 
-    data class MetricItem(val date: String, val user_id: Id<User>?, val username: String?, val namespace: String?, val metric: String?, val value: Long)
+    data class MetricItem(
+            val date: String,
+            val user_id: Id<User>?,
+            val username: String?,
+            val application_id: Id<Application>?,
+            val applicationName: String?,
+            val organization_id: String?,
+            val namespace: String?,
+            val metric: String?,
+            val value: Long
+    )
 }

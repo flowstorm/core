@@ -254,8 +254,8 @@ abstract class BasicDialogue : AbstractDialogue() {
 //    fun communityAttributes(communityName: String) =
 //            run.context.communityResource.get(communityName, null)?.attributes ?: Dynamic.EMPTY
 
-    fun addResponseItem(text: String?, image: String? = null, audio: String? = null, video: String? = null, repeatable: Boolean = true) =
-            run.context.turn.addResponseItem(text?.let { evaluateTextTemplate(it) }, image, audio, video, repeatable, voice)
+    fun addResponseItem(text: String?, image: String? = null, audio: String? = null, video: String? = null, background: String? = null, repeatable: Boolean = true) =
+            run.context.turn.addResponseItem(text?.let { evaluateTextTemplate(it) }, image, audio, video, background, repeatable, voice)
 
     /**
      * evaluate # in response text

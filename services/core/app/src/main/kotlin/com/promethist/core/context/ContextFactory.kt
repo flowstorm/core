@@ -40,8 +40,12 @@ class ContextFactory {
                                     }
                                 "clientTemperature", "clientAmbientLight", "clientSpatialMotion" ->
                                     it.value.toString().toDouble() // can be integer or double
-                                else ->
-                                    it.value
+                                else -> {
+                                    if (it.key.endsWith("Location"))
+                                        (it.value as String).toLocation()
+                                    else
+                                        it.value
+                                }
                             }))
                         }
                     }
