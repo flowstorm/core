@@ -14,7 +14,6 @@ abstract class SignalConfigurableProvider(val name: String, val format: Format, 
     enum class Format { Simple, Properties, JSON, NMEA }
 
     override lateinit var processor: SignalProcessor
-    var isPaused = false
     protected val logger by LoggerDelegate()
 
     protected fun load(input: InputStream) {
@@ -45,12 +44,12 @@ abstract class SignalConfigurableProvider(val name: String, val format: Format, 
                         values[name] = loadValueFromString(line)
                 }
             }
-            if (continuous && !isPaused) {
+            if (continuous) {
                 processor.process(values)
                 values.clear()
             }
         } while (continuous)
-        if (!continuous && !isPaused)
+        if (!continuous)
             processor.process(values)
     }
 
@@ -63,7 +62,7 @@ abstract class SignalConfigurableProvider(val name: String, val format: Format, 
                 load()
                 do {
                     Thread.sleep(sleep)
-                } while (!continuous && isPaused)
+                } while (!continuous)
             } catch (e: Exception) {
                 logger.error("signal load failed", e)
                 Thread.sleep(5000)

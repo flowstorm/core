@@ -218,13 +218,6 @@ class ClientCommand: CommandRunner<Application.Config, ClientCommand.Config> {
         ) {
             override fun onBotStateChange(client: BotClient, newState: BotClient.State) {
                 super.onBotStateChange(client, newState)
-                config.signalProcessor?.apply {
-                    if (context.sessionId != null) {
-                        if (pause())
-                            println("{Signal processor paused}")
-                    } else if (unpause())
-                        println("{Signal processor unpaused}")
-                }
                 when (newState) {
                     BotClient.State.Listening ->
                         if (light is ColorLight)
@@ -270,6 +263,15 @@ class ClientCommand: CommandRunner<Application.Config, ClientCommand.Config> {
                         out.println("{Configuration version changed from $version to ${config.version} - exiting to be reloaded}")
                         Thread.sleep(5000)
                         exit()
+                    }
+                    config.signalProcessor?.apply {
+                        paused = false
+                        println("{Signal processor unpaused}")
+                    }
+                } else {
+                    config.signalProcessor?.apply {
+                        paused = true
+                        println("{Signal processor paused}")
                     }
                 }
             }
