@@ -45,7 +45,7 @@ abstract class AbstractDialogue : DialogueModel {
         val isSingleton by lazy { this is StartDialogue || this is StopDialogue || this is StopSession || this is Repeat }
         init { nodes.add(this) }
         override fun hashCode(): Int = id
-        override fun equals(other: Any?) = if (other is Node) other.id == id else false
+        override fun equals(other: Any?) = if (other is Node) other.id == id && other.dialogue.dialogueId == dialogueId else false
         override fun toString(): String = "${javaClass.simpleName}" + (if (isSingleton) "" else "#$id")
     }
 
