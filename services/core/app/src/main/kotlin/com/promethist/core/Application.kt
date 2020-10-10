@@ -89,7 +89,7 @@ class Application : JerseyApplication() {
                 bindTo(DevicePairingResource::class.java, DevicePairingResourceImpl::class.java)
                 bindTo(MongoDatabase::class.java,
                         KMongo.createClient(ConnectionString(AppConfig.instance["database.url"]))
-                                .getDatabase(AppConfig.instance["name"] + "-" + AppConfig.instance["namespace"]))
+                                .getDatabase(AppConfig.instance["name"] + "-" + AppConfig.instance.get("dsuffix", AppConfig.instance["namespace"])))
 
                 bindTo(CoreResourceImpl::class.java)
 

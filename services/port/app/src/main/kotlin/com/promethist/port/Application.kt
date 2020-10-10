@@ -12,7 +12,6 @@ import com.promethist.port.resources.PortResource
 import com.promethist.port.resources.PortResourceImpl
 import io.sentry.Sentry
 import org.litote.kmongo.KMongo
-import javax.ws.rs.NotFoundException
 
 class Application : JerseyApplication() {
 
@@ -25,7 +24,7 @@ class Application : JerseyApplication() {
                 bindTo(FileResource::class.java, ServiceUrlResolver.getEndpointUrl("filestore"))
                 bindTo(MongoDatabase::class.java,
                         KMongo.createClient(ConnectionString(AppConfig.instance["database.url"]))
-                                .getDatabase(AppConfig.instance["name"] + "-" + AppConfig.instance["namespace"]))
+                                .getDatabase(AppConfig.instance["name"] + "-" + "-" + AppConfig.instance.get("dsuffix", AppConfig.instance["namespace"])))
                 bindTo(PortService::class.java)
                 bindTo(CoreResource::class.java, ServiceUrlResolver.getEndpointUrl("core"))
             }
