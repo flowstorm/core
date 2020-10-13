@@ -16,4 +16,7 @@ object ObjectUtil {
             .registerModule(JavaTimeModule())
             .setDateFormat(SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ"))
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            .apply {
+                setConfig(getSerializationConfig().withView(Any::class.java))
+            }
 }
