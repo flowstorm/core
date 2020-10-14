@@ -2,11 +2,11 @@ package com.promethist.client
 
 import java.util.*
 
-class OutputQueue(val botClient: BotClient) : LinkedList<OutputQueue.Item>(), Runnable {
+class OutputQueue(val client: BotClient) : Runnable {
 
     open class Item(val type: Type) {
 
-        enum class Type { Server, Local }
+        enum class Type { Server, Client }
 
         class Text(val text: String, type: Type = Type.Server) : Item(type)
         class Audio(val data: ByteArray, type: Type = Type.Server) : Item(type)
@@ -15,38 +15,39 @@ class OutputQueue(val botClient: BotClient) : LinkedList<OutputQueue.Item>(), Ru
 
     var suspended = false
     var running = false
+    private val items = LinkedList<Item>()
 
     override fun run() {
         running = true
         while (running) {
-            if (isNotEmpty() && !suspended) {
-                val item = remove()
-                with (botClient) {
+            if (items.isNotEmpty() && !suspended) {
+                with (client) {
+                    val item = items.remove()
                     when (item) {
                         is Item.Text -> text(item.text)
                         is Item.Audio -> audio(item.data)
                         is Item.Image -> image(item.url)
                     }
-                    if (isEmpty()) {
-                        if (!outputCancelled && (state != BotClient.State.Sleeping) && (item.type == Item.Type.Server)) {
+                    if (items.isEmpty()) {
+                        if ((state == BotClient.State.Responding) && (item.type == Item.Type.Server)) {
                             inputAudioStreamOpen()
-                        } else if (state == BotClient.State.Sleeping && (botClient.context.sessionId == null)) {
-                            botClient.inputAudioRecorder?.stop()
+                        } else if (state == BotClient.State.Sleeping && (context.sessionId == null)) {
+                            inputAudioRecorder?.stop()
                         }
                     }
                 }
             } else {
                 Thread.sleep(50)
             }
-            if (botClient.outputCancelled) {
-                synchronized (this) {
-                    botClient.outputCancelled = false
-                    for (item in LinkedList(this))
-                        if (item.type == Item.Type.Server)
-                            remove(item)
-                }
-            }
         }
+    }
+
+    fun add(item: Item) = items.add(item)
+
+    fun clear(type: Item.Type? = null) = synchronized (items) {
+        for (item in LinkedList(items))
+            if (type == null || type == item.type)
+                items.remove(item)
     }
 
     fun close() {

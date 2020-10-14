@@ -34,6 +34,8 @@ interface BotClientCallback {
 
     fun audio(client: BotClient, data: ByteArray)
 
+    fun audioCancel()
+
     fun image(client: BotClient, url: String)
 
     fun video(client: BotClient, url: String)

@@ -50,8 +50,7 @@ class BotClient(
     val outputQueue = OutputQueue(this).apply {
         Thread(this).start()
     }
-    var outputCancelled = false
-    private var builtinAudioData = mutableMapOf<String, ByteArray>()
+    private var builtinAudioData = mutableMapOf<String, ByteArray?>()
     private var lastTime = System.currentTimeMillis()
     private var lastStateDuration = 0L
     private var waking = false
@@ -72,21 +71,6 @@ class BotClient(
         }
     private val logger by LoggerDelegate()
     private var lostThread: LazyThread? = null
-    init {
-        listOf(
-                "cs/error",
-                "en/error",
-                "cs/bot_ready",
-                "en/bot_ready",
-                "cs/connection_lost",
-                "en/connection_lost",
-                "in",
-                "out",
-                "wait"
-        ).forEach {
-            builtinAudioData[it] = javaClass.getResourceAsStream("/audio/$it.mp3").readBytes()
-        }
-    }
 
     fun open() {
         logger.info("open()")
@@ -137,7 +121,8 @@ class BotClient(
     }
 
     private fun outputAudioPlayCancel() {
-        outputCancelled = true
+        outputQueue.clear(OutputQueue.Item.Type.Server)
+        callback.audioCancel()
     }
 
     override fun onEvent(event: BotEvent) {
@@ -188,12 +173,14 @@ class BotClient(
     private fun onSessionEnded() {
         logger.info("onSessionEnded()")
         inputAudioStreamClose(false)
+        builtinAudio("sleep")
         context.sessionId = null
         callback.onSessionId(this, context.sessionId)
         state = State.Sleeping
     }
 
     private fun onResponse(response: Response) {
+        outputAudioPlayCancel()
         if (response.logs.isNotEmpty())
             callback.onLog(this, response.logs)
 
@@ -230,7 +217,8 @@ class BotClient(
         logger.info("onRecognized(text = $text)")
         callback.onRecognized(this, text)
         outputAudioPlayCancel()
-        builtinAudio("out")
+        builtinAudio("recognized")
+        builtinAudio("waiting", OutputQueue.Item.Type.Server)
         state = State.Processing
         if (sttMode != SttConfig.Mode.Duplex)
            inputAudioStreamClose()
@@ -303,16 +291,19 @@ class BotClient(
         state = State.Failed
     }
 
-    fun builtinAudio(name: String) {
-        outputQueue.add(OutputQueue.Item.Audio(builtinAudioData[name]
-                ?: error("missing builtin audio $name"), OutputQueue.Item.Type.Local))
-    }
+    private fun builtinAudio(name: String, type: OutputQueue.Item.Type = OutputQueue.Item.Type.Client) =
+            outputQueue.add(OutputQueue.Item.Audio(builtinAudioData.getOrPut(name) {
+                if (name.endsWith("/bot_ready") || name.endsWith("/connection_lost") || name.endsWith("/error"))
+                    javaClass.getResourceAsStream("/audio/$name.mp3").readBytes()
+                else
+                    callback.httpRequest(this, "https://repository.promethist.ai/audio/client/$name.mp3")
+            } ?: error("missing builtin audio $name"), type))
 
     fun inputAudioStreamOpen() {
         if (inputAudioDevice != null) {
             logger.info("inputAudioStreamOpen()")
             if (!inputAudioStreamOpen) {
-                builtinAudio("in")
+                builtinAudio("listening")
                 state = State.Listening
                 inputAudioQueue.clear()
                 inputAudioDevice.start()
@@ -348,7 +339,7 @@ class BotClient(
     }
 
     private fun doIntro() {
-        builtinAudio("wait")
+        builtinAudio("intro")
         doText(context.introText)
     }
 

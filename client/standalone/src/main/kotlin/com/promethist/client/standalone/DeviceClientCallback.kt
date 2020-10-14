@@ -26,6 +26,7 @@ open class DeviceClientCallback(
 ) : BotClientCallback {
 
     private var jarUpdater: JarUpdater? = null
+    private var audioCancelled = false
     private val logger by LoggerDelegate()
 
     override fun onOpen(client: BotClient) {
@@ -108,8 +109,9 @@ open class DeviceClientCallback(
 
     override fun audio(client: BotClient, data: ByteArray) {
         if (!noOutputAudio) {
+            audioCancelled = false
             val player = Player(ByteArrayInputStream(data))
-            while (!player.isComplete && !client.outputCancelled) {
+            while (!player.isComplete && !audioCancelled) {
                 while (client.state == BotClient.State.Paused) {
                     Thread.sleep(20)
                 }
@@ -117,6 +119,10 @@ open class DeviceClientCallback(
             }
             player.close()
         }
+    }
+
+    override fun audioCancel() {
+       audioCancelled = true
     }
 
     override fun image(client: BotClient, url: String) {
