@@ -166,6 +166,10 @@ class DialogueManager : Component {
                         break@loop
                     }
                     is AbstractDialogue.Sleep -> {
+                        frame.copy(nodeId = node.id).let {
+                            turn.endFrame = it
+                            session.dialogueStack.push(it)
+                        }
                         sleepTimeout = node.timeout
                         break@loop
                     }
@@ -206,6 +210,9 @@ class DialogueManager : Component {
                                 } else {
                                     turn.addResponseItem(text, image = node.image, audio = node.audio, video = node.video, background = background, repeatable = node.isRepeatable)
                                 }
+                            }
+                            is AbstractDialogue.Command -> {
+                                turn.addResponseItem('#' + node.command, code = node.code)
                             }
                             is AbstractDialogue.GlobalIntent, is AbstractDialogue.GlobalAction -> {
                                 if (session.turns.isNotEmpty()) //it is empty only when GlobalIntent/Action is reached in first turn(UInput right after start)

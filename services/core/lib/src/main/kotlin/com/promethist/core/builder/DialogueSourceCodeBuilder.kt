@@ -58,6 +58,7 @@ class DialogueSourceCodeBuilder(val dialogueId: String, val buildId: String, val
         writeInit()
 
         goBacks.forEach { write(it) }
+        sleeps.forEach { write(it) }
         globalIntents.forEach { write(it) }
         intents.forEach { write(it) }
         actions.forEach { write(it) }
@@ -66,6 +67,7 @@ class DialogueSourceCodeBuilder(val dialogueId: String, val buildId: String, val
         speeches.forEach { write(it) }
         images.forEach { write(it) }
         sounds.forEach { write(it) }
+        commands.forEach { write(it) }
         functions.forEach { write(it) }
         subDialogues.forEach { write(it) }
 
@@ -86,9 +88,11 @@ class DialogueSourceCodeBuilder(val dialogueId: String, val buildId: String, val
     private val speeches = mutableListOf<Speech>()
     private val sounds = mutableListOf<Sound>()
     private val images = mutableListOf<Image>()
+    private val commands = mutableListOf<Command>()
     private val functions = mutableListOf<Function>()
     private val subDialogues = mutableListOf<SubDialogue>()
     private val goBacks = mutableListOf<GoBack>()
+    private val sleeps = mutableListOf<Sleep>()
     private val actions = mutableListOf<Action>()
     private val globalActions = mutableListOf<GlobalAction>()
     private val transitions = mutableMapOf<String, String>()
@@ -101,9 +105,11 @@ class DialogueSourceCodeBuilder(val dialogueId: String, val buildId: String, val
     data class Speech(val nodeId: Int, val nodeName: String, val background: String? = null, val repeatable: Boolean, val texts: List<String>) : Node
     data class Sound(val nodeId: Int, val nodeName: String, val source: String, val repeatable: Boolean) : Node
     data class Image(val nodeId: Int, val nodeName: String, val source: String) : Node
+    data class Command(val nodeId: Int, val nodeName: String, val command: String, val code: CharSequence) : Node
     data class Function(val nodeId: Int, val nodeName: String, val transitions: Map<String, String>, val code: CharSequence) : Node
     data class SubDialogue(val nodeId: Int, val nodeName: String, val subDialogueId: String, val code: CharSequence = "") : Node
     data class GoBack(val nodeId: Int, val nodeName: String, val repeat: Boolean) : Node
+    data class Sleep(val nodeId: Int, val nodeName: String, val timeout: Int) : Node
     data class Action(val nodeId: Int, val nodeName: String, val action: String) : Node
     data class GlobalAction(val nodeId: Int, val nodeName: String, val action: String) : Node
 
@@ -113,9 +119,11 @@ class DialogueSourceCodeBuilder(val dialogueId: String, val buildId: String, val
     fun addNode(node: Speech) = speeches.add(node)
     fun addNode(node: Image) = images.add(node)
     fun addNode(node: Sound) = sounds.add(node)
+    fun addNode(node: Command) = commands.add(node)
     fun addNode(node: Function) = functions.add(node)
     fun addNode(node: SubDialogue) = subDialogues.add(node)
     fun addNode(node: GoBack) = goBacks.add(node)
+    fun addNode(node: Sleep) = sleeps.add(node)
     fun addNode(node: Action) = actions.add(node)
     fun addNode(node: GlobalAction) = globalActions.add(node)
     fun addTransition(transition: Pair<String, String>) = transitions.put(transition.first, transition.second)
@@ -195,6 +203,10 @@ class DialogueSourceCodeBuilder(val dialogueId: String, val buildId: String, val
 
     private fun write(goBack: GoBack) = with(goBack) {
         source.appendln("\tval $nodeName = GoBack($nodeId, $repeat)")
+    }
+
+    private fun write(sleep: Sleep) = with(sleep) {
+        source.appendln("\tval $nodeName = Sleep($nodeId, $timeout)")
     }
 
     private fun write(intent: Intent) = with(intent) {
@@ -277,6 +289,10 @@ class DialogueSourceCodeBuilder(val dialogueId: String, val buildId: String, val
 
     private fun write(sound: Sound) = with(sound) {
         this@DialogueSourceCodeBuilder.source.appendln("\tval $nodeName = Response($nodeId, audio = \"${source}\", isRepeatable = ${sound.repeatable})")
+    }
+
+    private fun write(command: Command) = with(command) {
+        this@DialogueSourceCodeBuilder.source.appendln("\tval $nodeName = Command($nodeId, \"$nodeName\", \"${this.command}\", \"\"\"${code}\"\"\")")
     }
 
     private fun write(function: Function) = with(function) {

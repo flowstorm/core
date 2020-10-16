@@ -164,6 +164,15 @@ abstract class AbstractDialogue : DialogueModel {
                 run(context, this) { lambda(context, this) } as Transition
     }
 
+    open inner class Command(
+            id: Int,
+            open val name: String,
+            open val command: String,
+            open val code: String
+    ): TransitNode(id) {
+        constructor(name: String, command: String, code: String) : this(nextId--, name, command, code)
+    }
+
     inner class SubDialogue(
             id: Int,
             val dialogueId: String,
@@ -183,7 +192,7 @@ abstract class AbstractDialogue : DialogueModel {
 
     inner class StopSession(id: Int) : Node(id)
 
-    inner class Sleep(id: Int, val timeout: Int = 60) : Node(id)
+    inner class Sleep(id: Int, val timeout: Int = 60) : TransitNode(id)
 
     val dialogueNameWithoutVersion get() = with (dialogueName) {
         if (count { it == '/' } > 1)
@@ -213,6 +222,8 @@ abstract class AbstractDialogue : DialogueModel {
     val responses: List<Response> get() = nodes.filterIsInstance<Response>()
 
     val functions: List<Function> get() = nodes.filterIsInstance<Function>()
+
+    val commands: List<Command> get() = nodes.filterIsInstance<Command>()
 
     val subDialogues: List<SubDialogue> get() = nodes.filterIsInstance<SubDialogue>()
 
