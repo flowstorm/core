@@ -58,7 +58,7 @@ open class Memory<V: Any>(
             touch()
             _value = value
         }
-    var time = DateTime.now()
+    var time: DateTime = DateTime.now()
     var count = 0
     var location: Location? = null
 

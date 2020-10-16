@@ -8,7 +8,7 @@ import kotlin.reflect.KProperty
 class NamedEntitySetAttributeDelegate<E: NamedEntity>(
         val entities: Collection<E>,
         scope: ContextualAttributeDelegate.Scope,
-        namespace: (() -> String)? = null
+        namespace: (() -> String)
 ) {
     private val attributeDelegate = ContextualAttributeDelegate(scope, StringMutableSet::class, namespace) { StringMutableSet() }
 

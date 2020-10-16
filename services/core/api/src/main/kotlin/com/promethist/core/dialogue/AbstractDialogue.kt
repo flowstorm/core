@@ -25,7 +25,7 @@ abstract class AbstractDialogue : DialogueModel {
     open val voice = Voice.Grace
     val locale by lazy { Locale(language) }
 
-    abstract val clientLocation: Location?
+    abstract val clientLocation: Location
 
     //runtime dependencies
     lateinit var loader: Loader

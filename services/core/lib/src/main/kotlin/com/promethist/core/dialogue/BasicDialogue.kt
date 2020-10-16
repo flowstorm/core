@@ -51,14 +51,14 @@ abstract class BasicDialogue : AbstractDialogue() {
             this >= today + range.first.day && this < today + range.last.day + 1.day
     infix fun DateTime.isDay(day: Int) = this isDay day..day
 
-    override var clientLocation by client { Location() }
-    var clientType by client { "unknown" }
-    var clientScreen by client { false }
-    var clientTemperature by client { -273.15 }
-    var clientAmbientLight by client { 0.0 }
-    var clientSpatialMotion by client { 0.0 }
-    var clientSpeechAngle by client { -1 }
-    var clientSpeechDetected by client { false }
+    override val clientLocation by client { Location() }
+    val clientType by client { "unknown" }
+    val clientScreen by client { false }
+    val clientTemperature by client { -273.15 }
+    val clientAmbientLight by client { 0.0 }
+    val clientSpatialMotion by client { 0.0 }
+    val clientSpeechAngle by client { -1 }
+    val clientSpeechDetected by client { false }
     val clientSpeechDirection get() = clientSpeechAngle.let {
         when (it) {
             in 0..21 -> SpeechDirection.Right
@@ -101,23 +101,31 @@ abstract class BasicDialogue : AbstractDialogue() {
     inline fun <reified V: Any> temp(noinline default: (Context.() -> V)? = null) = TempAttributeDelegate(default)
 
     inline fun <reified V: Any> turn(namespace: String? = null, noinline default: (Context.() -> V)) =
-            ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.Turn, V::class, { namespace ?: dialogueNameWithoutVersion }, default)
+            ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.Turn, V::class, { namespace ?: dialogueNameWithoutVersion }, null, default)
 
     inline fun <reified V: Any> session(namespace: String? = null, noinline default: (Context.() -> V)) =
-            ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.Session, V::class, { namespace ?: dialogueNameWithoutVersion }, default)
+            ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.Session, V::class, { namespace ?: dialogueNameWithoutVersion }, null, default)
 
-    inline fun <reified V: Any> client(noinline default: (Context.() -> V)) =
-            ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.Session, V::class, { defaultNamespace }, default)
+    inline fun <reified V: Any> client(expiration: DateTimeUnit, noinline default: (Context.() -> V)) =
+            ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.Session, V::class, { defaultNamespace }, expiration, default)
 
-    inline fun <reified V: Any> user(namespace: String? = null, localize: Boolean = false, noinline default: (Context.() -> V)) =
+    inline fun <reified V: Any> client(noinline default: (Context.() -> V)) = client(1.hour, default)
+
+    inline fun <reified V: Any> user(namespace: String? = null, localize: Boolean = false, expiration: DateTimeUnit? = null, noinline default: (Context.() -> V)) =
             ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.User, V::class, {
                 (namespace ?: dialogueNameWithoutVersion) + (if (localize) "/$language" else "")
-            }, default)
+            }, expiration, default)
 
-    inline fun <reified V: Any> community(communityName: String, namespace: String? = null, localize: Boolean = false, noinline default: (Context.() -> V)) =
+    inline fun <reified V: Any> user(namespace: String? = null, localize: Boolean = false, noinline default: (Context.() -> V)) =
+            user(namespace, localize, null, default)
+
+    inline fun <reified V: Any> community(communityName: String, namespace: String? = null, localize: Boolean = false, expiration: DateTimeUnit? = null, noinline default: (Context.() -> V)) =
             CommunityAttributeDelegate(V::class, communityName, {
                 (namespace ?: dialogueNameWithoutVersion) + (if (localize) "/$language" else "")
-            }, default)
+            }, expiration, default)
+
+    inline fun <reified V: Any> community(communityName: String, namespace: String? = null, localize: Boolean = false, noinline default: (Context.() -> V)) =
+            community(communityName, namespace, localize, null, default)
 
     inline fun sessionSequence(list: List<String>, namespace: String? = null, noinline nextValue: (SequenceAttribute<String, String>.() -> String?) = { nextRandom() }) =
             StringSequenceAttributeDelegate(list, ContextualAttributeDelegate.Scope.Session, { namespace ?: dialogueNameWithoutVersion }, nextValue)
@@ -161,19 +169,19 @@ abstract class BasicDialogue : AbstractDialogue() {
     // deprecated delegates with *Attribute suffix in name
     @Deprecated("Use turn instead", replaceWith = ReplaceWith("turn"))
     inline fun <reified V: Any> turnAttribute(namespace: String? = null, noinline default: (Context.() -> V)) =
-            ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.Turn, V::class, { namespace ?: dialogueNameWithoutVersion }, default)
+            ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.Turn, V::class, { namespace ?: dialogueNameWithoutVersion }, null, default)
 
     @Deprecated("Use session instead", replaceWith = ReplaceWith("session"))
     inline fun <reified V: Any> sessionAttribute(namespace: String? = null, noinline default: (Context.() -> V)) =
-            ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.Session, V::class, { namespace ?: dialogueNameWithoutVersion }, default)
+            ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.Session, V::class, { namespace ?: dialogueNameWithoutVersion }, null, default)
 
     @Deprecated("Use user instead", replaceWith = ReplaceWith("user"))
     inline fun <reified V: Any> userAttribute(namespace: String? = null, noinline default: (Context.() -> V)) =
-            ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.User, V::class, { namespace ?: dialogueNameWithoutVersion }, default)
+            ContextualAttributeDelegate(ContextualAttributeDelegate.Scope.User, V::class, { namespace ?: dialogueNameWithoutVersion }, null, default)
 
     @Deprecated("Use community instead", replaceWith = ReplaceWith("community"))
     inline fun <reified V: Any> communityAttribute(communityName: String, namespace: String? = null, noinline default: (Context.() -> V)) =
-            CommunityAttributeDelegate(V::class, communityName, { namespace?:dialogueNameWithoutVersion }, default)
+            CommunityAttributeDelegate(V::class, communityName, { namespace?:dialogueNameWithoutVersion }, null, default)
 
     @Deprecated("Use sessionSequence instead", replaceWith = ReplaceWith("sessionSequence"))
     inline fun sessionSequenceAttribute(list: List<String>, namespace: String? = null, noinline nextValue: (SequenceAttribute<String, String>.() -> String?) = { nextRandom() }) =

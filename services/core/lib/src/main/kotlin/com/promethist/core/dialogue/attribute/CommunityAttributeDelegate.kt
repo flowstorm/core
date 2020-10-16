@@ -2,15 +2,17 @@ package com.promethist.core.dialogue.attribute
 
 import com.promethist.core.Context
 import com.promethist.core.dialogue.AbstractDialogue
+import com.promethist.core.dialogue.DateTimeUnit
 import com.promethist.core.model.Community
 import kotlin.reflect.KClass
 
 class CommunityAttributeDelegate<V: Any>(
         clazz: KClass<*>,
         private val communityName: String,
-        namespace: (() -> String)? = null,
+        namespace: (() -> String),
+        expiration: DateTimeUnit? = null,
         default: (Context.() -> V)
-) : AttributeDelegate<V>(clazz, namespace, default) {
+) : AttributeDelegate<V>(clazz, namespace, expiration, default) {
 
     private val community get() = with (AbstractDialogue.run.context) {
         communities.getOrPut(communityName) {

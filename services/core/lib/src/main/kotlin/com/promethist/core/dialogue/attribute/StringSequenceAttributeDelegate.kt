@@ -7,7 +7,7 @@ import kotlin.reflect.KProperty
 class StringSequenceAttributeDelegate(
         private val entities: List<String>,
         scope: ContextualAttributeDelegate.Scope,
-        namespace: (() -> String)? = null,
+        namespace: (() -> String),
         val nextValue: (SequenceAttribute<String, String>.() -> String?)
 ) {
     private val attributeDelegate = ContextualAttributeDelegate(scope, MemoryMutableSet::class, namespace) { MemoryMutableSet<String>() }

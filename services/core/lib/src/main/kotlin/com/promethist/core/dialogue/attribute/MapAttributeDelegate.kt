@@ -7,7 +7,7 @@ import kotlin.reflect.KProperty
 class MapAttributeDelegate<E : Any>(
         val entities: Map<String, E>,
         scope: ContextualAttributeDelegate.Scope,
-        namespace: (() -> String)? = null
+        namespace: (() -> String)
 ) {
     interface KeyMap<E> : MutableMap<String, E> {
         fun put(key: String): E?

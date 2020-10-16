@@ -3,13 +3,21 @@ package com.promethist.core.dialogue.attribute
 import kotlin.reflect.KClass
 import com.promethist.core.Context
 import com.promethist.core.dialogue.AbstractDialogue
+import com.promethist.core.dialogue.DateTimeUnit
 
 class ContextualAttributeDelegate<V: Any>(
         private val scope: Scope,
         clazz: KClass<*>,
-        namespace: (() -> String)? = null,
+        namespace: (() -> String),
+        expiration: DateTimeUnit? = null,
         default: (Context.() -> V)
-) : AttributeDelegate<V>(clazz, namespace, default) {
+) : AttributeDelegate<V>(clazz, namespace, expiration, default) {
+
+    // constructor for previously built models compatibility
+    constructor(scope: Scope,
+                clazz: KClass<*>,
+                namespace: (() -> String),
+                default: (Context.() -> V)) : this(scope, clazz, namespace, null, default)
 
     enum class Scope { Turn, Session, User }
 
