@@ -5,4 +5,8 @@ target
 hs_*.log
 venv
 .DS_Store
+<<<<<<< HEAD
 client/custom
+=======
+client/custom/*
+>>>>>>> update .gitignore
