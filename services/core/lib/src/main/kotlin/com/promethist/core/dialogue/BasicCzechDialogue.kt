@@ -34,7 +34,7 @@ abstract class BasicCzechDialogue : BasicDialogue() {
     val _basicVolumeDownResponse = Response(_basicId++, false, { "snižuji hlasitost" })
 
     val _basicLogApplicationErrorGlobalIntent = GlobalIntent(_basicId++, "basicLogApplicationErrorGlobalIntent", 0.99F, "chyba aplikace", "problém aplikace")
-    val _basicLogApplicationErrorResponse1 = Response(_basicId++, {"O co jde?"})
+    val _basicLogApplicationErrorResponse1 = Response(_basicId++, { "O co jde?" })
     val _basicLogApplicationErrorResponse2 = Response(_basicId++, false, { "Díky, pojďme zpátky." })
     val _basicLogApplicationErrorUserInput = UserInput(_basicId++, arrayOf(), arrayOf()) {
         val transition = Transition(_basicLogApplicationErrorResponse2)
@@ -43,7 +43,7 @@ abstract class BasicCzechDialogue : BasicDialogue() {
     }
 
     val _basicLogApplicationCommentGlobalIntent = GlobalIntent(_basicId++, "basicLogApplicationCommentGlobalIntent", 0.99F, "komentář aplikace")
-    val _basicLogApplicationCommentResponse1 = Response(_basicId++, {"O co jde?"})
+    val _basicLogApplicationCommentResponse1 = Response(_basicId++, { "O co jde?" })
     val _basicLogApplicationCommentResponse2 = Response(_basicId++, false, { "Díky, pojďme zpátky." })
     val _basicLogApplicationCommentUserInput = UserInput(_basicId++, arrayOf(), arrayOf()) {
         val transition = Transition(_basicLogApplicationCommentResponse2)
