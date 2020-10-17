@@ -166,7 +166,7 @@ class DialogueManager : Component {
                         break@loop
                     }
                     is AbstractDialogue.Sleep -> {
-                        frame.copy(nodeId = node.id).let {
+                        frame.copy(nodeId = node.next.id).let {
                             turn.endFrame = it
                             session.dialogueStack.push(it)
                         }
@@ -205,16 +205,17 @@ class DialogueManager : Component {
                                 val background = node.dialogue.background ?: node.background
                                 if (node.dialogue is BasicDialogue) {
                                     AbstractDialogue.run(context, node) {
-                                        (node.dialogue as BasicDialogue).addResponseItem(text, image = node.image, audio = node.audio, video = node.video, background = background, repeatable = node.isRepeatable)
+                                        (node.dialogue as BasicDialogue).addResponseItem(text, image = node.image, audio = node.audio, video = node.video, code = node.code, background = background, repeatable = node.isRepeatable)
                                     }
                                 } else {
-                                    turn.addResponseItem(text, image = node.image, audio = node.audio, video = node.video, background = background, repeatable = node.isRepeatable)
+                                    turn.addResponseItem(text, image = node.image, audio = node.audio, video = node.video, code = node.code, background = background, repeatable = node.isRepeatable)
                                 }
                             }
                             is AbstractDialogue.Command -> {
-                                turn.addResponseItem('#' + node.command, code = node.code)
+                                turn.addResponseItem('#' + node.command, code = node.code, repeatable = false)
                             }
-                            is AbstractDialogue.GlobalIntent, is AbstractDialogue.GlobalAction -> {
+                            is AbstractDialogue.GlobalIntent,
+                            is AbstractDialogue.GlobalAction -> {
                                 if (session.turns.isNotEmpty()) //it is empty only when GlobalIntent/Action is reached in first turn(UInput right after start)
                                     session.dialogueStack.push(session.turns.last().endFrame)
                             }

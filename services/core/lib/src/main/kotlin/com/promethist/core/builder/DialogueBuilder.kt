@@ -31,19 +31,19 @@ class DialogueBuilder(
 
     private val logger by LoggerDelegate()
 
-    private val version = "undefined"
+    //private val version = "undefined"
 
-    fun create(dialogueId: String, dialogueName: String): Builder = Builder(dialogueId, dialogueName)
+    fun create(dialogueId: String, dialogueName: String, version: Int): Builder = Builder(dialogueId, dialogueName, version)
 
     interface Resource {
         val filename: String
         val stream: InputStream
     }
 
-    inner class Builder(val dialogueId: String, val dialogueName: String) {
+    inner class Builder(val dialogueId: String, val dialogueName: String, val version: Int) {
 
         val buildId = "id" + md5(random.nextLong().toString())
-        val source = DialogueSourceCodeBuilder(dialogueId, buildId, dialogueName)
+        val source = DialogueSourceCodeBuilder(dialogueId, buildId, dialogueName, version)
         var oodExamples = listOf<DialogueSourceCodeBuilder.GlobalIntent>()
         val classFiles = mutableListOf<File>()
         val resources: MutableList<Resource> = mutableListOf()

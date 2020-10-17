@@ -24,8 +24,6 @@ interface BotClientCallback {
 
     fun onBotStateChange(client: BotClient, newState: BotClient.State)
 
-    fun onVolumeChange(client: BotClient, volume: BotClient.Volume)
-
     fun onWakeWord(client: BotClient)
 
     // content operations
@@ -39,6 +37,8 @@ interface BotClientCallback {
     fun image(client: BotClient, url: String)
 
     fun video(client: BotClient, url: String)
+
+    fun command(client: BotClient, command: String, code: String?)
 
     fun httpRequest(client: BotClient, url: String, request: HttpRequest? = null): ByteArray?
 }

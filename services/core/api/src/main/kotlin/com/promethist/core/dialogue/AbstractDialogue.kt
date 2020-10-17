@@ -135,13 +135,14 @@ abstract class AbstractDialogue : DialogueModel {
             val image: String? = null,
             val audio: String? = null,
             val video: String? = null,
+            val code: String? = null,
             vararg text: (Context.(Response) -> String)
     ): TransitNode(id) {
         val texts = text
 
-        constructor(id: Int, isRepeatable: Boolean, background: String?, vararg text: (Context.(Response) -> String)) : this(id, isRepeatable, background, null, null, null, *text)
+        constructor(id: Int, isRepeatable: Boolean, background: String?, vararg text: (Context.(Response) -> String)) : this(id, isRepeatable, background, null, null, null, null, *text)
 
-        constructor(id: Int, isRepeatable: Boolean, vararg text: (Context.(Response) -> String)) : this(id, isRepeatable, null, null, null, null, *text)
+        constructor(id: Int, isRepeatable: Boolean, vararg text: (Context.(Response) -> String)) : this(id, isRepeatable, null, null, null, null, null, *text)
 
         constructor(id: Int, vararg text: (Context.(Response) -> String)) : this(id, true, *text)
 
@@ -166,11 +167,10 @@ abstract class AbstractDialogue : DialogueModel {
 
     open inner class Command(
             id: Int,
-            open val name: String,
             open val command: String,
             open val code: String
     ): TransitNode(id) {
-        constructor(name: String, command: String, code: String) : this(nextId--, name, command, code)
+        constructor(command: String, code: String) : this(nextId--, command, code)
     }
 
     inner class SubDialogue(
@@ -207,7 +207,7 @@ abstract class AbstractDialogue : DialogueModel {
     @Deprecated("Use dialogueNameWithoutVersion instead", ReplaceWith("dialogueNameWithoutVersion"))
     val nameWithoutVersion get() = dialogueNameWithoutVersion
 
-    val version get() = dialogueName.substringAfterLast("/").toInt()
+    open val version = 0
 
     val intents: List<Intent> get() = nodes.filterIsInstance<Intent>()
 
@@ -259,7 +259,7 @@ abstract class AbstractDialogue : DialogueModel {
 
     class Run(val node: Node, val context: Context)
 
-    class DialogueScriptException(node: Node, cause: Throwable) : Throwable("DialogueScript failed at ${node.dialogue.dialogueName}#${node.id}", cause)
+    class DialogueScriptException(node: Node, cause: Throwable) : Throwable("DialogueScript failed at ${node.dialogue.dialogueName}:${node.dialogue.version}#${node.id}", cause)
 
     companion object {
 

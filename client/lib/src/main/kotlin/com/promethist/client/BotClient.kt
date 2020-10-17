@@ -25,7 +25,6 @@ class BotClient(
 ) : BotSocket.Listener {
 
     enum class State { Listening, Processing, Responding, Paused, Sleeping, Open, Closed, Failed }
-    enum class Volume { _up, _down, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10 }
 
     abstract class LazyThread(val delay: Int) : Thread() {
         var running = false
@@ -195,10 +194,9 @@ class BotClient(
         outputQueue.suspended = true
         try {
             for (item in response.items) {
-                val text = (item.text ?: "").replace(Regex("\\$(\\w+)")) {
+                val text = (item.text ?: "").replace(Regex("\\#([a-zA-Z_]+)")) {
                     val command = it.groupValues[1]
-                    if (command.startsWith("volume_"))
-                        callback.onVolumeChange(this, Volume.valueOf(command.substring(6)))
+                    callback.command(this, command, item.code)
                     ""
                 }.trim()
                 if (text.isNotEmpty()) {

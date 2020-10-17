@@ -12,7 +12,7 @@ import java.net.URL
 import java.nio.charset.StandardCharsets
 import java.time.LocalDateTime
 
-class DialogueSourceCodeBuilder(val dialogueId: String, val buildId: String, val name: String) {
+class DialogueSourceCodeBuilder(val dialogueId: String, val buildId: String, val name: String, val version: Int) {
 
     // builder configuration:
     var parameters: PropertyMap = mapOf()
@@ -146,6 +146,7 @@ class DialogueSourceCodeBuilder(val dialogueId: String, val buildId: String, val
         source.appendln("\toverride val dialogueId = \"$dialogueId\"")
         source.appendln("\toverride val buildId = \"$buildId\"")
         source.appendln("\toverride val dialogueName = \"$name\"")
+        source.appendln("\toverride val version = $version")
 
         properties.forEach {
             val className = it.value::class.simpleName
@@ -292,7 +293,7 @@ class DialogueSourceCodeBuilder(val dialogueId: String, val buildId: String, val
     }
 
     private fun write(command: Command) = with(command) {
-        this@DialogueSourceCodeBuilder.source.appendln("\tval $nodeName = Command($nodeId, \"$nodeName\", \"${this.command}\", \"\"\"${code}\"\"\")")
+        this@DialogueSourceCodeBuilder.source.appendln("\tval $nodeName = Command($nodeId, \"${this.command}\", \"\"\"${code}\"\"\")")
     }
 
     private fun write(function: Function) = with(function) {

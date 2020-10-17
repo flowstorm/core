@@ -94,15 +94,6 @@ open class DeviceClientCallback(
         jarUpdater?.allowed = (newState == BotClient.State.Sleeping)
     }
 
-    override fun onVolumeChange(client: BotClient, volume: BotClient.Volume) {
-        val value = OutputAudioDevice.volume(outputPortName, when (volume) {
-            BotClient.Volume._up -> OutputAudioDevice.VOLUME_UP
-            BotClient.Volume._down -> OutputAudioDevice.VOLUME_DOWN
-            else -> volume.toString().substring(1).toInt()
-        })
-        output.println("{Volume${volume}:${value}}")
-    }
-
     override fun onWakeWord(client: BotClient) {
         output.println("{Wake word detected}")
     }
@@ -137,6 +128,22 @@ open class DeviceClientCallback(
             Screen.instance?.viewMedia(url)
         }
         output.println("{Video $url}")
+    }
+
+    override fun command(client: BotClient, command: String, code: String?) {
+        output.println("{Command $command $code}")
+        if (command.startsWith("volume")) {
+            with (OutputAudioDevice) {
+                val value = volume(outputPortName,
+                    when {
+                        code?.equals("up", true) == true -> VOLUME_UP
+                        code?.equals("down", true) == true -> VOLUME_DOWN
+                        else -> code?.toInt() ?: 7
+                    }
+                )
+                output.println("{Volume $value}")
+            }
+        }
     }
 
     override fun httpRequest(client: BotClient, url: String, request: HttpRequest?): ByteArray? = HttpUtil.httpRequest(url, request, !noCache)
