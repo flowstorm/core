@@ -3,11 +3,12 @@ package com.promethist.port.resources
 import com.promethist.core.Request
 import com.promethist.core.Response
 import com.promethist.core.resources.CoreResource
-import com.promethist.port.PortService
 import com.promethist.util.LoggerDelegate
-import org.bson.types.ObjectId
+import java.net.HttpURLConnection
+import java.net.URL
 import javax.inject.Inject
 import javax.ws.rs.*
+import javax.ws.rs.core.Response.Status
 import javax.ws.rs.core.Response as JerseyResponse
 import javax.ws.rs.core.StreamingOutput
 
@@ -16,39 +17,40 @@ class PortResourceImpl : PortResource {
 
     private val logger by LoggerDelegate()
 
-    /**
-     * Example of dependency injection
-     * @see com.promethist.port.Application constructor
-     */
     @Inject
     lateinit var coreResource: CoreResource
 
-    @Inject
-    lateinit var dataService: PortService
-
     override fun process(request: Request): Response = coreResource.process(request)
 
-    /*
-    override fun messageQueuePush(appKey: String, message: Message): Boolean {
-        return dataService.pushMessage(appKey, message)
-    }
+    override fun proxyFile(spec: String): JerseyResponse {
+        val url = URL(spec)
+        if (!url.host.endsWith(".rackcdn.com")) {
+            throw WebApplicationException("$spec proxy is forbidden", Status.FORBIDDEN)
+        }
+        val conn = url.openConnection() as HttpURLConnection
+        conn.readTimeout = 10000
+        conn.connectTimeout = 15000
+        conn.doInput = true
+        conn.connect()
+        if (conn.responseCode > 399)
+            throw WebApplicationException(conn.responseMessage, conn.responseCode)
 
-    override fun messageQueuePop(appKey: String, recipient: String, limit: Int): List<Message> {
-        return dataService.popMessages(appKey, recipient, limit)
-    }
-    */
-
-    override fun readFile(id: String): JerseyResponse {
-        val file = dataService.getResourceFile(ObjectId(id))
         return JerseyResponse.ok(
-                    StreamingOutput { output ->
-                        try {
-                            file.download(output)
-                        } catch (e: Exception) {
-                            throw WebApplicationException("File streaming failed", e)
-                        }
-                    }, file.type)
-                .header("Content-Disposition", "inline" + if (file.name == null) "" else "; filename=\"${file.name}\"")
-                .build()
+            StreamingOutput { output ->
+                try {
+                    conn.inputStream.copyTo(output)
+                } catch (e: Exception) {
+                    throw WebApplicationException("$url proxy failed", e)
+                }
+            }
+        ).apply {
+            conn.headerFields.forEach { headerField ->
+                headerField.key?.let { name ->
+                    headerField.value.forEach { value ->
+                        header(name, value)
+                    }
+                }
+            }
+        }.build()
     }
 }

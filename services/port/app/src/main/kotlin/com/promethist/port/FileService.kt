@@ -1,36 +1,16 @@
 package com.promethist.port
 
-import com.mongodb.client.MongoDatabase
-import com.mongodb.client.gridfs.GridFSBuckets
 import com.promethist.common.AppConfig
 import com.promethist.core.resources.FileResource
 import com.promethist.port.tts.TtsRequest
 import com.promethist.port.tts.TtsServiceFactory
 import com.promethist.util.LoggerDelegate
-import org.bson.types.ObjectId
-import org.litote.kmongo.findOneById
 import java.io.*
-import javax.activation.MimetypesFileTypeMap
 import javax.inject.Inject
 import javax.ws.rs.NotFoundException
-import javax.ws.rs.WebApplicationException
-import javax.ws.rs.core.MediaType
-import javax.ws.rs.core.Response
 import kotlin.concurrent.thread
 
-class PortService {
-
-    @Inject
-    lateinit var config: AppConfig
-
-    inner class ResourceFile(val objectId: ObjectId, val type: String, val name: String?) {
-
-        val bucket = GridFSBuckets.create(database)
-
-        fun download(output: OutputStream) = bucket.downloadToStream(objectId, output)
-
-        //fun upload(input: InputStream) = bucket.uploadFromStream(name!!, input)
-    }
+class FileService {
 
     inner class TtsAudio(val ttsRequest: TtsRequest) {
 
@@ -55,42 +35,16 @@ class PortService {
     }
 
     @Inject
-    lateinit var database: MongoDatabase
-
-    @Inject
-    lateinit var filestore: FileResource
-
-    @Inject
-    lateinit var appConfig: AppConfig
+    lateinit var fileResource: FileResource
 
     private val logger by LoggerDelegate()
-
-    private var mediaTypeMap = MimetypesFileTypeMap()
-
-    fun getResourceFile(objectId: ObjectId): ResourceFile {
-        val fileDocument = database.getCollection("fs.files").findOneById(objectId)
-        if (fileDocument != null) {
-            val name = fileDocument["filename"]?.toString()
-            var type =
-                if (name != null)
-                    mediaTypeMap.getContentType(name)
-                else
-                    MediaType.APPLICATION_OCTET_STREAM
-            return ResourceFile(objectId, type, name)
-        } else {
-            throw WebApplicationException("Resource file not found for object id $objectId", Response.Status.NOT_FOUND)
-        }
-    }
-
-    //fun addResourceFile(type: String, name: String, input: InputStream) =
-    //    ResourceFile(null, type, name).upload(input)
 
     /**
      * Saves TTS audio to filestorefor future usage.
      */
     fun saveTtsAudio(code: String, type: String, data: ByteArray, ttsRequest: TtsRequest) {
         logger.info("saveTtsAudio(code = $code, fileType = $type, data[${data.size}])")
-        filestore.writeFile("tts/${ttsRequest.voice}/$code.mp3", type, listOf("text:${ttsRequest.text}"), data.inputStream())
+        fileResource.writeFile("tts/${ttsRequest.voice}/$code.mp3", type, listOf("text:${ttsRequest.text}"), data.inputStream())
     }
 
     /**
@@ -103,10 +57,10 @@ class PortService {
         try {
             if (AppConfig.instance.get("tts.no-cache", "false") == "true")
                 throw NotFoundException("tts.no-cache = true")
-            val ttsFile = filestore.getFile(path)
+            val ttsFile = fileResource.getFile(path)
             logger.info("getTtsAudio[HIT](ttsRequest = $ttsRequest)")
             if (download)
-                audio.data = filestore.readFile(path).readEntity(ByteArray::class.java)
+                audio.data = fileResource.readFile(path).readEntity(ByteArray::class.java)
             audio.path = path
         } catch (e: NotFoundException) {
             logger.info("getTtsAudio[MISS](ttsRequest = $ttsRequest)")

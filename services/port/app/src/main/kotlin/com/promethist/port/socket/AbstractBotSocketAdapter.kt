@@ -16,7 +16,7 @@ import com.promethist.core.model.Voice
 import com.promethist.core.resources.CoreResource
 import com.promethist.core.type.Dynamic
 import com.promethist.core.type.MutablePropertyMap
-import com.promethist.port.PortService
+import com.promethist.port.FileService
 import com.promethist.port.stt.*
 import com.promethist.port.tts.TtsRequest
 import com.promethist.util.LoggerDelegate
@@ -77,7 +77,7 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
     lateinit var coreResource: CoreResource
 
     @Inject
-    lateinit var dataService: PortService
+    lateinit var dataService: FileService
 
     protected val logger by LoggerDelegate()
     abstract var config: BotConfig
