@@ -2259,16 +2259,10 @@
   "head_add_statement": [
     "",
     "",
-    "<prosody pitch=\"+15%\">Oh,</prosody> ",
-    "<prosody pitch=\"+15%\">Oh,</prosody> ",
     "Oh, ",
     "So ",
     "So, ",
-    "<prosody pitch=\"+10%\">Ah,</prosody>",
-    "<prosody pitch=\"+10%\">Ah,</prosody>",
     "Ah, ",
-    "<prosody pitch=\"+3%\" rate=\"75%\">So,</prosody>",
-    "<say-as interpret-as=\"interjection\">Aha,</say-as>(| so) ",
     "Hm, ",
     "Hm, "
   ],
@@ -2281,7 +2275,6 @@
     "Hm, ",
     "Hm, ",
     "Hm, ",
-    "Oh, ",
-    "<prosody pitch=\"+15%\">Oh,</prosody> "
+    "Oh, "
   ]
 }
