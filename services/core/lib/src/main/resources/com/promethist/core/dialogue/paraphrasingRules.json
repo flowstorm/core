@@ -1,0 +1,2287 @@
+{
+  "min_length": 2,
+  "max_length": 7,
+  "must_contain": [
+    "I",
+    "you",
+    "my",
+    "your"
+  ],
+  "replaces": [
+    [
+      "I",
+      "you"
+    ],
+    [
+      "I I",
+      "you"
+    ],
+    [
+      "I I I",
+      "you"
+    ],
+    [
+      "me",
+      "you"
+    ],
+    [
+      "mine",
+      "yours"
+    ],
+    [
+      "my",
+      "your"
+    ],
+    [
+      "you",
+      "I"
+    ],
+    [
+      "you you",
+      "I"
+    ],
+    [
+      "you you you",
+      "I"
+    ],
+    [
+      "your",
+      "my"
+    ],
+    [
+      "yours",
+      "mine"
+    ],
+    [
+      "yourself",
+      "myself"
+    ],
+    [
+      "myself",
+      "yourself"
+    ],
+    [
+      "here",
+      "there"
+    ],
+    [
+      "(|my) dad",
+      "your dad"
+    ],
+    [
+      "(|my) mum",
+      "your mum"
+    ],
+    [
+      "(|my) mum and dad",
+      "your parents"
+    ],
+    [
+      "thanks",
+      "you thank me"
+    ],
+    [
+      "Alexa",
+      " "
+    ],
+    [
+      "shut up",
+      "be quiet"
+    ],
+    [
+      "I wanna you",
+      "you want me"
+    ],
+    [
+      "let's",
+      "we should"
+    ],
+    [
+      "let's let's",
+      "we should"
+    ],
+    [
+      "don't worry about it",
+      "(you think|) I shouldn't worry"
+    ],
+    [
+      "don't worry",
+      "(you think|) I shouldn't worry"
+    ],
+    [
+      "shit",
+      "poo"
+    ],
+    [
+      "I hate you",
+      "you think I'm not 100% lovable"
+    ],
+    [
+      "I really hate you",
+      "you think I'm not 100% lovable"
+    ],
+    [
+      "by you",
+      "by me"
+    ],
+    [
+      "from you",
+      "from me"
+    ],
+    [
+      "at you",
+      "at me"
+    ],
+    [
+      "with you",
+      "with me"
+    ],
+    [
+      "into you",
+      "into me"
+    ],
+    [
+      "including you",
+      "including me"
+    ],
+    [
+      "against you",
+      "against me"
+    ],
+    [
+      "in you",
+      "in me"
+    ],
+    [
+      "on you",
+      "on me"
+    ],
+    [
+      "about you",
+      "about me"
+    ],
+    [
+      "without you",
+      "without me"
+    ],
+    [
+      "above you",
+      "above me"
+    ],
+    [
+      "for you",
+      "for me"
+    ],
+    [
+      "like you",
+      "like me"
+    ],
+    [
+      "of you",
+      "of me"
+    ],
+    [
+      "to you",
+      "to me"
+    ],
+    [
+      "ask you",
+      "ask me"
+    ],
+    [
+      "hate you",
+      "hate me"
+    ],
+    [
+      "tell you",
+      "tell me"
+    ],
+    [
+      "take you",
+      "take me"
+    ],
+    [
+      "bring you",
+      "bring me"
+    ],
+    [
+      "make you",
+      "make me"
+    ],
+    [
+      "bet you",
+      "bet me"
+    ],
+    [
+      "give you",
+      "give me"
+    ],
+    [
+      "get you",
+      "get me"
+    ],
+    [
+      "send you",
+      "send me"
+    ],
+    [
+      "offer you",
+      "offer me"
+    ],
+    [
+      "leave you",
+      "leave me"
+    ],
+    [
+      "teach you",
+      "teach me"
+    ],
+    [
+      "write you",
+      "write me"
+    ],
+    [
+      "buy you",
+      "buy me"
+    ],
+    [
+      "owe you",
+      "owe me"
+    ],
+    [
+      "pay you",
+      "pay me"
+    ],
+    [
+      "promise you",
+      "promise me"
+    ],
+    [
+      "show you",
+      "show me"
+    ],
+    [
+      "set you",
+      "set me"
+    ],
+    [
+      "change you",
+      "change me"
+    ],
+    [
+      "stop you",
+      "stop me"
+    ],
+    [
+      "turn you",
+      "turn me"
+    ],
+    [
+      "move you",
+      "move me"
+    ],
+    [
+      "open you",
+      "open me"
+    ],
+    [
+      "close you",
+      "close me"
+    ],
+    [
+      "start you",
+      "start me"
+    ],
+    [
+      "check you",
+      "check me"
+    ],
+    [
+      "wash you",
+      "wash me"
+    ],
+    [
+      "help you",
+      "help me"
+    ],
+    [
+      "need you",
+      "need me"
+    ],
+    [
+      "judge you",
+      "judge me"
+    ],
+    [
+      "I can't stand you",
+      "you can't stand me"
+    ],
+    [
+      "fancy you",
+      "fancy me"
+    ],
+    [
+      "love you",
+      "love me"
+    ],
+    [
+      "eat you",
+      "eat me"
+    ],
+    [
+      "kick you",
+      "kick me"
+    ],
+    [
+      "break you",
+      "break me"
+    ],
+    [
+      "forgive you",
+      "forgive me"
+    ],
+    [
+      "thank you",
+      "thank you"
+    ],
+    [
+      "forget you",
+      "forget me"
+    ],
+    [
+      "remember you",
+      "remember me"
+    ],
+    [
+      "recall you",
+      "recall me"
+    ],
+    [
+      "marry you",
+      "marry me"
+    ],
+    [
+      "want you",
+      "want me"
+    ],
+    [
+      "asked you",
+      "asked me"
+    ],
+    [
+      "hated you",
+      "hated me"
+    ],
+    [
+      "wanted you",
+      "wanted me"
+    ],
+    [
+      "told you",
+      "told me"
+    ],
+    [
+      "took you",
+      "took me"
+    ],
+    [
+      "taken you",
+      "taken me"
+    ],
+    [
+      "brought you",
+      "brought me"
+    ],
+    [
+      "made you",
+      "made me"
+    ],
+    [
+      "gave you",
+      "gave me"
+    ],
+    [
+      "given you",
+      "given me"
+    ],
+    [
+      "got you",
+      "geot me"
+    ],
+    [
+      "gotten you",
+      "gotten me"
+    ],
+    [
+      "helped you",
+      "helped me"
+    ],
+    [
+      "forgave you",
+      "forgave me"
+    ],
+    [
+      "forgiven you",
+      "forgiven me"
+    ],
+    [
+      "forgot you",
+      "forgot me"
+    ],
+    [
+      "forgotten you",
+      "forgotten me"
+    ],
+    [
+      "remembered you",
+      "remembered me"
+    ],
+    [
+      "recalled you",
+      "recalled me"
+    ],
+    [
+      "thanked you",
+      "thanked me"
+    ],
+    [
+      "sent you",
+      "sent me"
+    ],
+    [
+      "offered you",
+      "offered me"
+    ],
+    [
+      "left you",
+      "left me"
+    ],
+    [
+      "taught you",
+      "taught me"
+    ],
+    [
+      "wrote you",
+      "wrote me"
+    ],
+    [
+      "written you",
+      "written me"
+    ],
+    [
+      "bought you",
+      "bought me"
+    ],
+    [
+      "owed you",
+      "owed me"
+    ],
+    [
+      "paid you",
+      "paid me"
+    ],
+    [
+      "promised you",
+      "promised me"
+    ],
+    [
+      "showed you",
+      "showed me"
+    ],
+    [
+      "shown you",
+      "shown me"
+    ],
+    [
+      "changed you",
+      "changed me"
+    ],
+    [
+      "stopped you",
+      "stopped me"
+    ],
+    [
+      "turned you",
+      "turned me"
+    ],
+    [
+      "moved you",
+      "moved me"
+    ],
+    [
+      "opened you",
+      "opened me"
+    ],
+    [
+      "closed you",
+      "closed me"
+    ],
+    [
+      "started you",
+      "started me"
+    ],
+    [
+      "checked you",
+      "checked me"
+    ],
+    [
+      "washed you",
+      "washed me"
+    ],
+    [
+      "needed you",
+      "needed me"
+    ],
+    [
+      "judged you",
+      "judged me"
+    ],
+    [
+      "fancied you",
+      "fancied me"
+    ],
+    [
+      "loved you",
+      "loved me"
+    ],
+    [
+      "ate you",
+      "ate me"
+    ],
+    [
+      "eaten you",
+      "eaten me"
+    ],
+    [
+      "kicked you",
+      "kicked me"
+    ],
+    [
+      "broke you",
+      "broke me"
+    ],
+    [
+      "broken you",
+      "broken me"
+    ],
+    [
+      "married you",
+      "married me"
+    ],
+    [
+      "asking you",
+      "asking me"
+    ],
+    [
+      "hating you",
+      "hating me"
+    ],
+    [
+      "telling you",
+      "telling me"
+    ],
+    [
+      "taking you",
+      "taking me"
+    ],
+    [
+      "bringing you",
+      "bringing me"
+    ],
+    [
+      "helping you",
+      "helping me"
+    ],
+    [
+      "making you",
+      "making me"
+    ],
+    [
+      "giving you",
+      "giving me"
+    ],
+    [
+      "getting you",
+      "getting me"
+    ],
+    [
+      "sending you",
+      "sending me"
+    ],
+    [
+      "offering you",
+      "offering me"
+    ],
+    [
+      "leaving you",
+      "leaving me"
+    ],
+    [
+      "teaching you",
+      "teaching me"
+    ],
+    [
+      "writing you",
+      "writing me"
+    ],
+    [
+      "wanting you",
+      "wanting me"
+    ],
+    [
+      "buying you",
+      "buying me"
+    ],
+    [
+      "owing you",
+      "owing me"
+    ],
+    [
+      "paying you",
+      "paying me"
+    ],
+    [
+      "promising you",
+      "promising me"
+    ],
+    [
+      "showing you",
+      "showing me"
+    ],
+    [
+      "setting you",
+      "setting me"
+    ],
+    [
+      "changing you",
+      "changing me"
+    ],
+    [
+      "stopping you",
+      "stopping me"
+    ],
+    [
+      "turning you",
+      "turning me"
+    ],
+    [
+      "moving you",
+      "moving me"
+    ],
+    [
+      "opening you",
+      "opening me"
+    ],
+    [
+      "closing you",
+      "closing me"
+    ],
+    [
+      "starting you",
+      "starting me"
+    ],
+    [
+      "checking you",
+      "checking me"
+    ],
+    [
+      "washing you",
+      "washing me"
+    ],
+    [
+      "needing you",
+      "needing me"
+    ],
+    [
+      "judging you",
+      "judging me"
+    ],
+    [
+      "fancying you",
+      "fancying me"
+    ],
+    [
+      "loving you",
+      "loving me"
+    ],
+    [
+      "eating you",
+      "eating me"
+    ],
+    [
+      "kicking you",
+      "kicking me"
+    ],
+    [
+      "breaking you",
+      "breaking me"
+    ],
+    [
+      "forgiving you",
+      "forgiving me"
+    ],
+    [
+      "thanking you",
+      "thanking me"
+    ],
+    [
+      "forgetting you",
+      "forgetting me"
+    ],
+    [
+      "remembering you",
+      "remembering me"
+    ],
+    [
+      "recalling you",
+      "recalling me"
+    ],
+    [
+      "marrying you",
+      "marrying me"
+    ],
+    [
+      "I am",
+      "you are"
+    ],
+    [
+      "I was",
+      "you were"
+    ],
+    [
+      "I'd",
+      "you'd"
+    ],
+    [
+      "I'm",
+      "you're"
+    ],
+    [
+      "I've",
+      "you've"
+    ],
+    [
+      "you are",
+      "I am"
+    ],
+    [
+      "you were",
+      "I was"
+    ],
+    [
+      "you're",
+      "I'm"
+    ],
+    [
+      "you've",
+      "I've"
+    ],
+    [
+      "you'd",
+      "I'd"
+    ],
+    [
+      "is this",
+      "if this is"
+    ],
+    [
+      "is it",
+      "if it's"
+    ],
+    [
+      "isn't this",
+      "if this isn't"
+    ],
+    [
+      "isn't it",
+      "if it isn't"
+    ],
+    [
+      "am I",
+      "if (you're|you are)"
+    ],
+    [
+      "are you",
+      "if I am"
+    ],
+    [
+      "aren't you",
+      "if I'm not"
+    ],
+    [
+      "ain't you",
+      "if (I'm|I am) not"
+    ],
+    [
+      "can I",
+      "if you can"
+    ],
+    [
+      "can you",
+      "if I can"
+    ],
+    [
+      "can't I",
+      "if you can't"
+    ],
+    [
+      "can't you",
+      "if I can't"
+    ],
+    [
+      "could I",
+      "if you could"
+    ],
+    [
+      "could you",
+      "if I could"
+    ],
+    [
+      "couldn't I",
+      "if you couldn't"
+    ],
+    [
+      "couldn't you",
+      "if I couldn't"
+    ],
+    [
+      "did I",
+      "if you did"
+    ],
+    [
+      "did you",
+      "if I did"
+    ],
+    [
+      "didn't I",
+      "if you didn't"
+    ],
+    [
+      "didn't you",
+      "if I didn't"
+    ],
+    [
+      "do I",
+      "if you"
+    ],
+    [
+      "do you",
+      "if I"
+    ],
+    [
+      "don't I",
+      "if you don't"
+    ],
+    [
+      "don't you",
+      "if I don't"
+    ],
+    [
+      "have I",
+      "if you have"
+    ],
+    [
+      "have you",
+      "if I have"
+    ],
+    [
+      "haven't I",
+      "if you haven't"
+    ],
+    [
+      "haven't you",
+      "if I haven't"
+    ],
+    [
+      "should I",
+      "if you should"
+    ],
+    [
+      "should you",
+      "if I should"
+    ],
+    [
+      "shouldn't I",
+      "if you shouldn't"
+    ],
+    [
+      "shouldn't you",
+      "if I shouldn't"
+    ],
+    [
+      "was I",
+      "if you were"
+    ],
+    [
+      "wasn't I",
+      "if you weren't"
+    ],
+    [
+      "were you",
+      "if I was"
+    ],
+    [
+      "weren't you",
+      "if I wasn't"
+    ],
+    [
+      "will I",
+      "if you will"
+    ],
+    [
+      "will you",
+      "if I will"
+    ],
+    [
+      "won't I",
+      "if you won't"
+    ],
+    [
+      "won't you",
+      "if I won't"
+    ],
+    [
+      "would I",
+      "if you would"
+    ],
+    [
+      "would you",
+      "if I would"
+    ],
+    [
+      "wouldn't I",
+      "if you wouldn't"
+    ],
+    [
+      "wouldn't you",
+      "if I wouldn't"
+    ],
+    [
+      "what am I",
+      "what you are"
+    ],
+    [
+      "what are you",
+      "what I am"
+    ],
+    [
+      "what aren't you",
+      "what I'm not"
+    ],
+    [
+      "what can I",
+      "what you can"
+    ],
+    [
+      "what can you",
+      "what I can"
+    ],
+    [
+      "what can't I",
+      "what you can't"
+    ],
+    [
+      "what can't you",
+      "what I can't"
+    ],
+    [
+      "what could I",
+      "what you could"
+    ],
+    [
+      "what could you",
+      "what I could"
+    ],
+    [
+      "what couldn't I",
+      "what you couldn't"
+    ],
+    [
+      "what couldn't you",
+      "what I couldn't"
+    ],
+    [
+      "what did I",
+      "what you did"
+    ],
+    [
+      "what did you",
+      "what I did"
+    ],
+    [
+      "what didn't I",
+      "what you didn't"
+    ],
+    [
+      "what didn't you",
+      "what I didn't"
+    ],
+    [
+      "what do I",
+      "what you"
+    ],
+    [
+      "what do you",
+      "what I"
+    ],
+    [
+      "what don't I",
+      "what you don't"
+    ],
+    [
+      "what don't you",
+      "what I don't"
+    ],
+    [
+      "what have I",
+      "what you have"
+    ],
+    [
+      "what have you",
+      "what I have"
+    ],
+    [
+      "what haven't I",
+      "what you haven't"
+    ],
+    [
+      "what haven't you",
+      "what I haven't"
+    ],
+    [
+      "what should I",
+      "what you should"
+    ],
+    [
+      "what should you",
+      "what I should"
+    ],
+    [
+      "what shouldn't I",
+      "what you shouldn't"
+    ],
+    [
+      "what shouldn't you",
+      "what I shouldn't"
+    ],
+    [
+      "what was I",
+      "what you were"
+    ],
+    [
+      "what wasn't I",
+      "what you weren't"
+    ],
+    [
+      "what were you",
+      "what I was"
+    ],
+    [
+      "what weren't you",
+      "what I wasn't"
+    ],
+    [
+      "what will I",
+      "what you will"
+    ],
+    [
+      "what will you",
+      "what I will"
+    ],
+    [
+      "what won't I",
+      "what you won't"
+    ],
+    [
+      "what won't you",
+      "what I won't"
+    ],
+    [
+      "what would I",
+      "what you would"
+    ],
+    [
+      "what would you",
+      "what I would"
+    ],
+    [
+      "what wouldn't I",
+      "what you wouldn't"
+    ],
+    [
+      "what wouldn't you",
+      "what I wouldn't"
+    ],
+    [
+      "what else am I",
+      "what else you are"
+    ],
+    [
+      "what else are you",
+      "what else I am"
+    ],
+    [
+      "what else aren't you",
+      "what else I'm not"
+    ],
+    [
+      "what else can I",
+      "what else you can"
+    ],
+    [
+      "what else can you",
+      "what else I can"
+    ],
+    [
+      "what else can't I",
+      "what else you can't"
+    ],
+    [
+      "what else can't you",
+      "what else I can't"
+    ],
+    [
+      "what else could I",
+      "what else you could"
+    ],
+    [
+      "what else could you",
+      "what else I could"
+    ],
+    [
+      "what else couldn't I",
+      "what else you couldn't"
+    ],
+    [
+      "what else couldn't you",
+      "what else I couldn't"
+    ],
+    [
+      "what else did I",
+      "what else you did"
+    ],
+    [
+      "what else did you",
+      "what else I did"
+    ],
+    [
+      "what else didn't I",
+      "what else you didn't"
+    ],
+    [
+      "what else didn't you",
+      "what else I didn't"
+    ],
+    [
+      "what else do I",
+      "what else you"
+    ],
+    [
+      "what else do you",
+      "what else I"
+    ],
+    [
+      "what else don't I",
+      "what else you don't"
+    ],
+    [
+      "what else don't you",
+      "what else I don't"
+    ],
+    [
+      "what else have I",
+      "what else you have"
+    ],
+    [
+      "what else have you",
+      "what else I have"
+    ],
+    [
+      "what else haven't I",
+      "what else you haven't"
+    ],
+    [
+      "what else haven't you",
+      "what else I haven't"
+    ],
+    [
+      "what else should I",
+      "what else you should"
+    ],
+    [
+      "what else should you",
+      "what else I should"
+    ],
+    [
+      "what else shouldn't I",
+      "what else you shouldn't"
+    ],
+    [
+      "what else shouldn't you",
+      "what else I shouldn't"
+    ],
+    [
+      "what else was I",
+      "what else you were"
+    ],
+    [
+      "what else wasn't I",
+      "what else you weren't"
+    ],
+    [
+      "what else were you",
+      "what else I was"
+    ],
+    [
+      "what else weren't you",
+      "what else I wasn't"
+    ],
+    [
+      "what else will I",
+      "what else you will"
+    ],
+    [
+      "what else will you",
+      "what else I will"
+    ],
+    [
+      "what else won't I",
+      "what else you won't"
+    ],
+    [
+      "what else won't you",
+      "what else I won't"
+    ],
+    [
+      "what else would I",
+      "what else you would"
+    ],
+    [
+      "what else would you",
+      "what else I would"
+    ],
+    [
+      "what else wouldn't I",
+      "what else you wouldn't"
+    ],
+    [
+      "what else wouldn't you",
+      "what else I wouldn't"
+    ],
+    [
+      "why am I",
+      "why you're"
+    ],
+    [
+      "why are you",
+      "why I am"
+    ],
+    [
+      "why aren't you",
+      "why I'm not"
+    ],
+    [
+      "why can I",
+      "why you can"
+    ],
+    [
+      "why can you",
+      "why I can"
+    ],
+    [
+      "why can't I",
+      "why you can't"
+    ],
+    [
+      "why can't you",
+      "why I can't"
+    ],
+    [
+      "why could I",
+      "why you could"
+    ],
+    [
+      "why could you",
+      "why I could"
+    ],
+    [
+      "why couldn't I",
+      "why you couldn't"
+    ],
+    [
+      "why couldn't you",
+      "why I couldn't"
+    ],
+    [
+      "why did I",
+      "why you did"
+    ],
+    [
+      "why did you",
+      "why I did"
+    ],
+    [
+      "why didn't I",
+      "why you didn't"
+    ],
+    [
+      "why didn't you",
+      "why I didn't"
+    ],
+    [
+      "why do I",
+      "why you"
+    ],
+    [
+      "why do you",
+      "why I"
+    ],
+    [
+      "why don't I",
+      "why you don't"
+    ],
+    [
+      "why don't you",
+      "why I don't"
+    ],
+    [
+      "why have I",
+      "why you have"
+    ],
+    [
+      "why have you",
+      "why I have"
+    ],
+    [
+      "why haven't I",
+      "why you haven't"
+    ],
+    [
+      "why haven't you",
+      "why I haven't"
+    ],
+    [
+      "why should I",
+      "why you should"
+    ],
+    [
+      "why should you",
+      "why I should"
+    ],
+    [
+      "why shouldn't I",
+      "why you shouldn't"
+    ],
+    [
+      "why shouldn't you",
+      "why I shouldn't"
+    ],
+    [
+      "why was I",
+      "why you were"
+    ],
+    [
+      "why wasn't I",
+      "why you weren't"
+    ],
+    [
+      "why were you",
+      "why I was"
+    ],
+    [
+      "why weren't you",
+      "why I wasn't"
+    ],
+    [
+      "why will I",
+      "why you will"
+    ],
+    [
+      "why will you",
+      "why I will"
+    ],
+    [
+      "why won't I",
+      "why you won't"
+    ],
+    [
+      "why won't you",
+      "why I won't"
+    ],
+    [
+      "why would I",
+      "why you would"
+    ],
+    [
+      "why would you",
+      "why I would"
+    ],
+    [
+      "why wouldn't I",
+      "why you wouldn't"
+    ],
+    [
+      "why wouldn't you",
+      "why I wouldn't"
+    ],
+    [
+      "how am I",
+      "how you are"
+    ],
+    [
+      "how are you",
+      "how I am"
+    ],
+    [
+      "how aren't you",
+      "how I'm not"
+    ],
+    [
+      "how can I",
+      "how you can"
+    ],
+    [
+      "how can you",
+      "how I can"
+    ],
+    [
+      "how can't I",
+      "how you can't"
+    ],
+    [
+      "how can't you",
+      "how I can't"
+    ],
+    [
+      "how could I",
+      "how you could"
+    ],
+    [
+      "how could you",
+      "how I could"
+    ],
+    [
+      "how couldn't I",
+      "how you couldn't"
+    ],
+    [
+      "how couldn't you",
+      "how I couldn't"
+    ],
+    [
+      "how did I",
+      "how you did"
+    ],
+    [
+      "how did you",
+      "how I did"
+    ],
+    [
+      "how didn't I",
+      "how you didn't"
+    ],
+    [
+      "how didn't you",
+      "how I didn't"
+    ],
+    [
+      "how do I",
+      "how you"
+    ],
+    [
+      "how do you",
+      "how I"
+    ],
+    [
+      "how don't I",
+      "how you don't"
+    ],
+    [
+      "how don't you",
+      "how I don't"
+    ],
+    [
+      "how have I",
+      "how you have"
+    ],
+    [
+      "how have you",
+      "how I have"
+    ],
+    [
+      "how haven't I",
+      "how you haven't"
+    ],
+    [
+      "how haven't you",
+      "how I haven't"
+    ],
+    [
+      "how should I",
+      "how you should"
+    ],
+    [
+      "how should you",
+      "how I should"
+    ],
+    [
+      "how shouldn't I",
+      "how you shouldn't"
+    ],
+    [
+      "how shouldn't you",
+      "how I shouldn't"
+    ],
+    [
+      "how was I",
+      "how you were"
+    ],
+    [
+      "how wasn't I",
+      "how you weren't"
+    ],
+    [
+      "how were you",
+      "how I was"
+    ],
+    [
+      "how weren't you",
+      "how I wasn't"
+    ],
+    [
+      "how will I",
+      "how you will"
+    ],
+    [
+      "how will you",
+      "how I will"
+    ],
+    [
+      "how won't I",
+      "how you won't"
+    ],
+    [
+      "how won't you",
+      "how I won't"
+    ],
+    [
+      "how would I",
+      "how you would"
+    ],
+    [
+      "how would you",
+      "how I would"
+    ],
+    [
+      "how wouldn't I",
+      "how you wouldn't"
+    ],
+    [
+      "how wouldn't you",
+      "how I wouldn't"
+    ],
+    [
+      "who am I",
+      "who you are"
+    ],
+    [
+      "who are you",
+      "who I am"
+    ],
+    [
+      "who aren't you",
+      "who I'm not"
+    ],
+    [
+      "who can I",
+      "who you can"
+    ],
+    [
+      "who can you",
+      "who I can"
+    ],
+    [
+      "who can't I",
+      "who you can't"
+    ],
+    [
+      "who can't you",
+      "who I can't"
+    ],
+    [
+      "who could I",
+      "who you could"
+    ],
+    [
+      "who could you",
+      "who I could"
+    ],
+    [
+      "who couldn't I",
+      "who you couldn't"
+    ],
+    [
+      "who couldn't you",
+      "who I couldn't"
+    ],
+    [
+      "who did I",
+      "who you did"
+    ],
+    [
+      "who did you",
+      "who I did"
+    ],
+    [
+      "who didn't I",
+      "who you didn't"
+    ],
+    [
+      "who didn't you",
+      "who I didn't"
+    ],
+    [
+      "who do I",
+      "who you"
+    ],
+    [
+      "who do you",
+      "who I"
+    ],
+    [
+      "who don't I",
+      "who you don't"
+    ],
+    [
+      "who don't you",
+      "who I don't"
+    ],
+    [
+      "who have I",
+      "who you have"
+    ],
+    [
+      "who have you",
+      "who I have"
+    ],
+    [
+      "who haven't I",
+      "who you haven't"
+    ],
+    [
+      "who haven't you",
+      "who I haven't"
+    ],
+    [
+      "who should I",
+      "who you should"
+    ],
+    [
+      "who should you",
+      "who I should"
+    ],
+    [
+      "who shouldn't I",
+      "who you shouldn't"
+    ],
+    [
+      "who shouldn't you",
+      "who I shouldn't"
+    ],
+    [
+      "who was I",
+      "who you were"
+    ],
+    [
+      "who wasn't I",
+      "who you weren't"
+    ],
+    [
+      "who were you",
+      "who I was"
+    ],
+    [
+      "who weren't you",
+      "who I wasn't"
+    ],
+    [
+      "who will I",
+      "who you will"
+    ],
+    [
+      "who will you",
+      "who I will"
+    ],
+    [
+      "who won't I",
+      "who you won't"
+    ],
+    [
+      "who won't you",
+      "who I won't"
+    ],
+    [
+      "who would I",
+      "who you would"
+    ],
+    [
+      "who would you",
+      "who I would"
+    ],
+    [
+      "who wouldn't I",
+      "who you wouldn't"
+    ],
+    [
+      "who wouldn't you",
+      "who I wouldn't"
+    ],
+    [
+      "when am I",
+      "when you are"
+    ],
+    [
+      "when are you",
+      "when I am"
+    ],
+    [
+      "when aren't you",
+      "when I'm not"
+    ],
+    [
+      "when can I",
+      "when you can"
+    ],
+    [
+      "when can you",
+      "when I can"
+    ],
+    [
+      "when can't I",
+      "when you can't"
+    ],
+    [
+      "when can't you",
+      "when I can't"
+    ],
+    [
+      "when could I",
+      "when you could"
+    ],
+    [
+      "when could you",
+      "when I could"
+    ],
+    [
+      "when couldn't I",
+      "when you couldn't"
+    ],
+    [
+      "when couldn't you",
+      "when I couldn't"
+    ],
+    [
+      "when did I",
+      "when you did"
+    ],
+    [
+      "when did you",
+      "when I did"
+    ],
+    [
+      "when didn't I",
+      "when you didn't"
+    ],
+    [
+      "when didn't you",
+      "when I didn't"
+    ],
+    [
+      "when do I",
+      "when you"
+    ],
+    [
+      "when do you",
+      "when I"
+    ],
+    [
+      "when don't I",
+      "when you don't"
+    ],
+    [
+      "when don't you",
+      "when I don't"
+    ],
+    [
+      "when have I",
+      "when you have"
+    ],
+    [
+      "when have you",
+      "when I have"
+    ],
+    [
+      "when haven't I",
+      "when you haven't"
+    ],
+    [
+      "when haven't you",
+      "when I haven't"
+    ],
+    [
+      "when should I",
+      "when you should"
+    ],
+    [
+      "when should you",
+      "when I should"
+    ],
+    [
+      "when shouldn't I",
+      "when you shouldn't"
+    ],
+    [
+      "when shouldn't you",
+      "when I shouldn't"
+    ],
+    [
+      "when was I",
+      "when you were"
+    ],
+    [
+      "when wasn't I",
+      "when you weren't"
+    ],
+    [
+      "when were you",
+      "when I was"
+    ],
+    [
+      "when weren't you",
+      "when I wasn't"
+    ],
+    [
+      "when will I",
+      "when you will"
+    ],
+    [
+      "when will you",
+      "when I will"
+    ],
+    [
+      "when won't I",
+      "when you won't"
+    ],
+    [
+      "when won't you",
+      "when I won't"
+    ],
+    [
+      "when would I",
+      "when you would"
+    ],
+    [
+      "when would you",
+      "when I would"
+    ],
+    [
+      "when wouldn't I",
+      "when you wouldn't"
+    ],
+    [
+      "when wouldn't you",
+      "when I wouldn't"
+    ],
+    [
+      "where am I",
+      "where you are"
+    ],
+    [
+      "where are you",
+      "where I am"
+    ],
+    [
+      "where aren't you",
+      "where I'm not"
+    ],
+    [
+      "where can I",
+      "where you can"
+    ],
+    [
+      "where can you",
+      "where I can"
+    ],
+    [
+      "where can't I",
+      "where you can't"
+    ],
+    [
+      "where can't you",
+      "where I can't"
+    ],
+    [
+      "where could I",
+      "where you could"
+    ],
+    [
+      "where could you",
+      "where I could"
+    ],
+    [
+      "where couldn't I",
+      "where you couldn't"
+    ],
+    [
+      "where couldn't you",
+      "where I couldn't"
+    ],
+    [
+      "where did I",
+      "where you did"
+    ],
+    [
+      "where did you",
+      "where I did"
+    ],
+    [
+      "where didn't I",
+      "where you didn't"
+    ],
+    [
+      "where didn't you",
+      "where I didn't"
+    ],
+    [
+      "where do I",
+      "where you"
+    ],
+    [
+      "where do you",
+      "where I"
+    ],
+    [
+      "where don't I",
+      "where you don't"
+    ],
+    [
+      "where don't you",
+      "where I don't"
+    ],
+    [
+      "where have I",
+      "where you have"
+    ],
+    [
+      "where have you",
+      "where I have"
+    ],
+    [
+      "where haven't I",
+      "where you haven't"
+    ],
+    [
+      "where haven't you",
+      "where I haven't"
+    ],
+    [
+      "where should I",
+      "where you should"
+    ],
+    [
+      "where should you",
+      "where I should"
+    ],
+    [
+      "where shouldn't I",
+      "where you shouldn't"
+    ],
+    [
+      "where shouldn't you",
+      "where I shouldn't"
+    ],
+    [
+      "where was I",
+      "where you were"
+    ],
+    [
+      "where wasn't I",
+      "where you weren't"
+    ],
+    [
+      "where were you",
+      "where I was"
+    ],
+    [
+      "where weren't you",
+      "where I wasn't"
+    ],
+    [
+      "where will I",
+      "where you will"
+    ],
+    [
+      "where will you",
+      "where I will"
+    ],
+    [
+      "where won't I",
+      "where you won't"
+    ],
+    [
+      "where won't you",
+      "where I won't"
+    ],
+    [
+      "where would I",
+      "where you would"
+    ],
+    [
+      "where would you",
+      "where I would"
+    ],
+    [
+      "where wouldn't I",
+      "where you wouldn't"
+    ],
+    [
+      "where wouldn't you",
+      "where I wouldn't"
+    ],
+    [
+      "whom am I",
+      "whom you are"
+    ],
+    [
+      "whom are you",
+      "whom I am"
+    ],
+    [
+      "whom aren't you",
+      "whom I'm not"
+    ],
+    [
+      "whom can I",
+      "whom you can"
+    ],
+    [
+      "whom can you",
+      "whom I can"
+    ],
+    [
+      "whom can't I",
+      "whom you can't"
+    ],
+    [
+      "whom can't you",
+      "whom I can't"
+    ],
+    [
+      "whom could I",
+      "whom you could"
+    ],
+    [
+      "whom could you",
+      "whom I could"
+    ],
+    [
+      "whom couldn't I",
+      "whom you couldn't"
+    ],
+    [
+      "whom couldn't you",
+      "whom I couldn't"
+    ],
+    [
+      "whom did I",
+      "whom you did"
+    ],
+    [
+      "whom did you",
+      "whom I did"
+    ],
+    [
+      "whom didn't I",
+      "whom you didn't"
+    ],
+    [
+      "whom didn't you",
+      "whom I didn't"
+    ],
+    [
+      "whom do I",
+      "whom you"
+    ],
+    [
+      "whom do you",
+      "whom I"
+    ],
+    [
+      "whom don't I",
+      "whom you don't"
+    ],
+    [
+      "whom don't you",
+      "whom I don't"
+    ],
+    [
+      "whom have I",
+      "whom you have"
+    ],
+    [
+      "whom have you",
+      "whom I have"
+    ],
+    [
+      "whom haven't I",
+      "whom you haven't"
+    ],
+    [
+      "whom haven't you",
+      "whom I haven't"
+    ],
+    [
+      "whom should I",
+      "whom you should"
+    ],
+    [
+      "whom should you",
+      "whom I should"
+    ],
+    [
+      "whom shouldn't I",
+      "whom you shouldn't"
+    ],
+    [
+      "whom shouldn't you",
+      "whom I shouldn't"
+    ],
+    [
+      "whom was I",
+      "whom you were"
+    ],
+    [
+      "whom wasn't I",
+      "whom you weren't"
+    ],
+    [
+      "whom were you",
+      "whom I was"
+    ],
+    [
+      "whom weren't you",
+      "whom I wasn't"
+    ],
+    [
+      "whom will I",
+      "whom you will"
+    ],
+    [
+      "whom will you",
+      "whom I will"
+    ],
+    [
+      "whom won't I",
+      "whom you won't"
+    ],
+    [
+      "whom won't you",
+      "whom I won't"
+    ],
+    [
+      "whom would I",
+      "whom you would"
+    ],
+    [
+      "whom would you",
+      "whom I would"
+    ],
+    [
+      "whom wouldn't I",
+      "whom you wouldn't"
+    ],
+    [
+      "whom wouldn't you",
+      "whom I wouldn't"
+    ],
+    [
+      "let me",
+      "I should let you"
+    ],
+    [
+      "thanks to you",
+      "thanks to me"
+    ],
+    [
+      "thanks to it",
+      "thanks to it"
+    ],
+    [
+      "thanks to them",
+      "thanks to them"
+    ],
+    [
+      "thanks to them",
+      "thanks to them"
+    ],
+    [
+      "thanks to me",
+      "thanks to you"
+    ]
+  ],
+  "head_remove": [
+    "yes",
+    "yeah",
+    "no",
+    "nope",
+    "oh yes",
+    "oh no",
+    "oh yeah",
+    "please",
+    "ok",
+    "okay",
+    "well",
+    "but",
+    "anyway",
+    "however",
+    "yep",
+    "Echo",
+    "pardon"
+  ],
+  "tail_remove": [
+    "Alexa",
+    "Echo",
+    "please",
+    "thank you",
+    "thanks",
+    "stop (|please|thanks|thank you)"
+  ],
+  "head_add_statement": [
+    "",
+    "",
+    "<prosody pitch=\"+15%\">Oh,</prosody> ",
+    "<prosody pitch=\"+15%\">Oh,</prosody> ",
+    "Oh, ",
+    "So ",
+    "So, ",
+    "<prosody pitch=\"+10%\">Ah,</prosody>",
+    "<prosody pitch=\"+10%\">Ah,</prosody>",
+    "Ah, ",
+    "<prosody pitch=\"+3%\" rate=\"75%\">So,</prosody>",
+    "<say-as interpret-as=\"interjection\">Aha,</say-as>(| so) ",
+    "Hm, ",
+    "Hm, "
+  ],
+  "head_add_question": [
+    "",
+    "",
+    "You mean, ",
+    "So you mean ",
+    "You wanna know ",
+    "Hm, ",
+    "Hm, ",
+    "Hm, ",
+    "Oh, ",
+    "<prosody pitch=\"+15%\">Oh,</prosody> "
+  ]
+}
