@@ -7,6 +7,8 @@ import com.promethist.common.AppConfig
 import com.promethist.common.ObjectUtil
 import com.promethist.core.dialogue.BasicDialogue
 import com.promethist.core.type.*
+import com.promethist.core.type.value.Amount
+import com.promethist.core.type.value.Duration
 import java.time.format.DateTimeFormatter
 import javax.ws.rs.BadRequestException
 import javax.ws.rs.client.WebTarget
@@ -19,20 +21,41 @@ class ParkopediaApi(dialogue: BasicDialogue) : DialogueApi(dialogue) {
     }
 
     class ParkingSpaceList: ArrayList<ParkingSpace>()
-    data class ParkingSpace(val id: Long,
-                            val title: String = "",
-                            val type: String = "",
-                            val info: String = "",
-                            val lat: Float = 0.0F,
-                            val lng: Float = 0.0F,
-                            val distance: Int = 0,
-                            val city: String = "",
-                            val company: String = "",
-                            val country: String = "",
-                            var prices: List<Price> = listOf(),
-                            @JsonProperty("rt") val realTime: List<RealTime> = listOf(),
-                            val addresses: List<String> = listOf()) {
-        val walkingDistance get() = (distance / 1000) * 4 * 60
+    class ParkingSpace(val id: Long,
+                        val title: String = "",
+                        val type: String = "",
+                        val info: String = "",
+                        val lat: Float = 0.0F,
+                        val lng: Float = 0.0F,
+                        val distance: Int = 0,
+                        val city: String = "",
+                        val company: String = "",
+                        val country: String = "",
+                        @JsonProperty("heightrestricted")val heightRestricted: Boolean = false,
+                        val height: Int = 999,
+                        var prices: List<Price> = listOf(Price(error = "no price")),
+                        @JsonProperty("rt") val realTime: List<RealTime> = listOf(),
+                        val addresses: List<String> = listOf(),
+                            surface: Int = 0,
+                            ctype: Int = 0) {
+
+        val surface: String = when (surface) {
+            1 -> "multistorey"
+            2 -> "not covered"
+            3 -> "covered"
+            4 -> "underground"
+            5 -> "partially covered"
+            6 -> "mechanical"
+            else -> "unknown"
+        }
+        val payByCash = ctype.and(1 shl 0) > 0 || ctype.and(1 shl 1) > 0
+        val payByCard = ctype.and(1 shl 2) > 0 || ctype.and(1 shl 4) > 0 || ctype.and(1 shl 5) > 0
+        val openingTimes = "nonstop"
+
+        val walkingDistance get() = (distance / 1000.0) / 4.0 * 60
+        val name get() = title.replace(" *\\d+$".toRegex(), "")
+        var durationRestricted = false
+        var durationMax = Duration(Float.MAX_VALUE, "day")
 
         @get:JsonIgnore
         val price get() = prices.first()
@@ -40,6 +63,22 @@ class ParkopediaApi(dialogue: BasicDialogue) : DialogueApi(dialogue) {
         @JsonProperty("cprices")
         private fun unpackPrices(data: JsonNode) {
             prices = data.get("items").map { ObjectUtil.defaultMapper.convertValue(it, Price::class.java) }
+        }
+
+        @JsonProperty("priceschema")
+        private fun unpackRestrictions(data: JsonNode) {
+            if (data.has("prices") && !data["prices"].has(0)) {
+                durationRestricted = data["prices"][0].has("maxstay_mins") && data["prices"][0]["maxstay_mins"].asInt() > 0
+                if (durationRestricted) {
+                    val minutes = data["prices"][0]["maxstay_mins"].asInt()
+                    val normalized = Amount(minutes.toBigDecimal(), "minute")
+                    durationMax = when {
+                        minutes <= 120 -> Duration(minutes.toFloat(), "minute", normalized = normalized)
+                        minutes <= 48 * 60 -> Duration((minutes / 60).toFloat(), "hour", normalized = normalized)
+                        else -> Duration((minutes / 60 / 24).toFloat(), "day", normalized = normalized)
+                    }
+                }
+            }
         }
     }
 
@@ -86,6 +125,8 @@ class ParkopediaApi(dialogue: BasicDialogue) : DialogueApi(dialogue) {
 
     companion object {
         val DATE_FORMATTER = DateTimeFormatter.ofPattern("YYYYMMddHHmm")
+        fun fromDynamic(obj: Dynamic) = ObjectUtil.defaultMapper.convertValue(obj, ParkingSpace::class.java)
+        fun fromDynamicList(list: List<Dynamic>) = ObjectUtil.defaultMapper.convertValue(list, ParkingSpaceList::class.java)
     }
 
 }
