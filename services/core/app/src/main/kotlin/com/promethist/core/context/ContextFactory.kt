@@ -5,6 +5,7 @@ import com.promethist.core.Context
 import com.promethist.core.Pipeline
 import com.promethist.core.Request
 import com.promethist.core.dialogue.AbstractDialogue
+import com.promethist.core.dialogue.attribute.ContextualAttributeDelegate
 import com.promethist.core.profile.ProfileRepository
 import com.promethist.core.resources.CommunityResource
 import com.promethist.core.runtime.DialogueLog
@@ -24,32 +25,34 @@ class ContextFactory {
     lateinit var dialogueLog: DialogueLog
 
     fun createContext(pipeline: Pipeline, session: Session, request: Request): Context {
-        val profile = profileRepository.find(session.user._id)
+        val userProfile = profileRepository.find(session.user._id)
                 ?: Profile(user_id = session.user._id)
 
+        request.attributes.forEach {
+            val attribute = Memory(when (it.key) {
+                "clientLocation" ->
+                    (it.value as String).toLocation().apply {
+                        session.location = this
+                    }
+                "clientTemperature", "clientAmbientLight", "clientSpatialMotion" ->
+                    it.value.toString().toDouble() // can be integer or double
+                else -> {
+                    if (it.key.endsWith("Location"))
+                        (it.value as String).toLocation()
+                    else
+                        it.value
+                }
+            })
+            (if (ContextualAttributeDelegate.isClientUserAttribute(it.key))
+                userProfile.attributes
+            else
+                session.attributes
+            )[AbstractDialogue.defaultNamespace][it.key] = attribute
+        }
         return Context(
                 pipeline,
-                profile,
-                session.apply {
-                    with (attributes[AbstractDialogue.defaultNamespace]) {
-                        request.attributes.forEach {
-                            put(it.key, Memory(when (it.key) {
-                                "clientLocation" ->
-                                    (it.value as String).toLocation().apply {
-                                        location = this
-                                    }
-                                "clientTemperature", "clientAmbientLight", "clientSpatialMotion" ->
-                                    it.value.toString().toDouble() // can be integer or double
-                                else -> {
-                                    if (it.key.endsWith("Location"))
-                                        (it.value as String).toLocation()
-                                    else
-                                        it.value
-                                }
-                            }))
-                        }
-                    }
-                },
+                userProfile,
+                session,
                 Turn(input = request.input),
                 dialogueLog.logger,
                 request.input.locale,

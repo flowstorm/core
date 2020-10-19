@@ -65,27 +65,29 @@ abstract class AbstractHandler(private val predicate: Predicate<HandlerInput>) :
 
     protected val logger by LoggerDelegate()
 
+    protected fun getContext(input: HandlerInput) = with (input.requestEnvelope) {
+        BotService.context(session.sessionId, context.system.device.deviceId, "alexa:${context.system.application.applicationId}", Locale.ENGLISH, Dynamic(
+                "clientType" to "amazon-alexa:${AppConfig.version}"
+        ).also { attributes ->
+            context.geolocation?.apply {
+                val location = Location(
+                        coordinate.latitudeInDegrees,
+                        coordinate.longitudeInDegrees,
+                        coordinate.accuracyInMeters,
+                        altitude.altitudeInMeters,
+                        altitude.accuracyInMeters,
+                        speed.speedInMetersPerSecond,
+                        speed.accuracyInMetersPerSecond,
+                        heading.directionInDegrees,
+                        heading.accuracyInDegrees
+                )
+                attributes["clientLocation"] = location.toString()
+            }
+        })
+    }
+
     protected fun withContext(input: HandlerInput, block: ContextualBlock.() -> ResponseBuilder): ResponseBuilder {
-        val context = with (input.requestEnvelope) {
-            BotService.context(session.sessionId, context.system.device.deviceId, "alexa:${context.system.application.applicationId}", Locale.ENGLISH, Dynamic(
-                    "clientType" to "amazon-alexa:${AppConfig.version}"
-            ).also { attributes ->
-                context.geolocation?.apply {
-                    val location = Location(
-                            coordinate.latitudeInDegrees,
-                            coordinate.longitudeInDegrees,
-                            coordinate.accuracyInMeters,
-                            altitude.altitudeInMeters,
-                            altitude.accuracyInMeters,
-                            speed.speedInMetersPerSecond,
-                            speed.accuracyInMetersPerSecond,
-                            heading.directionInDegrees,
-                            heading.accuracyInDegrees
-                    )
-                    attributes["clientLocation"] = location.toString()
-                }
-            })
-        }
+        val context = getContext(input)
         logger.info("${this::class.simpleName}.withContext(input = $input, context = $context)")
         return block(ContextualBlock(input, context))
     }

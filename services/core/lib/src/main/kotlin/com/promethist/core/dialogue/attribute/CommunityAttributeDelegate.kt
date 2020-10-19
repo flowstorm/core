@@ -2,17 +2,16 @@ package com.promethist.core.dialogue.attribute
 
 import com.promethist.core.Context
 import com.promethist.core.dialogue.AbstractDialogue
-import com.promethist.core.dialogue.DateTimeUnit
 import com.promethist.core.model.Community
+import com.promethist.core.type.Memorable
 import kotlin.reflect.KClass
 
 class CommunityAttributeDelegate<V: Any>(
         clazz: KClass<*>,
         private val communityName: String,
         namespace: (() -> String),
-        expiration: DateTimeUnit? = null,
         default: (Context.() -> V)
-) : AttributeDelegate<V>(clazz, namespace, expiration, default) {
+) : AttributeDelegate<V>(clazz, namespace, null, default) {
 
     private val community get() = with (AbstractDialogue.run.context) {
         communities.getOrPut(communityName) {
@@ -22,5 +21,11 @@ class CommunityAttributeDelegate<V: Any>(
         }
     }
 
-    override val attributes get() = community.attributes
+    override fun attribute(namespace: String, name: String, lambda: (Memorable?) -> Memorable): Memorable {
+        val attributes = community.attributes[namespace]
+        val attribute = attributes[name]
+        return lambda(attribute)?.apply {
+            attributes[name] = this
+        }
+    }
 }

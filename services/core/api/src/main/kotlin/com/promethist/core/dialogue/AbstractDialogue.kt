@@ -140,6 +140,8 @@ abstract class AbstractDialogue : DialogueModel {
     ): TransitNode(id) {
         val texts = text
 
+        constructor(id: Int, isRepeatable: Boolean = true, background: String? = null, image: String? = null, audio: String? = null, video: String? = null, vararg text: (Context.(Response) -> String)) : this(id, isRepeatable, background, image, audio, video, null, *text)
+
         constructor(id: Int, isRepeatable: Boolean, background: String?, vararg text: (Context.(Response) -> String)) : this(id, isRepeatable, background, null, null, null, null, *text)
 
         constructor(id: Int, isRepeatable: Boolean, vararg text: (Context.(Response) -> String)) : this(id, isRepeatable, null, null, null, null, null, *text)
