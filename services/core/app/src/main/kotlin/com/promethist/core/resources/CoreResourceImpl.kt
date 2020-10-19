@@ -11,8 +11,6 @@ import com.promethist.core.resources.ContentDistributionResource.ContentRequest
 import com.promethist.core.runtime.DialogueLog
 import com.promethist.core.type.Memory
 import com.promethist.util.LoggerDelegate
-import io.sentry.Sentry
-import io.sentry.event.EventBuilder
 import javax.inject.Inject
 import javax.ws.rs.*
 import java.util.*

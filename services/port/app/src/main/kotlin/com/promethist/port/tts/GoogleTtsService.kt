@@ -47,7 +47,7 @@ object GoogleTtsService: TtsService {
         try {
             client.close()
         } catch (e: Exception) {
-            Sentry.capture(e)
+            Sentry.captureException(e)
             e.printStackTrace()
         }
         client.close()

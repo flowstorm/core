@@ -37,7 +37,7 @@ class BotClientSocketAdapter : AbstractBotSocketAdapter() {
                 else -> error("Unexpected event of type ${event::class.simpleName}")
             }
         } catch (e: Throwable) {
-            Sentry.capture(e)
+            capture(e)
             logger.error("onWebSocketText", e)
             (e.cause?:e).apply {
                 sendEvent(BotEvent.Error(message ?: this::class.qualifiedName ?: "unknown"))
