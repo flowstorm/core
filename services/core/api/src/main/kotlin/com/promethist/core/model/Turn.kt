@@ -41,4 +41,8 @@ data class Turn(
 
         responseItems.add(item)
     }
+
+    fun addResponseItem(text: String?, image: String? = null, audio: String? = null, video: String? = null, background: String? = null, repeatable: Boolean = true, voice: Voice? = null) {
+        addResponseItem(text, image, audio, video, null, background, repeatable, voice)
+    }
 }

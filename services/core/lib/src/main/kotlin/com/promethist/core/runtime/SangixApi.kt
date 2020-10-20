@@ -12,7 +12,7 @@ class SangixApi(dialogue: BasicDialogue) : DialogueApi(dialogue) {
     data class Appointment(val apptId: String, val timestamp: String, val length: Int? = 0, val referenceNumber: String? = "") {
     }
 
-    private val target get() = target("https://demo3.sangix.co.uk/rest/promethist/v1")
+    private val target get() = target(AppConfig.instance["sangix.url"])
     private val apiKey = java.util.Base64.getEncoder().encodeToString(AppConfig.instance["sangix.credentials"].toByteArray())
     private val headers get() = mapOf("Authorization" to "Basic ${apiKey}", "Accept" to "application/json")
 
