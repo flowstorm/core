@@ -16,7 +16,7 @@ data class Input(
         val classes: MutableList<Class> = mutableListOf(),
         val tokens: MutableList<Token> = mutableListOf()
 ) {
-    data class Transcript(val text: String, val confidence: Float = 1.0F)
+    data class Transcript(var text: String, val confidence: Float = 1.0F)
 
     data class Class(val type: Type, val name: String, val score: Float = 1.0F, val model_id: String = "") {
         enum class Type { Intent, Entity }

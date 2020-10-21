@@ -29,25 +29,29 @@ class ContextFactory {
                 ?: Profile(user_id = session.user._id)
 
         request.attributes.forEach {
-            val attribute = Memory(when (it.key) {
-                "clientLocation" ->
+            val name = if (it.key == "clientLocation")
+                "clientUserLocation"
+            else
+                it.key
+            val attribute = Memory(when (name) {
+                "clientUserLocation" ->
                     (it.value as String).toLocation().apply {
                         session.location = this
                     }
                 "clientTemperature", "clientAmbientLight", "clientSpatialMotion" ->
                     it.value.toString().toDouble() // can be integer or double
                 else -> {
-                    if (it.key.endsWith("Location"))
+                    if (name.endsWith("Location"))
                         (it.value as String).toLocation()
                     else
                         it.value
                 }
             })
-            (if (ContextualAttributeDelegate.isClientUserAttribute(it.key))
+            (if (ContextualAttributeDelegate.isClientUserAttribute(name))
                 userProfile.attributes
             else
                 session.attributes
-            )[AbstractDialogue.defaultNamespace][it.key] = attribute
+            )[AbstractDialogue.defaultNamespace][name] = attribute
         }
         return Context(
                 pipeline,

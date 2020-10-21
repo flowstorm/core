@@ -52,7 +52,8 @@ abstract class BasicDialogue : AbstractDialogue() {
             this >= today + range.first.day && this < today + range.last.day + 1.day
     infix fun DateTime.isDay(day: Int) = this isDay day..day
 
-    override val clientLocation by client { Location() }
+    override val clientLocation get() = clientUserLocation.value
+    val clientUserLocation by client { Memory(Location()) }
     val clientType by client { "unknown" }
     val clientScreen by client { false }
     val clientTemperature by client { -273.15 }

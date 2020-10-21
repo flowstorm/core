@@ -41,6 +41,6 @@ class ContextualAttributeDelegate<V: Any>(
     }
 
     companion object {
-        fun isClientUserAttribute(name: String) = name.startsWith("clientUser") || name == "clientLocation"
+        fun isClientUserAttribute(name: String) = name.startsWith("clientUser")
     }
 }
