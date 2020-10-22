@@ -4,14 +4,19 @@ import com.mongodb.ConnectionString
 import com.mongodb.client.MongoDatabase
 import com.promethist.common.*
 import com.promethist.common.mongo.KMongoIdParamConverterProvider
-import com.promethist.common.query.*
+import com.promethist.common.query.Query
+import com.promethist.common.query.QueryInjectionResolver
+import com.promethist.common.query.QueryParams
+import com.promethist.common.query.QueryValueFactory
 import com.promethist.core.context.ContextFactory
 import com.promethist.core.context.ContextPersister
-import com.promethist.core.runtime.*
+import com.promethist.core.model.Session
 import com.promethist.core.profile.MongoProfileRepository
 import com.promethist.core.profile.ProfileRepository
 import com.promethist.core.resources.*
+import com.promethist.core.runtime.*
 import io.sentry.Sentry
+import io.sentry.SentryEvent
 import org.glassfish.hk2.api.InjectionResolver
 import org.glassfish.hk2.api.PerLookup
 import org.glassfish.hk2.api.TypeLiteral
@@ -102,9 +107,23 @@ class Application : JerseyApplication() {
                 bindFactory(QueryValueFactory::class.java).to(Query::class.java).`in`(PerLookup::class.java)
 
                 bind(QueryInjectionResolver::class.java)
-                        .to(object: TypeLiteral<InjectionResolver<QueryParams>>() {})
+                        .to(object : TypeLiteral<InjectionResolver<QueryParams>>() {})
                         .`in`(Singleton::class.java)
             }
         })
+    }
+
+    companion object {
+        fun capture(e: Throwable, session: Session? = null) = with(SentryEvent()) {
+            throwable = e
+            if (session != null)
+                setExtras(mapOf(
+                        "sessionId" to session.sessionId,
+                        "applicationName" to session.application.name,
+                        "dialogue_id" to session.application.dialogue_id.toString(),
+                        "user_id" to session.user._id.toString()
+                ))
+            Sentry.captureEvent(this)
+        }
     }
 }
