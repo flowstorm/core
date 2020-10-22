@@ -54,13 +54,13 @@ abstract class BasicDialogue : AbstractDialogue() {
 
     override val clientLocation get() = clientUserLocation.value
     val clientUserLocation by client { Memory(Location()) }
-    val clientType by client { "unknown" }
-    val clientScreen by client { false }
-    val clientTemperature by client { -273.15 }
-    val clientAmbientLight by client { 0.0 }
-    val clientSpatialMotion by client { 0.0 }
-    val clientSpeechAngle by client { -1 }
-    val clientSpeechDetected by client { false }
+    var clientType by client { "unknown" }
+    var clientScreen by client { false }
+    var clientTemperature by client { -273.15 }
+    var clientAmbientLight by client { 0.0 }
+    var clientSpatialMotion by client { 0.0 }
+    var clientSpeechAngle by client { -1 }
+    var clientSpeechDetected by client { false }
     val clientSpeechDirection get() = clientSpeechAngle.let {
         when (it) {
             in 0..21 -> SpeechDirection.Right
