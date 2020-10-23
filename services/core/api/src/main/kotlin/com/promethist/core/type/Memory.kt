@@ -55,8 +55,8 @@ open class Memory<V : Any>(
     var value: V
         get() = _value
         set(value) {
-            touch()
             _value = value
+            touch()
         }
     var time: DateTime = DateTime.now()
     var count = 0
@@ -65,7 +65,7 @@ open class Memory<V : Any>(
     init {
         if (!canContain(_value))
             error("unsupported memory value type ${_value::class.qualifiedName}")
-        touch()
+        touch(true)
     }
 
     override fun equals(other: Any?): Boolean = if (other is Memory<*>) (_value == other._value) else false
@@ -74,18 +74,16 @@ open class Memory<V : Any>(
 
     override fun toString(): String = "${this::class.simpleName}(value=$_value, count=$count, time=$time)"
 
-    fun touch() {
+    fun touch(init: Boolean = false) {
         count++
-        time = if (AbstractDialogue.isRunning) {
+        if (AbstractDialogue.isRunning) {
             with(AbstractDialogue.run) {
-                node.dialogue.apply {
-                    if (clientLocation.isNotEmpty)
-                        location = clientLocation
-                }
-                context.turn.time
+                if (!init && node.dialogue.clientLocation.isNotEmpty)
+                    location = node.dialogue.clientLocation
+                time = context.turn.time
             }
-        } else {
-            DateTime.now()
+        } else if (!init) {
+            time = DateTime.now()
         }
     }
 }
