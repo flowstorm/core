@@ -5,6 +5,8 @@ import com.promethist.core.Input
 import com.promethist.core.Response
 import com.promethist.core.model.Session.DialogueStackFrame
 import com.promethist.core.type.Attributes
+import com.promethist.core.type.DateTime
+import java.time.ZoneId
 import java.util.*
 
 data class Turn(
@@ -17,6 +19,7 @@ data class Turn(
         var sttMode: SttConfig.Mode? = null,
         val log: MutableList<LogEntry> = mutableListOf()
 ) {
+    val time: DateTime get() = DateTime.ofInstant(datetime.toInstant(), ZoneId.systemDefault())
 
     fun addResponseItem(text: String?, image: String? = null, audio: String? = null, video: String? = null, code: String? = null, background: String? = null, repeatable: Boolean = true, voice: Voice? = null) {
         val plainText = text?.replace(Regex("\\<.*?\\>"), "")

@@ -4,6 +4,7 @@ import com.promethist.core.Context
 import com.promethist.core.profile.ProfileRepository
 import com.promethist.core.resources.SessionResource
 import com.promethist.core.runtime.DialogueLog
+import java.util.*
 import javax.inject.Inject
 
 class ContextPersister {
@@ -23,6 +24,7 @@ class ContextPersister {
         context.communities.values.forEach {
             context.communityResource.update(it)
         }
+        context.session.datetime = Date()
         sessionResource.update(context.session)
         profileRepository.save(context.userProfile)
     }

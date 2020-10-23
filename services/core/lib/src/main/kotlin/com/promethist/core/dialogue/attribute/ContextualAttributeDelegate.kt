@@ -22,25 +22,15 @@ class ContextualAttributeDelegate<V: Any>(
 
     enum class Scope { Turn, Session, User, Client }
 
-    override fun attribute(namespace: String, name: String, lambda: (Memorable?) -> Memorable) = with (AbstractDialogue.run.context) {
+    override fun attribute(namespace: String, name: String, init: (Memorable?) -> Memorable) = with (AbstractDialogue.run.context) {
         val attributes = (when (scope) {
-            Scope.Client -> {
-                if (isClientUserAttribute(name))
-                    userProfile.attributes
-                else
-                    session.attributes
-            }
+            Scope.Client -> getAttributes(name)
             Scope.User -> userProfile.attributes
             Scope.Session -> session.attributes
             else -> turn.attributes
         })[namespace]
-        val attribute = attributes[name]
-        lambda(attribute)?.apply {
-            attributes[name] = this
+        init(attributes[name]).also {
+            attributes[name] = it
         }
-    }
-
-    companion object {
-        fun isClientUserAttribute(name: String) = name.startsWith("clientUser")
     }
 }

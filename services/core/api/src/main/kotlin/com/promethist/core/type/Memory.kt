@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.promethist.core.dialogue.AbstractDialogue
 
-open class Memory<V: Any>(
+open class Memory<V : Any>(
         @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "_type", include = JsonTypeInfo.As.EXTERNAL_PROPERTY)
         @JsonSubTypes(value = [
 
@@ -65,6 +65,7 @@ open class Memory<V: Any>(
     init {
         if (!canContain(_value))
             error("unsupported memory value type ${_value::class.qualifiedName}")
+        touch()
     }
 
     override fun equals(other: Any?): Boolean = if (other is Memory<*>) (_value == other._value) else false
@@ -75,12 +76,16 @@ open class Memory<V: Any>(
 
     fun touch() {
         count++
-        time = DateTime.now()
-        if (AbstractDialogue.isRunning) {
-            AbstractDialogue.run.node.dialogue.apply {
-                if (clientLocation != null && clientLocation!!.isNotEmpty)
-                    location = clientLocation
+        time = if (AbstractDialogue.isRunning) {
+            with(AbstractDialogue.run) {
+                node.dialogue.apply {
+                    if (clientLocation.isNotEmpty)
+                        location = clientLocation
+                }
+                context.turn.time
             }
+        } else {
+            DateTime.now()
         }
     }
 }
