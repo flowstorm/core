@@ -78,8 +78,8 @@ open class Memory<V : Any>(
         count++
         if (AbstractDialogue.isRunning) {
             with(AbstractDialogue.run) {
-                if (!init && node.dialogue.clientLocation.isNotEmpty)
-                    location = node.dialogue.clientLocation
+                //if (!init && node.dialogue.clientLocation.isNotEmpty)
+                //    location = node.dialogue.clientLocation
                 time = context.turn.time
             }
         } else if (!init) {
