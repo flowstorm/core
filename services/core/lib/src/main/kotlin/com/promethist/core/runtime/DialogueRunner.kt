@@ -2,6 +2,7 @@ package com.promethist.core.runtime
 
 import com.promethist.common.TextConsole
 import com.promethist.common.RestClient
+import com.promethist.common.services.DummySender
 import com.promethist.core.*
 import com.promethist.core.builder.IntentModel
 import com.promethist.core.model.*
@@ -94,7 +95,7 @@ class DialogueRunner(
     private val app = Application(name = "test", dialogue_id = ObjectId(dialogueId).toId(), properties = properties)
     private val session = Session(sessionId = "T-E-S-T", user = user, application = app)
     private val turn = Turn(Input(locale, zoneId, Input.Transcript("")))
-    private val context = Context(SimplePipeline(LinkedList(listOf(dm, ir))), profile, session, turn, logger, locale, SimpleCommunityResource())
+    private val context = Context(SimplePipeline(LinkedList(listOf(dm, ir))), profile, session, turn, logger, locale, SimpleCommunityResource(), DummySender())
 
     override fun beforeInput() {
         context.pipeline.process(context)

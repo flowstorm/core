@@ -29,17 +29,19 @@ object ServiceUrlResolver {
         }
     }
 
-    fun getEndpointUrl(serviceName: String, runMode: RunMode = RunMode.detect, protocol: String = "http"): String =
-            when (runMode) {
-                RunMode.local -> "${protocol}://localhost:${servicePorts[serviceName]}"
-                RunMode.docker -> "${protocol}://${serviceName}:8080"
-                RunMode.dist -> "${protocol}s://${serviceName}" +
-                        (if (AppConfig.instance["namespace"] != "default")
-                            "." + AppConfig.instance["namespace"]
-                        else
-                            "") + ".promethist.com"
-                RunMode.detect ->
-                    getEndpointUrl(serviceName, RunMode.valueOf(
-                            System.getenv("RUN_MODE") ?: AppConfig.instance.get("runmode", "dist")))
-            }
+    fun getEndpointUrl(serviceName: String, runMode: RunMode = RunMode.detect, protocol: String = "http", namespace: String? = null): String {
+        val namespace = namespace ?: AppConfig.instance["namespace"]
+        return when (runMode) {
+            RunMode.local -> "${protocol}://localhost:${servicePorts[serviceName]}"
+            RunMode.docker -> "${protocol}://${serviceName}:8080"
+            RunMode.dist -> "${protocol}s://${serviceName}" +
+                    (if (namespace != "default")
+                        ".$namespace"
+                    else
+                        "") + ".promethist.com"
+            RunMode.detect ->
+                getEndpointUrl(serviceName, RunMode.valueOf(
+                        System.getenv("RUN_MODE") ?: AppConfig.instance.get("runmode", "dist")), namespace = namespace)
+        }
+    }
 }
