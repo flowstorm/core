@@ -81,6 +81,11 @@ class Application : JerseyApplication() {
 
                 bind(cassandra).to(Component::class.java).named("cassandra")
 
+
+                println("illusionistUrl = $illusionistUrl")
+                println("cassandraUrl = $cassandraUrl")
+                println("ducklingUrl = $ducklingUrl")
+
                 val mailgun = Mailgun.Builder(AppConfig.instance["mailgun.domain"], AppConfig.instance["mailgun.apikey"])
                         .baseUrl(AppConfig.instance["mailgun.baseUrl"])
                         .build()
