@@ -34,7 +34,9 @@ class ContextFactory {
                 pipeline,
                 userProfile,
                 session,
-                Turn(input = request.input),
+                Turn(input = request.input).also {
+                    it.request.attributes = request.attributes
+                },
                 dialogueLog.logger,
                 request.input.locale,
                 communityResource,

@@ -49,7 +49,7 @@ class Application : JerseyApplication() {
                 val namespace = AppConfig.instance.get("dsuffix", AppConfig.instance["namespace"])
 
                 // IR component
-                val illusionistUrl = ServiceUrlResolver.getEndpointUrl("illusionist", namespace = namespace)
+                val illusionistUrl = ServiceUrlResolver.getEndpointUrl("illusionist", namespace)
                 val illusionist = Illusionist()
                 illusionist.webTarget = RestClient.webTarget(illusionistUrl)
                         .path("/query")
@@ -66,7 +66,7 @@ class Application : JerseyApplication() {
                 bind(DialogueManager::class.java).to(Component::class.java).named("dm")
 
                 // Duckling (time values)
-                val ducklingUrl = ServiceUrlResolver.getEndpointUrl("duckling", namespace = namespace)
+                val ducklingUrl = ServiceUrlResolver.getEndpointUrl("duckling", namespace)
                 val duckling = Duckling()
                 duckling.webTarget = RestClient.webTarget(ducklingUrl)
                         .path("/parse")
@@ -74,7 +74,7 @@ class Application : JerseyApplication() {
                 bind(duckling).to(Component::class.java).named("duckling")
 
                 // NER component (second)
-                val cassandraUrl = ServiceUrlResolver.getEndpointUrl("cassandra", namespace = namespace)
+                val cassandraUrl = ServiceUrlResolver.getEndpointUrl("cassandra", namespace)
                 val cassandra = Cassandra()
                 cassandra.webTarget = RestClient.webTarget(cassandraUrl)
                         .path("/query")
