@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.promethist.common.AppConfig
 import com.promethist.common.ObjectUtil
+import com.promethist.core.Application
 import com.promethist.core.Context
 import com.promethist.core.model.Entity
 import com.promethist.core.profile.ProfileRepository
@@ -39,11 +40,15 @@ class ContextPersister {
         context.communities.values.forEach {
             context.communityResource.update(it)
         }
+
+        try {
+            saveToElastic(context.session)
+            saveToElastic(context.userProfile)
+        } catch (e: Throwable) {
+            Application.capture(e, context.session)
+        }
         sessionResource.update(context.session)
         profileRepository.save(context.userProfile)
-
-        saveToElastic(context.session)
-        saveToElastic(context.userProfile)
     }
 
     private fun saveToElastic(entity: Entity<*>) = elasticClient?.let { client ->
