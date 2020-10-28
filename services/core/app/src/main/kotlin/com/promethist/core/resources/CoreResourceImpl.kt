@@ -2,6 +2,7 @@ package com.promethist.core.resources
 
 import ch.qos.logback.classic.Level
 import com.promethist.core.*
+import com.promethist.core.Application
 import com.promethist.core.context.ContextFactory
 import com.promethist.core.context.ContextPersister
 import com.promethist.core.dialogue.AbstractDialogue
@@ -9,6 +10,7 @@ import com.promethist.core.model.*
 import com.promethist.core.model.metrics.Metric
 import com.promethist.core.resources.ContentDistributionResource.ContentRequest
 import com.promethist.core.runtime.DialogueLog
+import com.promethist.core.type.Dynamic
 import com.promethist.core.type.Memory
 import com.promethist.util.LoggerDelegate
 import javax.inject.Inject
@@ -115,17 +117,9 @@ class CoreResourceImpl : CoreResource {
                         nodeId = 0,
                         text = text
                 )
-                /*
-                Sentry.capture(
-                    EventBuilder()
-                        .withMessage(text)
-                        .withExtra("sessionId", session.sessionId)
-                        .withExtra("applicationName", application.name)
-                        .withExtra("dialogue_id", application.dialogue_id.toString())
-                        .withExtra("user_id", user._id.toString()
-                    )
-                )
-                 */
+                if (e !is AbstractDialogue.DialogueScriptException) {
+                    Application.capture(e)
+                }
             }
             throw e
         } finally {
@@ -149,7 +143,7 @@ class CoreResourceImpl : CoreResource {
                     user = contentResponse.user,
                     test = contentResponse.test,
                     application = contentResponse.application,
-                    properties = contentResponse.sessionProperties
+                    properties = Dynamic(contentResponse.sessionProperties)
             )
         }
         sessionResource.update(session)

@@ -11,11 +11,13 @@ import com.promethist.services.MessageSender
 import com.promethist.common.services.MailgunSender
 import com.promethist.core.context.ContextFactory
 import com.promethist.core.context.ContextPersister
-import com.promethist.core.runtime.*
+import com.promethist.core.model.Session
 import com.promethist.core.profile.MongoProfileRepository
 import com.promethist.core.profile.ProfileRepository
 import com.promethist.core.resources.*
+import com.promethist.core.runtime.*
 import io.sentry.Sentry
+import io.sentry.SentryEvent
 import org.glassfish.hk2.api.InjectionResolver
 import org.glassfish.hk2.api.PerLookup
 import org.glassfish.hk2.api.TypeLiteral
@@ -103,7 +105,7 @@ class Application : JerseyApplication() {
                 bindTo(DevicePairingResource::class.java, DevicePairingResourceImpl::class.java)
                 bindTo(MongoDatabase::class.java,
                         KMongo.createClient(ConnectionString(AppConfig.instance["database.url"]))
-                                .getDatabase(AppConfig.instance["name"] + "-" + namespace))
+                                .getDatabase(AppConfig.instance["name"] + "-" + AppConfig.instance.get("dsuffix", AppConfig.instance["namespace"])))
 
                 bindTo(CoreResourceImpl::class.java)
 
@@ -120,5 +122,19 @@ class Application : JerseyApplication() {
                         .`in`(Singleton::class.java)
             }
         })
+    }
+
+    companion object {
+        fun capture(e: Throwable, session: Session? = null) = with(SentryEvent()) {
+            throwable = e
+            if (session != null)
+                setExtras(mapOf(
+                        "sessionId" to session.sessionId,
+                        "applicationName" to session.application.name,
+                        "dialogue_id" to session.application.dialogue_id.toString(),
+                        "user_id" to session.user._id.toString()
+                ))
+            Sentry.captureEvent(this)
+        }
     }
 }

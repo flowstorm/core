@@ -10,13 +10,15 @@ import java.text.SimpleDateFormat
 object ObjectUtil {
 
     @JvmStatic
-    val defaultMapper = ObjectMapper()
+    val defaultMapper: ObjectMapper = createMapper()
+
+    fun createMapper(): ObjectMapper = ObjectMapper()
             .registerModule(KotlinModule())
             .registerModule(IdJacksonModule())
             .registerModule(JavaTimeModule())
             .setDateFormat(SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ"))
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .apply {
-                setConfig(getSerializationConfig().withView(Any::class.java))
+                setConfig(serializationConfig.withView(Any::class.java))
             }
 }

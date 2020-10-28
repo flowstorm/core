@@ -2,14 +2,13 @@ package com.promethist.core.model
 
 import com.promethist.core.model.metrics.Metric
 import com.promethist.core.type.*
-import jdk.nashorn.internal.ir.annotations.Ignore
 import org.litote.kmongo.Id
 import org.litote.kmongo.newId
 import java.util.*
 
 data class  Session(
-        val _id: Id<Session> = newId(),
-        var datetime: Date = Date(),
+        override val _id: Id<Session> = newId(),
+        val datetime: Date = Date(),
         val sessionId: String,
         val test: Boolean = false,
         var user: User,
@@ -21,7 +20,7 @@ data class  Session(
         val properties: MutablePropertyMap = mutableMapOf(),
         val attributes: Attributes = Attributes(),
         val dialogueStack: DialogueStack = LinkedList()
-) {
+) : Entity<Session> {
     val isInitiated get() = initiationId != null
     val clientType get()  = attributes[DialogueModel.defaultNamespace]?.get("clientType")?.let {
         (it as Memory<String>).value
