@@ -16,6 +16,7 @@ data class BotConfig(
         var tts: TtsType = TtsType.None,
         var returnSsml: Boolean = false,
         var voice: Voice? = null,
+        var silenceTimeout: Long = 5000,
         var test: Boolean = false) : Serializable {
 
     enum class TtsType {
