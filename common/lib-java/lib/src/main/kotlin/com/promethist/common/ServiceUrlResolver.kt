@@ -7,6 +7,7 @@ object ServiceUrlResolver {
     val logger by LoggerDelegate()
 
     val servicePorts = mapOf(
+            "bot" to 3000,
             "port" to 8080,
             "filestore" to 8082,
             "core" to 8088,
@@ -29,7 +30,7 @@ object ServiceUrlResolver {
         }
     }
 
-    fun getEndpointUrl(serviceName: String, runMode: RunMode = RunMode.detect, protocol: String = "http", namespace: String? = null): String {
+    fun getEndpointUrl(serviceName: String, runMode: RunMode = RunMode.detect, protocol: String = "http", domain: String = "promethist.com", namespace: String? = null): String {
         val namespace = namespace ?: AppConfig.instance["namespace"]
         return when (runMode) {
             RunMode.local -> "${protocol}://localhost:${servicePorts[serviceName]}"
@@ -38,7 +39,7 @@ object ServiceUrlResolver {
                     (if (namespace != "default")
                         ".$namespace"
                     else
-                        "") + ".promethist.com"
+                        "") + "." + domain
             RunMode.detect ->
                 getEndpointUrl(serviceName, RunMode.valueOf(
                         System.getenv("RUN_MODE") ?: AppConfig.instance.get("runmode", "dist")), namespace = namespace)
