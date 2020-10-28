@@ -277,6 +277,11 @@ abstract class AbstractDialogue : DialogueModel {
 
         val run get() = _run.get() ?: error("dialogue code not running")
 
+        fun ifRunning(block: Run.() -> Unit) {
+            if (isRunning)
+                block(run)
+        }
+
         fun run(context: Context, node: Node, block: () -> Any?): Any? =
             try {
                 _run.set(Run(node, context))

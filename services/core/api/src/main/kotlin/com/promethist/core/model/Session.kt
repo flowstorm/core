@@ -8,7 +8,7 @@ import java.util.*
 
 data class  Session(
         override val _id: Id<Session> = newId(),
-        val datetime: Date = Date(),
+        var datetime: Date = Date(),
         val sessionId: String,
         val test: Boolean = false,
         var user: User,
