@@ -182,6 +182,7 @@ class BotClient(
     }
 
     private fun onResponse(response: Response) {
+        logger.debug("onResponse(response = $response)")
         outputAudioPlayCancel()
         if (response.logs.isNotEmpty())
             callback.onLog(this, response.logs)

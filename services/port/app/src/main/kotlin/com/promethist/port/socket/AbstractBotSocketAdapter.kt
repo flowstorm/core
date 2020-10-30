@@ -213,6 +213,7 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
             }
 
             if (item.audio == null && !item.text.isNullOrBlank()) {
+                item.voice = voice
                 val ttsRequest =
                         TtsRequest(
                                 voice,
