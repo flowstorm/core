@@ -20,6 +20,7 @@ data class Turn(
         val responseItems: MutableList<Response.Item> = mutableListOf(),
         @Transient val expectedPhrases: MutableList<ExpectedPhrase> = mutableListOf(),
         var sttMode: SttConfig.Mode? = null,
+        var duration: Long? = null,
         val log: MutableList<LogEntry> = mutableListOf()
 ) {
     data class Request(var attributes: PropertyMap? = null)

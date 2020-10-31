@@ -37,6 +37,7 @@ class ContextPersister {
 
     fun persist(context: Context) {
         context.turn.log.addAll(dialogueLog.log)
+        context.turn.duration = System.currentTimeMillis() - context.turn.datetime.time
         context.session.turns.add(context.turn)
         context.session.datetime = Date()
         context.communities.values.forEach {
