@@ -5,13 +5,12 @@ import com.promethist.core.Context
 import com.promethist.core.Pipeline
 import com.promethist.core.Request
 import com.promethist.core.dialogue.AbstractDialogue
-import com.promethist.core.dialogue.attribute.ContextualAttributeDelegate
 import com.promethist.core.profile.ProfileRepository
 import com.promethist.core.resources.CommunityResource
 import com.promethist.core.runtime.DialogueLog
 import com.promethist.core.type.Dynamic
-import com.promethist.core.type.Memory
 import com.promethist.core.type.toLocation
+import com.promethist.services.MessageSender
 import javax.inject.Inject
 
 class ContextFactory {
@@ -25,6 +24,9 @@ class ContextFactory {
     @Inject
     lateinit var dialogueLog: DialogueLog
 
+    @Inject
+    lateinit var messageSender: MessageSender
+
     fun createContext(pipeline: Pipeline, session: Session, request: Request): Context {
         val userProfile = profileRepository.find(session.user._id)
                 ?: Profile(user_id = session.user._id)
@@ -32,10 +34,13 @@ class ContextFactory {
                 pipeline,
                 userProfile,
                 session,
-                Turn(input = request.input),
+                Turn(input = request.input).also {
+                    it.request.attributes = request.attributes
+                },
                 dialogueLog.logger,
                 request.input.locale,
-                communityResource
+                communityResource,
+                messageSender
         )
         request.attributes.forEach {
             val name = if (it.key == "clientLocation")

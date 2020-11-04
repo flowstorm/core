@@ -1,5 +1,7 @@
 package com.promethist.core.model
 
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.promethist.common.ServiceUrlResolver
 import com.promethist.core.type.MutablePropertyMap
 import org.litote.kmongo.Id
 import org.litote.kmongo.newId
@@ -11,4 +13,7 @@ open class Application(
         open var public: Boolean = false,
         open var icon: String? = null,
         open var properties: MutablePropertyMap = mutableMapOf()
-)
+) {
+    @get:JsonIgnore
+    val link get() = ServiceUrlResolver.getEndpointUrl("bot", domain = "promethist.ai") + "/" + _id
+}

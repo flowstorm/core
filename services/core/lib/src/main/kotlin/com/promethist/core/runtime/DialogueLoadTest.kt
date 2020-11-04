@@ -1,5 +1,6 @@
 package com.promethist.core.runtime
 
+import com.promethist.common.services.DummySender
 import com.promethist.core.*
 import com.promethist.core.dialogue.AbstractDialogue
 import com.promethist.core.model.*
@@ -39,7 +40,8 @@ object DialogueLoadTest {
                 Turn(Input(transcript = Input.Transcript("some message"))),
                 logger,
                 dialogue.locale,
-                SimpleCommunityResource()
+                SimpleCommunityResource(),
+                DummySender()
         )
 
         val func = dialogue.functions.first()

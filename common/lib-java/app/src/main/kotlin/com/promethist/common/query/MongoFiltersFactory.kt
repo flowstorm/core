@@ -92,7 +92,7 @@ object MongoFiltersFactory {
     }
 
     private fun createValue(type: KType, value: String): Any {
-        if (type.isSubtypeOf(Id::class.createType(listOf(KTypeProjection.STAR)))) {
+        if (type.isSubtypeOf(Id::class.createType(listOf(KTypeProjection.STAR), true))) {
             return ObjectIdGenerator.create(value)
         }
         return when (type) {

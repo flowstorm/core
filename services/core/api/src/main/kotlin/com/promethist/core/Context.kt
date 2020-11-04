@@ -3,6 +3,7 @@ package com.promethist.core
 import com.promethist.core.model.*
 import com.promethist.core.resources.CommunityResource
 import com.promethist.core.type.Attributes
+import com.promethist.services.MessageSender
 import org.slf4j.Logger
 import java.util.*
 
@@ -14,6 +15,7 @@ data class Context(
         val logger: Logger,
         var locale: Locale? = null,
         val communityResource: CommunityResource,
+        val messageSender: MessageSender,
         val communities: MutableMap<String, Community> = mutableMapOf(),
         var intentModels: List<Model> = listOf(),
         var dialogueEvent: DialogueEvent? = null,
@@ -37,4 +39,8 @@ data class Context(
             turn.attributes
         else
             session.attributes
+
+    fun sendMessage(subject: String, text: String) = with (user) {
+        messageSender.sendMessage(MessageSender.Recipient(username, "$name $surname"), subject, text)
+    }
 }

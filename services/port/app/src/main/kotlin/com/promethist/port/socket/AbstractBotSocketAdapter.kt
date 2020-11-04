@@ -128,7 +128,7 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
     fun onInputAudio(payload: ByteArray, offset: Int, length: Int) {
         logger.debug("onInputAudio(payload[${payload.size}], offset = $offset, length = $length)")
         if (inputAudioStreamOpen) {
-            if ((sttLastTime + 5000 < System.currentTimeMillis()) && (sttConfig.mode != SttConfig.Mode.Duplex))
+            if ((sttLastTime + config.silenceTimeout < System.currentTimeMillis()) && (sttConfig.mode != SttConfig.Mode.Duplex))
                 onSilence()
             else
                 sttStream?.write(payload, offset, length)
@@ -213,6 +213,7 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
             }
 
             if (item.audio == null && !item.text.isNullOrBlank()) {
+                item.voice = voice
                 val ttsRequest =
                         TtsRequest(
                                 voice,

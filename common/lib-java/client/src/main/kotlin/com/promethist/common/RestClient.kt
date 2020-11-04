@@ -52,7 +52,7 @@ object RestClient {
 
     fun <T> call(url: URL, method: String = "GET", headers: Map<String, String>? = null, output: Any? = null): HttpURLConnection {
         val conn = url.openConnection() as HttpURLConnection
-        conn.readTimeout = 10000
+        conn.readTimeout = 30000
         conn.connectTimeout = 15000
         conn.requestMethod = method
         conn.doInput = true
