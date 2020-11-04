@@ -7,6 +7,8 @@ import com.promethist.core.Input
 import com.promethist.core.Request
 import com.promethist.core.Response
 import com.promethist.core.model.SttConfig
+import com.promethist.core.type.Dynamic
+import com.promethist.core.type.PropertyMap
 import com.promethist.util.LoggerDelegate
 import java.util.UUID
 
@@ -180,6 +182,7 @@ class BotClient(
     }
 
     private fun onResponse(response: Response) {
+        logger.debug("onResponse(response = $response)")
         outputAudioPlayCancel()
         if (response.logs.isNotEmpty())
             callback.onLog(this, response.logs)
@@ -296,12 +299,15 @@ class BotClient(
     }
 
     private fun builtinAudio(name: String, type: OutputQueue.Item.Type = OutputQueue.Item.Type.Client) =
-            outputQueue.add(OutputQueue.Item.Audio(builtinAudioData.getOrPut(name) {
-                if (name.endsWith("/bot_ready") || name.endsWith("/connection_lost") || name.endsWith("/error"))
-                    javaClass.getResourceAsStream("/audio/$name.mp3").readBytes()
-                else
-                    callback.httpRequest(this, "https://repository.promethist.ai/audio/client/$name.mp3")
-            } ?: error("missing builtin audio $name"), type))
+            if (tts == BotConfig.TtsType.None)
+                false
+            else
+                outputQueue.add(OutputQueue.Item.Audio(builtinAudioData.getOrPut(name) {
+                    if (name.endsWith("/bot_ready") || name.endsWith("/connection_lost") || name.endsWith("/error"))
+                        javaClass.getResourceAsStream("/audio/$name.mp3").readBytes()
+                    else
+                        callback.httpRequest(this, "https://repository.promethist.ai/audio/client/$name.mp3")
+                } ?: error("missing builtin audio $name"), type))
 
     fun inputAudioStreamOpen() {
         if (inputAudioDevice != null) {
@@ -335,12 +341,26 @@ class BotClient(
         socket.sendAudioData(data, count)
     }
 
-    fun doText(text: String) {
-        if (context.sessionId == null || sleepLimitTime < System.currentTimeMillis())
+    fun doText(text: String, attributes: PropertyMap = emptyMap()) {
+        if (context.sessionId == null || (sleepLimitTime > 0 && sleepLimitTime < System.currentTimeMillis()))
             context.sessionId = UUID.randomUUID().toString()
-        val request = Request(context.key, context.sender, context.token, context.sessionId!!, context.initiationId, Input(context.locale, context.zoneId, Input.Transcript(text)), context.attributes)
+        val request = Request(
+                context.key,
+                context.sender,
+                context.token,
+                context.sessionId!!,
+                context.initiationId,
+                Input(context.locale, context.zoneId, Input.Transcript(text)),
+                if (attributes.isEmpty())
+                    context.attributes
+                else Dynamic(context.attributes).apply {
+                    putAll(attributes)
+                }
+        )
         socket.sendEvent(BotEvent.Request(request))
     }
+
+    fun doText(text: String, key: String, value: Any) = doText(text, Dynamic(key to value))
 
     private fun doIntro() {
         builtinAudio("intro")

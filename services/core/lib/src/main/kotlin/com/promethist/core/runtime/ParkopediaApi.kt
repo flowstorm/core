@@ -52,7 +52,7 @@ class ParkopediaApi(dialogue: BasicDialogue) : DialogueApi(dialogue) {
         val payByCard = ctype.and(1 shl 2) > 0 || ctype.and(1 shl 4) > 0 || ctype.and(1 shl 5) > 0
         val openingTimes = "nonstop"
 
-        val walkingDistance get() = (distance / 1000.0) / 4.0 * 60
+        val walkingDistance get() = distance * 60 / 1000 / 4
         val name get() = title.replace(" *\\d+$".toRegex(), "")
         var durationRestricted = false
         var durationMax = Duration(Float.MAX_VALUE, "day")

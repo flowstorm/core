@@ -7,7 +7,7 @@ import com.promethist.core.model.Voice
 import com.promethist.core.type.PropertyMap
 import java.util.*
 
-class Response(
+data class Response(
         var locale: Locale? = null,
         var items: MutableList<Item>,
         var logs: MutableList<LogEntry>,

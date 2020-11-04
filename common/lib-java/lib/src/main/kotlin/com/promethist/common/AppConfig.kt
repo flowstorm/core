@@ -80,13 +80,9 @@ class AppConfig: Serializable, Cloneable {
 
         @JvmStatic
         val instance = AppConfig()
-        val version = {
-            var version = instance.get("app.version", "unknown")
-            if (version.endsWith("SNAPSHOT"))
-                "$version commit ${instance.get("git.commit", "unknown")}"
-            else
-                version
-        }.invoke()
+        val version by lazy {
+            instance.get("app.version", instance.get("git.ref", instance.get("git.commit", "undefined")))
+        }
 
         @JvmStatic
         fun main(args: Array<String>) {

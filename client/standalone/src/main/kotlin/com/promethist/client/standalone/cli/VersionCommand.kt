@@ -11,6 +11,6 @@ class VersionCommand: CommandRunner<Application.Config, VersionCommand.Config> {
     class Config
 
     override fun run(globalConfig: Application.Config, config: Config) {
-        System.out.println("${AppConfig.instance["app.version"]} commit ${AppConfig.instance["git.commit"]}")
+        println("version ${AppConfig.version} commit ${AppConfig.instance["git.commit"]}")
     }
 }

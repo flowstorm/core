@@ -3,6 +3,7 @@ package com.promethist.core.runtime
 import com.fasterxml.jackson.core.type.TypeReference
 import com.promethist.common.ObjectUtil
 import com.promethist.common.RestClient
+import com.promethist.core.dialogue.AbstractDialogue
 import com.promethist.core.type.Dynamic
 import com.promethist.core.type.PropertyMap
 import javax.ws.rs.client.Entity
@@ -24,17 +25,31 @@ open class Api {
         ObjectUtil.defaultMapper.readValue<T>(it, object : TypeReference<T>() {})
     }
 
-    inline fun <reified T : Any> get(target: WebTarget, headers: PropertyMap? = null) =
-            target.request().headers(headers).get(T::class.java)
+    inline fun <reified T : Any> get(target: WebTarget, headers: PropertyMap? = null) = invoke(target, headers) {
+        get(T::class.java)
+    }
 
-    inline fun <reified T : Any> put(target: WebTarget, out: Any, headers: PropertyMap? = null) =
-            target.request().headers(headers).put(Entity.json(out), T::class.java)
+    inline fun <reified T : Any> put(target: WebTarget, out: Any, headers: PropertyMap? = null) = invoke(target, headers) {
+        put(Entity.json(out), T::class.java)
+    }
 
-    inline fun <reified T : Any> post(target: WebTarget, out: Any, headers: PropertyMap? = null) =
-            target.request().headers(headers).post(Entity.json(out), T::class.java)
+    inline fun <reified T : Any> post(target: WebTarget, out: Any, headers: PropertyMap? = null) = invoke(target, headers) {
+        post(Entity.json(out), T::class.java)
+    }
 
-    inline fun <reified T : Any> delete(target: WebTarget, headers: PropertyMap? = null) =
-            target.request().headers(headers).delete(T::class.java)
+    inline fun <reified T : Any> delete(target: WebTarget, headers: PropertyMap? = null) = invoke(target, headers) {
+        delete(T::class.java)
+    }
+
+    inline fun <reified T : Any> invoke(target: WebTarget, headers: PropertyMap? = null, block: Invocation.Builder.() -> T): T {
+        val time = System.currentTimeMillis()
+        val result = block(target.request().headers(headers))
+        val duration = System.currentTimeMillis() - time
+        AbstractDialogue.ifRunning {
+            context.logger.info("API call to ${target.uri} took $duration ms")
+        }
+        return result
+    }
 
     inline fun <reified T : Any> words(word: String, type: String = "") =
             get<Dynamic>(target("https://wordsapiv1.p.rapidapi.com/words/").path("$word/$type"),

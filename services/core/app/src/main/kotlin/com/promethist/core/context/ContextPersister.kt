@@ -21,6 +21,7 @@ import org.elasticsearch.client.RestClient
 import org.elasticsearch.client.RestHighLevelClient
 import org.elasticsearch.common.xcontent.XContentType
 import org.litote.kmongo.Id
+import java.util.*
 import javax.inject.Inject
 
 class ContextPersister {
@@ -36,7 +37,9 @@ class ContextPersister {
 
     fun persist(context: Context) {
         context.turn.log.addAll(dialogueLog.log)
+        context.turn.duration = System.currentTimeMillis() - context.turn.datetime.time
         context.session.turns.add(context.turn)
+        context.session.datetime = Date()
         context.communities.values.forEach {
             context.communityResource.update(it)
         }

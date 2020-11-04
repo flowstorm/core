@@ -1,13 +1,14 @@
 package com.promethist.core
 
+import com.commit451.mailgun.Contact
+import com.commit451.mailgun.Mailgun
 import com.mongodb.ConnectionString
 import com.mongodb.client.MongoDatabase
 import com.promethist.common.*
 import com.promethist.common.mongo.KMongoIdParamConverterProvider
-import com.promethist.common.query.Query
-import com.promethist.common.query.QueryInjectionResolver
-import com.promethist.common.query.QueryParams
-import com.promethist.common.query.QueryValueFactory
+import com.promethist.common.query.*
+import com.promethist.services.MessageSender
+import com.promethist.common.services.MailgunSender
 import com.promethist.core.context.ContextFactory
 import com.promethist.core.context.ContextPersister
 import com.promethist.core.model.Session
@@ -46,10 +47,11 @@ class Application : JerseyApplication() {
                 bindTo(ContextFactory::class.java)
                 bindTo(ContextPersister::class.java)
 
-                // NLP pipeline (last binded component will be used first)
+                // NLP pipeline (last bound component will be used first)
+                val namespace = AppConfig.instance.get("dsuffix", AppConfig.instance["namespace"])
 
                 // IR component
-                val illusionistUrl = ServiceUrlResolver.getEndpointUrl("illusionist")
+                val illusionistUrl = ServiceUrlResolver.getEndpointUrl("illusionist", namespace)
                 val illusionist = Illusionist()
                 illusionist.webTarget = RestClient.webTarget(illusionistUrl)
                         .path("/query")
@@ -66,7 +68,7 @@ class Application : JerseyApplication() {
                 bind(DialogueManager::class.java).to(Component::class.java).named("dm")
 
                 // Duckling (time values)
-                val ducklingUrl = ServiceUrlResolver.getEndpointUrl("duckling")
+                val ducklingUrl = ServiceUrlResolver.getEndpointUrl("duckling", namespace)
                 val duckling = Duckling()
                 duckling.webTarget = RestClient.webTarget(ducklingUrl)
                         .path("/parse")
@@ -74,13 +76,22 @@ class Application : JerseyApplication() {
                 bind(duckling).to(Component::class.java).named("duckling")
 
                 // NER component (second)
-                val cassandraUrl = ServiceUrlResolver.getEndpointUrl("cassandra")
+                val cassandraUrl = ServiceUrlResolver.getEndpointUrl("cassandra", namespace)
                 val cassandra = Cassandra()
                 cassandra.webTarget = RestClient.webTarget(cassandraUrl)
                         .path("/query")
 
                 bind(cassandra).to(Component::class.java).named("cassandra")
 
+
+                println("illusionistUrl = $illusionistUrl")
+                println("cassandraUrl = $cassandraUrl")
+                println("ducklingUrl = $ducklingUrl")
+
+                val mailgun = Mailgun.Builder(AppConfig.instance["mailgun.domain"], AppConfig.instance["mailgun.apikey"])
+                        .baseUrl(AppConfig.instance["mailgun.baseUrl"])
+                        .build()
+                bindTo(MessageSender::class.java, MailgunSender(mailgun, Contact(AppConfig.instance["emailsender.from.email"], AppConfig.instance["emailsender.from.name"])))
 
                 // tokenizer (first)
                 bind(InternalTokenizer()).to(Component::class.java).named("tokenizer")
@@ -107,7 +118,7 @@ class Application : JerseyApplication() {
                 bindFactory(QueryValueFactory::class.java).to(Query::class.java).`in`(PerLookup::class.java)
 
                 bind(QueryInjectionResolver::class.java)
-                        .to(object : TypeLiteral<InjectionResolver<QueryParams>>() {})
+                        .to(object: TypeLiteral<InjectionResolver<QueryParams>>() {})
                         .`in`(Singleton::class.java)
             }
         })

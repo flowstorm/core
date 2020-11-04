@@ -5,12 +5,12 @@ import com.promethist.core.Context
 import com.promethist.core.Pipeline
 import com.promethist.core.Request
 import com.promethist.core.dialogue.AbstractDialogue
-import com.promethist.core.dialogue.attribute.ContextualAttributeDelegate
 import com.promethist.core.profile.ProfileRepository
 import com.promethist.core.resources.CommunityResource
 import com.promethist.core.runtime.DialogueLog
-import com.promethist.core.type.Memory
+import com.promethist.core.type.Dynamic
 import com.promethist.core.type.toLocation
+import com.promethist.services.MessageSender
 import javax.inject.Inject
 
 class ContextFactory {
@@ -24,16 +24,30 @@ class ContextFactory {
     @Inject
     lateinit var dialogueLog: DialogueLog
 
+    @Inject
+    lateinit var messageSender: MessageSender
+
     fun createContext(pipeline: Pipeline, session: Session, request: Request): Context {
         val userProfile = profileRepository.find(session.user._id)
                 ?: Profile(user_id = session.user._id)
-
+        val context = Context(
+                pipeline,
+                userProfile,
+                session,
+                Turn(input = request.input).also {
+                    it.request.attributes = request.attributes
+                },
+                dialogueLog.logger,
+                request.input.locale,
+                communityResource,
+                messageSender
+        )
         request.attributes.forEach {
             val name = if (it.key == "clientLocation")
                 "clientUserLocation"
             else
                 it.key
-            val attribute = Memory(when (name) {
+            val value = when (name) {
                 "clientUserLocation" ->
                     (it.value as String).toLocation().apply {
                         session.location = this
@@ -41,26 +55,16 @@ class ContextFactory {
                 "clientTemperature", "clientAmbientLight", "clientSpatialMotion" ->
                     it.value.toString().toDouble() // can be integer or double
                 else -> {
-                    if (name.endsWith("Location"))
+                    if ((it.value is String) && ((it.value as String).startsWith("lat=") || (it.value as String).startsWith("lng=")))
                         (it.value as String).toLocation()
+                    else if (it.value is Map<*, *>)
+                        Dynamic(it.value as Map<String, Any>)
                     else
-                        it.value
+                        it.value // type by JSON
                 }
-            })
-            (if (ContextualAttributeDelegate.isClientUserAttribute(name))
-                userProfile.attributes
-            else
-                session.attributes
-            )[AbstractDialogue.defaultNamespace][name] = attribute
+            }
+            context.getAttributes(name)[AbstractDialogue.defaultNamespace].set(name, value)
         }
-        return Context(
-                pipeline,
-                userProfile,
-                session,
-                Turn(input = request.input),
-                dialogueLog.logger,
-                request.input.locale,
-                communityResource
-        )
+        return context
     }
 }

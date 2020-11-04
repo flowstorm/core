@@ -2,21 +2,30 @@ package com.promethist.core.model
 
 import com.promethist.core.ExpectedPhrase
 import com.promethist.core.Input
+import com.promethist.core.Request
 import com.promethist.core.Response
 import com.promethist.core.model.Session.DialogueStackFrame
 import com.promethist.core.type.Attributes
+import com.promethist.core.type.DateTime
+import com.promethist.core.type.PropertyMap
+import java.time.ZoneId
 import java.util.*
 
 data class Turn(
         var input: Input,
+        val request: Request = Request(),
         val datetime: Date = Date(),
         var attributes: Attributes = Attributes(),
         var endFrame: DialogueStackFrame? = null, //where the turn ends (input node)
         val responseItems: MutableList<Response.Item> = mutableListOf(),
         @Transient val expectedPhrases: MutableList<ExpectedPhrase> = mutableListOf(),
         var sttMode: SttConfig.Mode? = null,
+        var duration: Long? = null,
         val log: MutableList<LogEntry> = mutableListOf()
 ) {
+    data class Request(var attributes: PropertyMap? = null)
+
+    val time: DateTime get() = DateTime.ofInstant(datetime.toInstant(), ZoneId.systemDefault())
 
     fun addResponseItem(text: String?, image: String? = null, audio: String? = null, video: String? = null, code: String? = null, background: String? = null, repeatable: Boolean = true, voice: Voice? = null) {
         val plainText = text?.replace(Regex("\\<.*?\\>"), "")
