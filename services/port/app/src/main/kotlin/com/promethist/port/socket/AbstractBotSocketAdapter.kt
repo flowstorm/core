@@ -16,12 +16,11 @@ import com.promethist.core.model.Voice
 import com.promethist.core.resources.CoreResource
 import com.promethist.core.type.Dynamic
 import com.promethist.core.type.MutablePropertyMap
+import com.promethist.port.Application
 import com.promethist.port.FileService
 import com.promethist.port.stt.*
 import com.promethist.port.tts.TtsRequest
 import com.promethist.util.LoggerDelegate
-import io.sentry.Sentry
-import io.sentry.SentryEvent
 import org.eclipse.jetty.websocket.api.WebSocketAdapter
 import java.io.IOException
 import java.util.*
@@ -50,7 +49,11 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
         }
 
         override fun onError(e: Throwable) {
-            capture(e)
+            Application.capture(e, mapOf(
+                    "config" to config,
+                    "sessionId" to sessionId,
+                    "appKey" to appKey
+            ))
             logger.error("BotSttCallback.onError", e)
             if (isConnected) {
                 if (e is OutOfRangeException)
@@ -259,16 +262,6 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
         }
         if (!ttsOnly)
             sendEvent(BotEvent.Response(response))
-    }
-
-    fun capture(e: Throwable) = with (SentryEvent()) {
-        throwable = e
-        setExtras(mapOf(
-            "config" to config,
-            "sessionId" to sessionId,
-            "appKey" to appKey
-        ))
-        Sentry.captureEvent(this)
     }
 
     companion object {

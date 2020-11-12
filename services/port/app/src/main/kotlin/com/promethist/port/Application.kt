@@ -9,6 +9,8 @@ import com.promethist.core.resources.FileResource
 import com.promethist.port.resources.PortResource
 import com.promethist.port.resources.PortResourceImpl
 import io.sentry.Sentry
+import io.sentry.SentryEvent
+import java.io.Serializable
 
 class Application : JerseyApplication() {
 
@@ -26,5 +28,14 @@ class Application : JerseyApplication() {
                 bindTo(CoreResource::class.java, ServiceUrlResolver.getEndpointUrl("core"))
             }
         })
+    }
+
+    companion object {
+        fun capture(e: Throwable, extras: Map<String, Serializable?> = emptyMap()) = with (SentryEvent()) {
+            throwable = e
+            if (extras.isNotEmpty())
+                setExtras(extras)
+            Sentry.captureEvent(this)
+        }
     }
 }

@@ -14,6 +14,7 @@ import com.promethist.core.Response
 import com.promethist.core.model.TtsConfig
 import com.promethist.core.type.Dynamic
 import com.promethist.core.type.Location
+import com.promethist.port.Application
 import com.promethist.util.LoggerDelegate
 import java.util.*
 import java.util.function.Predicate
@@ -69,19 +70,24 @@ abstract class AbstractHandler(private val predicate: Predicate<HandlerInput>) :
         BotService.context(session.sessionId, context.system.device.deviceId, "alexa:${context.system.application.applicationId}", Locale.ENGLISH, Dynamic(
                 "clientType" to "amazon-alexa:${AppConfig.version}"
         ).also { attributes ->
-            context.geolocation?.apply {
-                val location = Location(
-                        coordinate.latitudeInDegrees,
-                        coordinate.longitudeInDegrees,
-                        coordinate.accuracyInMeters,
-                        altitude.altitudeInMeters,
-                        altitude.accuracyInMeters,
-                        speed.speedInMetersPerSecond,
-                        speed.accuracyInMetersPerSecond,
-                        heading.directionInDegrees,
-                        heading.accuracyInDegrees
-                )
-                attributes["clientLocation"] = location.toString()
+            try {
+                context.geolocation?.apply {
+                    val location = Location(
+                            coordinate?.latitudeInDegrees,
+                            coordinate?.longitudeInDegrees,
+                            coordinate?.accuracyInMeters,
+                            altitude?.altitudeInMeters,
+                            altitude?.accuracyInMeters,
+                            speed?.speedInMetersPerSecond,
+                            speed?.accuracyInMetersPerSecond,
+                            heading?.directionInDegrees,
+                            heading?.accuracyInDegrees
+                    )
+                    attributes["clientLocation"] = location.toString()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Application.capture(e)
             }
         })
     }
