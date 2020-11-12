@@ -244,7 +244,7 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
                                     speakingVolumeGain = attributes["speakingVolumeGain"].toString().toDouble()
                             }
                         }
-                if (config.tts != BotConfig.TtsType.None) {
+                if (config.tts != BotConfig.TtsType.None && !ttsRequest.text.isBlank()) {
                     val audio = dataService.getTtsAudio(
                             ttsRequest,
                             config.tts != BotConfig.TtsType.RequiredLinks,
