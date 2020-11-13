@@ -11,7 +11,7 @@ class SessionEndedRequestHandler : AbstractHandler(requestType(SessionEndedReque
 
     override fun handle(input: HandlerInput): Optional<Response> {
         val context = getContext(input)
-        context.attributes["alexaSessionEndedReason"] = (input.requestEnvelope as SessionEndedRequest).reason.toString()
+        //context.attributes["alexaSessionEndedReason"] = (input.requestEnvelope as SessionEndedRequest).reason.toString()
         BotService.client.doBye(context)
         return Optional.empty()
     }
