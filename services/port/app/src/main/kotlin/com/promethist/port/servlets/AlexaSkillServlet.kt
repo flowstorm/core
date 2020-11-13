@@ -11,7 +11,6 @@ class AlexaSkillServlet : SkillServlet(
             .addRequestHandlers(
                     CancelAndStopIntentHandler(),
                     MessageIntentHandler(),
-                    DeviceIdIntentHandler(),
                     HelpIntentHandler(),
                     LaunchRequestHandler(),
                     SessionEndedRequestHandler())
