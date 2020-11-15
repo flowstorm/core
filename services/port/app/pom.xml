@@ -37,11 +37,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.promethist.filestore</groupId>
-            <artifactId>filestore-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.promethist.client</groupId>
             <artifactId>client-lib</artifactId>
             <version>${project.version}</version>
