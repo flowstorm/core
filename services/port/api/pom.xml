@@ -7,10 +7,11 @@
     <packaging>jar</packaging>
 
     <parent>
-        <groupId>com.promethist.port</groupId>
-        <artifactId>port</artifactId>
+        <groupId>com.promethist</groupId>
+        <artifactId>service-port</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
+    <groupId>com.promethist.port</groupId>
     <artifactId>port-api</artifactId>
     <name>Promethist Service Port API</name>
 
