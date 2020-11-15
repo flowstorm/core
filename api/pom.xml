@@ -12,7 +12,7 @@
         <version>1.0.0-SNAPSHOT</version>
     </parent>
     <artifactId>core-api</artifactId>
-    <name>Promethist Common API</name>
+    <name>Promethist Core API</name>
 
     <properties>
         <kotlin.version>1.3.21</kotlin.version>

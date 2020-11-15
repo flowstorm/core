@@ -1,5 +1,4 @@
 .idea
-*local*
 *.iml
 target
 hs_*.log
