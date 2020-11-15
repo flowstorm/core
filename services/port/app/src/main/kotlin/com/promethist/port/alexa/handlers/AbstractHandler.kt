@@ -67,8 +67,13 @@ abstract class AbstractHandler(private val predicate: Predicate<HandlerInput>) :
     protected val logger by LoggerDelegate()
 
     protected fun getContext(input: HandlerInput) = with (input.requestEnvelope) {
-        BotService.context(session.sessionId, context.system.device.deviceId, "alexa:${context.system.application.applicationId}", Locale.ENGLISH, Dynamic(
-                "clientType" to "amazon-alexa:${AppConfig.version}"
+        BotService.context(
+                session.sessionId,
+                context.system.device.deviceId,
+                "alexa:${context.system.application.applicationId}",
+                "alexa:${context.system.apiAccessToken}",
+                Locale.ENGLISH,
+                Dynamic("clientType" to "amazon-alexa:${AppConfig.version}"
         ).also { attributes ->
             try {
                 context.geolocation?.apply {

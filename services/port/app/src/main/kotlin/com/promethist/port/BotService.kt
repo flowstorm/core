@@ -19,9 +19,9 @@ object BotService {
 
     private val contexts = mutableMapOf<String, BotContext>()
 
-    fun context(sessionId: String, deviceId: String, appKey: String, locale: Locale = Defaults.locale, attributes: Dynamic = Dynamic()) =
+    fun context(sessionId: String, deviceId: String, appKey: String, token: String? = null, locale: Locale = Defaults.locale, attributes: Dynamic = Dynamic()) =
         contexts.computeIfAbsent(sessionId) {
-            BotContext(coreUrl, appKey, deviceId, sessionId = sessionId, locale = locale, attributes = attributes)
+            BotContext(coreUrl, appKey, deviceId, token = token, sessionId = sessionId, locale = locale, attributes = attributes)
         }
 
     @JvmStatic

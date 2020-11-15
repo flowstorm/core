@@ -143,6 +143,8 @@ class ClientCommand: CommandRunner<Application.Config, ClientCommand.Config> {
     var responded = false
 
     private fun exit() {
+        client.close()
+        Thread.sleep(2000)
         exitProcess(0)
     }
 

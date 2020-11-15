@@ -35,7 +35,7 @@ java -jar promethist.jar bot -u https://port.preview.promethist.ai -k performanc
 ```
 
 #### Tool actions
-Processing TTS to MP3 file using platform TTS request default values - see https://gitlab.promethist.ai/services/port/blob/develop/api/src/main/kotlin/com/promethistai/port/tts/TtsRequest.kt
+Processing TTS to MP3 file using platform TTS request default values - see https://gitlab.promethist.ai/service/port/blob/develop/api/src/main/kotlin/com/promethistai/port/tts/TtsRequest.kt
 ```
 java -jar promethist.jar tool -a tts -u http://localhost:8080 -k test1 -i "tohle je test a ďábelský kůň který pěl ódy" -o local/test.mp3 -l cs
 ```

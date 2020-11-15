@@ -76,6 +76,8 @@ class BotClient(
 
     fun open() {
         logger.info("open()")
+        if (state != State.Closed)
+            error("open can be called only when client is closed (current state = $state)")
         if (inputAudioDevice != null) {
             inputAudioDevice.callback = object : AudioCallback {
                 override fun onStart() = logger.info("Audio input start")
@@ -344,20 +346,23 @@ class BotClient(
     fun doText(text: String, attributes: PropertyMap = emptyMap()) {
         if (context.sessionId == null || (sleepLimitTime > 0 && sleepLimitTime < System.currentTimeMillis()))
             context.sessionId = UUID.randomUUID().toString()
-        val request = Request(
-                context.key,
-                context.sender,
-                context.token,
-                context.sessionId!!,
-                context.initiationId,
-                Input(context.locale, context.zoneId, Input.Transcript(text)),
-                if (attributes.isEmpty())
-                    context.attributes
-                else Dynamic(context.attributes).apply {
-                    putAll(attributes)
-                }
-        )
-        socket.sendEvent(BotEvent.Request(request))
+        if (socket.state == BotSocket.State.Open && (text != "#signal" || state == State.Sleeping)) {
+            val request = Request(
+                    context.key,
+                    context.sender,
+                    context.token,
+                    context.sessionId!!,
+                    context.initiationId,
+                    Input(context.locale, context.zoneId, Input.Transcript(text)),
+                    if (attributes.isEmpty())
+                        context.attributes
+                    else Dynamic(context.attributes).apply {
+                        putAll(attributes)
+                    }
+            )
+            socket.sendEvent(BotEvent.Request(request))
+        } else
+            error("cannot do text = $text, state = $state, socket.state = ${socket.state}")
     }
 
     fun doText(text: String, key: String, value: Any) = doText(text, Dynamic(key to value))

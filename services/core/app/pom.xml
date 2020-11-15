@@ -12,7 +12,7 @@
         <version>1.0.0-SNAPSHOT</version>
     </parent>
     <artifactId>core-app</artifactId>
-    <name>Promethist Core App</name>
+    <name>Promethist Service Core App</name>
 
     <properties>
         <jetty.version>9.4.18.v20190429</jetty.version>
@@ -26,13 +26,8 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.promethist.core</groupId>
-            <artifactId>core-lib</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.promethist.common</groupId>
-            <artifactId>common-app</artifactId>
+            <groupId>com.promethist</groupId>
+            <artifactId>core-app</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

@@ -1,5 +1,6 @@
 package com.promethist.core.type
 
+import com.promethist.common.ObjectUtil
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -59,5 +60,40 @@ class DynamicTest {
                 assertEquals(10, value)
             }
         }
+    }
+
+    interface X : Dynamic.Object, Y {
+        val y: Y
+    }
+
+    interface Y {
+        var a: Int
+        var b: Int
+    }
+
+    val Y.aAsString get() = "a:$a"
+
+    @Test
+    fun `proxy`() {
+        //val mem = Dynamic("b" to 2)
+        //val obj = mem<X>()
+        val obj = dynamic<X> {
+            b = 2
+        }
+        obj.a = 1
+        obj.y.b = 1
+        println(obj.dynamic)
+        println(obj.aAsString)
+        assertEquals(1, obj.a)
+        assertEquals(2, obj.b)
+        assertEquals(0, obj.y.a)
+        assertEquals(1, obj.y.b)
+
+        // test equal
+        val mem2 = Dynamic("a" to 1, "b" to 2, "y" to Dynamic("a" to 0, "b" to 1))
+        assertEquals(obj.dynamic, mem2)
+
+        // test json serialization
+        println(ObjectUtil.defaultMapper.writeValueAsString(obj))
     }
 }

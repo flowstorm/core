@@ -12,7 +12,7 @@ import java.time.ZonedDateTime
 typealias ValueMutableList2 = MutableList<Memory<*>>
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class DummyTest {
+class DummyTest {/*//temporatily commented - needs to FIX some dependency issue
     //Dummy test to keep test directory in git and avoid warnings in build until we introduce actual tests.
 
     data class TestX(val id: String, val attributes: Attributes = Attributes())
@@ -66,5 +66,5 @@ class DummyTest {
         val tx2 = col.findOne { TestX::id eq "id" }
         println(tx2)
         */
-    }
+    }*/
 }

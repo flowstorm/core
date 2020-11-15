@@ -1,0 +1,168 @@
+stages:
+  - publish
+  - distribute
+  - document
+
+#
+# JOB TEMPLATES
+#
+# .distribute
+#
+.distribute java client:
+  stage: distribute
+  image: registry.promethist.ai/common/system/builder
+  variables:
+    DIR: client/XXX
+    NAME: NAME
+  only:
+    refs:
+      - develop
+      - tags
+  script:
+    - cd $DIR
+    - mvn -B package # maybe useless - should be already packaged by publish job
+    - cp target/$NAME.jar /ext/cluster/default/default/repository/dist/$NAME-$CI_COMMIT_REF_NAME.jar
+
+#
+# .document
+#
+.document release:
+  stage: document
+  image: registry.promethist.ai/common/system/builder
+  variables:
+    DIR: services
+    NAME: NAME
+    MODULE: api
+  only:
+    refs:
+      - tags
+  except:
+    - /^(!master).+@/
+  script:
+    - cd $DIR/$NAME/$MODULE
+    - mvn dokka:dokka
+    - rsync -arv --delete ./target/dokka/$NAME-$MODULE /ext/cluster/default/default/site/default/apidoc/
+
+.document snapshot:
+  stage: document
+  image: registry.promethist.ai/common/system/builder
+  variables:
+    DIR: services
+    NAME: NAME
+    MODULE: api
+  only:
+    refs:
+      - develop
+  script:
+    - cd $DIR/$NAME/$MODULE
+    - mvn dokka:dokka
+    - rsync -arv --delete ./target/dokka/$NAME-$MODULE /ext/cluster/default/develop/site/default/apidoc/
+
+#
+# JOBS
+#
+# publish all release packages
+#
+publish release packages:
+  stage: publish
+  image: registry.promethist.ai/common/system/builder
+  only:
+    refs:
+      - tags
+  except:
+    - /^(!master).+@/
+  artifacts:
+    untracked: true
+  script:
+    - mvn -B versions:set -DnewVersion=$CI_COMMIT_REF_NAME
+    - mvn -B deploy -Dapi.basedomain=promethist.com
+
+#
+# publish all snaphot packages
+#
+publish snaphot packages:
+  stage: publish
+  image: registry.promethist.ai/common/system/builder
+  variables:
+    DIR: services
+    NAME: NAME
+  only:
+    refs:
+      - develop
+  artifacts:
+    untracked: true
+  script:
+    - mvn -B deploy -Dapi.basedomain=develop.promethist.com
+
+#
+# api
+#
+document release common/api:
+  extends: '.document release'
+  variables:
+    DIR: ..
+    NAME: core
+    MODULE: api
+
+document snapshot common/api:
+  extends: '.document snapshot'
+  variables:
+    DIR: ..
+    NAME: core
+    MODULE: api
+  only:
+    changes:
+      - api/**/*
+
+#
+# app
+#
+document release common/app:
+  extends: '.document release'
+  variables:
+    DIR: ..
+    NAME: core
+    MODULE: app
+
+document snapshot common/app:
+  extends: '.document snapshot'
+  variables:
+    DIR: ..
+    NAME: core
+    MODULE: app
+  only:
+    changes:
+      - app/**/*
+
+#
+# services/port/api
+#
+document release services/port/api:
+  extends: '.document release'
+  variables:
+    DIR: services
+    NAME: port
+    MODULE: api
+
+document snapshot services/port/api:
+  extends: '.document snapshot'
+  variables:
+    DIR: services
+    NAME: port
+    MODULE: api
+  only:
+    changes:
+      - services/port/api/**/*
+
+#
+# client/standalone
+#
+distribute client client/standalone:
+  extends: '.distribute java client'
+  variables:
+    DIR: client/standalone
+    NAME: promethist
+  only:
+    changes:
+      - client/**/*
+      - common/**/*

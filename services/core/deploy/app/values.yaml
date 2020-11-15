@@ -12,7 +12,7 @@ service:
     targetPort: 8080
 app:
   image:
-    name: registry.promethist.ai/services/core
+    name: registry.promethist.ai/service/core
     tag: latest
   resources:
     requests:

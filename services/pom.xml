@@ -8,17 +8,15 @@
     <packaging>pom</packaging>
     <parent>
         <groupId>com.promethist</groupId>
-        <artifactId>main</artifactId>
+        <artifactId>core</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
-    <artifactId>services</artifactId>
+    <artifactId>service</artifactId>
     <name>Promethist Services</name>
 
     <modules>
         <module>core</module>
         <module>port</module>
-        <module>admin</module>
-        <module>filestore</module>
     </modules>
 
 </project>

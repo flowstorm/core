@@ -12,12 +12,12 @@
         <version>1.0.0-SNAPSHOT</version>
     </parent>
     <groupId>com.promethist.client</groupId>
-    <artifactId>client-lib</artifactId>
+    <artifactId>lib</artifactId>
     <name>Promethist Client Lib</name>
 
     <dependencies>
         <dependency>
-            <groupId>com.promethist.core</groupId>
+            <groupId>com.promethist</groupId>
             <artifactId>core-api</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -50,7 +50,6 @@
 
     <build>
         <sourceDirectory>src/main/kotlin</sourceDirectory>
-        <finalName>app</finalName>
         <plugins>
             <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>

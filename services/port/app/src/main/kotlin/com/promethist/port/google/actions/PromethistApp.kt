@@ -51,10 +51,17 @@ class PromethistApp : ActionsSdkApp() {
         }
     }
 
-    protected fun withContext(request: ActionRequest, block: ContextualBlock.() -> ResponseBuilder): ResponseBuilder {
-        val context = BotService.context(request.sessionId!!, "google-device", appKey.get()/*, request.appRequest?.user?.locale?*/, Locale.ENGLISH, Dynamic(
-            "clientType" to "google-assistant:${AppConfig.version}"
-        ))
+    private fun withContext(request: ActionRequest, block: ContextualBlock.() -> ResponseBuilder): ResponseBuilder {
+        val context = BotService.context(
+                request.sessionId!!,
+                "google-device",
+                appKey.get(),
+                null,
+                Locale.ENGLISH/*, request.appRequest?.user?.locale?*/,
+                Dynamic(
+                        "clientType" to "google-assistant:${AppConfig.version}"
+                )
+        )
         logger.info("${this::class.simpleName}.withContext(request = $request, context = $context)")
         return block(ContextualBlock(request, context))
     }

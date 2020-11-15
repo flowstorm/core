@@ -8,12 +8,12 @@
     <packaging>pom</packaging>
     <parent>
         <groupId>com.promethist</groupId>
-        <artifactId>services</artifactId>
+        <artifactId>service</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
     <groupId>com.promethist.core</groupId>
     <artifactId>core</artifactId>
-    <name>Promethist Core</name>
+    <name>Promethist Service Core</name>
 
     <properties>
         <kotlin.version>1.3.21</kotlin.version>
@@ -21,7 +21,7 @@
 
     <modules>
         <module>api</module>
-        <module>lib</module>
+        <!--<module>lib</module>-->
         <module>app</module>
     </modules>
 

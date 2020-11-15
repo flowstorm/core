@@ -75,7 +75,6 @@
     <build>
         <sourceDirectory>src/main/kotlin</sourceDirectory>
         <!--<testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>-->
-        <finalName>app</finalName>
         <plugins>
             <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>
