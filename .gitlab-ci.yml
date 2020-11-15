@@ -97,14 +97,14 @@ publish snaphot packages:
 #
 # api
 #
-document release common/api:
+document release api:
   extends: '.document release'
   variables:
     DIR: ..
     NAME: core
     MODULE: api
 
-document snapshot common/api:
+document snapshot api:
   extends: '.document snapshot'
   variables:
     DIR: ..
@@ -117,14 +117,14 @@ document snapshot common/api:
 #
 # app
 #
-document release common/app:
+document release app:
   extends: '.document release'
   variables:
     DIR: ..
     NAME: core
     MODULE: app
 
-document snapshot common/app:
+document snapshot app:
   extends: '.document snapshot'
   variables:
     DIR: ..
