@@ -115,8 +115,12 @@
             <version>${kmongo.version}</version>
             <exclusions>
                 <exclusion>
-                    <artifactId>kotlin-stdlib</artifactId>
                     <groupId>org.jetbrains.kotlin</groupId>
+                    <artifactId>kotlin-stdlib</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.jetbrains.kotlin</groupId>
+                    <artifactId>kotlin-reflect</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
