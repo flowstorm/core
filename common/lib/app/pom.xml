@@ -76,11 +76,27 @@
             <groupId>org.litote.kmongo</groupId>
             <artifactId>kmongo</artifactId>
             <version>${kmongo.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>kotlin-reflect</artifactId>
+                    <groupId>org.jetbrains.kotlin</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>kotlin-stdlib</artifactId>
+                    <groupId>org.jetbrains.kotlin</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.litote.kmongo</groupId>
             <artifactId>kmongo-id</artifactId>
             <version>${kmongo.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>kotlin-stdlib</artifactId>
+                    <groupId>org.jetbrains.kotlin</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>io.sentry</groupId>

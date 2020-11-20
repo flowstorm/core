@@ -58,6 +58,16 @@
             <groupId>org.litote.kmongo</groupId>
             <artifactId>kmongo-id-jackson</artifactId>
             <version>${kmongo.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>kotlin-reflect</artifactId>
+                    <groupId>org.jetbrains.kotlin</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>kotlin-stdlib</artifactId>
+                    <groupId>org.jetbrains.kotlin</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- swagger -->
