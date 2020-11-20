@@ -14,13 +14,8 @@
     <artifactId>service-port</artifactId>
     <name>Promethist Service Port</name>
 
-    <properties>
-        <kotlin.version>1.3.41</kotlin.version>
-    </properties>
-    
     <modules>
         <module>api</module>
         <module>app</module>
     </modules>
-
 </project>

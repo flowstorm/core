@@ -14,10 +14,6 @@
     <artifactId>service-core</artifactId>
     <name>Promethist Service Core</name>
 
-    <properties>
-        <kotlin.version>1.3.21</kotlin.version>
-    </properties>
-
     <modules>
         <module>api</module>
         <module>app</module>
