@@ -85,6 +85,14 @@
                     <artifactId>kotlin-stdlib</artifactId>
                     <groupId>org.jetbrains.kotlin</groupId>
                 </exclusion>
+                <exclusion>
+                    <artifactId>jackson-databind</artifactId>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jackson-module-kotlin</artifactId>
+                    <groupId>com.fasterxml.jackson.module</groupId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
