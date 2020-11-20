@@ -16,6 +16,7 @@
     <name>Promethist Client Common</name>
 
     <dependencies>
+
         <dependency>
             <groupId>com.promethist.client</groupId>
             <artifactId>client-lib</artifactId>

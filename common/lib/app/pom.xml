@@ -75,12 +75,12 @@
         <dependency>
             <groupId>org.litote.kmongo</groupId>
             <artifactId>kmongo</artifactId>
-            <version>3.11.1</version>
+            <version>${kmongo.version}</version>
         </dependency>
         <dependency>
             <groupId>org.litote.kmongo</groupId>
             <artifactId>kmongo-id</artifactId>
-            <version>3.11.1</version>
+            <version>${kmongo.version}</version>
         </dependency>
         <dependency>
             <groupId>io.sentry</groupId>
