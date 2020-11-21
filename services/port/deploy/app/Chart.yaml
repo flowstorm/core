@@ -1,5 +1,0 @@
-apiVersion: v1
-name: port
-version: "chart.version"
-description: Port Helm Chart
-appVersion: "app.version"

@@ -8,51 +8,30 @@
 
     <parent>
         <groupId>com.promethist.core</groupId>
-        <artifactId>promethist-core</artifactId>
+        <artifactId>promethist-core-service</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
-    <artifactId>promethist-core-app</artifactId>
-    <name>Promethist Core App</name>
+    <artifactId>promethist-core-service-api</artifactId>
+    <name>Promethist Core Service API</name>
+
+    <properties>
+        <swagger.version>1.5.22</swagger.version>
+        <api.basedomain>promethist.com</api.basedomain>
+        <api.locations>com.promethist.common.resources,com.promethist.core.resources</api.locations>
+        <api.description>Promethist API</api.description>
+    </properties>
 
     <dependencies>
-
         <dependency>
             <groupId>com.promethist.core</groupId>
             <artifactId>promethist-core-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.promethist.common</groupId>
-            <artifactId>promethist-common-app</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.2.3</version>
-        </dependency>
-
-        <!-- kotlin scripting -->
-        <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-compiler-embeddable</artifactId>
-            <version>${kotlin.version}</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>kotlin-daemon-embeddable</artifactId>
-                    <groupId>org.jetbrains.kotlin</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-script-runtime</artifactId>
-            <version>${kotlin.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-script-util</artifactId>
-            <version>${kotlin.version}</version>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+            <version>2.0</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Test dependencies -->
@@ -80,6 +59,8 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
+
     </dependencies>
 
     <build>
@@ -94,12 +75,16 @@
                     <execution>
                         <id>compile</id>
                         <phase>compile</phase>
-                        <goals> <goal>compile</goal> </goals>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
                     </execution>
                     <execution>
                         <id>test-compile</id>
                         <phase>test-compile</phase>
-                        <goals> <goal>test-compile</goal> </goals>
+                        <goals>
+                            <goal>test-compile</goal>
+                        </goals>
                     </execution>
                 </executions>
                 <configuration>
@@ -107,19 +92,53 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven.compiler.version}</version>
+                <groupId>com.github.kongchen</groupId>
+                <artifactId>swagger-maven-plugin</artifactId>
+                <version>3.1.7</version>
+                <configuration>
+                    <apiSources>
+                        <apiSource>
+                            <springmvc>false</springmvc>
+                            <locations>${api.locations}</locations>
+                            <schemes>https,http</schemes>
+                            <host>core.${api.basedomain}</host>
+                            <basePath>/</basePath>
+                            <outputFormats>json,yaml</outputFormats>
+                            <swaggerDirectory>${project.build.outputDirectory}/META-INF/core-api</swaggerDirectory>
+                            <info>
+                                <title>${project.name}</title>
+                                <version>${project.version}</version>
+                                <description>${api.description}</description>
+                                <termsOfService>https://promethist.ai/terms</termsOfService>
+                                <contact>
+                                    <email>support@promethist.ai</email>
+                                    <name>PromethistAI Support</name>
+                                    <url>https://promethist.ai</url>
+                                </contact>
+                            </info>
+                            <securityDefinitions>
+                                <securityDefinition>
+                                    <name>key</name>
+                                    <type>apiKey</type>
+                                    <in>query</in>
+                                </securityDefinition>
+                                <securityDefinition>
+                                    <name>Authorization</name>
+                                    <type>apiKey</type>
+                                    <in>header</in>
+                                </securityDefinition>
+                            </securityDefinitions>
+                        </apiSource>
+                    </apiSources>
+                </configuration>
                 <executions>
                     <execution>
-                        <id>default-compile</id>
-                        <phase>none</phase>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
                     </execution>
-                    <execution>
-                        <id>default-testCompile</id>
-                        <phase>none</phase>
-                    </execution>
-                 </executions>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.jetbrains.dokka</groupId>

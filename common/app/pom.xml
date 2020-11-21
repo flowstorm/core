@@ -11,71 +11,83 @@
         <artifactId>promethist-common</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
-    <artifactId>promethist-common-lib</artifactId>
-    <name>Promethist Common Lib</name>
+    <artifactId>promethist-common-app</artifactId>
+    <name>Promethist Common App</name>
+
+    <properties>
+        <jetty.version>9.4.18.v20190429</jetty.version>
+    </properties>
+
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
 
     <dependencies>
         <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-reflect</artifactId>
-            <version>${kotlin.version}</version>
+            <groupId>com.promethist.common</groupId>
+            <artifactId>promethist-common-client</artifactId>
+            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.2.3</version>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-server</artifactId>
+            <version>${jersey.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
+            <groupId>org.glassfish.jersey.containers</groupId>
+            <artifactId>jersey-container-netty-http</artifactId>
+            <version>${jersey.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-kotlin</artifactId>
-            <version>${jackson.version}</version>
+            <groupId>org.glassfish.jersey.containers</groupId>
+            <artifactId>jersey-container-servlet-core</artifactId>
+            <version>${jersey.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty.websocket</groupId>
+            <artifactId>websocket-servlet</artifactId>
+            <version>${jetty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+            <version>${jetty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlet</artifactId>
+            <version>${jetty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.inject</groupId>
+            <artifactId>jersey-hk2</artifactId>
+            <version>${jersey.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.Commit451</groupId>
+            <artifactId>mailgun</artifactId>
+            <version>1.2.0</version>
             <exclusions>
                 <exclusion>
+                    <artifactId>kotlin-stdlib</artifactId>
                     <groupId>org.jetbrains.kotlin</groupId>
+                </exclusion>
+                <exclusion>
                     <artifactId>kotlin-reflect</artifactId>
+                    <groupId>org.jetbrains.kotlin</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>kotlin-stdlib-jdk7</artifactId>
+                    <groupId>org.jetbrains.kotlin</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.auth0</groupId>
-            <artifactId>java-jwt</artifactId>
-            <version>3.11.0</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>jackson-databind</artifactId>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.auth0</groupId>
-            <artifactId>jwks-rsa</artifactId>
-            <version>0.15.0</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>jackson-databind</artifactId>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>commons-codec</artifactId>
-                    <groupId>commons-codec</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
         <dependency>
             <groupId>org.litote.kmongo</groupId>
-            <artifactId>kmongo-id-jackson</artifactId>
+            <artifactId>kmongo</artifactId>
             <version>${kmongo.version}</version>
             <exclusions>
                 <exclusion>
@@ -96,23 +108,25 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
-        <!-- swagger -->
         <dependency>
-            <groupId>io.swagger</groupId>
-            <artifactId>swagger-annotations</artifactId>
-            <version>${swagger.version}</version>
+            <groupId>org.litote.kmongo</groupId>
+            <artifactId>kmongo-id</artifactId>
+            <version>${kmongo.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.jetbrains.kotlin</groupId>
+                    <artifactId>kotlin-stdlib</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.jetbrains.kotlin</groupId>
+                    <artifactId>kotlin-reflect</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
-        <!-- required by swagger generate -->
         <dependency>
-            <groupId>javax.activation</groupId>
-            <artifactId>activation</artifactId>
-            <version>1.1.1</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
-            <version>2.2.11</version>
+            <groupId>io.sentry</groupId>
+            <artifactId>sentry</artifactId>
+            <version>3.1.0</version>
         </dependency>
         <!-- Test dependencies -->
         <dependency>
@@ -139,6 +153,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
 
     </dependencies>
 

@@ -30,9 +30,8 @@ stages:
   stage: document
   image: registry.promethist.ai/common/system/builder
   variables:
-    DIR: services
+    DIR: api
     NAME: NAME
-    MODULE: api
   only:
     refs:
       - tags
@@ -47,16 +46,15 @@ stages:
   stage: document
   image: registry.promethist.ai/common/system/builder
   variables:
-    DIR: services
+    DIR: api
     NAME: NAME
-    MODULE: api
   only:
     refs:
       - develop
   script:
-    - cd $DIR/$NAME/$MODULE
+    - cd $DIR
     - mvn dokka:dokka
-    - rsync -arv --delete ./target/dokka/$NAME-$MODULE /ext/cluster/default/develop/site/default/apidoc/
+    - rsync -arv --delete ./target/dokka/$NAME /ext/cluster/default/develop/site/default/apidoc/
 
 #
 # JOBS
@@ -101,15 +99,13 @@ document release api:
   extends: '.document release'
   variables:
     DIR: ..
-    NAME: core
-    MODULE: api
+    NAME: core-api
 
 document snapshot api:
   extends: '.document snapshot'
   variables:
     DIR: ..
-    NAME: core
-    MODULE: api
+    NAME: core-api
   only:
     changes:
       - api/**/*
@@ -121,38 +117,34 @@ document release app:
   extends: '.document release'
   variables:
     DIR: ..
-    NAME: core
-    MODULE: app
+    NAME: core-app
 
 document snapshot app:
   extends: '.document snapshot'
   variables:
     DIR: ..
-    NAME: core
-    MODULE: app
+    NAME: core-app
   only:
     changes:
       - app/**/*
 
 #
-# services/port/api
+# service/api
 #
-document release services/port/api:
+document release service/api:
   extends: '.document release'
   variables:
-    DIR: services
-    NAME: port
-    MODULE: api
+    DIR: service/api
+    NAME: core-service-api
 
-document snapshot services/port/api:
+document snapshot service/api:
   extends: '.document snapshot'
   variables:
-    DIR: services
-    NAME: port
-    MODULE: api
+    DIR: service/api
+    NAME: core-service-api
   only:
     changes:
-      - services/port/api/**/*
+      - service/api/**/*
 
 #
 # client/standalone

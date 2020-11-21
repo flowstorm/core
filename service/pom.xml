@@ -11,19 +11,12 @@
         <artifactId>promethist-core</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
-    <groupId>com.promethist.common</groupId>
-    <artifactId>promethist-common</artifactId>
-    <name>Promethist Common</name>
-
-    <properties>
-        <swagger.version>1.5.22</swagger.version>
-        <kotlin.compiler.incremental>false</kotlin.compiler.incremental>
-    </properties>
+    <artifactId>promethist-core-service</artifactId>
+    <name>Promethist Core Service</name>
 
     <modules>
-        <module>lib</module>
+        <module>api</module>
         <module>app</module>
-        <module>client</module>
     </modules>
 
 </project>

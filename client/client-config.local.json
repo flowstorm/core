@@ -1,0 +1,44 @@
+{
+  "environment": "develop",
+  "key": "dialogue:5eea35e67ef5bd28c909c9fe",
+  "sttMode": "Default",
+  "micChannel": "6:0",
+  "speechDevice": "respeaker2X",
+  "autoStart": false,
+  "wakeWord": {
+    "type": "snowboy"
+  },
+  "signalProcessor": {
+    "groups": [
+      {
+        "name": "#signal",
+        "type": "Text",
+        "signals": [
+          {
+            "name": "clientSpeechDetected",
+            "requiredValue": true,
+            "resetValue": true
+          },
+          {
+            "name": "clientSpeechAngle",
+            "threshold": 45
+          },
+          {
+            "name": "stressLevel",
+            "threshold": 2
+          }
+        ]
+      }
+    ],
+    "providers": [
+      {
+        "name": "signals-from-file",
+        "type": "file",
+        "file": "signal-test.properties",
+        "format": "Properties",
+        "continuous": true,
+        "sleep": 1000
+      }
+    ]
+  }
+}
