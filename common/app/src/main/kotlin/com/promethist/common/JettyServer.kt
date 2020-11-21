@@ -6,7 +6,7 @@ import org.eclipse.jetty.servlet.ServletHolder
 import org.glassfish.jersey.server.ResourceConfig
 import org.glassfish.jersey.servlet.ServletContainer
 
-class JettyServer(private val resourceConfig: ResourceConfig) {
+class JettyServer(resourceConfig: ResourceConfig) {
 
     private val server = Server(AppConfig.instance.get("server.port", System.getProperty("com.promethist.common.server.port", "8080")).toInt())
 
@@ -16,9 +16,8 @@ class JettyServer(private val resourceConfig: ResourceConfig) {
         context.addServlet(servlet, "/*")
         server.start()
         server.join()
-        Runtime.getRuntime().addShutdownHook(Thread(Runnable {
+        Runtime.getRuntime().addShutdownHook(Thread {
             server.destroy()
-        }))
+        })
     }
-
 }

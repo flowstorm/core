@@ -98,7 +98,10 @@ class Application : JerseyApplication() {
                 val mailgun = Mailgun.Builder(AppConfig.instance["mailgun.domain"], AppConfig.instance["mailgun.apikey"])
                         .baseUrl(AppConfig.instance["mailgun.baseUrl"])
                         .build()
-                bindTo(MessageSender::class.java, MailgunSender(mailgun, Contact(AppConfig.instance["emailsender.from.email"], AppConfig.instance["emailsender.from.name"])))
+                bindTo(MessageSender::class.java, MailgunSender(mailgun, Contact(
+                        AppConfig.instance.get("sender.from.email", "bot@promethist.ai"),
+                        AppConfig.instance.get("sender.from.name", "Promethist Bot")))
+                )
                 //TODO replace by object repository
                 bindTo(MongoDatabase::class.java,
                         KMongo.createClient(ConnectionString(AppConfig.instance["database.url"]))

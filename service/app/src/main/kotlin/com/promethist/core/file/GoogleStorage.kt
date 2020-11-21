@@ -27,7 +27,7 @@ class GoogleStorage: FileResource {
     }
 
     private val storage = StorageOptions.getDefaultInstance().service // StorageOptions.newBuilder().setProjectId(..).build().service
-    private val bucket = AppConfig.instance["name"] + "-" + AppConfig.instance["namespace"]
+    private val bucket = "filestore-" + AppConfig.instance["namespace"]
 
     override fun readFile(path: String): Response {
         val file = getFile(path)

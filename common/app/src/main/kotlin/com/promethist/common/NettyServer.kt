@@ -10,7 +10,7 @@ import javax.ws.rs.ext.ContextResolver
 /**
  * @author Tomas Zajicek <tomas.zajicek@promethist.ai>
  */
-class NettyServer(private val resourceConfig: ResourceConfig) {
+class NettyServer(resourceConfig: ResourceConfig) {
 
     private val channel =
         NettyHttpContainerProvider.createHttp2Server(
@@ -22,9 +22,9 @@ class NettyServer(private val resourceConfig: ResourceConfig) {
         )
 
     init {
-        Runtime.getRuntime().addShutdownHook(Thread(Runnable {
+        Runtime.getRuntime().addShutdownHook(Thread {
             channel.close()
-        }))
+        })
     }
 
 }
