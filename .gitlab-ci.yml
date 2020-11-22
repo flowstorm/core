@@ -38,9 +38,9 @@ stages:
   except:
     - /^(!master).+@/
   script:
-    - cd $DIR/$NAME/$MODULE
+    - cd $DIR
     - mvn dokka:dokka
-    - rsync -arv --delete ./target/dokka/$NAME-$MODULE /ext/cluster/default/default/site/default/apidoc/
+    - rsync -arv --delete ./target/dokka/$NAME /ext/cluster/default/default/site/default/apidoc/
 
 .document snapshot:
   stage: document
@@ -98,14 +98,14 @@ publish snaphot packages:
 document release api:
   extends: '.document release'
   variables:
-    DIR: ..
-    NAME: core-api
+    DIR: api
+    NAME: promethist-core-api
 
 document snapshot api:
   extends: '.document snapshot'
   variables:
-    DIR: ..
-    NAME: core-api
+    DIR: api
+    NAME: promethist-core-api
   only:
     changes:
       - api/**/*
@@ -116,14 +116,14 @@ document snapshot api:
 document release app:
   extends: '.document release'
   variables:
-    DIR: ..
-    NAME: core-app
+    DIR: app
+    NAME: promethist-core-app
 
 document snapshot app:
   extends: '.document snapshot'
   variables:
-    DIR: ..
-    NAME: core-app
+    DIR: app
+    NAME: promethist-core-app
   only:
     changes:
       - app/**/*
@@ -135,13 +135,13 @@ document release service/api:
   extends: '.document release'
   variables:
     DIR: service/api
-    NAME: core-service-api
+    NAME: promethist-core-service-api
 
 document snapshot service/api:
   extends: '.document snapshot'
   variables:
     DIR: service/api
-    NAME: core-service-api
+    NAME: promethist-core-service-api
   only:
     changes:
       - service/api/**/*
