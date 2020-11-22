@@ -1,5 +1,7 @@
 package com.promethist.core
 
+import ch.qos.logback.classic.Level
+import ch.qos.logback.classic.Logger
 import com.commit451.mailgun.Contact
 import com.commit451.mailgun.Mailgun
 import com.mongodb.ConnectionString
@@ -23,6 +25,7 @@ import org.glassfish.hk2.api.PerLookup
 import org.glassfish.hk2.api.TypeLiteral
 import org.glassfish.jersey.process.internal.RequestScoped
 import org.litote.kmongo.KMongo
+import org.slf4j.LoggerFactory
 import java.io.File
 import javax.inject.Singleton
 import javax.ws.rs.ext.ParamConverterProvider
@@ -130,5 +133,17 @@ class Application : JerseyApplication() {
                         .`in`(Singleton::class.java)
             }
         })
+    }
+
+
+    companion object {
+        @JvmStatic
+        fun main(args: Array<String>) {
+            with (AppConfig.instance) {
+                set("package", Application::class.java.`package`.name)
+                set("name", "core")
+            }
+            JettyServer(Application())
+        }
     }
 }
