@@ -9,10 +9,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import javax.ws.rs.WebApplicationException
 import javax.ws.rs.core.Response
-import kotlin.reflect.KClass
-import kotlin.reflect.KProperty
-import kotlin.reflect.KType
-import kotlin.reflect.KTypeProjection
+import kotlin.reflect.*
 import kotlin.reflect.full.createType
 import kotlin.reflect.full.isSubtypeOf
 import kotlin.reflect.full.memberProperties
@@ -71,7 +68,7 @@ object MongoFiltersFactory {
             if (type.isSubtypeOf(Iterable::class.createType(listOf(KTypeProjection.STAR)))) {
                 type = type.arguments[0].type!!
             }
-            if (type.isSubtypeOf(Map::class.createType(listOf(KTypeProjection(null, String::class.createType()), KTypeProjection.STAR)))) {
+            if (type.isSubtypeOf(Map::class.createType(listOf(KTypeProjection(KVariance.INVARIANT, String::class.createType()), KTypeProjection.STAR)))) {
                 type = type.arguments[1].type!!
                 break
             }
