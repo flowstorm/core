@@ -190,7 +190,7 @@ class ClientCommand: CommandRunner<Application.Config, ClientCommand.Config> {
         ServiceUrlResolver
         context = BotContext(
                 url = if (config.environment != null)
-                    Application.getServiceUrl("port", config.environment ?: "production")
+                    Application.getServiceUrl("core", config.environment ?: "production")
                 else
                     config.url,
                 key = config.key,
@@ -319,9 +319,9 @@ class ClientCommand: CommandRunner<Application.Config, ClientCommand.Config> {
                 else
                     WavFileAudioRecorder(File("."),
                             if (context.url.startsWith("http://localhost"))
-                                ServiceUrlResolver.getEndpointUrl("filestore", ServiceUrlResolver.RunMode.local)
+                                ServiceUrlResolver.getEndpointUrl("core", ServiceUrlResolver.RunMode.local)
                             else
-                                context.url.replace("port", "filestore"),
+                                context.url,
                             config.audioRecordUpload
                     )
         )

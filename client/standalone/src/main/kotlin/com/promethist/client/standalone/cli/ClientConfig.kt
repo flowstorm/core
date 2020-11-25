@@ -15,7 +15,7 @@ open class ClientConfig {
     var output = "stdout"
 
     @Parameter(names = ["-u", "--url"], order = 12, description = "Port URL")
-    var url = ServiceUrlResolver.getEndpointUrl("port")
+    var url = ServiceUrlResolver.getEndpointUrl("core")
 
     @Parameter(names = ["-k", "--key"], order = 13, description = "Port contract key")
     var key = AppConfig.instance.get("port.key", "promethist")

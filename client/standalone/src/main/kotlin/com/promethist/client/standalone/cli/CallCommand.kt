@@ -40,7 +40,7 @@ class CallCommand: CommandRunner<Application.Config, CallCommand.Config> {
     }
 
     override fun run(globalConfig: Application.Config, config: Config) {
-        val portUrl = config.url ?: Application.getServiceUrl("port", config.environment ?: "production", "ws")
+        val portUrl = config.url ?: Application.getServiceUrl("core", config.environment ?: "production", "ws")
         val twiml = """
                     <?xml version="1.0" encoding="UTF-8"?>
                     <Response>

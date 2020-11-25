@@ -24,7 +24,7 @@ object ServiceUrlResolver {
         return AppConfig.instance.getOrNull("$serviceName.url")?.let { url ->
             url.replaceFirst("http", protocol.name)
         } ?: when (runMode) {
-            RunMode.local -> "${protocol}://localhost:${servicePorts[serviceName]}"
+            RunMode.local -> "${protocol}://localhost:${servicePorts[serviceName] ?: error("Port for service $serviceName not defined.")}"
             RunMode.docker -> "${protocol}://${serviceName}:8080"
             RunMode.dist -> "${protocol}s://" + serviceName + (if (namespace != "default") ".$namespace" else "") + "." + domain
             RunMode.detect -> getEndpointUrl(serviceName,

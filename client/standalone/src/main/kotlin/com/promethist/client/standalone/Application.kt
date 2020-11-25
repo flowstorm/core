@@ -19,14 +19,11 @@ object Application {
     }
 
     fun getServiceUrl(serviceName: String, environment: String, protocol: String = "http"): String {
-        val env = if (listOf("production", "default").contains(environment))
-            ""
-        else
-            ".${environment}"
-        return if (environment == "local")
-            "${protocol}://localhost:" + ServiceUrlResolver.servicePorts[serviceName]
-        else
-            "${protocol}s://${serviceName}${env}.promethist.com"
+        val env = if (listOf("production", "default").contains(environment)) "default" else environment
+        return when (env) {
+            "local" -> ServiceUrlResolver.getEndpointUrl(serviceName, ServiceUrlResolver.RunMode.local)
+            else -> ServiceUrlResolver.getEndpointUrl(serviceName, ServiceUrlResolver.RunMode.dist, namespace = env, protocol = ServiceUrlResolver.Protocol.valueOf(protocol))
+        }
     }
 
     @JvmStatic
