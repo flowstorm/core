@@ -1,7 +1,5 @@
 package com.promethist.core
 
-import ch.qos.logback.classic.Level
-import ch.qos.logback.classic.Logger
 import com.commit451.mailgun.Contact
 import com.commit451.mailgun.Mailgun
 import com.mongodb.ConnectionString
@@ -20,12 +18,12 @@ import com.promethist.core.resources.*
 import com.promethist.core.runtime.*
 import com.promethist.core.nlp.*
 import com.promethist.core.provider.LocalFileStorage
+import com.promethist.core.servlets.BotClientServlet
 import org.glassfish.hk2.api.InjectionResolver
 import org.glassfish.hk2.api.PerLookup
 import org.glassfish.hk2.api.TypeLiteral
 import org.glassfish.jersey.process.internal.RequestScoped
 import org.litote.kmongo.KMongo
-import org.slf4j.LoggerFactory
 import java.io.File
 import javax.inject.Singleton
 import javax.ws.rs.ext.ParamConverterProvider
@@ -143,7 +141,7 @@ class Application : JerseyApplication() {
                 set("package", Application::class.java.`package`.name)
                 set("name", "core")
             }
-            JettyServer(Application())
+            JettyServer(Application(), mapOf(BotClientServlet::class.java to "/socket/*"))
         }
     }
 }
