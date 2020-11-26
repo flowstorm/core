@@ -8,18 +8,16 @@ import org.glassfish.jersey.server.spi.ContainerLifecycleListener
 import java.util.logging.Level
 import java.util.logging.Logger
 import javax.ws.rs.ext.ContextResolver
+import kotlin.reflect.KClass
+import kotlin.reflect.full.superclasses
 
 open class JerseyApplication : ResourceConfig() {
 
     lateinit var injectionManager: InjectionManager
 
     init {
-        packages(
-                "com.promethist.common.filters",
-                "com.promethist.common.resources",
-                AppConfig.instance["package"] + ".filters",
-                AppConfig.instance["package"] + ".resources"
-        )
+        registerDefaultPackages()
+
         register(object : ContainerLifecycleListener {
             override fun onStartup(container: Container) {
                 injectionManager = container.applicationHandler.injectionManager
@@ -40,8 +38,32 @@ open class JerseyApplication : ResourceConfig() {
         instance = this
     }
 
-    operator fun <T>get(type: Class<T>): T {
+    operator fun <T> get(type: Class<T>): T {
         return injectionManager.getInstance(type)
+    }
+
+    //Make register final to avoid calling non final method in constructor
+    final override fun register(component: Any?): ResourceConfig = super.register(component)
+
+    /**
+     * Automatically register default packages from all child classes
+     */
+    private fun registerDefaultPackages() {
+        var superClasses = this::class.superclasses
+        val classes = mutableListOf<KClass<*>>(this::class)
+
+        while (superClasses.isNotEmpty()) {
+            superClasses = superClasses.firstOrNull { !it::class.java.isInterface }?.let {
+                classes.add(it)
+                if (it != JerseyApplication::class) {
+                    it.superclasses
+                } else null
+            } ?: listOf()
+        }
+
+        classes.map { it.java.`package`.name }.distinct().forEach {
+            packages("$it.filters", "$it.resources")
+        }
     }
 
     companion object {

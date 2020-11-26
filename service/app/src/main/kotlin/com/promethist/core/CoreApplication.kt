@@ -30,7 +30,7 @@ import java.io.File
 import javax.inject.Singleton
 import javax.ws.rs.ext.ParamConverterProvider
 
-class Application : JerseyApplication() {
+open class CoreApplication : JerseyApplication() {
 
     init {
         Monitoring.init()
@@ -125,7 +125,7 @@ class Application : JerseyApplication() {
                 bindFactory(QueryValueFactory::class.java).to(Query::class.java).`in`(PerLookup::class.java)
 
                 bind(QueryInjectionResolver::class.java)
-                        .to(object: TypeLiteral<InjectionResolver<QueryParams>>() {})
+                        .to(object : TypeLiteral<InjectionResolver<QueryParams>>() {})
                         .`in`(Singleton::class.java)
             }
         })
@@ -135,11 +135,10 @@ class Application : JerseyApplication() {
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            with (AppConfig.instance) {
-                set("package", Application::class.java.`package`.name)
+            with(AppConfig.instance) {
                 set("name", "core")
             }
-            JettyServer(Application(), mapOf(BotClientServlet::class.java to "/socket/*"))
+            JettyServer(CoreApplication(), mapOf(BotClientServlet::class.java to "/socket/*"))
         }
     }
 }
