@@ -21,7 +21,7 @@ object ServiceUrlResolver {
     enum class Protocol { http, ws }
 
     fun getEndpointUrl(serviceName: String, runMode: RunMode = RunMode.detect, protocol: Protocol = Protocol.http, namespace: String? = AppConfig.instance["namespace"], domain: String = "promethist.com"): String {
-        return AppConfig.instance.getOrNull("$serviceName.url")?.let { url ->
+        return (AppConfig.instance.getOrNull("$serviceName.url")?.let { url ->
             url.replaceFirst("http", protocol.name)
         } ?: when (runMode) {
             RunMode.local -> "${protocol}://localhost:${servicePorts[serviceName] ?: error("Port for service $serviceName not defined.")}"
@@ -30,6 +30,6 @@ object ServiceUrlResolver {
             RunMode.detect -> getEndpointUrl(serviceName,
                     RunMode.valueOf(System.getenv("RUN_MODE") ?: AppConfig.instance.get("runmode", RunMode.dist.name)),
                     protocol, namespace, domain)
-        }
+        }).also { logger.info("resolved: $it (service=$serviceName, runmode=${runMode.name}, namespace=${namespace})") }
     }
 }

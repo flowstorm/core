@@ -91,11 +91,6 @@ class Application : JerseyApplication() {
 
                 // tokenizer (first)
                 bind(InternalTokenizer()).to(Component::class.java).named("tokenizer")
-
-                println("illusionistUrl = $illusionistUrl")
-                println("cassandraUrl = $cassandraUrl")
-                println("ducklingUrl = $ducklingUrl")
-
                 /**
                  * Other components
                  */
