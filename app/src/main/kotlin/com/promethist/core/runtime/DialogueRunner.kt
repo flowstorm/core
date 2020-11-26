@@ -1,14 +1,12 @@
 package com.promethist.core.runtime
 
 import com.promethist.common.TextConsole
-import com.promethist.common.RestClient
 import com.promethist.common.services.DummySender
 import com.promethist.core.*
 import com.promethist.core.builder.IntentModel
 import com.promethist.core.model.*
 import com.promethist.core.dialogue.AbstractDialogue
 import com.promethist.core.provider.LocalFileStorage
-import com.promethist.core.resources.FileResource
 import com.promethist.core.type.MutablePropertyMap
 import com.promethist.util.DataConverter
 import com.promethist.util.LoggerDelegate
@@ -18,7 +16,7 @@ import java.io.*
 import java.util.*
 
 class DialogueRunner(
-        val fileResource: FileResource,
+        val fileStorage: FileStorage,
         val dialogueId: String,
         val properties: MutablePropertyMap = mutableMapOf(),
         val user: User = User(username = "tester@promethist.ai", name = "Tester", surname = "Tester", nickname = "Tester"),
@@ -85,7 +83,7 @@ class DialogueRunner(
     var locale = Defaults.locale
     var zoneId = Defaults.zoneId
 
-    private val loader: Loader = FileResourceLoader(fileResource, "dialogue", useScript = true)
+    private val loader: Loader = FileResourceLoader(fileStorage, "dialogue", useScript = true)
     private val logger by LoggerDelegate()
 
     private val dmf = DialogueFactory(loader)
@@ -95,7 +93,7 @@ class DialogueRunner(
     private val app = Application(name = "test", dialogue_id = ObjectId(dialogueId).toId(), properties = properties)
     private val session = Session(sessionId = "T-E-S-T", user = user, application = app)
     private val turn = Turn(Input(locale, zoneId, Input.Transcript("")))
-    private val context = Context(SimplePipeline(LinkedList(listOf(dm, ir))), profile, session, turn, logger, locale, SimpleCommunityResource(), DummySender())
+    private val context = Context(SimplePipeline(LinkedList(listOf(dm, ir))), profile, session, turn, logger, locale, SimpleCommunityStorage(), DummySender())
 
     override fun beforeInput() {
         context.pipeline.process(context)
@@ -120,7 +118,7 @@ class DialogueRunner(
                         <storage> <path/to/dialogue> (prop1(:Type)=val1 (prop2(:Type)=val2 ...))
                     
                     Examples:
-                        local product/some-dialogue/1 someText=bla maxMath:Int=5 doMath:Boolean=true
+                        product/some-dialogue/1 someText=bla maxMath:Int=5 doMath:Boolean=true
                         https://filestore.develop.promethist.com product/some-subdialogue/1
                         
                     Notes:
@@ -134,12 +132,9 @@ class DialogueRunner(
                     val p2 = p1[0].split(":")
                     properties[p2[0]] = DataConverter.valueFromString(p2[0], p2.getOrElse(1) { "String" }, p1[1])
                 }
-                val runner = DialogueRunner(when (args[0]) {
-                    "local" -> LocalFileStorage(File("filestore"))
-                    else -> RestClient.instance(FileResource::class.java, args[0])
-                }, args[1], properties
+                val runner = DialogueRunner(LocalFileStorage(File("filestore")), args[0], properties
                 )
-                println("running dialogue ${args[1]} with properties $properties from ${args[0]} [${runner.fileResource}]")
+                println("running dialogue ${args[0]} with properties $properties from ${runner.fileStorage}")
                 runner.run()
             }
         }

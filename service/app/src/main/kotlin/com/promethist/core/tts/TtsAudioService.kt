@@ -1,48 +1,23 @@
-package com.promethist.core
+package com.promethist.core.tts
 
 import com.promethist.common.AppConfig
+import com.promethist.common.RestClient
+import com.promethist.common.ServiceUrlResolver
 import com.promethist.core.resources.FileResource
-import com.promethist.core.tts.TtsRequest
-import com.promethist.core.tts.TtsServiceFactory
 import com.promethist.util.LoggerDelegate
 import java.io.IOException
-import javax.inject.Inject
 import javax.ws.rs.NotFoundException
 import kotlin.concurrent.thread
 
-class FileService {
+object TtsAudioService {
 
-    inner class TtsAudio(val ttsRequest: TtsRequest) {
-
-        val code = ttsRequest.code()
-        var type = "audio/mpeg"
-        var data: ByteArray? = null
-        var path: String? = null
-
-        /**
-         * Returns or generates audio data if not already set.
-         */
-        fun speak(): TtsAudio {
-            if (data == null) {
-                try {
-                    data = TtsServiceFactory.speak(ttsRequest)
-                } catch (e: Throwable) {
-                    throw IOException(e.message, e)
-                }
-            }
-            return this
-        }
-    }
-
-    @Inject
-    lateinit var fileResource: FileResource
-
+    private val fileResource = RestClient.instance(FileResource::class.java, ServiceUrlResolver.getEndpointUrl("core", ServiceUrlResolver.RunMode.local) + "/file")
     private val logger by LoggerDelegate()
 
     /**
      * Saves TTS audio to filestorefor future usage.
      */
-    fun saveTtsAudio(code: String, type: String, data: ByteArray, ttsRequest: TtsRequest) {
+    fun set(code: String, type: String, data: ByteArray, ttsRequest: TtsRequest) {
         logger.info("saveTtsAudio(code = $code, fileType = $type, data[${data.size}])")
         fileResource.writeFile("tts/${ttsRequest.voice}/$code.mp3", type, listOf("text:${ttsRequest.text}"), data.inputStream())
     }
@@ -51,7 +26,7 @@ class FileService {
      * This creates and stores or loads existing audio from database cache for the specified TTS request.
      */
     @Throws(IOException::class)
-    internal fun getTtsAudio(ttsRequest: TtsRequest, asyncSave: Boolean, download: Boolean): TtsAudio {
+    internal fun get(ttsRequest: TtsRequest, asyncSave: Boolean, download: Boolean): TtsAudio {
         val audio = TtsAudio(ttsRequest)
         val path = "tts/${ttsRequest.voice}/${audio.code}.mp3"
         try {
@@ -68,10 +43,10 @@ class FileService {
             logger.info("getTtsAudio[DONE]")
             if (asyncSave) {
                 thread(start = true) {
-                    saveTtsAudio(audio.code, audio.type, audio.data!!, ttsRequest)
+                    set(audio.code, audio.type, audio.data!!, ttsRequest)
                 }
             } else {
-                saveTtsAudio(audio.code, audio.type, audio.data!!, ttsRequest)
+                set(audio.code, audio.type, audio.data!!, ttsRequest)
                 audio.path = path
             }
         }

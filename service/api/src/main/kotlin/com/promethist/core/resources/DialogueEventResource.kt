@@ -1,7 +1,6 @@
 package com.promethist.core.resources
 
 import com.promethist.core.model.DialogueEvent
-import com.promethist.core.model.Session
 import io.swagger.annotations.Api
 import org.litote.kmongo.Id
 import javax.ws.rs.GET

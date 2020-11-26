@@ -1,14 +1,11 @@
 package com.promethist.core.runtime
 
+import com.promethist.core.CommunityStorage
 import com.promethist.core.model.Community
-import com.promethist.core.resources.CommunityResource
 
-class SimpleCommunityResource : CommunityResource {
+class SimpleCommunityStorage : CommunityStorage {
 
-    private val communities = mutableMapOf<String, Community>()
-    override fun getCommunities(): List<Community> {
-        return communities.values.toMutableList()
-    }
+    val communities = mutableMapOf<String, Community>()
 
     override fun getCommunitiesInOrganization(organizationId: String): List<Community> {
         return communities.values.filter { it.organization_id == organizationId }

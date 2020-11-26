@@ -1,9 +1,9 @@
 package com.promethist.core.builder
 
 import com.promethist.common.AppConfig
+import com.promethist.core.FileStorage
 import com.promethist.core.dialogue.AbstractDialogue
 import com.promethist.core.model.DialogueBuild
-import com.promethist.core.resources.FileResource
 import com.promethist.core.runtime.DialogueClassLoader
 import com.promethist.core.runtime.Kotlin
 import com.promethist.util.LoggerDelegate
@@ -22,7 +22,7 @@ class DialogueBuilder(
         val workDir: File = File(System.getProperty("java.io.tmpdir"))) {
 
     @Inject
-    lateinit var fileResource: FileResource
+    lateinit var fileStorage: FileStorage
 
     @Inject
     lateinit var intentModelBuilder: IntentModelBuilder
@@ -116,7 +116,7 @@ class DialogueBuilder(
             }
 
             val path = dir + "build.log"
-            fileResource.writeFile(path, "text/plain",
+            fileStorage.writeFile(path, "text/plain",
                     listOf("version:$version", "buildId:$buildId"), log.toString().byteInputStream())
         }
 
@@ -191,7 +191,7 @@ class DialogueBuilder(
             val path = dir + "model.kts"
             logger.info("saving dialogue model $dialogueId resource file $path")
             ByteArrayInputStream(source.scriptCode.toByteArray()).let {
-                fileResource.writeFile(path, "text/kotlin",
+                fileStorage.writeFile(path, "text/kotlin",
                         listOf("version:$version", "buildId:$buildId"), it)
             }
         }
@@ -212,7 +212,7 @@ class DialogueBuilder(
             logger.info("saving dialogue model $dialogueName resource file $path")
             ByteArrayInputStream(buf.toByteArray()).let {
                 jar?.use { out -> it.copyTo(out) } ?:
-                    fileResource.writeFile(path, "application/java-archive",
+                    fileStorage.writeFile(path, "application/java-archive",
                             listOf("version:$version", "buildId:$buildId"), it)
             }
         }
@@ -222,7 +222,7 @@ class DialogueBuilder(
                 it.stream.reset()
                 val path = "${dir}resources/${it.filename}"
                 logger.info("saving dialogue model $dialogueName resource file ${it.filename}")
-                fileResource.writeFile(path, "text/json", listOf(), it.stream)
+                fileStorage.writeFile(path, "text/json", listOf(), it.stream)
             }
         }
 

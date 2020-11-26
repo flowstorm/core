@@ -40,7 +40,7 @@ object DialogueLoadTest {
                 Turn(Input(transcript = Input.Transcript("some message"))),
                 logger,
                 dialogue.locale,
-                SimpleCommunityResource(),
+                SimpleCommunityStorage(),
                 DummySender()
         )
 

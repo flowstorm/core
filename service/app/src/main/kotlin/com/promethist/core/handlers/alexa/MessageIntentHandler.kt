@@ -1,6 +1,6 @@
 package com.promethist.core.handlers.alexa
 
-import com.promethist.core.BotService
+import com.promethist.core.BotCore
 import com.amazon.ask.dispatcher.request.handler.HandlerInput
 import com.amazon.ask.model.IntentRequest
 import com.amazon.ask.request.Predicates.intentName
@@ -15,7 +15,7 @@ class MessageIntentHandler : AbstractHandler(intentName("MessageIntent")) {
                     .withSpeech("")
                     .withShouldEndSession(true)
         } else {
-            val speech = BotService.client.doText(context, text)
+            val speech = BotCore.doText(context, text)
             addResponse(speech)
         }
     }.build()

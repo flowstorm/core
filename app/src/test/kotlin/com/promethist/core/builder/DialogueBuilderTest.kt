@@ -11,7 +11,7 @@ import java.io.InputStream
 internal class DialogueBuilderTest {
 
     val dialogueBuilder = DialogueBuilder().apply {
-        fileResource = mockk(relaxed = true)
+        fileStorage = mockk(relaxed = true)
         intentModelBuilder = mockk(relaxed = true)
     }
 

@@ -41,7 +41,7 @@ class Application : JerseyApplication() {
                     println("Promethist ${it["git.ref"]} starting with namespace = ${it["namespace"]}, dataspace = $dataspace, runMode = $runMode")
                 }
 
-                val fileResource = when (AppConfig.instance.get("storage.type", "Google")) {
+                val fileStorage = when (AppConfig.instance.get("storage.type", "Google")) {
                     "FileSystem" -> LocalFileStorage(File(AppConfig.instance["storage.base"]))
                     else -> GoogleStorage()
                 }
@@ -64,7 +64,7 @@ class Application : JerseyApplication() {
                 bind(Action::class.java).to(Component::class.java).named("actionResolver")
 
                 // DM component (third - dialog user input decides whether to process the rest of pipeline or not)
-                val dialogueFactory = DialogueFactory(FileResourceLoader(fileResource, "dialogue",
+                val dialogueFactory = DialogueFactory(FileResourceLoader(fileStorage, "dialogue",
                         AppConfig.instance.get("loader.noCache", "false") == "true",
                         AppConfig.instance.get("loader.useScript", "false") == "true"))
                 bind(dialogueFactory).to(DialogueFactory::class.java)
@@ -107,6 +107,7 @@ class Application : JerseyApplication() {
                 bindTo(MongoDatabase::class.java,
                         KMongo.createClient(ConnectionString(AppConfig.instance["database.url"]))
                                 .getDatabase(AppConfig.instance["name"] + "-" + dataspace))
+                bindTo(FileStorage::class.java, fileStorage)
                 bind(MongoProfileRepository::class.java).to(ProfileRepository::class.java)
                 bindTo(ReportResource::class.java, ReportResourceImpl::class.java)
                 bindTo(SessionResource::class.java, SessionResourceImpl::class.java)
@@ -116,7 +117,6 @@ class Application : JerseyApplication() {
                 bindTo(DevicePairingResource::class.java, DevicePairingResourceImpl::class.java)
                 bindTo(FileResource::class.java, FileResourceImpl::class.java)
                 bindTo(ProxyResource::class.java, ProxyResourceImpl::class.java)
-                bindTo(CoreResourceImpl::class.java)
 
                 bind(DialogueLog::class.java).to(DialogueLog::class.java).`in`(RequestScoped::class.java)
 

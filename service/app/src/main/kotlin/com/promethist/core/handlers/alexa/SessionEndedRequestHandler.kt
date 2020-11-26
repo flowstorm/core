@@ -4,7 +4,7 @@ import com.amazon.ask.dispatcher.request.handler.HandlerInput
 import com.amazon.ask.model.Response
 import com.amazon.ask.model.SessionEndedRequest
 import com.amazon.ask.request.Predicates.requestType
-import com.promethist.core.BotService
+import com.promethist.core.BotCore
 import java.util.*
 
 class SessionEndedRequestHandler : AbstractHandler(requestType(SessionEndedRequest::class.java)) {
@@ -12,7 +12,7 @@ class SessionEndedRequestHandler : AbstractHandler(requestType(SessionEndedReque
     override fun handle(input: HandlerInput): Optional<Response> {
         val context = getContext(input)
         //context.attributes["alexaSessionEndedReason"] = (input.requestEnvelope as SessionEndedRequest).reason.toString()
-        BotService.client.doBye(context)
+        BotCore.doBye(context)
         return Optional.empty()
     }
 }

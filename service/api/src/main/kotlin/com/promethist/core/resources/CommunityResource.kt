@@ -1,10 +1,9 @@
 package com.promethist.core.resources
 
+import com.promethist.core.CommunityStorage
 import com.promethist.core.model.Community
-import com.promethist.core.model.Profile
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiParam
-import org.litote.kmongo.Id
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
 
@@ -12,31 +11,31 @@ import javax.ws.rs.core.MediaType
 @Path("/communities")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-interface CommunityResource {
+interface CommunityResource : CommunityStorage {
     @GET
     fun getCommunities(): List<Community>
 
     @GET
     @Path("/{organizationId}")
-    fun getCommunitiesInOrganization(
+    override fun getCommunitiesInOrganization(
             @ApiParam(required = true) @PathParam("organizationId") organizationId: String
     ): List<Community>
 
     @GET
     @Path("/{organizationId}/community/{communityName}")
-    fun get(
+    override fun get(
             @ApiParam(required = true) @PathParam("communityName") communityName: String,
             @ApiParam(required = true) @PathParam("organizationId") organizationId: String
     ): Community?
 
     @POST
-    fun create(
+    override fun create(
             @ApiParam(required = true) community: Community
     )
 
     @PUT
     @Path("/{communityId}")
-    fun update(
+    override fun update(
             @ApiParam(required = true) community: Community
     )
 }

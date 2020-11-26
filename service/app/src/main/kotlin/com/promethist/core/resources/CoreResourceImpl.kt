@@ -15,8 +15,10 @@ import com.promethist.util.LoggerDelegate
 import javax.inject.Inject
 import javax.ws.rs.*
 import java.util.*
+import javax.inject.Singleton
 
 @Path("/")
+@Singleton
 class CoreResourceImpl : CoreResource {
 
     @Inject

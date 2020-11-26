@@ -9,7 +9,7 @@ import com.amazon.ask.model.interfaces.display.ImageInstance
 import com.amazon.ask.model.interfaces.display.RenderTemplateDirective
 import com.amazon.ask.response.ResponseBuilder
 import com.promethist.common.AppConfig
-import com.promethist.core.BotService
+import com.promethist.core.BotCore
 import com.promethist.core.Monitoring
 import com.promethist.core.Response
 import com.promethist.core.model.TtsConfig
@@ -67,7 +67,7 @@ abstract class AbstractHandler(private val predicate: Predicate<HandlerInput>) :
     protected val logger by LoggerDelegate()
 
     protected fun getContext(input: HandlerInput) = with (input.requestEnvelope) {
-        BotService.context(
+        BotCore.context(
                 session.sessionId,
                 context.system.device.deviceId,
                 "alexa:${context.system.application.applicationId}",

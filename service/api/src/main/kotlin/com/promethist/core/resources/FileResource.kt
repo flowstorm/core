@@ -4,7 +4,6 @@ import com.promethist.core.model.FileObject
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiParam
 import java.io.InputStream
-import java.io.OutputStream
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
@@ -18,9 +17,6 @@ interface FileResource {
     fun readFile(
             @ApiParam(required = true) @PathParam("path") path: String
     ): Response
-
-    // local reading
-    fun readFile(path: String, output: OutputStream)
 
     @GET
     @Path("{path: .*}/_object")

@@ -10,17 +10,15 @@ import com.promethist.core.*
 import com.promethist.core.model.SttConfig
 import com.promethist.core.model.TtsConfig
 import com.promethist.core.model.Voice
-import com.promethist.core.resources.CoreResource
 import com.promethist.core.type.Dynamic
 import com.promethist.core.type.MutablePropertyMap
-import com.promethist.core.FileService
+import com.promethist.core.tts.TtsAudioService
 import com.promethist.core.stt.*
 import com.promethist.core.tts.TtsRequest
 import com.promethist.util.LoggerDelegate
 import org.eclipse.jetty.websocket.api.WebSocketAdapter
 import java.io.IOException
 import java.util.*
-import javax.inject.Inject
 import kotlin.concurrent.thread
 
 abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
@@ -72,12 +70,6 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
             }
         }
     }
-
-    @Inject
-    lateinit var coreResource: CoreResource
-
-    @Inject
-    lateinit var dataService: FileService
 
     protected val logger by LoggerDelegate()
     abstract var config: BotConfig
@@ -157,7 +149,7 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
         }
         attributes.putAll(request.attributes)
         request.attributes = attributes
-        val response = coreResource.process(request)
+        val response = BotCore.resource.process(request)
         attributes.clear()
         if (response.expectedPhrases != null) {
             expectedPhrases = response.expectedPhrases!!
@@ -241,14 +233,14 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
                             }
                         }
                 if (config.tts != BotConfig.TtsType.None && !ttsRequest.text.isBlank()) {
-                    val audio = dataService.getTtsAudio(
+                    val audio = TtsAudioService.get(
                             ttsRequest,
                             config.tts != BotConfig.TtsType.RequiredLinks,
                             config.tts == BotConfig.TtsType.RequiredStreaming
                     )
                     when (config.tts) {
                         BotConfig.TtsType.RequiredLinks ->
-                            item.audio = ServiceUrlResolver.getEndpointUrl("core", ServiceUrlResolver.RunMode.dist) + "/file" + audio.path
+                            item.audio = ServiceUrlResolver.getEndpointUrl("core") + "/file/" + audio.path
 
                         BotConfig.TtsType.RequiredStreaming ->
                             sendAudioData(audio.speak().data!!)

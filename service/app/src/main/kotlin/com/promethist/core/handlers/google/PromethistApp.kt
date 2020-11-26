@@ -1,6 +1,6 @@
 package com.promethist.core.handlers.google
 
-import com.promethist.core.BotService
+import com.promethist.core.BotCore
 import com.promethist.client.BotContext
 import com.google.actions.api.ActionRequest
 import com.google.actions.api.ForIntent
@@ -52,7 +52,7 @@ class PromethistApp : ActionsSdkApp() {
     }
 
     private fun withContext(request: ActionRequest, block: ContextualBlock.() -> ResponseBuilder): ResponseBuilder {
-        val context = BotService.context(
+        val context = BotCore.context(
                 request.sessionId!!,
                 "google-device",
                 appKey.get(),
@@ -69,14 +69,14 @@ class PromethistApp : ActionsSdkApp() {
 
     @ForIntent("actions.intent.MAIN")
     fun onMainIntent(request: ActionRequest) = withContext(request) {
-        val response = BotService.client.doIntro(context)
+        val response = BotCore.doIntro(context)
         addResponse(response)
     }.build()
 
     @ForIntent("actions.intent.TEXT")
     fun onTextIntent(request: ActionRequest) = withContext(request) {
         val text = request.getArgument("text")!!.textValue
-        val response = BotService.client.doText(context, text)
+        val response = BotCore.doText(context, text)
         addResponse(response)
     }.build()
 

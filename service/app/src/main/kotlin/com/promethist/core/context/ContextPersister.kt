@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.promethist.common.AppConfig
 import com.promethist.common.ObjectUtil
-import com.promethist.core.Application
 import com.promethist.core.Context
 import com.promethist.core.Monitoring
 import com.promethist.core.model.Entity
@@ -42,7 +41,7 @@ class ContextPersister {
         context.session.turns.add(context.turn)
         context.session.datetime = Date()
         context.communities.values.forEach {
-            context.communityResource.update(it)
+            context.communityStorage.update(it)
         }
 
 
