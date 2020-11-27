@@ -21,9 +21,7 @@ import com.promethist.core.provider.LocalFileStorage
 import com.promethist.core.servlets.BotClientServlet
 import com.promethist.core.storage.FileStorage
 import com.promethist.core.tts.TtsAudioService
-import org.glassfish.hk2.api.InjectionResolver
 import org.glassfish.hk2.api.PerLookup
-import org.glassfish.hk2.api.TypeLiteral
 import org.glassfish.jersey.process.internal.RequestScoped
 import org.litote.kmongo.KMongo
 import java.io.File
@@ -115,10 +113,6 @@ open class CoreApplication : JerseyApplication() {
 
                 bind(KMongoIdParamConverterProvider::class.java).to(ParamConverterProvider::class.java).`in`(Singleton::class.java)
                 bindFactory(QueryValueFactory::class.java).to(Query::class.java).`in`(PerLookup::class.java)
-
-                bind(QueryInjectionResolver::class.java)
-                        .to(object : TypeLiteral<InjectionResolver<QueryParams>>() {})
-                        .`in`(Singleton::class.java)
             }
         })
     }
