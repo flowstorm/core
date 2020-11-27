@@ -11,7 +11,6 @@ import javax.ws.rs.Produces
 import javax.ws.rs.core.MediaType
 
 @Api(tags = ["Sessions"])
-@Path("/sessions")
 @Produces(MediaType.APPLICATION_JSON)
 interface SessionResource {
 

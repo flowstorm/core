@@ -20,10 +20,12 @@ import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
+import javax.ws.rs.Path
 import javax.ws.rs.WebApplicationException
 import javax.ws.rs.core.Response
 import kotlin.collections.toList
 
+@Path("/reports")
 class ReportResourceImpl: ReportResource {
 
     @Inject

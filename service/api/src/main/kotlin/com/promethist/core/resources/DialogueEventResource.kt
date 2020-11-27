@@ -9,7 +9,6 @@ import javax.ws.rs.Produces
 import javax.ws.rs.core.MediaType
 
 @Api(tags = ["Dialogue Event"])
-@Path("/dialogueEvent")
 @Produces(MediaType.APPLICATION_JSON)
 interface DialogueEventResource {
     @GET

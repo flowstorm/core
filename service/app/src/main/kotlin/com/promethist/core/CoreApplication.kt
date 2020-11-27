@@ -107,14 +107,6 @@ open class CoreApplication : JerseyApplication() {
                                 .getDatabase(AppConfig.instance["name"] + "-" + dataspace))
                 bindTo(FileStorage::class.java, fileStorage)
                 bind(MongoProfileRepository::class.java).to(ProfileRepository::class.java)
-                bindTo(ReportResource::class.java, ReportResourceImpl::class.java)
-                bindTo(SessionResource::class.java, SessionResourceImpl::class.java)
-                bindTo(DialogueEventResource::class.java, DialogueEventResourceImpl::class.java)
-                bindTo(ProfileResource::class.java, ProfileResourceImpl::class.java)
-                bindTo(CommunityResource::class.java, CommunityResourceImpl::class.java)
-                bindTo(DevicePairingResource::class.java, DevicePairingResourceImpl::class.java)
-                bindTo(FileResource::class.java, FileResourceImpl::class.java)
-                bindTo(ProxyResource::class.java, ProxyResourceImpl::class.java)
 
                 bind(DialogueLog::class.java).to(DialogueLog::class.java).`in`(RequestScoped::class.java)
 
@@ -130,7 +122,6 @@ open class CoreApplication : JerseyApplication() {
             }
         })
     }
-
 
     companion object {
         @JvmStatic

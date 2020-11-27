@@ -13,7 +13,9 @@ import org.litote.kmongo.*
 import org.litote.kmongo.id.ObjectIdGenerator
 import org.litote.kmongo.id.WrappedObjectId
 import javax.inject.Inject
+import javax.ws.rs.Path
 
+@Path("/sessions")
 class SessionResourceImpl: SessionResource {
 
     @Inject

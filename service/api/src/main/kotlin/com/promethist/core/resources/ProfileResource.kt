@@ -9,7 +9,7 @@ import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
 
 @Api(tags = ["Profiles"])
-@Path("/profiles")
+
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 interface ProfileResource {

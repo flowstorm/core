@@ -8,7 +8,6 @@ import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
 
 @Api(tags = ["Communities"])
-@Path("/communities")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 interface CommunityResource : CommunityRepository {

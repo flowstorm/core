@@ -9,7 +9,6 @@ import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
 
 @Api(tags = ["Content Distribution"], authorizations = [Authorization("Authorization")])
-@Path("/contentDistribution")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 interface ContentDistributionResource {

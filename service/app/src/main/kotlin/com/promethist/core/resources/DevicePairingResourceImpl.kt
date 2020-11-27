@@ -6,7 +6,9 @@ import org.litote.kmongo.*
 import javax.inject.Inject
 import javax.ws.rs.NotFoundException
 import java.util.Date
+import javax.ws.rs.Path
 
+@Path("/devicePairing")
 class DevicePairingResourceImpl : DevicePairingResource {
 
     @Inject

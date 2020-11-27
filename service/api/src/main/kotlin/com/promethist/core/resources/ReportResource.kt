@@ -13,7 +13,6 @@ import javax.ws.rs.core.MediaType
 
 @Api(tags = ["Reports"])
 @Produces(MediaType.APPLICATION_JSON)
-@Path("/reports")
 interface ReportResource {
 
     @GET

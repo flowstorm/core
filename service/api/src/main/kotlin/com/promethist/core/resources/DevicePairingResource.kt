@@ -8,7 +8,6 @@ import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
 
 @Api(tags = ["Device Pairing"], authorizations = [Authorization("Authorization")])
-@Path("/devicePairing")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 interface DevicePairingResource {

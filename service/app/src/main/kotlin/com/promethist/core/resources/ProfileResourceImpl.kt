@@ -9,8 +9,10 @@ import com.promethist.core.model.User
 import org.litote.kmongo.*
 import javax.inject.Inject
 import javax.ws.rs.NotFoundException
+import javax.ws.rs.Path
 import kotlin.collections.toList
 
+@Path("/profiles")
 class ProfileResourceImpl : ProfileResource {
 
     @Inject

@@ -12,7 +12,6 @@ import javax.ws.rs.core.MediaType
 
 @Api(description = "Core Service")
 interface CoreResource {
-
     @PUT
     @Path("process")
     @Consumes(MediaType.APPLICATION_JSON)

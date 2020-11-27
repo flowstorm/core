@@ -4,7 +4,9 @@ import com.mongodb.client.MongoDatabase
 import com.promethist.core.model.Community
 import org.litote.kmongo.*
 import javax.inject.Inject
+import javax.ws.rs.Path
 
+@Path("/communities")
 class CommunityResourceImpl : CommunityResource {
 
     @Inject

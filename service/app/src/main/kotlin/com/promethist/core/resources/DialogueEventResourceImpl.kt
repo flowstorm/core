@@ -9,7 +9,9 @@ import org.bson.conversions.Bson
 import org.litote.kmongo.*
 import org.litote.kmongo.id.ObjectIdGenerator
 import javax.inject.Inject
+import javax.ws.rs.Path
 
+@Path("/dialogueEvent")
 class DialogueEventResourceImpl: DialogueEventResource {
 
     @Inject
