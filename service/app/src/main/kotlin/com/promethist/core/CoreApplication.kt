@@ -120,7 +120,7 @@ open class CoreApplication : JerseyApplication() {
                 bind(DialogueLog::class.java).to(DialogueLog::class.java).`in`(RequestScoped::class.java)
 
                 // content distribution service (provided by admin)
-                bindTo(ContentDistributionResource::class.java, ServiceUrlResolver.getEndpointUrl("admin"))
+                bindTo(ContentDistributionResource::class.java, ServiceUrlResolver.getEndpointUrl("admin") + "/contentDistribution")
 
                 bind(KMongoIdParamConverterProvider::class.java).to(ParamConverterProvider::class.java).`in`(Singleton::class.java)
                 bindFactory(QueryValueFactory::class.java).to(Query::class.java).`in`(PerLookup::class.java)
