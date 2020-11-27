@@ -53,6 +53,11 @@ open class CoreApplication : JerseyApplication() {
                 }
                 TtsAudioService.fileStorage = fileStorage //FIXME servlet part + tts service should be in DI
 
+                bind(CommunityResourceImpl::class.java).to(CommunityResource::class.java)
+                bind(SessionResourceImpl::class.java).to(SessionResource::class.java)
+                bind(DevicePairingResourceImpl::class.java).to(DevicePairingResource::class.java)
+                bind(DialogueEventResourceImpl::class.java).to(DialogueEventResource::class.java)
+
                 /**
                  * NLP components
                  */

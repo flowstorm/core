@@ -20,7 +20,6 @@ import javax.ws.rs.core.MediaType
 
 @Path("/")
 @Produces(MediaType.APPLICATION_JSON)
-@Singleton
 class CoreResourceImpl : CoreResource {
 
     @Inject
