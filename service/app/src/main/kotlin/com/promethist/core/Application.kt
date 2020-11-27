@@ -19,6 +19,7 @@ import com.promethist.core.runtime.*
 import com.promethist.core.nlp.*
 import com.promethist.core.provider.LocalFileStorage
 import com.promethist.core.servlets.BotClientServlet
+import com.promethist.core.tts.TtsAudioService
 import org.glassfish.hk2.api.InjectionResolver
 import org.glassfish.hk2.api.PerLookup
 import org.glassfish.hk2.api.TypeLiteral
@@ -45,6 +46,7 @@ class Application : JerseyApplication() {
                     "FileSystem" -> LocalFileStorage(File(AppConfig.instance["storage.base"]))
                     else -> GoogleStorage()
                 }
+                TtsAudioService.fileStorage = fileStorage //FIXME servlet part + tts service should be in DI
 
                 /**
                  * NLP components

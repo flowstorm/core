@@ -3,6 +3,7 @@ package com.promethist.core.resources
 import com.promethist.core.FileStorage
 import java.io.InputStream
 import javax.inject.Inject
+import javax.ws.rs.NotFoundException
 import javax.ws.rs.Path
 import javax.ws.rs.WebApplicationException
 import javax.ws.rs.core.Response
@@ -34,7 +35,11 @@ class FileResourceImpl: FileResource {
 
     override fun deleteFile(path: String) = fileStorage.deleteFile(path)
 
-    override fun getFile(path: String) = fileStorage.getFile(path)
+    override fun getFile(path: String) = try {
+        fileStorage.getFile(path)
+    } catch (e: FileStorage.NotFoundException) {
+        throw NotFoundException(e)
+    }
 
     override fun provider() = fileStorage::class.simpleName!!
 

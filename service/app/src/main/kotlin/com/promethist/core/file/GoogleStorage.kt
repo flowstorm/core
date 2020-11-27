@@ -60,7 +60,7 @@ class GoogleStorage: FileStorage {
                 Storage.BlobField.TIME_CREATED,
                 Storage.BlobField.UPDATED,
                 Storage.BlobField.METADATA)
-        )?: error("File $path not found")
+        )?: throw FileStorage.NotFoundException("File $path not found in bucket $bucket")
         return FileObject(blob.name, blob.size, blob.contentType
                 ?: "application/octet-stream", blob.createTime, blob.updateTime, blob.metadata ?: mapOf())
     }

@@ -1,25 +1,24 @@
 package com.promethist.core.tts
 
 import com.promethist.common.AppConfig
-import com.promethist.common.RestClient
-import com.promethist.common.ServiceUrlResolver
-import com.promethist.core.resources.FileResource
+import com.promethist.core.FileStorage
 import com.promethist.util.LoggerDelegate
+import java.io.ByteArrayOutputStream
 import java.io.IOException
 import javax.ws.rs.NotFoundException
 import kotlin.concurrent.thread
 
 object TtsAudioService {
 
-    private val fileResource = RestClient.instance(FileResource::class.java, ServiceUrlResolver.getEndpointUrl("core", ServiceUrlResolver.RunMode.local) + "/file")
+    lateinit var fileStorage: FileStorage
     private val logger by LoggerDelegate()
 
     /**
      * Saves TTS audio to filestorefor future usage.
      */
     fun set(code: String, type: String, data: ByteArray, ttsRequest: TtsRequest) {
-        logger.info("saveTtsAudio(code = $code, fileType = $type, data[${data.size}])")
-        fileResource.writeFile("tts/${ttsRequest.voice}/$code.mp3", type, listOf("text:${ttsRequest.text}"), data.inputStream())
+        logger.info("set(code = $code, fileType = $type, data[${data.size}])")
+        fileStorage.writeFile("tts/${ttsRequest.voice}/$code.mp3", type, listOf("text:${ttsRequest.text}"), data.inputStream())
     }
 
     /**
@@ -32,15 +31,19 @@ object TtsAudioService {
         try {
             if (AppConfig.instance.get("tts.no-cache", "false") == "true")
                 throw NotFoundException("tts.no-cache = true")
-            val ttsFile = fileResource.getFile(path)
-            logger.info("getTtsAudio[HIT](ttsRequest = $ttsRequest)")
-            if (download)
-                audio.data = fileResource.readFile(path).readEntity(ByteArray::class.java)
+            val ttsFile = fileStorage.getFile(path)
+            logger.info("[HIT] get(ttsRequest = $ttsRequest)")
+            if (download) {
+                ByteArrayOutputStream().apply {
+                    fileStorage.readFile(path, this)
+                    audio.data = toByteArray()
+                }
+            }
             audio.path = path
-        } catch (e: NotFoundException) {
-            logger.info("getTtsAudio[MISS](ttsRequest = $ttsRequest)")
-            audio.speak() // perform speech synthesis
-            logger.info("getTtsAudio[DONE]")
+        } catch (e: FileStorage.NotFoundException) {
+            logger.info("[MISS] get(ttsRequest = $ttsRequest)")
+            audio.speak()
+            logger.info("[DONE] get")
             if (asyncSave) {
                 thread(start = true) {
                     set(audio.code, audio.type, audio.data!!, ttsRequest)
