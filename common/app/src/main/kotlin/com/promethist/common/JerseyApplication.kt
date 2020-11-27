@@ -1,5 +1,6 @@
 package com.promethist.common
 
+import com.promethist.common.ServerConfigProvider.ServerConfig
 import org.glassfish.jersey.internal.inject.InjectionManager
 import org.glassfish.jersey.logging.LoggingFeature
 import org.glassfish.jersey.server.ResourceConfig
@@ -11,7 +12,7 @@ import javax.ws.rs.ext.ContextResolver
 import kotlin.reflect.KClass
 import kotlin.reflect.full.superclasses
 
-open class JerseyApplication : ResourceConfig() {
+open class JerseyApplication : ResourceConfig(), ServerConfigProvider {
 
     lateinit var injectionManager: InjectionManager
 
@@ -66,13 +67,13 @@ open class JerseyApplication : ResourceConfig() {
         }
     }
 
+    override val serverConfig get() = ServerConfig(this)
+
     companion object {
 
         lateinit var instance: JerseyApplication
 
         @JvmStatic
-        fun main(args: Array<String>) {
-            JerseyMain.main(args)
-        }
+        fun main(args: Array<String>) = JettyServer.run(JerseyApplication())
     }
 }

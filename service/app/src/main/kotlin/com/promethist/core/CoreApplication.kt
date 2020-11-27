@@ -5,6 +5,7 @@ import com.commit451.mailgun.Mailgun
 import com.mongodb.ConnectionString
 import com.mongodb.client.MongoDatabase
 import com.promethist.common.*
+import com.promethist.common.ServerConfigProvider.ServerConfig
 import com.promethist.common.mongo.KMongoIdParamConverterProvider
 import com.promethist.common.query.*
 import com.promethist.services.MessageSender
@@ -18,7 +19,10 @@ import com.promethist.core.resources.*
 import com.promethist.core.runtime.*
 import com.promethist.core.nlp.*
 import com.promethist.core.provider.LocalFileStorage
+import com.promethist.core.servlets.AlexaSkillServlet
+import com.promethist.core.servlets.BotCallServlet
 import com.promethist.core.servlets.BotClientServlet
+import com.promethist.core.servlets.GoogleAppServlet
 import com.promethist.core.storage.FileStorage
 import com.promethist.core.tts.TtsAudioService
 import org.glassfish.hk2.api.PerLookup
@@ -31,6 +35,8 @@ import javax.ws.rs.ext.ParamConverterProvider
 open class CoreApplication : JerseyApplication() {
 
     init {
+        AppConfig.instance["name"] = "core"
+
         Monitoring.init()
         register(object : ResourceBinder() {
             override fun configure() {
@@ -117,13 +123,18 @@ open class CoreApplication : JerseyApplication() {
         })
     }
 
+    override val serverConfig: ServerConfig
+        get() = ServerConfig(this, super.serverConfig.servlets +
+                mapOf(
+                        BotClientServlet::class.java to "/socket/*",
+                        GoogleAppServlet::class.java to "/google/*",
+                        BotCallServlet::class.java to "/call/*",
+                        AlexaSkillServlet::class.java to "/alexa/*",
+                )
+        )
+
     companion object {
         @JvmStatic
-        fun main(args: Array<String>) {
-            with(AppConfig.instance) {
-                set("name", "core")
-            }
-            JettyServer(CoreApplication(), mapOf(BotClientServlet::class.java to "/socket/*"))
-        }
+        fun main(args: Array<String>) = JettyServer.run(CoreApplication())
     }
 }
