@@ -7,6 +7,7 @@ import com.promethist.core.builder.IntentModel
 import com.promethist.core.model.*
 import com.promethist.core.dialogue.AbstractDialogue
 import com.promethist.core.provider.LocalFileStorage
+import com.promethist.core.storage.FileStorage
 import com.promethist.core.type.MutablePropertyMap
 import com.promethist.util.DataConverter
 import com.promethist.util.LoggerDelegate

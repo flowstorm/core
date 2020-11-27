@@ -24,7 +24,7 @@
     <dependencies>
         <dependency>
             <groupId>com.promethist.core</groupId>
-            <artifactId>promethist-core-api</artifactId>
+            <artifactId>promethist-core-lib</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

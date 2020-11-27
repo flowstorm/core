@@ -11,7 +11,7 @@ import com.promethist.services.MessageSender
 import com.promethist.common.services.MailgunSender
 import com.promethist.core.context.ContextFactory
 import com.promethist.core.context.ContextPersister
-import com.promethist.core.file.GoogleStorage
+import com.promethist.core.storage.GoogleStorage
 import com.promethist.core.profile.MongoProfileRepository
 import com.promethist.core.profile.ProfileRepository
 import com.promethist.core.resources.*
@@ -19,6 +19,7 @@ import com.promethist.core.runtime.*
 import com.promethist.core.nlp.*
 import com.promethist.core.provider.LocalFileStorage
 import com.promethist.core.servlets.BotClientServlet
+import com.promethist.core.storage.FileStorage
 import com.promethist.core.tts.TtsAudioService
 import org.glassfish.hk2.api.InjectionResolver
 import org.glassfish.hk2.api.PerLookup

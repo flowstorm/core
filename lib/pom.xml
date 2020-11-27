@@ -11,8 +11,8 @@
         <artifactId>promethist-core</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
-    <artifactId>promethist-core-api</artifactId>
-    <name>Promethist Core API</name>
+    <artifactId>promethist-core-lib</artifactId>
+    <name>Promethist Core Lib</name>
 
     <dependencies>
         <dependency>

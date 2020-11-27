@@ -23,7 +23,7 @@
     </properties>
 
     <modules>
-        <module>api</module>
+        <module>lib</module>
         <module>app</module>
         <module>common</module>
         <module>client</module>

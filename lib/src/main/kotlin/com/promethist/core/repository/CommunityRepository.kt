@@ -1,8 +1,8 @@
-package com.promethist.core
+package com.promethist.core.repository
 
 import com.promethist.core.model.Community
 
-interface CommunityStorage {
+interface CommunityRepository {
 
     fun getCommunitiesInOrganization(organizationId: String): List<Community>
 

@@ -1,35 +1,17 @@
 package com.promethist.core.provider
 
-import com.promethist.core.FileStorage
+import com.promethist.core.storage.FileStorage
 import com.promethist.core.model.FileObject
 import java.io.*
 import java.nio.file.Files
 import java.nio.file.attribute.BasicFileAttributes
-import javax.ws.rs.NotFoundException
-
-const val defaultContentType = "application/octet-stream"
 
 class LocalFileStorage(private val base: File) : FileStorage {
-/*
-    override fun readFile(path: String): Response {
-        val fileObject = getFile(path)
-        return Response.ok(
-                StreamingOutput { output ->
-                    try {
-                        readFile(path, output)
-                    } catch (e: Exception) {
-                        throw WebApplicationException("File streaming failed", e)
-                    }
-                }, defaultContentType)
-                .header("Content-Disposition", "inline" + "; filename=\"${fileObject.name}\"")
-                .header("Content-Length", fileObject.size)
-                .build()
-    }
-*/
+
     override fun readFile(path: String, output: OutputStream) {
         val file = File(base, path)
         if (!file.exists())
-            throw NotFoundException("File $path not found")
+            throw FileStorage.NotFoundException("File $path not found")
         FileInputStream(file).copyTo(output)
     }
 
@@ -37,10 +19,10 @@ class LocalFileStorage(private val base: File) : FileStorage {
         val file = File(base, path)
         if (file.exists()) {
             val attr = Files.readAttributes(file.toPath(),  BasicFileAttributes::class.java)
-            return FileObject(file.name, file.length(), defaultContentType,
+            return FileObject(file.name, file.length(), FileStorage.defaultContentType,
                     attr.creationTime().toMillis(), attr.lastModifiedTime().toMillis())
         } else {
-            throw NotFoundException("File $path not found")
+            throw FileStorage.NotFoundException("File $path not found")
         }
     }
 

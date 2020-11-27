@@ -1,6 +1,6 @@
 package com.promethist.core.runtime
 
-import com.promethist.core.FileStorage
+import com.promethist.core.storage.FileStorage
 import com.promethist.core.model.FileObject
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream

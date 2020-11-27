@@ -1,7 +1,7 @@
 package com.promethist.core.tts
 
 import com.promethist.common.AppConfig
-import com.promethist.core.FileStorage
+import com.promethist.core.storage.FileStorage
 import com.promethist.util.LoggerDelegate
 import java.io.ByteArrayOutputStream
 import java.io.IOException

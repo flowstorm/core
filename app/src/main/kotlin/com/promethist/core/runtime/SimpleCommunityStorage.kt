@@ -1,9 +1,9 @@
 package com.promethist.core.runtime
 
-import com.promethist.core.CommunityStorage
+import com.promethist.core.repository.CommunityRepository
 import com.promethist.core.model.Community
 
-class SimpleCommunityStorage : CommunityStorage {
+class SimpleCommunityStorage : CommunityRepository {
 
     val communities = mutableMapOf<String, Community>()
 

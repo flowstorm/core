@@ -1,6 +1,7 @@
 package com.promethist.core
 
 import com.promethist.core.model.*
+import com.promethist.core.repository.CommunityRepository
 import com.promethist.core.type.Attributes
 import com.promethist.services.MessageSender
 import org.slf4j.Logger
@@ -13,7 +14,7 @@ data class Context(
         val turn: Turn,
         val logger: Logger,
         var locale: Locale? = null,
-        val communityStorage: CommunityStorage,
+        val communityStorage: CommunityRepository,
         val messageSender: MessageSender,
         val communities: MutableMap<String, Community> = mutableMapOf(),
         var intentModels: List<Model> = listOf(),

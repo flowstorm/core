@@ -1,6 +1,6 @@
 package com.promethist.core.resources
 
-import com.promethist.core.FileStorage
+import com.promethist.core.storage.FileStorage
 import java.io.InputStream
 import javax.inject.Inject
 import javax.ws.rs.NotFoundException

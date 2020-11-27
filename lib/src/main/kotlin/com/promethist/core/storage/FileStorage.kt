@@ -1,10 +1,14 @@
-package com.promethist.core
+package com.promethist.core.storage
 
 import com.promethist.core.model.FileObject
 import java.io.InputStream
 import java.io.OutputStream
 
 interface FileStorage {
+
+    companion object {
+        const val defaultContentType = "application/octet-stream"
+    }
 
     class NotFoundException(message: String) : Exception(message)
 

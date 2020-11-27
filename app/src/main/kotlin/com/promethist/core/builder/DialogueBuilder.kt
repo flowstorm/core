@@ -1,7 +1,7 @@
 package com.promethist.core.builder
 
 import com.promethist.common.AppConfig
-import com.promethist.core.FileStorage
+import com.promethist.core.storage.FileStorage
 import com.promethist.core.dialogue.AbstractDialogue
 import com.promethist.core.model.DialogueBuild
 import com.promethist.core.runtime.DialogueClassLoader

@@ -1,11 +1,10 @@
-package com.promethist.core.file
+package com.promethist.core.storage
 
 import com.google.cloud.storage.BlobId
 import com.google.cloud.storage.BlobInfo
 import com.google.cloud.storage.Storage
 import com.google.cloud.storage.StorageOptions
 import com.promethist.common.AppConfig
-import com.promethist.core.FileStorage
 import com.promethist.core.model.FileObject
 import java.io.InputStream
 import java.io.OutputStream

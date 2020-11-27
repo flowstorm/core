@@ -1,6 +1,6 @@
 package com.promethist.core.resources
 
-import com.promethist.core.CommunityStorage
+import com.promethist.core.repository.CommunityRepository
 import com.promethist.core.model.Community
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiParam
@@ -11,7 +11,7 @@ import javax.ws.rs.core.MediaType
 @Path("/communities")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-interface CommunityResource : CommunityStorage {
+interface CommunityResource : CommunityRepository {
     @GET
     fun getCommunities(): List<Community>
 
