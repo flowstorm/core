@@ -18,7 +18,7 @@ interface ReportResource {
     @Path("/data")
     fun getData(
             @ApiParam(required = false) @QueryParam("granularity") granularity: Report.Granularity,
-            @ApiParam(required = false) @QueryParam("aggregations") aggregations: List<Aggregation>
+            @ApiParam(required = false) @QueryParam("aggregations") aggregations: List<String>
     ): Report
 
     @GET

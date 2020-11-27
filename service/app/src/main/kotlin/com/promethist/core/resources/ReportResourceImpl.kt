@@ -91,8 +91,13 @@ class ReportResourceImpl: ReportResource {
 
     override fun getData(
             granularity: Report.Granularity,
-            aggregations: List<Report.Aggregation>
+            aggregations: List<String>
     ): Report {
+
+        //Jersey produce warning when aggregations parameter is List<Report.Aggregation>
+        @Suppress("NAME_SHADOWING")
+        val aggregations = aggregations.map { Report.Aggregation.valueOf(it) }
+
         val start = getDateFromString(query.filters.firstOrNull() { it.path == Session::datetime.name && it.operator == Query.Operator.gte }!!.value)
         val end = getDateFromString(query.filters.firstOrNull() { it.path == Session::datetime.name && it.operator == Query.Operator.lte }!!.value)
         val dates = getDatesBetween(start, end, granularity)
