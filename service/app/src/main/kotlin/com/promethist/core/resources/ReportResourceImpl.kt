@@ -21,11 +21,14 @@ import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
 import javax.ws.rs.Path
+import javax.ws.rs.Produces
 import javax.ws.rs.WebApplicationException
+import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
 import kotlin.collections.toList
 
 @Path("/reports")
+@Produces(MediaType.APPLICATION_JSON)
 class ReportResourceImpl: ReportResource {
 
     @Inject

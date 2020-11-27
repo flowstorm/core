@@ -5,8 +5,11 @@ import com.promethist.core.model.Community
 import org.litote.kmongo.*
 import javax.inject.Inject
 import javax.ws.rs.Path
+import javax.ws.rs.Produces
+import javax.ws.rs.core.MediaType
 
 @Path("/communities")
+@Produces(MediaType.APPLICATION_JSON)
 class CommunityResourceImpl : CommunityResource {
 
     @Inject

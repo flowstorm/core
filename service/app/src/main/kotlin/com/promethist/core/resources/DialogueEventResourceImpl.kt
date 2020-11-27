@@ -10,8 +10,11 @@ import org.litote.kmongo.*
 import org.litote.kmongo.id.ObjectIdGenerator
 import javax.inject.Inject
 import javax.ws.rs.Path
+import javax.ws.rs.Produces
+import javax.ws.rs.core.MediaType
 
 @Path("/dialogueEvent")
+@Produces(MediaType.APPLICATION_JSON)
 class DialogueEventResourceImpl: DialogueEventResource {
 
     @Inject

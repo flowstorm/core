@@ -10,9 +10,12 @@ import org.litote.kmongo.*
 import javax.inject.Inject
 import javax.ws.rs.NotFoundException
 import javax.ws.rs.Path
+import javax.ws.rs.Produces
+import javax.ws.rs.core.MediaType
 import kotlin.collections.toList
 
 @Path("/profiles")
+@Produces(MediaType.APPLICATION_JSON)
 class ProfileResourceImpl : ProfileResource {
 
     @Inject

@@ -5,11 +5,14 @@ import java.io.InputStream
 import javax.inject.Inject
 import javax.ws.rs.NotFoundException
 import javax.ws.rs.Path
+import javax.ws.rs.Produces
 import javax.ws.rs.WebApplicationException
+import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
 import javax.ws.rs.core.StreamingOutput
 
 @Path("/file")
+@Produces(MediaType.APPLICATION_JSON)
 class FileResourceImpl: FileResource {
 
     @Inject
