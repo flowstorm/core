@@ -10,6 +10,7 @@ import com.promethist.core.*
 import com.promethist.core.model.SttConfig
 import com.promethist.core.model.TtsConfig
 import com.promethist.core.model.Voice
+import com.promethist.core.storage.FileStorage
 import com.promethist.core.type.Dynamic
 import com.promethist.core.type.MutablePropertyMap
 import com.promethist.core.tts.TtsAudioService
@@ -19,9 +20,16 @@ import com.promethist.util.LoggerDelegate
 import org.eclipse.jetty.websocket.api.WebSocketAdapter
 import java.io.IOException
 import java.util.*
+import javax.inject.Inject
 import kotlin.concurrent.thread
 
 abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
+
+    @Inject
+    lateinit var fileStorage: FileStorage
+
+    @Inject
+    lateinit var ttsAudioService: TtsAudioService
 
     inner class BotSttCallback : SttCallback {
 
@@ -233,7 +241,7 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
                             }
                         }
                 if (config.tts != BotConfig.TtsType.None && !ttsRequest.text.isBlank()) {
-                    val audio = TtsAudioService.get(
+                    val audio = ttsAudioService.get(
                             ttsRequest,
                             config.tts != BotConfig.TtsType.RequiredLinks,
                             config.tts == BotConfig.TtsType.RequiredStreaming

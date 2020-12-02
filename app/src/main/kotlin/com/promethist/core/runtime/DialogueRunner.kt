@@ -84,10 +84,10 @@ class DialogueRunner(
     var locale = Defaults.locale
     var zoneId = Defaults.zoneId
 
-    private val loader: Loader = FileResourceLoader(fileStorage, "dialogue", useScript = true)
+    private val loader: Loader = FileResourceLoader("dialogue", useScript = true).apply { fileStorage = this@DialogueRunner.fileStorage }
     private val logger by LoggerDelegate()
 
-    private val dmf = DialogueFactory(loader)
+    private val dmf = DialogueFactory().apply { loader = this@DialogueRunner.loader }
     private val dm = DialogueManager().apply {
         dialogueFactory = dmf
     }

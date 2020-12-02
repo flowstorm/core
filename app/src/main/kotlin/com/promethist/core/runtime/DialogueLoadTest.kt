@@ -17,7 +17,7 @@ object DialogueLoadTest {
     @JvmStatic
     fun main(args: Array<String>) {
         val logger: Logger = LoggerFactory.getLogger("dialogue-model-load-test")
-        val loader = FileResourceLoader(LocalFileStorage(File("test")), "dialogue")
+        val loader = FileResourceLoader( "dialogue").apply { fileStorage = LocalFileStorage(File("test")) }
         val dialogueId = "dialogue1"
         val dialogue = loader.newObject<AbstractDialogue>("$dialogueId/model", "ble", 1, false)
         dialogue.loader = loader

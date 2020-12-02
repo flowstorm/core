@@ -5,6 +5,7 @@ import com.promethist.core.Component
 import com.promethist.core.Context
 import com.promethist.core.Input
 import com.promethist.util.LoggerDelegate
+import org.glassfish.hk2.api.IterableProvider
 import javax.inject.Inject
 import javax.ws.rs.client.Entity
 import javax.ws.rs.client.WebTarget
@@ -13,7 +14,9 @@ import javax.ws.rs.core.GenericType
 class Illusionist : Component {
 
     @Inject
-    lateinit var webTarget: WebTarget
+    lateinit var webTargets: IterableProvider<WebTarget>
+
+    val webTarget: WebTarget get() = webTargets.named("illusionist").get()
 
     private val logger by LoggerDelegate()
 

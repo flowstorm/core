@@ -5,12 +5,15 @@ import com.promethist.core.storage.FileStorage
 import com.promethist.util.LoggerDelegate
 import java.io.ByteArrayOutputStream
 import java.io.IOException
+import javax.inject.Inject
 import javax.ws.rs.NotFoundException
 import kotlin.concurrent.thread
 
-object TtsAudioService {
+class TtsAudioService {
 
+    @Inject
     lateinit var fileStorage: FileStorage
+
     private val logger by LoggerDelegate()
 
     /**

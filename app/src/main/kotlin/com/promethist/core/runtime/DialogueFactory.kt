@@ -4,9 +4,12 @@ import com.promethist.core.dialogue.AbstractDialogue
 import com.promethist.core.model.Session.DialogueStackFrame
 import com.promethist.core.type.PropertyMap
 import com.promethist.util.LoggerDelegate
+import javax.inject.Inject
 
-class DialogueFactory(private val loader: Loader) {
+class DialogueFactory {
 
+    @Inject
+    lateinit var loader:Loader
     private val logger by LoggerDelegate()
     private val dialogues: MutableMap<Triple<String?, String, PropertyMap>, AbstractDialogue> = mutableMapOf()
 
