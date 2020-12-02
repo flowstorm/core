@@ -20,6 +20,7 @@
         <kmongo.version>3.12.2</kmongo.version>
         <jackson.version>2.11.3</jackson.version>
         <jersey.version>2.32</jersey.version>
+        <aws.java.sdk.version>2.15.36</aws.java.sdk.version>
     </properties>
 
     <modules>
