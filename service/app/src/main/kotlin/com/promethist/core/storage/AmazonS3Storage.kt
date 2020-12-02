@@ -36,7 +36,7 @@ class AmazonS3Storage: FileStorage {
                 .build()
         try {
             val response = s3.getObject(objectRequest).response()
-            val metadata = response.metadata().toMutableMap()
+            val metadata = response.metadata().toSortedMap(java.lang.String.CASE_INSENSITIVE_ORDER)
             val timeCreated = metadata.remove("time_created")?.toLong() ?: 0L
             return FileObject(path, response.contentLength(), response.contentType(),
                     timeCreated, response.lastModified().toEpochMilli(), metadata)
@@ -46,14 +46,14 @@ class AmazonS3Storage: FileStorage {
     }
 
     override fun writeFile(path: String, contentType: String, meta: List<String>, input: InputStream) {
-        val metadata = meta.map { it.split(":").let { it[0] to it[1] } }.toMap()
+        val metadata = meta.map { it.split(":").let { it[0] to it[1] } }.toMap() +
+                mapOf("time_created" to System.currentTimeMillis().toString()) // Different from lastModified even for the first revision!
         // First create a multipart upload and get the upload id
         val createMultipartUploadRequest = CreateMultipartUploadRequest.builder()
                 .bucket(bucket)
                 .key(path)
                 .metadata(metadata)
                 .contentType(contentType)
-                .metadata(mapOf("time_created" to System.currentTimeMillis().toString())) // Different from lastModified even for the first revision!
                 .build()
 
         val response = s3.createMultipartUpload(createMultipartUploadRequest)
