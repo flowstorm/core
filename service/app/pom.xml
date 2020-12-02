@@ -16,7 +16,6 @@
 
     <properties>
         <jetty.version>9.4.18.v20190429</jetty.version>
-        <google.speech.version>0.80.0-beta</google.speech.version>
         <amazon.speech.version>1.11.769</amazon.speech.version>
     </properties>
 
@@ -163,12 +162,10 @@
         <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-speech</artifactId>
-            <version>${google.speech.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-texttospeech</artifactId>
-            <version>${google.speech.version}</version>
         </dependency>
         <dependency>
             <groupId>com.amazonaws</groupId>

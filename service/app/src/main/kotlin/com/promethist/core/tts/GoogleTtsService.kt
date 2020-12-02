@@ -1,6 +1,6 @@
 package com.promethist.core.tts
 
-import com.google.cloud.texttospeech.v1beta1.*
+import com.google.cloud.texttospeech.v1.*
 import com.promethist.core.model.TtsConfig
 import io.sentry.Sentry
 
