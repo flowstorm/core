@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.promethist.common.AppConfig
 import com.promethist.common.ObjectUtil
 import com.promethist.core.Context
-import com.promethist.core.Monitoring
 import com.promethist.core.model.Entity
 import com.promethist.core.monitoring.Monitor
 import com.promethist.core.profile.ProfileRepository
