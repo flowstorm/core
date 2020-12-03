@@ -1,16 +1,16 @@
 package com.promethist.core
 
-import com.commit451.mailgun.Contact
-import com.commit451.mailgun.Mailgun
 import com.mongodb.ConnectionString
 import com.mongodb.client.MongoDatabase
 import com.promethist.common.*
 import com.promethist.common.ServerConfigProvider.ServerConfig
 import com.promethist.common.mongo.KMongoIdParamConverterProvider
 import com.promethist.common.query.*
-import com.promethist.common.services.MailgunSender
+import com.promethist.common.services.DummySender
 import com.promethist.core.context.ContextFactory
 import com.promethist.core.context.ContextPersister
+import com.promethist.core.monitoring.StdOutMonitor
+import com.promethist.core.monitoring.Monitor
 import com.promethist.core.nlp.*
 import com.promethist.core.profile.MongoProfileRepository
 import com.promethist.core.profile.ProfileRepository
@@ -47,10 +47,9 @@ open class CoreApplication : JerseyApplication() {
             println("App ${it["git.ref"]} starting with namespace = ${it["namespace"]}, dataspace = $dataspace, runMode = $runMode")
         }
 
-        Monitoring.init()
         register(object : ResourceBinder() {
             override fun configure() {
-
+                bind(StdOutMonitor::class.java).to(Monitor::class.java)
                 bindFactory(FileStorageFactory::class.java).to(FileStorage::class.java).`in`(Singleton::class.java)
                 bindFactory(FileResourceLoaderFactory::class.java).to(Loader::class.java).`in`(Singleton::class.java)
 
@@ -81,18 +80,13 @@ open class CoreApplication : JerseyApplication() {
                 // NER component (second)
                 bind(Cassandra::class.java).to(Component::class.java).named("cassandra")
                 // tokenizer (first)
-                bind(InternalTokenizer()).to(Component::class.java).named("tokenizer")
+                bind(InternalTokenizer::class.java).to(Component::class.java).named("tokenizer")
 
                 /**
                  * Other components
                  */
-                val mailgun = Mailgun.Builder(AppConfig.instance["mailgun.domain"], AppConfig.instance["mailgun.apikey"])
-                        .baseUrl(AppConfig.instance["mailgun.baseUrl"])
-                        .build()
-                bindTo(MessageSender::class.java, MailgunSender(mailgun, Contact(
-                        AppConfig.instance.get("sender.from.email", "bot@promethist.ai"),
-                        AppConfig.instance.get("sender.from.name", "Promethist Bot")))
-                )
+                bind(DummySender::class.java).to(MessageSender::class.java)
+
                 //TODO replace by object repository
                 bindTo(MongoDatabase::class.java,
                         KMongo.createClient(ConnectionString(AppConfig.instance["database.url"]))
@@ -100,9 +94,6 @@ open class CoreApplication : JerseyApplication() {
                 bind(MongoProfileRepository::class.java).to(ProfileRepository::class.java)
 
                 bind(DialogueLog::class.java).to(DialogueLog::class.java).`in`(RequestScoped::class.java)
-
-                // content distribution service (provided by admin)
-                bindTo(ContentDistributionResource::class.java, ServiceUrlResolver.getEndpointUrl("admin") + "/contentDistribution")
 
                 bind(KMongoIdParamConverterProvider::class.java).to(ParamConverterProvider::class.java).`in`(Singleton::class.java)
                 bindFactory(QueryValueFactory::class.java).to(Query::class.java).`in`(PerLookup::class.java)

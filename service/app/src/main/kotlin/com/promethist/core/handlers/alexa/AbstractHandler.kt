@@ -9,10 +9,11 @@ import com.amazon.ask.model.interfaces.display.ImageInstance
 import com.amazon.ask.model.interfaces.display.RenderTemplateDirective
 import com.amazon.ask.response.ResponseBuilder
 import com.promethist.common.AppConfig
+import com.promethist.common.JerseyApplication
 import com.promethist.core.BotCore
-import com.promethist.core.Monitoring
 import com.promethist.core.Response
 import com.promethist.core.model.TtsConfig
+import com.promethist.core.monitoring.Monitor
 import com.promethist.core.type.Dynamic
 import com.promethist.core.type.Location
 import com.promethist.util.LoggerDelegate
@@ -22,6 +23,8 @@ import java.util.function.Predicate
 abstract class AbstractHandler(private val predicate: Predicate<HandlerInput>) : RequestHandler {
 
     val title = AppConfig.instance["title"]
+
+    val monitor: Monitor = JerseyApplication.instance.injectionManager.getInstance(Monitor::class.java)
 
     inner class ContextualBlock(val input: HandlerInput, val context: BotContext) {
 
@@ -92,7 +95,7 @@ abstract class AbstractHandler(private val predicate: Predicate<HandlerInput>) :
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                Monitoring.capture(e)
+                monitor.capture(e)
             }
         })
     }

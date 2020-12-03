@@ -10,6 +10,7 @@ import com.promethist.core.*
 import com.promethist.core.model.SttConfig
 import com.promethist.core.model.TtsConfig
 import com.promethist.core.model.Voice
+import com.promethist.core.monitoring.Monitor
 import com.promethist.core.storage.FileStorage
 import com.promethist.core.type.Dynamic
 import com.promethist.core.type.MutablePropertyMap
@@ -31,6 +32,9 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
     @Inject
     lateinit var ttsAudioService: TtsAudioService
 
+    @Inject
+    lateinit var monitor: Monitor
+
     inner class BotSttCallback : SttCallback {
 
         var silence = true
@@ -51,7 +55,7 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
         }
 
         override fun onError(e: Throwable) {
-            Monitoring.capture(e, mapOf(
+            monitor.capture(e, mapOf(
                     "config" to config,
                     "sessionId" to sessionId,
                     "appKey" to appKey

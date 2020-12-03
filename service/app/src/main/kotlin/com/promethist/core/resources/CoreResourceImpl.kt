@@ -7,6 +7,7 @@ import com.promethist.core.context.ContextPersister
 import com.promethist.core.dialogue.AbstractDialogue
 import com.promethist.core.model.*
 import com.promethist.core.model.metrics.Metric
+import com.promethist.core.monitoring.Monitor
 import com.promethist.core.resources.ContentDistributionResource.ContentRequest
 import com.promethist.core.runtime.DialogueLog
 import com.promethist.core.type.Dynamic
@@ -46,15 +47,18 @@ class CoreResourceImpl : CoreResource {
     @Inject
     lateinit var contextPersister: ContextPersister
 
+    @Inject
+    lateinit var monitor: Monitor
+
     private val logger by LoggerDelegate()
 
-    override fun process(request: Request): Response = with (request) {
+    override fun process(request: Request): Response = with(request) {
 
         //todo get logger level from request
         dialogueLog.level = Level.ALL
 
         val session = try {
-            initSession(appKey, sender,token, sessionId, initiationId, input)
+            initSession(appKey, sender, token, sessionId, initiationId, input)
         } catch (e: Exception) {
             return processException(request, e)
         }
@@ -120,7 +124,7 @@ class CoreResourceImpl : CoreResource {
                         text = text
                 )
                 if (e !is AbstractDialogue.DialogueScriptException) {
-                    Monitoring.capture(e)
+                    monitor.capture(e)
                 }
             }
             throw e

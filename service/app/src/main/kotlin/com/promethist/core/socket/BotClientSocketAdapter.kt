@@ -3,7 +3,6 @@ package com.promethist.core.socket
 import com.promethist.client.BotConfig
 import com.promethist.client.BotEvent
 import com.promethist.common.ObjectUtil.defaultMapper
-import com.promethist.core.Monitoring
 import com.promethist.core.model.SttConfig
 import java.io.IOException
 import java.nio.ByteBuffer
@@ -37,7 +36,7 @@ class BotClientSocketAdapter : AbstractBotSocketAdapter() {
                 else -> error("Unexpected event of type ${event::class.simpleName}")
             }
         } catch (e: Throwable) {
-            Monitoring.capture(e)
+            monitor.capture(e)
             logger.error("onWebSocketText", e)
             (e.cause?:e).apply {
                 sendEvent(BotEvent.Error(message ?: this::class.qualifiedName ?: "unknown"))

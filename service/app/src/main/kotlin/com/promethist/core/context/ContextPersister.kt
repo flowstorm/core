@@ -7,6 +7,7 @@ import com.promethist.common.ObjectUtil
 import com.promethist.core.Context
 import com.promethist.core.Monitoring
 import com.promethist.core.model.Entity
+import com.promethist.core.monitoring.Monitor
 import com.promethist.core.profile.ProfileRepository
 import com.promethist.core.resources.SessionResource
 import com.promethist.core.runtime.DialogueLog
@@ -35,6 +36,9 @@ class ContextPersister {
     @Inject
     lateinit var dialogueLog: DialogueLog
 
+    @Inject
+    lateinit var monitor: Monitor
+
     fun persist(context: Context) {
         context.turn.log.addAll(dialogueLog.log)
         context.turn.duration = System.currentTimeMillis() - context.turn.datetime.time
@@ -49,7 +53,7 @@ class ContextPersister {
             saveToElastic(context.session)
             saveToElastic(context.userProfile)
         } catch (e: Throwable) {
-            Monitoring.capture(e, context.session)
+            monitor.capture(e, context.session)
         }
         sessionResource.update(context.session)
         profileRepository.save(context.userProfile)
