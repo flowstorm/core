@@ -25,14 +25,14 @@ abstract class SignalConfigurableProvider(val name: String, val format: Format, 
             } else if (format == Format.Properties && !continuous) {
                 // read all properties
                 while (true) {
-                    (reader.readLine() ?: break).split('=').let {
+                    (reader.readLine() ?: break).split('=', limit = 2).let {
                         values[it[0]] = loadValueFromString(it[1])
                     }
                 }
             } else {
                 val line = reader.readLine() ?: break
                 when (format) {
-                    Format.Properties -> line.split('=').let {
+                    Format.Properties -> line.split('=', limit = 2).let {
                         values[it[0]] = loadValueFromString(it[1])
                     }
                     Format.NMEA ->
@@ -60,11 +60,9 @@ abstract class SignalConfigurableProvider(val name: String, val format: Format, 
         while (true) {
             try {
                 load()
-                do {
-                    Thread.sleep(sleep)
-                } while (!continuous)
+                Thread.sleep(sleep)
             } catch (e: Exception) {
-                logger.error("signal load failed", e)
+                logger.error("signal provider load failed", e)
                 Thread.sleep(5000)
             }
         }

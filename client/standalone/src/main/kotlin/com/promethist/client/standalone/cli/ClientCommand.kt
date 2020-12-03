@@ -266,15 +266,6 @@ class ClientCommand: CommandRunner<Application.Config, ClientCommand.Config> {
                         Thread.sleep(5000)
                         exit()
                     }
-                    config.signalProcessor?.apply {
-                        paused = false
-                        println("{Signal processor unpaused}")
-                    }
-                } else {
-                    config.signalProcessor?.apply {
-                        paused = true
-                        println("{Signal processor paused}")
-                    }
                 }
             }
         }
@@ -330,12 +321,11 @@ class ClientCommand: CommandRunner<Application.Config, ClientCommand.Config> {
     private fun enableSignalProcessing() = config.signalProcessor?.apply {
         out.println("{enabling signal processor}")
         emitter = { signalGroup: SignalGroup, values: PropertyMap ->
-            context.attributes.putAll(values)
             when (signalGroup.type) {
                 SignalGroup.Type.Text ->
                     if (client.state == BotClient.State.Sleeping) {
                         println("{Signal text '${signalGroup.name}' values $values}")
-                        client.doText(signalGroup.name)
+                        client.doText(signalGroup.name, values)
                     }
                 SignalGroup.Type.Touch ->
                     client.touch()

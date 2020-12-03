@@ -85,8 +85,6 @@ open class DeviceClientCallback(
     }
 
     override fun onBotStateChange(client: BotClient, newState: BotClient.State) {
-        //if (!noOutputLogs && client.state != newState)
-        //    output.println("[${client.stateLog()} > $newState]")
         if (client.state != newState) {
             output.println("{${client.state} > $newState}")
             Screen.instance?.stateChange(client.state, newState)

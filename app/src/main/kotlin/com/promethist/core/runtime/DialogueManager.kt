@@ -113,7 +113,6 @@ class DialogueManager : Component {
         var frame = session.dialogueStack.pop()
         var node: AbstractDialogue.Node
         val processedNodes = mutableListOf<AbstractDialogue.Node>()
-
         try {
             loop@ while (true) {
                 if (processedNodes.size >= 40)
