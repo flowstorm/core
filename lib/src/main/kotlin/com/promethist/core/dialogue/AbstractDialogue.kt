@@ -46,13 +46,19 @@ abstract class AbstractDialogue : DialogueModel {
         init { nodes.add(this) }
         override fun hashCode(): Int = id
         override fun equals(other: Any?) = if (other is Node) other.id == id && other.dialogue.dialogueId == dialogueId else false
-        override fun toString(): String = "${javaClass.simpleName}" + (if (isSingleton) "" else "#$id")
+        override fun toString(): String = stringName + (if (isSingleton) "" else "#$id")
+        private val stringName: String get() =
+            when(this) {
+                is StartDialogue -> "Enter"
+                is StopDialogue -> "Exit"
+                is StopSession -> "End"
+                else -> javaClass.simpleName ?: ""
+            }
     }
 
     abstract inner class TransitNode(id: Int): Node(id) {
         lateinit var next: Node
         fun isNextInitialized() = ::next.isInitialized
-        override fun toString(): String = "${javaClass.simpleName}(id=$id, next=$next)"
     }
 
     data class Transition(val node: Node)
