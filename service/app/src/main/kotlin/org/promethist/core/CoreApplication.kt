@@ -6,7 +6,7 @@ import org.promethist.common.*
 import org.promethist.common.ServerConfigProvider.ServerConfig
 import org.promethist.common.mongo.KMongoIdParamConverterProvider
 import org.promethist.common.query.*
-import org.promethist.common.services.DummySender
+import org.promethist.common.messaging.DummySender
 import org.promethist.core.context.ContextFactory
 import org.promethist.core.context.ContextPersister
 import org.promethist.core.monitoring.StdOutMonitor
@@ -24,7 +24,7 @@ import org.promethist.core.servlets.GoogleAppServlet
 import org.promethist.core.storage.FileStorage
 import org.promethist.core.storage.GoogleStorage
 import org.promethist.core.tts.TtsAudioService
-import org.promethist.messaging.MessageSender
+import org.promethist.common.messaging.MessageSender
 import org.glassfish.hk2.api.Factory
 import org.glassfish.hk2.api.PerLookup
 import org.glassfish.hk2.utilities.binding.AbstractBinder

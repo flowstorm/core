@@ -1,6 +1,4 @@
-package org.promethist.common.services
-
-import org.promethist.messaging.MessageSender
+package org.promethist.common.messaging
 
 class DummySender : MessageSender {
     override fun sendMessage(recipient: MessageSender.Recipient, subject: String, templateName: String, templateVariables: Map<String, String>) {

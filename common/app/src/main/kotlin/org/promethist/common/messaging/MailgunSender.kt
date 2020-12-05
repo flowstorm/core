@@ -1,9 +1,8 @@
-package org.promethist.common.services
+package org.promethist.common.messaging
 
 import com.commit451.mailgun.Contact
 import com.commit451.mailgun.Mailgun
 import com.commit451.mailgun.SendMessageRequest
-import org.promethist.messaging.MessageSender
 
 class MailgunSender(val mailgun: Mailgun, val from: Contact) : MessageSender {
 

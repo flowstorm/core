@@ -1,9 +1,8 @@
 package org.promethist.core.runtime
 
 import org.promethist.common.TextConsole
-import org.promethist.common.services.DummySender
+import org.promethist.common.messaging.DummySender
 import org.promethist.core.*
-import org.promethist.core.builder.IntentModel
 import org.promethist.core.model.*
 import org.promethist.core.dialogue.AbstractDialogue
 import org.promethist.core.provider.LocalFileStorage

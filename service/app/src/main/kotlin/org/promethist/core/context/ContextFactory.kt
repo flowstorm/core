@@ -10,7 +10,7 @@ import org.promethist.core.resources.CommunityResource
 import org.promethist.core.runtime.DialogueLog
 import org.promethist.core.type.Dynamic
 import org.promethist.core.type.toLocation
-import org.promethist.messaging.MessageSender
+import org.promethist.common.messaging.MessageSender
 import javax.inject.Inject
 
 class ContextFactory {

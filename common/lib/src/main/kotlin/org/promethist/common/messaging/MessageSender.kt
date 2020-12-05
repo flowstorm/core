@@ -1,4 +1,4 @@
-package org.promethist.messaging
+package org.promethist.common.messaging
 
 interface MessageSender {
 
