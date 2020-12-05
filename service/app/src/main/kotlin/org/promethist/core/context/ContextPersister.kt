@@ -1,4 +1,4 @@
-package com.promethist.core.context
+package org.promethist.core.context
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonTypeInfo
