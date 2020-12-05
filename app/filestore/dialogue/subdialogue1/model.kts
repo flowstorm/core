@@ -1,7 +1,7 @@
 package `subdialogue1`
 
-import com.promethist.core.dialogue.Dialogue
-import com.promethist.core.type.Location
+import org.promethist.core.dialogue.Dialogue
+import org.promethist.core.type.Location
 
 data class Model1(
         // dialogue properties

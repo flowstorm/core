@@ -1,0 +1,12 @@
+package org.promethist.core.model
+
+import org.promethist.core.type.Attributes
+import org.litote.kmongo.Id
+import org.litote.kmongo.newId
+
+data class Community(
+        val _id: Id<Community> = newId(),
+        val name: String,
+        val organization_id: String?,
+        val attributes: Attributes = Attributes()
+)

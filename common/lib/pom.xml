@@ -7,7 +7,7 @@
     <packaging>jar</packaging>
 
     <parent>
-        <groupId>com.promethist.common</groupId>
+        <groupId>org.promethist.common</groupId>
         <artifactId>promethist-common</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>

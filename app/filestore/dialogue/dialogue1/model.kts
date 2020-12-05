@@ -1,7 +1,7 @@
 package `dialogue1`
 
-import com.promethist.core.dialogue.*
-import com.promethist.core.type.*
+import org.promethist.core.dialogue.*
+import org.promethist.core.type.*
 
 data class Model1(
         // dialogue properties

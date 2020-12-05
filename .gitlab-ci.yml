@@ -1,5 +1,5 @@
 stages:
-  - publish
+  - build
   - distribute
   - document
 
@@ -20,7 +20,7 @@ stages:
       - tags
   script:
     - cd $DIR
-    - mvn -B package # maybe useless - should be already packaged by publish job
+    - mvn -B package # maybe useless - should be already packaged by build job
     - cp target/$NAME.jar /ext/cluster/default/default/repository/dist/$NAME-$CI_COMMIT_REF_NAME.jar
 
 #
@@ -59,10 +59,10 @@ stages:
 #
 # JOBS
 #
-# publish all release packages
+# build all release packages
 #
-publish release packages:
-  stage: publish
+build release packages:
+  stage: build
   image: registry.promethist.ai/common/system/builder
   only:
     refs:
@@ -76,10 +76,10 @@ publish release packages:
     - mvn -B deploy -Dapi.basedomain=promethist.com
 
 #
-# publish all snaphot packages
+# build all snaphot packages
 #
-publish snaphot packages:
-  stage: publish
+build snaphot packages:
+  stage: build
   image: registry.promethist.ai/common/system/builder
   variables:
     DIR: services
