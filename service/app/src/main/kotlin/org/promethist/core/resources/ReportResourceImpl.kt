@@ -14,7 +14,6 @@ import org.promethist.core.model.metrics.Metric
 import org.promethist.core.type.PropertyMap
 import org.bson.Document
 import org.bson.conversions.Bson
-import org.bson.types.ObjectId
 import org.litote.kmongo.*
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -181,7 +180,7 @@ class ReportResourceImpl: ReportResource {
                 Report.Aggregation.NAMESPACE -> item.namespace!!
                 Report.Aggregation.METRIC -> item.metric!!
                 Report.Aggregation.APPLICATION -> item.applicationName!!
-                Report.Aggregation.ORGANIZATION -> "ORG[" + item.organization_id!! + "]"
+                Report.Aggregation.SPACE -> "SPACE[" + item.organization_id!! + "]"
             })
         }
 
@@ -207,7 +206,7 @@ class ReportResourceImpl: ReportResource {
             aggregationFields.add(MetricItem::application_id from (Session::application / Application::_id))
         }
 
-        if (aggregation.contains(Report.Aggregation.ORGANIZATION)) {
+        if (aggregation.contains(Report.Aggregation.SPACE)) {
             aggregationFields.add(MetricItem::organization_id from "\$properties.organization_id")
         }
 

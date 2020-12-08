@@ -7,11 +7,11 @@ class SimpleCommunityStorage : CommunityRepository {
 
     val communities = mutableMapOf<String, Community>()
 
-    override fun getCommunitiesInOrganization(organizationId: String): List<Community> {
-        return communities.values.filter { it.organization_id == organizationId }
+    override fun getCommunitiesInSpace(spaceId: String): List<Community> {
+        return communities.values.filter { it.organization_id == spaceId }
     }
 
-    override fun get(communityName: String, organizationId: String): Community? = communities[communityName]
+    override fun get(communityName: String, spaceId: String): Community? = communities[communityName]
 
     override fun create(community: Community) {
         communities[community.name] = community

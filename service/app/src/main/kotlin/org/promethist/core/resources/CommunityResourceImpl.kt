@@ -20,12 +20,12 @@ class CommunityResourceImpl : CommunityResource {
         return communities.find().toMutableList()
     }
 
-    override fun getCommunitiesInOrganization(organizationId: String): List<Community> {
-        return communities.find(Community::organization_id eq organizationId).toMutableList()
+    override fun getCommunitiesInSpace(spaceId: String): List<Community> {
+        return communities.find(Community::organization_id eq spaceId).toMutableList()
     }
 
-    override fun get(communityName: String, organizationId: String): Community? {
-        return communities.find(Community::name eq communityName, Community::organization_id eq organizationId).singleOrNull()
+    override fun get(communityName: String, spaceId: String): Community? {
+        return communities.find(Community::name eq communityName, Community::organization_id eq spaceId).singleOrNull()
     }
 
     override fun create(community: Community) {

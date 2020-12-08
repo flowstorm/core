@@ -4,9 +4,9 @@ import org.promethist.core.model.Community
 
 interface CommunityRepository {
 
-    fun getCommunitiesInOrganization(organizationId: String): List<Community>
+    fun getCommunitiesInSpace(spaceId: String): List<Community>
 
-    fun get(communityName: String, organizationId: String): Community?
+    fun get(communityName: String, spaceId: String): Community?
 
     fun create(community: Community)
 

@@ -15,16 +15,16 @@ interface CommunityResource : CommunityRepository {
     fun getCommunities(): List<Community>
 
     @GET
-    @Path("/{organizationId}")
-    override fun getCommunitiesInOrganization(
-            @ApiParam(required = true) @PathParam("organizationId") organizationId: String
+    @Path("/{spaceId}")
+    override fun getCommunitiesInSpace(
+            @ApiParam(required = true) @PathParam("spaceId") spaceId: String
     ): List<Community>
 
     @GET
-    @Path("/{organizationId}/community/{communityName}")
+    @Path("/{spaceId}/community/{communityName}")
     override fun get(
             @ApiParam(required = true) @PathParam("communityName") communityName: String,
-            @ApiParam(required = true) @PathParam("organizationId") organizationId: String
+            @ApiParam(required = true) @PathParam("spaceId") spaceId: String
     ): Community?
 
     @POST
