@@ -6,6 +6,7 @@ import org.promethist.core.type.MutablePropertyMap
 import io.swagger.annotations.Api
 import io.swagger.annotations.Authorization
 import org.promethist.core.model.Device
+import org.promethist.core.model.Space
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
 
@@ -28,6 +29,7 @@ interface ContentDistributionResource {
 
     data class ContentResponse(
             val application: Application,
+            val space: Space,
             val device: Device,
             val user: User,
             val test: Boolean,

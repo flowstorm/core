@@ -1,16 +1,27 @@
 package org.promethist.core
 
+import com.fasterxml.jackson.core.Version
+import com.fasterxml.jackson.databind.module.SimpleAbstractTypeResolver
+import com.fasterxml.jackson.databind.module.SimpleModule
 import com.mongodb.ConnectionString
 import com.mongodb.client.MongoDatabase
+import org.glassfish.hk2.api.Factory
+import org.glassfish.hk2.api.PerLookup
+import org.glassfish.hk2.utilities.binding.AbstractBinder
+import org.glassfish.jersey.process.internal.RequestScoped
+import org.litote.kmongo.KMongo
 import org.promethist.common.*
 import org.promethist.common.ServerConfigProvider.ServerConfig
+import org.promethist.common.messaging.DummySender
+import org.promethist.common.messaging.MessageSender
 import org.promethist.common.mongo.KMongoIdParamConverterProvider
 import org.promethist.common.query.*
-import org.promethist.common.messaging.DummySender
 import org.promethist.core.context.ContextFactory
 import org.promethist.core.context.ContextPersister
-import org.promethist.core.monitoring.StdOutMonitor
+import org.promethist.core.model.Space
+import org.promethist.core.model.SpaceImpl
 import org.promethist.core.monitoring.Monitor
+import org.promethist.core.monitoring.StdOutMonitor
 import org.promethist.core.nlp.*
 import org.promethist.core.profile.MongoProfileRepository
 import org.promethist.core.profile.ProfileRepository
@@ -24,12 +35,6 @@ import org.promethist.core.servlets.GoogleAppServlet
 import org.promethist.core.storage.FileStorage
 import org.promethist.core.storage.GoogleStorage
 import org.promethist.core.tts.TtsAudioService
-import org.promethist.common.messaging.MessageSender
-import org.glassfish.hk2.api.Factory
-import org.glassfish.hk2.api.PerLookup
-import org.glassfish.hk2.utilities.binding.AbstractBinder
-import org.glassfish.jersey.process.internal.RequestScoped
-import org.litote.kmongo.KMongo
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -117,6 +122,16 @@ open class CoreApplication : JerseyApplication() {
 
             }
         })
+
+        registerModelImplementations()
+    }
+
+    private fun registerModelImplementations() {
+        val module = SimpleModule("Models", Version.unknownVersion())
+        val resolver = SimpleAbstractTypeResolver()
+        resolver.addMapping(Space::class.java, SpaceImpl::class.java)
+        module.setAbstractTypes(resolver)
+        ObjectUtil.defaultMapper.registerModule(module)
     }
 
     class FileResourceLoaderFactory : Factory<FileResourceLoader> {

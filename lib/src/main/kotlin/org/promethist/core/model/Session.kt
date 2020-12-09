@@ -14,6 +14,7 @@ data class  Session(
         var user: User,
         var device: Device,
         var application: Application,
+        val space_id: Id<Space>? = null,  //nullable only for backward compatibility
         var location: Location? = null,
         val initiationId: String? = null,
         val turns: MutableList<Turn> = mutableListOf(),
