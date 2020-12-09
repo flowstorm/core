@@ -106,6 +106,10 @@ class DialogueManager : Component {
             }
         }
 
+        // If the action outofdomain is not found in dialogue continue with normal intents
+        if (context.input.action == "outofdomain") {
+            return getIntentFrame(context.intentModels as List<IntentModel>, frame, context)
+        }
         error("Action ${context.input.action} not found in dialogue.")
     }
 

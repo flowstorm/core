@@ -35,14 +35,16 @@ class Illusionist : Component {
         val request = Request(text, models.map { it.id })
         val responses = webTarget.path("/multi_model").request().post(Entity.json(request), object : GenericType<List<Response>>() {})
 
-        if (responses[0].answer == "OOD") {
-            context.input.action  = "outOfDomain"
+        if (responses[0].answer == outOfDomainActionName) {
+            context.input.action  = outOfDomainActionName
         }
 
         for (response in responses) {
-            val name = response._id + "#" + response.answer
+            if (response.answer != outOfDomainActionName) {
+                val name = response._id + "#" + response.answer
 
-            context.turn.input.classes.add(Input.Class(Input.Class.Type.Intent, name, response.confidence))
+                context.turn.input.classes.add(Input.Class(Input.Class.Type.Intent, name, response.confidence))
+            }
         }
 
         return context.pipeline.process(context)
@@ -66,4 +68,8 @@ class Illusionist : Component {
             val useThreshold: Boolean = true,
             val n: Int = 0 //number of maximum results, ordered by confidence, default 0 == no limit
     )
+
+    companion object {
+        val outOfDomainActionName = "outofdomain"
+    }
 }
