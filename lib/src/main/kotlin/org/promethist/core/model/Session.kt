@@ -12,6 +12,7 @@ data class  Session(
         val sessionId: String,
         val test: Boolean = false,
         var user: User,
+        var device: Device,
         var application: Application,
         var location: Location? = null,
         val initiationId: String? = null,

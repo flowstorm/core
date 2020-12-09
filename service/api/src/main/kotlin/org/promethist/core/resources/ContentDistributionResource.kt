@@ -5,6 +5,7 @@ import org.promethist.core.model.User
 import org.promethist.core.type.MutablePropertyMap
 import io.swagger.annotations.Api
 import io.swagger.annotations.Authorization
+import org.promethist.core.model.Device
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
 
@@ -19,7 +20,7 @@ interface ContentDistributionResource {
     ): ContentResponse
 
     data class ContentRequest(
-            val sender: String,
+            val deviceId: String,
             val token: String?,
             val appKey: String,
             val language: String?
@@ -27,6 +28,7 @@ interface ContentDistributionResource {
 
     data class ContentResponse(
             val application: Application,
+            val device: Device,
             val user: User,
             val test: Boolean,
             val sessionProperties: MutablePropertyMap

@@ -20,7 +20,7 @@ object BotCore {
         }
 
     private fun createRequest(context: BotContext, text: String): Request =
-            Request(context.key, context.sender, context.token, context.sessionId!!, context.initiationId,
+            Request(context.key, context.deviceId, context.token, context.sessionId!!, context.initiationId,
                     Input(context.locale, context.zoneId, Input.Transcript(text)), context.attributes)
 
     fun doRequest(context: BotContext, request: Request) = resource.process(request)

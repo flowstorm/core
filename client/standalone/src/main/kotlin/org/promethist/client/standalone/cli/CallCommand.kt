@@ -47,7 +47,7 @@ class CallCommand: CommandRunner<Application.Config, CallCommand.Config> {
                       <Connect>
                         <Stream url="${portUrl}/call/">
                           <Parameter name="locale" value="${config.language}" />
-                          <Parameter name="sender" value="${config.to}" />
+                          <Parameter name="deviceId" value="${config.to}" />
                           <Parameter name="appKey" value="${config.key}" />
                         </Stream>  
                       </Connect>

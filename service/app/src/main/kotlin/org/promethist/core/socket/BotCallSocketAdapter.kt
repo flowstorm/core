@@ -54,7 +54,7 @@ class BotCallSocketAdapter : AbstractBotSocketAdapter() {
     }
 
     override lateinit var appKey: String
-    override lateinit var sender: String
+    override lateinit var deviceId: String
     override var token: String? = null
     override var config = BotConfig(Defaults.locale, Defaults.zoneId, true, SttConfig.Mode.Duplex, 8000, BotConfig.TtsType.RequiredStreaming)
     override val sttConfig
@@ -95,14 +95,14 @@ class BotCallSocketAdapter : AbstractBotSocketAdapter() {
                 streamSid = message.streamSid
                 sessionId = message.start.callSid
                 message.start.customParameters.let {
-                    sender = it["sender"] ?: "anonymous"
+                    deviceId = it["deviceId"] ?: it["sender"] ?: "anonymous"
                     appKey = it["appKey"] ?: "promethist"
                     val initiationId: String? = it["initiationId"]
                     if (it.containsKey("locale"))
                         config.locale = Locale.forLanguageTag(it["locale"])
                     //TODO zoneId from zip/city/state/country
 
-                    logger.info("call from $sender")
+                    logger.info("call from $deviceId")
                     onRequest(
                         createRequest(
                             Input(transcript = Input.Transcript("#intro")),

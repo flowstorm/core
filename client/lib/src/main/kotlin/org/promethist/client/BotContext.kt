@@ -9,7 +9,7 @@ import java.util.*
 data class BotContext(
         var url: String,
         var key: String,
-        var sender: String,
+        var deviceId: String,
         val attributes: MutablePropertyMap,
         var introText: String = "#intro",
         var token: String? = null,

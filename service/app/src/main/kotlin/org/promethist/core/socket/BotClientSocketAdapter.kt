@@ -11,7 +11,7 @@ class BotClientSocketAdapter : AbstractBotSocketAdapter() {
 
     override lateinit var config: BotConfig
     override lateinit var appKey: String
-    override lateinit var sender: String
+    override lateinit var deviceId: String
     override var token: String? = null
     override val sttConfig
         get() = SttConfig(locale ?: config.locale,
@@ -24,7 +24,7 @@ class BotClientSocketAdapter : AbstractBotSocketAdapter() {
             when (event) {
                 is BotEvent.Init -> {
                     appKey = event.key
-                    sender = event.sender
+                    deviceId = event.deviceId
                     token = event.token
                     config = event.config
                     sendEvent(BotEvent.Ready())

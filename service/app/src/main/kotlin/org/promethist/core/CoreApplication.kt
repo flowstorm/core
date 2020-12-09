@@ -36,7 +36,7 @@ import javax.inject.Singleton
 import javax.ws.rs.client.WebTarget
 import javax.ws.rs.ext.ParamConverterProvider
 
-open class CoreApplication : org.promethist.common.JerseyApplication() {
+open class CoreApplication : JerseyApplication() {
 
     val dataspace = AppConfig.instance.get("dsuffix", AppConfig.instance["namespace"])
 

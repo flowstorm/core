@@ -16,7 +16,6 @@ import org.promethist.util.LoggerDelegate
 import javax.inject.Inject
 import javax.ws.rs.*
 import java.util.*
-import javax.inject.Singleton
 import javax.ws.rs.core.MediaType
 
 @Path("/")
@@ -58,7 +57,7 @@ class CoreResourceImpl : CoreResource {
         dialogueLog.level = Level.ALL
 
         val session = try {
-            initSession(appKey, sender, token, sessionId, initiationId, input)
+            initSession(appKey, deviceId, token, sessionId, initiationId, input)
         } catch (e: Exception) {
             return processException(request, e)
         }
@@ -133,7 +132,7 @@ class CoreResourceImpl : CoreResource {
         }
     }
 
-    private fun initSession(key: String, sender: String, token: String?, sessionId: String, initiationId: String?, input: Input): Session {
+    private fun initSession(key: String, deviceId: String, token: String?, sessionId: String, initiationId: String?, input: Input): Session {
         val storedSession = sessionResource.get(sessionId)
         val session = if (storedSession != null) {
             logger.info("Restoring the existing session.")
@@ -141,11 +140,12 @@ class CoreResourceImpl : CoreResource {
         } else {
             logger.info("Starting a new session.")
             val contentResponse = contentDistributionResource.resolve(
-                    ContentRequest(sender, token, key, input.locale.language)
+                    ContentRequest(deviceId, token, key, input.locale.language)
             )
             Session(
                     sessionId = sessionId,
                     initiationId = initiationId,
+                    device = contentResponse.device,
                     user = contentResponse.user,
                     test = contentResponse.test,
                     application = contentResponse.application,
@@ -193,7 +193,7 @@ class CoreResourceImpl : CoreResource {
 
         return Response(request.input.locale, mutableListOf<Response.Item>().apply {
             if (text?.startsWith("admin:DeviceNotFoundException") == true) {
-                val devicePairing = DevicePairing(deviceId = request.sender)
+                val devicePairing = DevicePairing(deviceId = request.deviceId)
                 pairingResource.createOrUpdateDevicePairing(devicePairing)
                 val pairingCode = devicePairing.pairingCode.toCharArray().joinToString(", ")
                 if (request.input.locale.language == "cs")

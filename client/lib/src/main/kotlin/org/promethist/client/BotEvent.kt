@@ -1,5 +1,6 @@
 package org.promethist.client
 
+import com.fasterxml.jackson.annotation.JsonAlias
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 
@@ -17,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
         JsonSubTypes.Type(value = BotEvent.InputAudioStreamClose::class, name = "InputAudioStreamClose")
 )
 open class BotEvent {
-    data class Init(val key: String, val sender: String, val token: String? = null, val config: BotConfig) : BotEvent()
+    data class Init(val key: String, @JsonAlias("sender") val deviceId: String, val token: String? = null, val config: BotConfig) : BotEvent()
     class Ready : BotEvent()
     data class Error(val text: String) : BotEvent()
     data class Request(val request: org.promethist.core.Request) : BotEvent()

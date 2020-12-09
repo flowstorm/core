@@ -105,7 +105,7 @@ class BotClient(
         logger.info("onOpen()")
         state = State.Open
         val config = BotConfig(tts = tts, voice = context.voice, sttMode = sttMode)
-        socket.sendEvent(BotEvent.Init(context.key, context.sender, context.token, config))
+        socket.sendEvent(BotEvent.Init(context.key, context.deviceId, context.token, config))
     }
 
     fun close() {
@@ -349,7 +349,7 @@ class BotClient(
         if (socket.state == BotSocket.State.Open && (text != "#signal" || state == State.Sleeping)) {
             val request = Request(
                     context.key,
-                    context.sender,
+                    context.deviceId,
                     context.token,
                     context.sessionId!!,
                     context.initiationId,

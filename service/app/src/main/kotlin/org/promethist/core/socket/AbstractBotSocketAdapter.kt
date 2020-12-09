@@ -88,7 +88,7 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
     override var state = BotSocket.State.Open
     override var listener: BotSocket.Listener? = null
     abstract var appKey: String
-    abstract var sender: String
+    abstract var deviceId: String
     abstract var token: String?
     protected var locale: Locale? = null
     protected var sessionId: String? = null
@@ -101,7 +101,7 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
     protected val attributes = mutableMapOf<String, Any>()
 
     fun createRequest(input: Input, initiationId: String? = null, attributes: MutablePropertyMap = Dynamic()) =
-            Request(appKey, sender, token, sessionId ?: error("missing session id"), initiationId, input, attributes)
+            Request(appKey, deviceId, token, sessionId ?: error("missing session id"), initiationId, input, attributes)
 
     override fun open() = logger.info("open()")
 

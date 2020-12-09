@@ -34,7 +34,8 @@ object DialogueLoadTest {
                 Session(
                         datetime = Date(),
                         sessionId = "T-E-S-T",
-                        user = user,
+                        device = Device(deviceId = "test", description = ""),
+                    user = user,
                         application = Application(name = "test", dialogue_id = ObjectId(dialogueId).toId())
                 ),
                 Turn(Input(transcript = Input.Transcript("some message"))),

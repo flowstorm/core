@@ -36,7 +36,6 @@ import org.promethist.core.type.PropertyMap
 import cz.alry.jcommander.CommandRunner
 import org.slf4j.LoggerFactory
 import java.awt.Color
-import java.awt.GraphicsEnvironment
 import java.io.*
 import java.util.*
 import kotlin.concurrent.thread
@@ -66,8 +65,8 @@ class ClientCommand: CommandRunner<Application.Config, ClientCommand.Config> {
         @Parameter(names = ["-nc", "--noCache"], order = 3, description = "Do not cache anything")
         var noCache = false
 
-        @Parameter(names = ["-s", "--sender"], order = 4, description = "Sender identification")
-        var sender = "standalone_" + (InetInterface.getActive()?.hardwareAddress?.replace(":", "") ?: "default")
+        @Parameter(names = ["-id", "-s", "--sender"], order = 4, description = "Device identification")
+        var deviceId = "standalone_" + (InetInterface.getActive()?.hardwareAddress?.replace(":", "") ?: "default")
 
         @Parameter(names = ["-it", "--introText"], order = 5, description = "Intro text")
         var introText: String? = null
@@ -174,7 +173,7 @@ class ClientCommand: CommandRunner<Application.Config, ClientCommand.Config> {
             println("{Configuration from ${config.fileConfig}}")
             loadConfig(FileInputStream(config.fileConfig))
         } else if (config.serverConfig) {
-            val url = Application.getServiceUrl("admin", config.environment ?: "production") + "/client/deviceConfig/${config.sender}"
+            val url = Application.getServiceUrl("admin", config.environment ?: "production") + "/client/deviceConfig/${config.deviceId}"
             try {
                 HttpUtil.httpRequestStream(url, raiseExceptions = true)?.let {
                     loadConfig(it)
@@ -194,7 +193,7 @@ class ClientCommand: CommandRunner<Application.Config, ClientCommand.Config> {
                 else
                     config.url,
                 key = config.key,
-                sender = config.sender,
+                deviceId = config.deviceId,
                 voice = config.voice,
                 autoStart = config.autoStart,
                 locale = Locale(config.language, Locale.getDefault().country),
