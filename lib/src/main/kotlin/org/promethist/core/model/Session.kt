@@ -12,7 +12,7 @@ data class  Session(
         val sessionId: String,
         val test: Boolean = false,
         var user: User,
-        var device: Device,
+        var device: Device? = null, //nullable only for BC
         var application: Application,
         val space_id: Id<Space>? = null,  //nullable only for backward compatibility
         var location: Location? = null,
