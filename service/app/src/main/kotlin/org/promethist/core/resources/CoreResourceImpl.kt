@@ -120,7 +120,8 @@ class CoreResourceImpl : CoreResource {
                         dialogue_id = application.dialogue_id,
                         //TODO Replace with actual node ID after node sequence is added in Context
                         nodeId = 0,
-                        text = text
+                        text = text,
+                        space_id = session.space_id,
                 )
                 if (e !is AbstractDialogue.DialogueScriptException) {
                     monitor.capture(e)

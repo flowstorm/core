@@ -17,8 +17,8 @@ data class DialogueEvent(
         val dialogue_id: Id<DialogueModel>?,
         val nodeId: Int?,
         val properties: MutablePropertyMap = mutableMapOf(),
-        val text: String
-
+        val text: String,
+        val space_id: Id<Space> = NullId()
 ) {
     constructor(context: Context, dialogue: AbstractDialogue, type: Type, text: String): this(
             newId(),
@@ -32,7 +32,9 @@ data class DialogueEvent(
                 if (nodeId < AbstractDialogue.GENERATED_USER_INPUT_ID) nodeId else dialogue.nodes.last { it is AbstractDialogue.TransitNode && it.next.id == nodeId }.id
             },
             context.session.properties,
-            text)
+            text,
+            context.session.space_id,
+    )
 
     enum class Type { ServerError, UserError, UserComment }
 }
