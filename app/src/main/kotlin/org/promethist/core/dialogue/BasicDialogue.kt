@@ -257,7 +257,7 @@ abstract class BasicDialogue : AbstractDialogue() {
         }
     }
 
-//    This method was not used anywhere but it won't work since communityResource.get() requires organization ID which is not accessible in this class
+//    This method was not used anywhere but it won't work since communityResource.get() requires space ID which is not accessible in this class
 //    fun communityAttributes(communityName: String) =
 //            run.context.communityResource.get(communityName, null)?.attributes ?: Dynamic.EMPTY
 

@@ -149,7 +149,8 @@ class CoreResourceImpl : CoreResource {
                     user = contentResponse.user,
                     test = contentResponse.test,
                     application = contentResponse.application,
-                    properties = Dynamic(contentResponse.sessionProperties)
+                    properties = Dynamic(contentResponse.sessionProperties),
+                    space_id = contentResponse.space._id,
             )
         }
         sessionResource.update(session)
