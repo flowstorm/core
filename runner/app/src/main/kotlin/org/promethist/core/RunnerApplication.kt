@@ -149,6 +149,7 @@ open class RunnerApplication : JerseyApplication() {
     class FileStorageFactory : Factory<FileStorage> {
         override fun provide(): FileStorage = when (AppConfig.instance.get("storage.type", "Google")) {
             "FileSystem" -> LocalFileStorage(File(AppConfig.instance["storage.base"]))
+            "AmazonS3" -> AmazonS3Storage()
             else -> GoogleStorage().apply {
                 bucket = "filestore-" + AppConfig.instance.get("dsuffix", AppConfig.instance["namespace"])
             }
