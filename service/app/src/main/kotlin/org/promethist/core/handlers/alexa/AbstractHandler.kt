@@ -24,7 +24,7 @@ abstract class AbstractHandler(private val predicate: Predicate<HandlerInput>) :
 
     val title = AppConfig.instance["title"]
 
-    val monitor: Monitor = org.promethist.common.JerseyApplication.instance.injectionManager.getInstance(Monitor::class.java)
+    val monitor: Monitor = JerseyApplication.instance.injectionManager.getInstance(Monitor::class.java)
 
     inner class ContextualBlock(val input: HandlerInput, val context: BotContext) {
 
