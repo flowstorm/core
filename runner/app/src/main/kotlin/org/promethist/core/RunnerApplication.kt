@@ -34,6 +34,7 @@ import org.promethist.core.servlets.BotClientServlet
 import org.promethist.core.servlets.GoogleAppServlet
 import org.promethist.core.storage.FileStorage
 import org.promethist.core.storage.GoogleStorage
+import org.promethist.core.storage.AmazonS3Storage
 import org.promethist.core.tts.TtsAudioService
 import java.io.File
 import javax.inject.Inject

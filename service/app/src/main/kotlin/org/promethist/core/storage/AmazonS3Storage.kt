@@ -1,7 +1,7 @@
-package com.promethist.core.storage
+package org.promethist.core.storage
 
-import com.promethist.common.AppConfig
-import com.promethist.core.model.FileObject
+import org.promethist.common.AppConfig
+import org.promethist.core.model.FileObject
 import software.amazon.awssdk.core.sync.RequestBody
 import software.amazon.awssdk.core.sync.ResponseTransformer
 import software.amazon.awssdk.services.s3.S3Client
@@ -22,11 +22,13 @@ class AmazonS3Storage: FileStorage {
     private val bucket = AppConfig.instance["s3bucket"]
 
     override fun readFile(path: String, output: OutputStream) {
-        s3.getObject(GetObjectRequest.builder()
+        s3.getObject(
+            GetObjectRequest.builder()
                 .bucket(bucket)
                 .key(path)
                 .build(),
-                ResponseTransformer.toOutputStream(output))
+            ResponseTransformer.toOutputStream(output)
+        )
     }
 
     override fun getFile(path: String): FileObject {
