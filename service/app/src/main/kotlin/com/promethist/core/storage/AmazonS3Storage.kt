@@ -15,7 +15,7 @@ import java.nio.channels.ReadableByteChannel
 class AmazonS3Storage: FileStorage {
 
     companion object {
-        const val BUFFER_SIZE = 65536
+        const val BUFFER_SIZE = 5 * 1024 * 1024
     }
 
     private val s3 = S3Client.builder().build()
