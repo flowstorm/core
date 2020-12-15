@@ -35,12 +35,12 @@ class Illusionist : Component {
         val request = Request(text, models.map { it.id })
         val responses = webTarget.path("/multi_model").request().post(Entity.json(request), object : GenericType<List<Response>>() {})
 
-        if (responses[0].answer == outOfDomainActionName) {
-            context.input.action  = outOfDomainActionName
+        if (responses[0].answer == OUT_OF_DOMAIN_ACTION) {
+            context.input.action  = OUT_OF_DOMAIN_ACTION
         }
 
         for (response in responses) {
-            if (response.answer != outOfDomainActionName) {
+            if (response.answer != OUT_OF_DOMAIN_ACTION) {
                 val name = response._id + "#" + response.answer
 
                 context.turn.input.classes.add(Input.Class(Input.Class.Type.Intent, name, response.confidence))
@@ -70,6 +70,6 @@ class Illusionist : Component {
     )
 
     companion object {
-        val outOfDomainActionName = "outofdomain"
+        const val OUT_OF_DOMAIN_ACTION = "outofdomain"
     }
 }
