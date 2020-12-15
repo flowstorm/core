@@ -187,14 +187,14 @@ class CoreResourceImpl : CoreResource {
 
         var c: Throwable? = e
         while (c != null) {
-            messages.add(c::class.simpleName + ":" + c.message?:"")
+            messages.add(c::class.simpleName + ":" + c.message)
             c = c.cause
         }
 
         dialogueLog.logger.error(messages.joinToString("\nCAUSED BY: "))
 
         return Response(request.input.locale, mutableListOf<Response.Item>().apply {
-            if (text?.startsWith("admin:DeviceNotFoundException") == true) {
+            if (text?.startsWith("admin:NotFoundException: Device") == true) {
                 val devicePairing = DevicePairing(deviceId = request.deviceId)
                 pairingResource.createOrUpdateDevicePairing(devicePairing)
                 val pairingCode = devicePairing.pairingCode.toCharArray().joinToString(", ")
