@@ -4,7 +4,6 @@ import com.google.cloud.storage.BlobId
 import com.google.cloud.storage.BlobInfo
 import com.google.cloud.storage.Storage
 import com.google.cloud.storage.StorageOptions
-import org.promethist.common.AppConfig
 import org.promethist.core.model.FileObject
 import java.io.InputStream
 import java.io.OutputStream
@@ -19,8 +18,9 @@ class GoogleStorage: FileStorage {
         const val BUFFER_SIZE = 65536
     }
 
-    private val storage = StorageOptions.getDefaultInstance().service // StorageOptions.newBuilder().setProjectId(..).build().service
-    private val bucket = "filestore-" + AppConfig.instance["namespace"]
+    private val storage =
+        StorageOptions.getDefaultInstance().service // StorageOptions.newBuilder().setProjectId(..).build().service
+    lateinit var bucket: String
 
     override fun readFile(path: String, out: OutputStream) {
         storage.reader(bucket, path).use { reader ->

@@ -146,10 +146,12 @@ open class CoreApplication : JerseyApplication() {
         override fun dispose(p0: FileResourceLoader?) {}
     }
 
-    class FileStorageFactory : Factory<FileStorage> {
+    inner class FileStorageFactory : Factory<FileStorage> {
         override fun provide(): FileStorage = when (AppConfig.instance.get("storage.type", "Google")) {
             "FileSystem" -> LocalFileStorage(File(AppConfig.instance["storage.base"]))
-            else -> GoogleStorage()
+            else -> GoogleStorage().apply {
+                bucket = "filestore-" + dataspace
+            }
         }
         override fun dispose(p0: FileStorage?) {}
     }
