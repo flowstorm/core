@@ -1,6 +1,7 @@
 package org.promethist.core.runtime
 
 import org.promethist.core.*
+import org.promethist.core.builder.IntentModel
 import org.promethist.core.dialogue.AbstractDialogue
 import org.promethist.core.dialogue.BasicDialogue
 import org.promethist.util.LoggerDelegate
@@ -26,12 +27,12 @@ class DialogueManager : Component {
         return context
     }
 
-    private fun getIntentModels(currentFrame: Frame, context: Context): List<org.promethist.core.builder.IntentModel> {
+    private fun getIntentModels(currentFrame: Frame, context: Context): List<IntentModel> {
         val node = getNode(currentFrame, context)
         require(node is AbstractDialogue.UserInput)
 
         val models = mutableListOf(
-            org.promethist.core.builder.IntentModel(
+            IntentModel(
                 node.dialogue.buildId,
                 node.dialogue.dialogueId,
                 node.id
@@ -39,17 +40,17 @@ class DialogueManager : Component {
         )
         if (!node.skipGlobalIntents) {
             //current global intents
-            models.add(org.promethist.core.builder.IntentModel(node.dialogue.buildId, node.dialogue.dialogueId))
+            models.add(IntentModel(node.dialogue.buildId, node.dialogue.dialogueId))
             //parents global intents
             context.session.dialogueStack.distinctBy { it.id } .forEach {
                 val dialogue = dialogueFactory.get(it)
-                models.add(org.promethist.core.builder.IntentModel(dialogue.buildId, dialogue.dialogueId))
+                models.add(IntentModel(dialogue.buildId, dialogue.dialogueId))
             }
         }
         return models
     }
 
-    private fun getIntentFrame(models: List<org.promethist.core.builder.IntentModel>, frame: Frame, context: Context): Frame {
+    private fun getIntentFrame(models: List<IntentModel>, frame: Frame, context: Context): Frame {
         val intentNodes = getIntentsByDialogueStack(frame, context)
         val recognizedEntities = context.input.entityMap.keys.filter { context.input.entityMap[it]?.isNotEmpty() ?: false }
 
