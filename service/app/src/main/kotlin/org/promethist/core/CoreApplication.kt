@@ -12,7 +12,7 @@ import org.glassfish.jersey.process.internal.RequestScoped
 import org.litote.kmongo.KMongo
 import org.promethist.common.*
 import org.promethist.common.ServerConfigProvider.ServerConfig
-import org.promethist.common.messaging.DummySender
+import org.promethist.common.messaging.StdOutSender
 import org.promethist.common.messaging.MessageSender
 import org.promethist.common.mongo.KMongoIdParamConverterProvider
 import org.promethist.common.query.*
@@ -50,7 +50,7 @@ open class CoreApplication : JerseyApplication() {
 
         register(object : ResourceBinder() {
             override fun configure() {
-                bind(StdOutMonitor::class.java).to(Monitor::class.java)
+                bind(StdOutMonitor::class.java).to(Monitor::class.java).`in`(Singleton::class.java)
                 bindFactory(FileStorageFactory::class.java).to(FileStorage::class.java).`in`(Singleton::class.java)
                 bindFactory(FileResourceLoaderFactory::class.java).to(Loader::class.java).`in`(Singleton::class.java)
 
@@ -86,7 +86,7 @@ open class CoreApplication : JerseyApplication() {
                 /**
                  * Other components
                  */
-                bind(DummySender::class.java).to(MessageSender::class.java)
+                bind(StdOutSender::class.java).to(MessageSender::class.java).`in`(Singleton::class.java)
 
                 //TODO replace by object repository
                 bindTo(MongoDatabase::class.java,

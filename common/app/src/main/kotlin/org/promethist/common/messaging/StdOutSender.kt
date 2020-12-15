@@ -1,6 +1,6 @@
 package org.promethist.common.messaging
 
-class DummySender : MessageSender {
+class StdOutSender : MessageSender {
     override fun sendMessage(recipient: MessageSender.Recipient, subject: String, templateName: String, templateVariables: Map<String, String>) {
         println("sendMessage($recipient, $subject, $templateName, $templateVariables)")
     }
