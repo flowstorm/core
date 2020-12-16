@@ -65,16 +65,16 @@ open class CoreApplication : JerseyApplication() {
                 /**
                  * NLP components
                  */
-                bindTo(PipelineFactory::class.java)
-                bindTo(ContextFactory::class.java)
-                bindTo(ContextPersister::class.java)
+                bindAsContract(PipelineFactory::class.java)
+                bindAsContract(ContextFactory::class.java)
+                bindAsContract(ContextPersister::class.java)
 
                 // IR component
                 bind(Illusionist::class.java).to(Component::class.java).named("illusionist")
                 bind(Action::class.java).to(Component::class.java).named("actionResolver")
 
                 // DM component (third - dialog user input decides whether to process the rest of pipeline or not)
-                bindTo(DialogueFactory::class.java)
+                bindAsContract(DialogueFactory::class.java)
                 bind(DialogueManager::class.java).to(Component::class.java).named("dm")
                 // Duckling (time values)
                 bind(Duckling::class.java).to(Component::class.java).named("duckling")
@@ -94,7 +94,7 @@ open class CoreApplication : JerseyApplication() {
                                 .getDatabase(AppConfig.instance["name"] + "-" + dataspace))
                 bind(MongoProfileRepository::class.java).to(ProfileRepository::class.java)
 
-                bind(DialogueLog::class.java).to(DialogueLog::class.java).`in`(RequestScoped::class.java)
+                this.bindAsContract(DialogueLog::class.java).`in`(RequestScoped::class.java)
 
                 bind(KMongoIdParamConverterProvider::class.java).to(ParamConverterProvider::class.java).`in`(Singleton::class.java)
                 bindFactory(QueryValueFactory::class.java).to(Query::class.java).`in`(PerLookup::class.java)
