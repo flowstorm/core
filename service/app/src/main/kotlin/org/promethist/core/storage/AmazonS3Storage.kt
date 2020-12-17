@@ -37,11 +37,12 @@ class AmazonS3Storage: FileStorage {
                 .key(path)
                 .build()
         try {
-            val response = s3.getObject(objectRequest).response()
-            val metadata = response.metadata().toSortedMap(java.lang.String.CASE_INSENSITIVE_ORDER)
-            val timeCreated = metadata.remove("time_created")?.toLong() ?: 0L
-            return FileObject(path, response.contentLength(), response.contentType(),
-                    timeCreated, response.lastModified().toEpochMilli(), metadata)
+            s3.getObject(objectRequest).use {
+                val metadata = it.response().metadata().toSortedMap(java.lang.String.CASE_INSENSITIVE_ORDER)
+                val timeCreated = metadata.remove("time_created")?.toLong() ?: 0L
+                return FileObject(path, it.response().contentLength(), it.response().contentType(),
+                    timeCreated, it.response().lastModified().toEpochMilli(), metadata)
+            }
         } catch (e: NoSuchKeyException) {
             throw FileStorage.NotFoundException("File $path not found in bucket $bucket")
         }
