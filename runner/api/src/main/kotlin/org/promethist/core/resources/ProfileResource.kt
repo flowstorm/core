@@ -1,7 +1,6 @@
 package org.promethist.core.resources
 
 import org.promethist.core.model.Profile
-import org.promethist.core.model.User
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiParam
 import org.litote.kmongo.Id
@@ -14,7 +13,7 @@ import javax.ws.rs.core.MediaType
 @Consumes(MediaType.APPLICATION_JSON)
 interface ProfileResource {
     @GET
-    fun getProfiles(): List<Profile>
+    fun find(): List<Profile>
 
     @GET
     @Path("/{profileId}")

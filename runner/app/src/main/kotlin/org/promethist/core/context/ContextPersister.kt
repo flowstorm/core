@@ -7,7 +7,7 @@ import org.promethist.common.ObjectUtil
 import org.promethist.core.Context
 import org.promethist.core.model.Entity
 import org.promethist.core.monitoring.Monitor
-import org.promethist.core.profile.ProfileRepository
+import org.promethist.core.repository.ProfileRepository
 import org.promethist.core.resources.SessionResource
 import org.promethist.core.runtime.DialogueLog
 import org.promethist.core.type.Memorable
@@ -55,7 +55,7 @@ class ContextPersister {
             monitor.capture(e, context.session)
         }
         sessionResource.update(context.session)
-        profileRepository.save(context.userProfile)
+        profileRepository.update(context.userProfile, true)
     }
 
     private fun saveToElastic(entity: Entity<*>) = elasticClient?.let { client ->

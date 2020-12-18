@@ -25,16 +25,18 @@ object DialogueLoadTest {
         dialogue.validate()
         println(dialogue.describe())
         val user = User(username = "tester@promethist.ai", name = "Tester", surname = "Tester", nickname = "Tester")
+        val space =
+            SpaceImpl(name="Test Space")
         val context = Context(
-                object : Pipeline {
-                    override val components = LinkedList<Component>()
-                    override fun process(context: Context): Context = components.pop().process(context)
-                },
-                Profile(user_id = user._id),
-                Session(
-                        datetime = Date(),
-                        sessionId = "T-E-S-T",
-                        device = Device(deviceId = "test", description = ""),
+            object : Pipeline {
+                override val components = LinkedList<Component>()
+                override fun process(context: Context): Context = components.pop().process(context)
+            },
+            Profile(user_id = user._id, space_id = space._id),
+            Session(
+                datetime = Date(),
+                sessionId = "T-E-S-T",
+                device = Device(deviceId = "test", description = ""),
                     user = user,
                         application = Application(name = "test", dialogue_id = ObjectId(dialogueId).toId())
                 ),

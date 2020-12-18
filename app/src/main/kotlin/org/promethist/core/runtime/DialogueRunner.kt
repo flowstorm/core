@@ -12,6 +12,7 @@ import org.promethist.util.DataConverter
 import org.promethist.util.LoggerDelegate
 import org.bson.types.ObjectId
 import org.litote.kmongo.id.toId
+import org.litote.kmongo.newId
 import java.io.*
 import java.util.*
 
@@ -20,7 +21,7 @@ class DialogueRunner(
         val dialogueId: String,
         val properties: MutablePropertyMap = mutableMapOf(),
         val user: User = User(username = "tester@promethist.ai", name = "Tester", surname = "Tester", nickname = "Tester"),
-        val profile: Profile = Profile(user_id = user._id)
+        val profile: Profile = Profile(user_id = user._id, space_id = newId())
 ) : TextConsole() {
 
     private val ir: Component = SimpleIntentRecognition()

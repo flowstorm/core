@@ -23,8 +23,8 @@ import org.promethist.core.model.SpaceImpl
 import org.promethist.core.monitoring.Monitor
 import org.promethist.core.monitoring.StdOutMonitor
 import org.promethist.core.nlp.*
-import org.promethist.core.profile.MongoProfileRepository
-import org.promethist.core.profile.ProfileRepository
+import org.promethist.core.repository.mongo.MongoProfileRepository
+import org.promethist.core.repository.ProfileRepository
 import org.promethist.core.provider.LocalFileStorage
 import org.promethist.core.resources.*
 import org.promethist.core.runtime.*

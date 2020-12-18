@@ -5,7 +5,7 @@ import org.promethist.core.Context
 import org.promethist.core.Pipeline
 import org.promethist.core.Request
 import org.promethist.core.dialogue.AbstractDialogue
-import org.promethist.core.profile.ProfileRepository
+import org.promethist.core.repository.ProfileRepository
 import org.promethist.core.resources.CommunityResource
 import org.promethist.core.runtime.DialogueLog
 import org.promethist.core.type.Dynamic
@@ -28,8 +28,8 @@ class ContextFactory {
     lateinit var messageSender: MessageSender
 
     fun createContext(pipeline: Pipeline, session: Session, request: Request): Context {
-        val userProfile = profileRepository.find(session.user._id)
-                ?: Profile(user_id = session.user._id)
+        val userProfile = profileRepository.findBy(session.user._id, session.space_id)
+                ?: Profile(user_id = session.user._id, space_id = session.space_id)
         val context = Context(
                 pipeline,
                 userProfile,
