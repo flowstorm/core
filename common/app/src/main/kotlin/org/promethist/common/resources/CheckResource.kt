@@ -1,6 +1,7 @@
 package org.promethist.common.resources
 
 import org.promethist.common.AppConfig
+import org.promethist.common.JerseyApplication
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import javax.ws.rs.GET
@@ -21,7 +22,7 @@ class CheckResource {
                 1.0,
                 config["name"],
                 config["namespace"],
-                config.get("package", org.promethist.common.JerseyApplication.instance::class.java.`package`.name),
+                config.get("package", JerseyApplication.instance::class.java.`package`.name),
                 config["git.ref"],
                 config["git.commit"],
                 config["app.image"])
