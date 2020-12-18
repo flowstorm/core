@@ -47,6 +47,12 @@
             <version>${jersey.version}</version>
         </dependency>
         <dependency>
+            <!--This dependency is needed to support async processing servlet, requires v 2.22. to bring in Servlet 3.x -->
+            <groupId>org.glassfish.jersey.containers</groupId>
+            <artifactId>jersey-container-servlet</artifactId>
+            <version>2.22.2</version>
+        </dependency>
+        <dependency>
             <groupId>org.eclipse.jetty.websocket</groupId>
             <artifactId>websocket-servlet</artifactId>
             <version>${jetty.version}</version>
