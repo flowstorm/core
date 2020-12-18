@@ -1,9 +1,9 @@
 package org.promethist.common.servlets
 
-import org.promethist.common.JerseyApplication
 import org.eclipse.jetty.websocket.servlet.WebSocketCreator
 import org.eclipse.jetty.websocket.servlet.WebSocketServlet
 import org.eclipse.jetty.websocket.servlet.WebSocketServletFactory
+import org.promethist.common.JerseyApplication
 
 abstract class InjectableWebSocketServlet<T> : WebSocketServlet() {
 

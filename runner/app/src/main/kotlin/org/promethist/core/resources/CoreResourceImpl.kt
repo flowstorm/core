@@ -5,7 +5,10 @@ import org.promethist.core.*
 import org.promethist.core.context.ContextFactory
 import org.promethist.core.context.ContextPersister
 import org.promethist.core.dialogue.AbstractDialogue
-import org.promethist.core.model.*
+import org.promethist.core.model.DevicePairing
+import org.promethist.core.model.DialogueEvent
+import org.promethist.core.model.Session
+import org.promethist.core.model.TtsConfig
 import org.promethist.core.model.metrics.Metric
 import org.promethist.core.monitoring.Monitor
 import org.promethist.core.resources.ContentDistributionResource.ContentRequest
@@ -13,9 +16,11 @@ import org.promethist.core.runtime.DialogueLog
 import org.promethist.core.type.Dynamic
 import org.promethist.core.type.Memory
 import org.promethist.util.LoggerDelegate
-import javax.inject.Inject
-import javax.ws.rs.*
 import java.util.*
+import javax.inject.Inject
+import javax.ws.rs.Path
+import javax.ws.rs.Produces
+import javax.ws.rs.WebApplicationException
 import javax.ws.rs.core.MediaType
 
 @Path("/")

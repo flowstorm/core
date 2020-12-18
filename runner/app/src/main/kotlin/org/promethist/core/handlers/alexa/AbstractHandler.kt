@@ -1,6 +1,5 @@
 package org.promethist.core.handlers.alexa
 
-import org.promethist.client.BotContext
 import com.amazon.ask.dispatcher.request.handler.HandlerInput
 import com.amazon.ask.dispatcher.request.handler.RequestHandler
 import com.amazon.ask.model.interfaces.alexa.presentation.apl.RenderDocumentDirective
@@ -16,6 +15,7 @@ import com.mongodb.client.MongoDatabase
 import org.litote.kmongo.KMongo
 import org.litote.kmongo.eq
 import org.litote.kmongo.getCollection
+import org.promethist.client.BotContext
 import org.promethist.common.AppConfig
 import org.promethist.common.JerseyApplication
 import org.promethist.common.ObjectUtil

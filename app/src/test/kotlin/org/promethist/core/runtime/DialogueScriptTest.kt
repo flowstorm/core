@@ -1,10 +1,11 @@
 package org.promethist.core.runtime
 
-import org.promethist.core.Input
-import org.promethist.core.dialogue.*
-import org.promethist.core.type.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import org.promethist.core.Input
+import org.promethist.core.dialogue.*
+import org.promethist.core.type.DateTime
+import org.promethist.core.type.Dynamic
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class DialogueScriptTest {

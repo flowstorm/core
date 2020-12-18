@@ -1,8 +1,8 @@
 package org.promethist.core.model
 
-import org.promethist.security.Identity
 import org.litote.kmongo.Id
 import org.litote.kmongo.newId
+import org.promethist.security.Identity
 import java.util.*
 
 open class User(

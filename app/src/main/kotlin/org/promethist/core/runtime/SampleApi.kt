@@ -1,7 +1,8 @@
 package org.promethist.core.runtime
 
 import org.promethist.core.dialogue.BasicDialogue
-import org.promethist.core.type.*
+import org.promethist.core.type.Dynamic
+import org.promethist.core.type.DynamicMutableList
 
 class SampleApi(dialogue: BasicDialogue) : DialogueApi(dialogue) {
 

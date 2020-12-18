@@ -1,6 +1,7 @@
 package org.promethist.core.socket
 
 import com.google.api.gax.rpc.OutOfRangeException
+import org.eclipse.jetty.websocket.api.WebSocketAdapter
 import org.promethist.client.BotConfig
 import org.promethist.client.BotEvent
 import org.promethist.client.BotSocket
@@ -12,13 +13,15 @@ import org.promethist.core.model.TtsConfig
 import org.promethist.core.model.Voice
 import org.promethist.core.monitoring.Monitor
 import org.promethist.core.storage.FileStorage
+import org.promethist.core.stt.SttCallback
+import org.promethist.core.stt.SttService
+import org.promethist.core.stt.SttServiceFactory
+import org.promethist.core.stt.SttStream
+import org.promethist.core.tts.TtsAudioService
+import org.promethist.core.tts.TtsRequest
 import org.promethist.core.type.Dynamic
 import org.promethist.core.type.MutablePropertyMap
-import org.promethist.core.tts.TtsAudioService
-import org.promethist.core.stt.*
-import org.promethist.core.tts.TtsRequest
 import org.promethist.util.LoggerDelegate
-import org.eclipse.jetty.websocket.api.WebSocketAdapter
 import java.io.IOException
 import java.util.*
 import javax.inject.Inject

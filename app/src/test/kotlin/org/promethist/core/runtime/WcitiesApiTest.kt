@@ -1,10 +1,8 @@
 package org.promethist.core.runtime
 
-import org.promethist.core.dialogue.DialogueTest
-import org.promethist.core.type.Dynamic
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import org.promethist.core.dialogue.DialogueTest
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class WcitiesApiTest : DialogueTest() {

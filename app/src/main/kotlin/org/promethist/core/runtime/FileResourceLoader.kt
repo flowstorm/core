@@ -1,7 +1,7 @@
 package org.promethist.core.runtime
 
-import org.promethist.core.storage.FileStorage
 import org.promethist.core.model.FileObject
+import org.promethist.core.storage.FileStorage
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream

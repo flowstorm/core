@@ -1,8 +1,8 @@
 package org.promethist.client.standalone.io
 
+import org.promethist.client.audio.SpeechDevice
 import org.promethist.client.signal.SignalProcessor
 import org.promethist.client.signal.SignalProvider
-import org.promethist.client.audio.SpeechDevice
 import org.usb4java.*
 import java.nio.ByteBuffer
 import java.nio.ByteOrder

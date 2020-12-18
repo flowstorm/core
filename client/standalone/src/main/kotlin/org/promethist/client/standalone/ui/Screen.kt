@@ -1,7 +1,5 @@
 package org.promethist.client.standalone.ui
 
-import org.promethist.client.BotClient
-import org.promethist.common.AppConfig
 import javafx.animation.Timeline
 import javafx.application.Application
 import javafx.beans.value.ObservableValue
@@ -20,6 +18,8 @@ import javafx.scene.text.Font
 import javafx.scene.text.Text
 import javafx.scene.text.TextAlignment
 import javafx.stage.Stage
+import org.promethist.client.BotClient
+import org.promethist.common.AppConfig
 import java.io.InputStream
 import java.util.*
 import kotlin.concurrent.thread

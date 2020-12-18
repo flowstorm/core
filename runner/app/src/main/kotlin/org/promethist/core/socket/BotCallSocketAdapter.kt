@@ -1,15 +1,15 @@
 package org.promethist.core.socket
 
-import org.promethist.client.BotConfig
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import org.promethist.client.BotConfig
 import org.promethist.client.BotEvent
 import org.promethist.common.AppConfig
 import org.promethist.common.ObjectUtil.defaultMapper
 import org.promethist.core.Defaults
 import org.promethist.core.Input
-import org.promethist.core.type.Dynamic
 import org.promethist.core.model.SttConfig
+import org.promethist.core.type.Dynamic
 import org.promethist.util.DataConverter
 import java.io.BufferedReader
 import java.io.File

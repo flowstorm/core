@@ -7,7 +7,6 @@ import org.promethist.util.LoggerDelegate
 import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
-import java.lang.Exception
 
 abstract class SignalConfigurableProvider(val name: String, val format: Format, val enabled: Boolean, val sleep: Long, val continuous: Boolean) : SignalProvider {
 

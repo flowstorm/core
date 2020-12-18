@@ -1,9 +1,9 @@
 package org.promethist.core.resources
 
-import org.promethist.core.model.Profile
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiParam
 import org.litote.kmongo.Id
+import org.promethist.core.model.Profile
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
 

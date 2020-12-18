@@ -1,9 +1,9 @@
 package org.promethist.core.resources
 
-import org.promethist.core.Request
-import org.promethist.core.Response
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiParam
+import org.promethist.core.Request
+import org.promethist.core.Response
 import javax.ws.rs.Consumes
 import javax.ws.rs.PUT
 import javax.ws.rs.Path

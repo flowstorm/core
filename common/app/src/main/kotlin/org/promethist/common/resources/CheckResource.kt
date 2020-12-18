@@ -1,9 +1,9 @@
 package org.promethist.common.resources
 
-import org.promethist.common.AppConfig
-import org.promethist.common.JerseyApplication
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
+import org.promethist.common.AppConfig
+import org.promethist.common.JerseyApplication
 import javax.ws.rs.GET
 import javax.ws.rs.Path
 import javax.ws.rs.Produces

@@ -1,15 +1,15 @@
 package org.promethist.core.handlers.google
 
-import org.promethist.core.BotCore
-import org.promethist.client.BotContext
 import com.google.actions.api.ActionRequest
-import com.google.actions.api.ForIntent
 import com.google.actions.api.ActionsSdkApp
+import com.google.actions.api.ForIntent
 import com.google.actions.api.response.ResponseBuilder
 import com.google.api.services.actions_fulfillment.v2.model.BasicCard
 import com.google.api.services.actions_fulfillment.v2.model.Image
 import com.google.api.services.actions_fulfillment.v2.model.SimpleResponse
+import org.promethist.client.BotContext
 import org.promethist.common.AppConfig
+import org.promethist.core.BotCore
 import org.promethist.core.Response
 import org.promethist.core.model.TtsConfig
 import org.promethist.core.type.Dynamic

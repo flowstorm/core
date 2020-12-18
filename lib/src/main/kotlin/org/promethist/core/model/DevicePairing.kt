@@ -2,7 +2,7 @@ package org.promethist.core.model
 
 import org.litote.kmongo.Id
 import org.litote.kmongo.newId
-import java.util.Date
+import java.util.*
 import kotlin.math.abs
 
 data class DevicePairing(

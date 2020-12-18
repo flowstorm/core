@@ -1,7 +1,7 @@
 package org.promethist.core.runtime
 
-import org.promethist.core.repository.CommunityRepository
 import org.promethist.core.model.Community
+import org.promethist.core.repository.CommunityRepository
 
 class SimpleCommunityStorage : CommunityRepository {
 

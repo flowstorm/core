@@ -1,12 +1,15 @@
 package org.promethist.core.runtime
 
+import org.bson.types.ObjectId
+import org.litote.kmongo.id.toId
 import org.promethist.common.messaging.StdOutSender
-import org.promethist.core.*
+import org.promethist.core.Component
+import org.promethist.core.Context
+import org.promethist.core.Input
+import org.promethist.core.Pipeline
 import org.promethist.core.dialogue.AbstractDialogue
 import org.promethist.core.model.*
 import org.promethist.core.provider.LocalFileStorage
-import org.bson.types.ObjectId
-import org.litote.kmongo.id.toId
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File

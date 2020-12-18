@@ -5,9 +5,9 @@ import org.promethist.core.builder.IntentModel
 import org.promethist.core.dialogue.AbstractDialogue
 import org.promethist.core.dialogue.BasicDialogue
 import org.promethist.util.LoggerDelegate
-import kotlin.math.roundToInt
 import org.slf4j.Logger
 import javax.inject.Inject
+import kotlin.math.roundToInt
 import org.promethist.core.model.Session.DialogueStackFrame as Frame
 
 class DialogueManager : Component {

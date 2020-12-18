@@ -1,7 +1,7 @@
 package org.promethist.core.stt
 
 import java.io.Serializable
-import java.util.HashMap
+import java.util.*
 
 data class SttEvent(
         var type: Type? = null,

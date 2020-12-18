@@ -1,9 +1,9 @@
 package org.promethist.core.resources
 
-import org.promethist.core.repository.CommunityRepository
-import org.promethist.core.model.Community
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiParam
+import org.promethist.core.model.Community
+import org.promethist.core.repository.CommunityRepository
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
 

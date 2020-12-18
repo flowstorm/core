@@ -3,7 +3,6 @@ package org.promethist.core.runtime
 import com.fasterxml.jackson.core.type.TypeReference
 import org.promethist.core.model.FileObject
 import org.promethist.core.type.PropertyMap
-import org.promethist.common.ObjectUtil.defaultMapper as mapper
 import org.promethist.util.LoggerDelegate
 import java.io.File
 import java.io.FileOutputStream
@@ -12,6 +11,7 @@ import java.io.InputStreamReader
 import java.net.URLClassLoader
 import kotlin.jvm.internal.Reflection
 import kotlin.reflect.KClass
+import org.promethist.common.ObjectUtil.defaultMapper as mapper
 
 abstract class AbstractLoader(open val noCache: Boolean, open val useScript: Boolean) : Loader {
 

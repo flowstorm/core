@@ -1,9 +1,9 @@
 package org.promethist.core.type
 
-import org.promethist.common.ObjectUtil
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import org.promethist.common.ObjectUtil
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class DynamicTest {

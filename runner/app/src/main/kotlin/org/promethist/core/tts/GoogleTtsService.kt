@@ -1,8 +1,8 @@
 package org.promethist.core.tts
 
 import com.google.cloud.texttospeech.v1.*
-import org.promethist.core.model.TtsConfig
 import io.sentry.Sentry
+import org.promethist.core.model.TtsConfig
 
 object GoogleTtsService: TtsService {
 

@@ -1,13 +1,13 @@
 package org.promethist.core.dialogue
 
+import io.mockk.every
+import io.mockk.mockkClass
+import io.mockk.mockkObject
 import org.promethist.core.Context
 import org.promethist.core.dialogue.metric.MetricDelegate
 import org.promethist.core.model.metrics.Metric
 import org.promethist.core.type.Attributes
 import org.promethist.core.type.DEFAULT_LOCATION
-import io.mockk.every
-import io.mockk.mockkClass
-import io.mockk.mockkObject
 import org.slf4j.LoggerFactory
 import java.time.ZoneId
 

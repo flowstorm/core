@@ -10,7 +10,7 @@ import org.promethist.core.model.SttConfig
 import org.promethist.core.type.Dynamic
 import org.promethist.core.type.PropertyMap
 import org.promethist.util.LoggerDelegate
-import java.util.UUID
+import java.util.*
 
 /**
  * Bot client

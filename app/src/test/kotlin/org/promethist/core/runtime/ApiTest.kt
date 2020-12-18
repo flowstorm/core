@@ -1,7 +1,5 @@
 package org.promethist.core.runtime
 
-import org.promethist.core.type.Dynamic
-import org.promethist.core.type.PropertyMap
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 

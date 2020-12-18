@@ -1,7 +1,7 @@
 package org.promethist.common.resources
 
-import org.promethist.common.AppConfig
 import io.swagger.annotations.Api
+import org.promethist.common.AppConfig
 import java.io.InputStream
 import javax.ws.rs.GET
 import javax.ws.rs.Path

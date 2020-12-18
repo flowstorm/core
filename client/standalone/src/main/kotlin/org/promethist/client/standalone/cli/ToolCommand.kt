@@ -2,7 +2,6 @@ package org.promethist.client.standalone.cli
 
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
-import org.promethist.client.standalone.Application
 import com.beust.jcommander.Parameter
 import com.beust.jcommander.Parameters
 import com.pi4j.io.gpio.GpioFactory
@@ -10,14 +9,18 @@ import com.pi4j.io.gpio.PinPullResistance
 import com.pi4j.io.gpio.PinState
 import com.pi4j.io.gpio.RaspiPin
 import com.pi4j.io.gpio.event.GpioPinListenerDigital
-import org.promethist.client.standalone.io.*
+import cz.alry.jcommander.CommandRunner
+import javazoom.jl.player.Player
 import org.promethist.client.audio.AudioCallback
 import org.promethist.client.audio.AudioDevice
 import org.promethist.client.gps.NMEA
 import org.promethist.client.signal.SignalProcessor
+import org.promethist.client.standalone.Application
+import org.promethist.client.standalone.io.Microphone
+import org.promethist.client.standalone.io.OutputAudioDevice
+import org.promethist.client.standalone.io.RespeakerMicArrayV2
+import org.promethist.client.standalone.io.SpeechDeviceFactory
 import org.promethist.core.model.TtsConfig
-import cz.alry.jcommander.CommandRunner
-import javazoom.jl.player.Player
 import org.slf4j.LoggerFactory
 import java.io.*
 import java.util.*

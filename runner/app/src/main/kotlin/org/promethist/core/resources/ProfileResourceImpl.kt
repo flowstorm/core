@@ -1,8 +1,8 @@
 package org.promethist.core.resources
 
+import org.litote.kmongo.Id
 import org.promethist.common.query.Query
 import org.promethist.core.model.Profile
-import org.litote.kmongo.*
 import org.promethist.core.repository.ProfileRepository
 import javax.inject.Inject
 import javax.ws.rs.NotFoundException

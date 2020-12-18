@@ -1,7 +1,5 @@
 package org.promethist.core.dialogue
 
-import java.lang.IllegalArgumentException
-
 class ExampleExpander {
     data class Expansion(val texts: List<String>, val start: Int, val end: Int)
 

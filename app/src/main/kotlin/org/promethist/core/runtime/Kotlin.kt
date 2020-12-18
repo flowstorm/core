@@ -2,8 +2,6 @@ package org.promethist.core.runtime
 
 import org.promethist.core.type.PropertyMap
 import java.io.Reader
-import java.lang.Exception
-import java.lang.RuntimeException
 import javax.script.ScriptEngineManager
 import kotlin.reflect.KClass
 import kotlin.reflect.full.primaryConstructor

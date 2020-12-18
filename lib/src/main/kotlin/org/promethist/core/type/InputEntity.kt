@@ -3,7 +3,7 @@ package org.promethist.core.type
 import org.promethist.core.Input
 import org.promethist.core.type.value.Text
 import org.promethist.core.type.value.Value
-import java.util.NoSuchElementException
+import java.util.*
 
 open class InputEntity(var className: String,
                        open var text: String,

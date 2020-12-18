@@ -1,8 +1,8 @@
 package org.promethist.core
 
+import org.glassfish.hk2.api.IterableProvider
 import org.promethist.core.Pipeline.PipelineComponentFailed
 import org.promethist.util.LoggerDelegate
-import org.glassfish.hk2.api.IterableProvider
 import java.util.*
 import javax.inject.Inject
 

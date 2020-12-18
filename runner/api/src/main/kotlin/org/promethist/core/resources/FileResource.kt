@@ -1,8 +1,8 @@
 package org.promethist.core.resources
 
-import org.promethist.core.model.FileObject
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiParam
+import org.promethist.core.model.FileObject
 import java.io.InputStream
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType

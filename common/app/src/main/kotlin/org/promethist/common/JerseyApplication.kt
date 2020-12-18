@@ -1,12 +1,12 @@
 package org.promethist.common
 
-import org.promethist.common.ServerConfigProvider.ServerConfig
-import org.promethist.util.LoggerDelegate
 import org.glassfish.jersey.internal.inject.InjectionManager
 import org.glassfish.jersey.logging.LoggingFeature
 import org.glassfish.jersey.server.ResourceConfig
 import org.glassfish.jersey.server.spi.Container
 import org.glassfish.jersey.server.spi.ContainerLifecycleListener
+import org.promethist.common.ServerConfigProvider.ServerConfig
+import org.promethist.util.LoggerDelegate
 import java.util.logging.Level
 import java.util.logging.Logger
 import javax.ws.rs.ext.ContextResolver

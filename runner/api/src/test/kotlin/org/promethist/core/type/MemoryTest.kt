@@ -1,12 +1,8 @@
 package org.promethist.core.type
 
-import org.promethist.common.ObjectUtil
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import kotlin.properties.Delegates
-import kotlin.properties.ObservableProperty
-import kotlin.reflect.KProperty
-import kotlin.reflect.jvm.jvmName
+import org.promethist.common.ObjectUtil
 import kotlin.test.assertEquals
 import kotlin.test.assertSame
 

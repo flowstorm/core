@@ -8,7 +8,9 @@ import org.promethist.common.AppConfig
 import org.promethist.common.ObjectUtil
 import org.promethist.common.RestClient
 import org.promethist.core.dialogue.BasicDialogue
-import org.promethist.core.type.*
+import org.promethist.core.type.DateTime
+import org.promethist.core.type.Dynamic
+import org.promethist.core.type.Location
 import java.time.format.DateTimeFormatter
 import javax.ws.rs.client.ResponseProcessingException
 import javax.ws.rs.client.WebTarget

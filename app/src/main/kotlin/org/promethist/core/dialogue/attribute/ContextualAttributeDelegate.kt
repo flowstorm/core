@@ -1,10 +1,10 @@
 package org.promethist.core.dialogue.attribute
 
-import kotlin.reflect.KClass
 import org.promethist.core.Context
 import org.promethist.core.dialogue.AbstractDialogue
 import org.promethist.core.dialogue.DateTimeUnit
 import org.promethist.core.type.Memorable
+import kotlin.reflect.KClass
 
 class ContextualAttributeDelegate<V: Any>(
         private val scope: Scope,

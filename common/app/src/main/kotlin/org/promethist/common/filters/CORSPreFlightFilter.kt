@@ -2,8 +2,8 @@ package org.promethist.common.filters
 
 import javax.ws.rs.container.ContainerRequestContext
 import javax.ws.rs.container.ContainerRequestFilter
-import javax.ws.rs.ext.Provider
 import javax.ws.rs.core.Response
+import javax.ws.rs.ext.Provider
 
 /**
  * Filter to handle CORS pre-flight request, we detect pre-flight request and abort request with response OK (200).

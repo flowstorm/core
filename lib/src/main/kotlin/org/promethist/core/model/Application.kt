@@ -1,10 +1,10 @@
 package org.promethist.core.model
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import org.promethist.common.ServiceUrlResolver
-import org.promethist.core.type.MutablePropertyMap
 import org.litote.kmongo.Id
 import org.litote.kmongo.newId
+import org.promethist.common.ServiceUrlResolver
+import org.promethist.core.type.MutablePropertyMap
 
 open class Application(
         open var _id: Id<Application> = newId(),

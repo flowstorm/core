@@ -1,11 +1,10 @@
 package org.promethist.client.client
 
+import org.java_websocket.client.WebSocketClient
+import org.java_websocket.handshake.ServerHandshake
 import org.promethist.client.BotEvent
 import org.promethist.client.BotSocket
 import org.promethist.client.common.BotClientSocket
-import org.java_websocket.client.WebSocketClient
-import org.java_websocket.handshake.ServerHandshake
-import java.lang.Exception
 import java.net.URI
 import java.nio.ByteBuffer
 

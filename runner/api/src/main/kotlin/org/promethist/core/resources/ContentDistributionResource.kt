@@ -1,13 +1,15 @@
 package org.promethist.core.resources
 
-import org.promethist.core.model.Application
-import org.promethist.core.model.User
-import org.promethist.core.type.MutablePropertyMap
 import io.swagger.annotations.Api
 import io.swagger.annotations.Authorization
+import org.promethist.core.model.Application
 import org.promethist.core.model.Device
 import org.promethist.core.model.Space
-import javax.ws.rs.*
+import org.promethist.core.model.User
+import org.promethist.core.type.MutablePropertyMap
+import javax.ws.rs.Consumes
+import javax.ws.rs.POST
+import javax.ws.rs.Produces
 import javax.ws.rs.core.MediaType
 
 @Api(tags = ["Content Distribution"], authorizations = [Authorization("Authorization")])

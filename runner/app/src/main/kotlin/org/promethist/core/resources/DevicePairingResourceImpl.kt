@@ -1,11 +1,11 @@
 package org.promethist.core.resources
 
 import com.mongodb.client.MongoDatabase
-import org.promethist.core.model.DevicePairing
 import org.litote.kmongo.*
+import org.promethist.core.model.DevicePairing
+import java.util.*
 import javax.inject.Inject
 import javax.ws.rs.NotFoundException
-import java.util.Date
 import javax.ws.rs.Path
 import javax.ws.rs.Produces
 import javax.ws.rs.core.MediaType

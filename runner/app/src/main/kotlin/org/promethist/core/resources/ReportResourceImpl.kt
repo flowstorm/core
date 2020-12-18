@@ -4,6 +4,9 @@ import com.mongodb.client.MongoDatabase
 import com.mongodb.client.model.BsonField
 import com.mongodb.client.model.Field
 import com.mongodb.client.model.Filters
+import org.bson.Document
+import org.bson.conversions.Bson
+import org.litote.kmongo.*
 import org.promethist.common.query.MongoFiltersFactory
 import org.promethist.common.query.Query
 import org.promethist.core.model.Application
@@ -12,9 +15,6 @@ import org.promethist.core.model.Session
 import org.promethist.core.model.User
 import org.promethist.core.model.metrics.Metric
 import org.promethist.core.type.PropertyMap
-import org.bson.Document
-import org.bson.conversions.Bson
-import org.litote.kmongo.*
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*

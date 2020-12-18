@@ -1,10 +1,10 @@
 package org.promethist.core.model
 
+import org.litote.kmongo.Id
+import org.litote.kmongo.newId
 import org.promethist.core.Context
 import org.promethist.core.dialogue.AbstractDialogue
 import org.promethist.core.type.MutablePropertyMap
-import org.litote.kmongo.Id
-import org.litote.kmongo.newId
 import java.util.*
 
 data class DialogueEvent(

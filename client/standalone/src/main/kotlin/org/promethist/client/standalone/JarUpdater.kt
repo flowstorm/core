@@ -1,9 +1,8 @@
 package org.promethist.client.standalone
 
-import org.promethist.util.LoggerDelegate
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import org.slf4j.LoggerFactory
+import org.promethist.util.LoggerDelegate
 import java.io.File
 import java.io.FileOutputStream
 import java.time.ZonedDateTime

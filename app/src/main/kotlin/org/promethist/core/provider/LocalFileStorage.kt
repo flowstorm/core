@@ -1,7 +1,7 @@
 package org.promethist.core.provider
 
-import org.promethist.core.storage.FileStorage
 import org.promethist.core.model.FileObject
+import org.promethist.core.storage.FileStorage
 import java.io.*
 import java.nio.file.Files
 import java.nio.file.attribute.BasicFileAttributes

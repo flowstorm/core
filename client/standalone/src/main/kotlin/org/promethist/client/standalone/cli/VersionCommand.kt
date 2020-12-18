@@ -1,9 +1,9 @@
 package org.promethist.client.standalone.cli
 
-import org.promethist.client.standalone.Application
 import com.beust.jcommander.Parameters
-import org.promethist.common.AppConfig
 import cz.alry.jcommander.CommandRunner
+import org.promethist.client.standalone.Application
+import org.promethist.common.AppConfig
 
 class VersionCommand: CommandRunner<Application.Config, VersionCommand.Config> {
 

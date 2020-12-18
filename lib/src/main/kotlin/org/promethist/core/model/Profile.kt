@@ -1,8 +1,8 @@
 package org.promethist.core.model
 
-import org.promethist.core.type.Attributes
 import org.litote.kmongo.Id
 import org.litote.kmongo.newId
+import org.promethist.core.type.Attributes
 
 data class Profile(
         override val _id: Id<Profile> = newId(),

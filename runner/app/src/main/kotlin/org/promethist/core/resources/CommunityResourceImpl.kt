@@ -1,8 +1,8 @@
 package org.promethist.core.resources
 
 import com.mongodb.client.MongoDatabase
-import org.promethist.core.model.Community
 import org.litote.kmongo.*
+import org.promethist.core.model.Community
 import javax.inject.Inject
 import javax.ws.rs.Path
 import javax.ws.rs.Produces

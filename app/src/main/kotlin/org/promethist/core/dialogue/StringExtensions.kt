@@ -1,7 +1,6 @@
 package org.promethist.core.dialogue
 
 import org.promethist.core.Input
-import org.promethist.core.type.Location
 import java.util.*
 
 fun String.startsWithVowel() = Regex("[aioy].*").matches(this)

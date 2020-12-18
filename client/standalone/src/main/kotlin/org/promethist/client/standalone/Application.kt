@@ -1,14 +1,14 @@
 package org.promethist.client.standalone
 
-import org.promethist.client.standalone.cli.ClientCommand
-import org.promethist.client.standalone.cli.ToolCommand
-import org.promethist.client.standalone.cli.VersionCommand
-import org.promethist.client.standalone.cli.CallCommand
-import org.promethist.common.AppConfig
-import org.promethist.common.ServiceUrlResolver
 import com.beust.jcommander.Parameter
 import cz.alry.jcommander.CommandController
 import io.sentry.Sentry
+import org.promethist.client.standalone.cli.CallCommand
+import org.promethist.client.standalone.cli.ClientCommand
+import org.promethist.client.standalone.cli.ToolCommand
+import org.promethist.client.standalone.cli.VersionCommand
+import org.promethist.common.AppConfig
+import org.promethist.common.ServiceUrlResolver
 
 object Application {
 

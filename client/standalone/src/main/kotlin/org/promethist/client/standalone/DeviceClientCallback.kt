@@ -1,5 +1,6 @@
 package org.promethist.client.standalone
 
+import javazoom.jl.player.Player
 import org.promethist.client.BotClient
 import org.promethist.client.BotClientCallback
 import org.promethist.client.HttpRequest
@@ -8,7 +9,6 @@ import org.promethist.client.standalone.ui.Screen
 import org.promethist.client.util.HttpUtil
 import org.promethist.core.model.LogEntry
 import org.promethist.util.LoggerDelegate
-import javazoom.jl.player.Player
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.PrintWriter

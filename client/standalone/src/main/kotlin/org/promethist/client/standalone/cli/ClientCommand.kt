@@ -11,12 +11,13 @@ import com.pi4j.io.gpio.PinPullResistance
 import com.pi4j.io.gpio.PinState
 import com.pi4j.io.gpio.RaspiPin
 import com.pi4j.io.gpio.event.GpioPinListenerDigital
+import cz.alry.jcommander.CommandRunner
 import org.promethist.client.BotClient
 import org.promethist.client.BotConfig
 import org.promethist.client.BotContext
 import org.promethist.client.audio.SpeechDevice
-import org.promethist.client.client.JwsBotClientSocket
 import org.promethist.client.audio.WavFileAudioRecorder
+import org.promethist.client.client.JwsBotClientSocket
 import org.promethist.client.common.OkHttp3BotClientSocket
 import org.promethist.client.signal.SignalGroup
 import org.promethist.client.signal.SignalProvider
@@ -33,7 +34,6 @@ import org.promethist.core.model.SttConfig
 import org.promethist.core.model.Voice
 import org.promethist.core.type.Dynamic
 import org.promethist.core.type.PropertyMap
-import cz.alry.jcommander.CommandRunner
 import org.slf4j.LoggerFactory
 import java.awt.Color
 import java.io.*

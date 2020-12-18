@@ -5,13 +5,12 @@ import org.promethist.core.dialogue.AbstractDialogue
 import org.promethist.core.dialogue.DateTimeUnit
 import org.promethist.core.dialogue.plus
 import org.promethist.core.type.DateTime
-import org.promethist.core.type.Memory
 import org.promethist.core.type.Memorable
+import org.promethist.core.type.Memory
 import org.promethist.core.type.MemoryCollection
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.full.isSubclassOf
-import kotlin.reflect.jvm.jvmName
 
 abstract class AttributeDelegate<V: Any>(private val clazz: KClass<*>, val namespace: (() -> String), private val expiration: DateTimeUnit? = null, val default: (Context.() -> V)) {
 

@@ -1,10 +1,10 @@
 package org.promethist.client.common
 
-import org.promethist.client.BotEvent
-import org.promethist.client.BotSocket
 import okhttp3.*
 import okio.ByteString
 import okio.ByteString.Companion.toByteString
+import org.promethist.client.BotEvent
+import org.promethist.client.BotSocket
 import java.nio.ByteBuffer
 import java.util.concurrent.TimeUnit
 

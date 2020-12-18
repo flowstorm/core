@@ -1,16 +1,18 @@
 package org.promethist.core.context
 
-import org.promethist.core.model.*
+import org.promethist.common.messaging.MessageSender
 import org.promethist.core.Context
 import org.promethist.core.Pipeline
 import org.promethist.core.Request
 import org.promethist.core.dialogue.AbstractDialogue
+import org.promethist.core.model.Profile
+import org.promethist.core.model.Session
+import org.promethist.core.model.Turn
 import org.promethist.core.repository.ProfileRepository
 import org.promethist.core.resources.CommunityResource
 import org.promethist.core.runtime.DialogueLog
 import org.promethist.core.type.Dynamic
 import org.promethist.core.type.toLocation
-import org.promethist.common.messaging.MessageSender
 import javax.inject.Inject
 
 class ContextFactory {

@@ -2,7 +2,6 @@ package org.promethist.core.model
 
 import org.promethist.core.ExpectedPhrase
 import org.promethist.core.Input
-import org.promethist.core.Request
 import org.promethist.core.Response
 import org.promethist.core.model.Session.DialogueStackFrame
 import org.promethist.core.type.Attributes

@@ -1,7 +1,7 @@
 package org.promethist.core.builder
 
-import org.promethist.core.model.Model
 import org.jetbrains.kotlin.daemon.common.toHexString
+import org.promethist.core.model.Model
 import java.security.MessageDigest
 
 data class IntentModel(val buildId: String, val dialogueId: String, val nodeId: Int?) : Model {

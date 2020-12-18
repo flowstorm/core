@@ -1,8 +1,8 @@
 package org.promethist.common.query
 
+import org.glassfish.hk2.api.Factory
 import org.promethist.common.query.Query.Filter
 import org.promethist.common.query.Query.Operator
-import org.glassfish.hk2.api.Factory
 import javax.ws.rs.container.ContainerRequestContext
 import javax.ws.rs.core.Context
 

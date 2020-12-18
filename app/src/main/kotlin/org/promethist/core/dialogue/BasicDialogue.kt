@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.type.TypeReference
 import org.promethist.common.ObjectUtil
 import org.promethist.core.Context
 import org.promethist.core.dialogue.attribute.*
-import org.promethist.core.dialogue.attribute.ContextualAttributeDelegate.Scope as ContextScope
 import org.promethist.core.dialogue.metric.MetricDelegate
 import org.promethist.core.model.ClientCommand
 import org.promethist.core.model.enumContains
@@ -16,6 +15,7 @@ import java.net.URL
 import java.time.Duration
 import kotlin.random.Random
 import kotlin.reflect.full.memberProperties
+import org.promethist.core.dialogue.attribute.ContextualAttributeDelegate.Scope as ContextScope
 
 abstract class BasicDialogue : AbstractDialogue() {
 

@@ -1,11 +1,11 @@
 package org.promethist.core.nlp
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import org.glassfish.hk2.api.IterableProvider
 import org.promethist.core.Component
 import org.promethist.core.Context
 import org.promethist.core.Input
 import org.promethist.util.LoggerDelegate
-import org.glassfish.hk2.api.IterableProvider
 import javax.inject.Inject
 import javax.ws.rs.client.Entity
 import javax.ws.rs.client.WebTarget

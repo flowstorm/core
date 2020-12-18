@@ -1,9 +1,9 @@
 package org.promethist.core.resources
 
-import org.promethist.core.model.DevicePairing
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiParam
 import io.swagger.annotations.Authorization
+import org.promethist.core.model.DevicePairing
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
 

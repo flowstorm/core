@@ -1,10 +1,9 @@
 package org.promethist.core.resources
 
-import org.promethist.core.model.DialogueEvent
 import io.swagger.annotations.Api
 import org.litote.kmongo.Id
+import org.promethist.core.model.DialogueEvent
 import javax.ws.rs.GET
-import javax.ws.rs.Path
 import javax.ws.rs.Produces
 import javax.ws.rs.core.MediaType
 

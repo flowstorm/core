@@ -3,7 +3,9 @@ package org.promethist.common
 import org.glassfish.jersey.client.proxy.WebResourceFactory
 import org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJaxbJsonProvider
 import java.io.OutputStreamWriter
-import java.lang.reflect.*
+import java.lang.reflect.AnnotatedElement
+import java.lang.reflect.InvocationTargetException
+import java.lang.reflect.Proxy
 import java.net.HttpURLConnection
 import java.net.URL
 import javax.inject.Named

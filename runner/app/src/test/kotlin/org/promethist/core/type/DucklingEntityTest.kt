@@ -1,14 +1,6 @@
 package org.promethist.core.type
 
-import com.fasterxml.jackson.core.type.TypeReference
-import org.promethist.common.ObjectUtil
-import org.promethist.core.type.value.*
-import org.promethist.core.type.value.Number
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import java.time.Month
-import kotlin.test.assertEquals
-import kotlin.test.assertNull
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class DucklingEntityTest {/*//temporatily commented - needs to FIX some dependency issue

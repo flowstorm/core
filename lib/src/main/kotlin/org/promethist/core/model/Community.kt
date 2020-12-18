@@ -2,9 +2,9 @@ package org.promethist.core.model
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
-import org.promethist.core.type.Attributes
 import org.litote.kmongo.Id
 import org.litote.kmongo.newId
+import org.promethist.core.type.Attributes
 
 data class Community (
         val _id: Id<Community> = newId(),

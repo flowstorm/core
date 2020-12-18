@@ -2,15 +2,6 @@ package org.promethist.core.context
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonTypeInfo
-import org.promethist.common.AppConfig
-import org.promethist.common.ObjectUtil
-import org.promethist.core.Context
-import org.promethist.core.model.Entity
-import org.promethist.core.monitoring.Monitor
-import org.promethist.core.repository.ProfileRepository
-import org.promethist.core.resources.SessionResource
-import org.promethist.core.runtime.DialogueLog
-import org.promethist.core.type.Memorable
 import org.apache.http.HttpHost
 import org.apache.http.auth.AuthScope
 import org.apache.http.auth.UsernamePasswordCredentials
@@ -21,6 +12,15 @@ import org.elasticsearch.client.RestClient
 import org.elasticsearch.client.RestHighLevelClient
 import org.elasticsearch.common.xcontent.XContentType
 import org.litote.kmongo.Id
+import org.promethist.common.AppConfig
+import org.promethist.common.ObjectUtil
+import org.promethist.core.Context
+import org.promethist.core.model.Entity
+import org.promethist.core.monitoring.Monitor
+import org.promethist.core.repository.ProfileRepository
+import org.promethist.core.resources.SessionResource
+import org.promethist.core.runtime.DialogueLog
+import org.promethist.core.type.Memorable
 import java.util.*
 import javax.inject.Inject
 

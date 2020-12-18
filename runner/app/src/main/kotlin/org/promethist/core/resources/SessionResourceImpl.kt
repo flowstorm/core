@@ -1,17 +1,13 @@
 package org.promethist.core.resources
 
 import com.mongodb.client.MongoDatabase
-import com.mongodb.client.model.Filters
-import org.promethist.common.query.MongoFiltersFactory
-import org.promethist.common.query.Query
-import org.promethist.core.model.Application
-import org.promethist.core.model.DialogueModel
-import org.promethist.core.model.Session
-import org.promethist.core.model.User
 import org.bson.conversions.Bson
 import org.litote.kmongo.*
 import org.litote.kmongo.id.ObjectIdGenerator
-import org.litote.kmongo.id.WrappedObjectId
+import org.promethist.common.query.MongoFiltersFactory
+import org.promethist.common.query.Query
+import org.promethist.core.model.Session
+import org.promethist.core.model.User
 import javax.inject.Inject
 import javax.ws.rs.Path
 import javax.ws.rs.Produces

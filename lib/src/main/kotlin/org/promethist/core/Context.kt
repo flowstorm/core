@@ -1,9 +1,9 @@
 package org.promethist.core
 
+import org.promethist.common.messaging.MessageSender
 import org.promethist.core.model.*
 import org.promethist.core.repository.CommunityRepository
 import org.promethist.core.type.Attributes
-import org.promethist.common.messaging.MessageSender
 import org.slf4j.Logger
 import java.util.*
 
