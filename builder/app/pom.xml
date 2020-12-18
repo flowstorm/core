@@ -169,7 +169,7 @@
                 <configuration>
                     <transformers>
                         <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                            <mainClass>org.promethist.core.Application</mainClass>
+                            <mainClass>org.promethist.core.builder.BuilderApplication</mainClass>
                         </transformer>
                         <!-- remove signatures to prevent problem in graal native-image -->
                         <transformer

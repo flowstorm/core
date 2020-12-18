@@ -1,4 +1,4 @@
-package org.promethist.core
+package org.promethist.core.builder
 
 import org.promethist.common.AppConfig
 import org.promethist.common.JerseyApplication

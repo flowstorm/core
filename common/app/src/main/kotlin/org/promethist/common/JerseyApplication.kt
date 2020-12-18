@@ -61,7 +61,7 @@ open class JerseyApplication : ResourceConfig(), ServerConfigProvider {
         while (superClasses.isNotEmpty()) {
             superClasses = superClasses.firstOrNull { !it::class.java.isInterface }?.let {
                 classes.add(it)
-                if (it != org.promethist.common.JerseyApplication::class) {
+                if (it != JerseyApplication::class) {
                     it.superclasses
                 } else null
             } ?: listOf()
@@ -76,7 +76,7 @@ open class JerseyApplication : ResourceConfig(), ServerConfigProvider {
 
     companion object {
 
-        lateinit var instance: org.promethist.common.JerseyApplication
+        lateinit var instance: JerseyApplication
 
         @JvmStatic
         fun main(args: Array<String>) = JettyServer.run(JerseyApplication())

@@ -8,5 +8,6 @@ import javax.ws.rs.core.MediaType
 @Produces(MediaType.APPLICATION_JSON)
 class BuilderResourceImpl : BuilderResource {
 
-    override fun build() = BuilderResource.BuildResponse(0)
+    override fun info() = BuilderResource.BuilderInfo("kotlinc unknown version")
+    override fun build() = BuilderResource.BuilderResponse(0)
 }
