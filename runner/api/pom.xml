@@ -8,11 +8,11 @@
 
     <parent>
         <groupId>org.promethist.core</groupId>
-        <artifactId>promethist-core-service</artifactId>
+        <artifactId>promethist-core-runner</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
-    <artifactId>promethist-core-service-api</artifactId>
-    <name>Promethist Core Service API</name>
+    <artifactId>promethist-core-runner-api</artifactId>
+    <name>Promethist Core Runtime API</name>
 
     <properties>
         <swagger.version>1.5.22</swagger.version>

@@ -11,8 +11,8 @@
         <artifactId>promethist-core</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
-    <artifactId>promethist-core-service</artifactId>
-    <name>Promethist Core Service</name>
+    <artifactId>promethist-core-runner</artifactId>
+    <name>Promethist Core Runner</name>
 
     <modules>
         <module>api</module>

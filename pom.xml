@@ -27,7 +27,8 @@
         <module>app</module>
         <module>common</module>
         <module>client</module>
-        <module>service</module>
+        <module>runner</module>
+        <module>builder</module>
     </modules>
 
     <repositories>

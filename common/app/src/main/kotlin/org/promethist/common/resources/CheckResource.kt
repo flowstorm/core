@@ -21,7 +21,7 @@ class CheckResource {
                 1.0,
                 config["name"],
                 config["namespace"],
-                org.promethist.common.JerseyApplication.instance::class.java.`package`.name,
+                config.get("package", org.promethist.common.JerseyApplication.instance::class.java.`package`.name),
                 config["git.ref"],
                 config["git.commit"],
                 config["app.image"])

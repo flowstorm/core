@@ -41,7 +41,7 @@ import javax.inject.Singleton
 import javax.ws.rs.client.WebTarget
 import javax.ws.rs.ext.ParamConverterProvider
 
-open class CoreApplication : JerseyApplication() {
+open class RuntimeApplication : JerseyApplication() {
 
     val dataspace = AppConfig.instance.get("dsuffix", AppConfig.instance["namespace"])
 
@@ -168,6 +168,6 @@ open class CoreApplication : JerseyApplication() {
 
     companion object {
         @JvmStatic
-        fun main(args: Array<String>) = JettyServer.run(CoreApplication())
+        fun main(args: Array<String>) = JettyServer.run(RuntimeApplication())
     }
 }
