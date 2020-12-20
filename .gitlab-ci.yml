@@ -81,9 +81,6 @@ build release packages:
 build snaphot packages:
   stage: build
   image: registry.promethist.ai/common/system/builder
-  variables:
-    DIR: services
-    NAME: NAME
   only:
     refs:
       - develop
@@ -93,22 +90,22 @@ build snaphot packages:
     - mvn -B deploy -Dapi.basedomain=develop.promethist.com
 
 #
-# api
+# lib
 #
-document release api:
+document release lib:
   extends: '.document release'
   variables:
-    DIR: api
-    NAME: promethist-core-api
+    DIR: lib
+    NAME: promethist-core-lib
 
-document snapshot api:
+document snapshot lib:
   extends: '.document snapshot'
   variables:
-    DIR: api
-    NAME: promethist-core-api
+    DIR: lib
+    NAME: promethist-core-lib
   only:
     changes:
-      - api/**/*
+      - lib/**/*
 
 #
 # app
@@ -129,22 +126,40 @@ document snapshot app:
       - app/**/*
 
 #
-# service/api
+# runner/api
 #
-document release service/api:
+document release runner/api:
   extends: '.document release'
   variables:
-    DIR: service/api
-    NAME: promethist-core-service-api
+    DIR: runner/api
+    NAME: promethist-core-runner-api
 
-document snapshot service/api:
+document snapshot runner/api:
   extends: '.document snapshot'
   variables:
-    DIR: service/api
-    NAME: promethist-core-service-api
+    DIR: runner/api
+    NAME: promethist-core-runner-api
   only:
     changes:
-      - service/api/**/*
+      - runner/api/**/*
+
+#
+# builder/api
+#
+document release builder/api:
+  extends: '.document release'
+  variables:
+    DIR: builder/api
+    NAME: promethist-core-builder-api
+
+document snapshot builder/api:
+  extends: '.document snapshot'
+  variables:
+    DIR: builder/api
+    NAME: promethist-core-builder-api
+  only:
+    changes:
+      - builder/api/**/*
 
 #
 # client/standalone
