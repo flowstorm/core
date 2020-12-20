@@ -16,7 +16,7 @@ class FileResourceLoader(
     lateinit var fileStorage: FileStorage
 
     override fun getInputStream(name: String): InputStream {
-        logger.info("loading file resource $name")
+        logger.info("Loading file resource $name")
         val path = "$basePath/$name"
         val buf = ByteArrayOutputStream()
         fileStorage.readFile(path, buf)
@@ -24,7 +24,7 @@ class FileResourceLoader(
     }
 
     override fun getFileObject(name: String): FileObject {
-        logger.info("checking file resource $name")
+        logger.info("Checking file resource $name")
         return fileStorage.getFile("$basePath/$name")
     }
 }

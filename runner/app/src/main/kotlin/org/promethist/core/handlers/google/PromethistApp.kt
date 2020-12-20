@@ -62,7 +62,7 @@ class PromethistApp : ActionsSdkApp() {
                         "clientType" to "google-assistant:${AppConfig.version}"
                 )
         )
-        logger.info("${this::class.simpleName}.withContext(request = $request, context = $context)")
+        logger.info("${this::class.simpleName}.withContext(request=$request, context=$context)")
         return block(ContextualBlock(request, context))
     }
 

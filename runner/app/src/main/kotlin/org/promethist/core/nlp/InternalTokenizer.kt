@@ -20,7 +20,7 @@ class InternalTokenizer : Component {
                 // tokenization has not been done yet (ASR skipped?)
                 tokens.addAll(transcript.text.tokenize())
             }
-            logger.info("tokens $tokens")
+            logger.info("Tokens $tokens")
             alternatives.add(0, transcript)
             if (words.size > DEFAULT_MAX_WORDS) {
                 transcript = Input.Transcript("#toomanywords")

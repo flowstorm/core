@@ -23,11 +23,11 @@ class Illusionist : Component {
     override fun process(context: Context): Context {
         val models = context.intentModels
         if (models.isEmpty()) {
-            logger.info("processing IR - nothing to do")
+            logger.info("Processing IR - nothing to do")
             return context.pipeline.process(context)
         }
 
-        context.logger.info("processing IR with models $models")
+        context.logger.info("Processing IR with models $models")
 
         // The ER needs to be triggered before IR
         var text = context.input.transcript.text

@@ -137,7 +137,7 @@ abstract class AbstractHandler(private val predicate: Predicate<HandlerInput>) :
                 }
             }
             withShouldEndSession(shouldEndSession)
-            logger.info("response = $response, shouldEndSession = $shouldEndSession")
+            logger.info("Adding response $response (shouldEndSession=$shouldEndSession)")
         }
     }
 

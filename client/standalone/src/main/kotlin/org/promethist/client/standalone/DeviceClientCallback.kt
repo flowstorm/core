@@ -33,12 +33,12 @@ open class DeviceClientCallback(
         val sourcePath = this::class.java.protectionDomain.codeSource.location.toURI().path
         if (distUrl != null) {
             if (sourcePath.endsWith(".jar")) {
-                logger.info("starting auto update for file $sourcePath from $distUrl")
+                logger.info("Starting auto update for file $sourcePath from $distUrl")
                 jarUpdater = JarUpdater(distUrl, File(sourcePath), doUpdate = doUpdate).apply {
                     Thread(this).start()
                 }
             } else {
-                logger.warn("auto update requested but source path $sourcePath is not JAR file")
+                logger.warn("Auto update requested but source path $sourcePath is not JAR file")
             }
         }
     }

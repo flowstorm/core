@@ -20,7 +20,7 @@ class BotClientSocketAdapter : AbstractBotSocketAdapter() {
     override fun onWebSocketText(json: String?) {
         try {
             val event = defaultMapper.readValue(json, BotEvent::class.java)
-            logger.info("onWebSocketText(event = $event)")
+            logger.info("Receiving event $event")
             when (event) {
                 is BotEvent.Init -> {
                     appKey = event.key
@@ -49,12 +49,12 @@ class BotClientSocketAdapter : AbstractBotSocketAdapter() {
     @Synchronized
     @Throws(IOException::class)
     override fun sendEvent(event: BotEvent) {
-        logger.info("sendEvent(event = $event)")
+        logger.info("Sending event $event")
         remote.sendString(defaultMapper.writeValueAsString(event))
     }
 
     override fun sendAudioData(data: ByteArray, count: Int?) {
-        logger.info("sendAudioData(data[${data.size}])")
+        logger.info("Sending audio ${data.size} bytes")
         remote.sendBytes(ByteBuffer.wrap(data))
     }
 }

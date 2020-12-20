@@ -20,7 +20,7 @@ class TtsAudioService {
      * Saves TTS audio to filestorefor future usage.
      */
     fun set(code: String, type: String, data: ByteArray, ttsRequest: TtsRequest) {
-        logger.info("set(code = $code, fileType = $type, data[${data.size}])")
+        logger.info("set(code=$code, fileType=$type, data[${data.size}])")
         fileStorage.writeFile("tts/${ttsRequest.voice}/$code.mp3", type, listOf("text:${ttsRequest.text}"), data.inputStream())
     }
 
@@ -33,9 +33,9 @@ class TtsAudioService {
         val path = "tts/${ttsRequest.voice}/${audio.code}.mp3"
         try {
             if (AppConfig.instance.get("tts.no-cache", "false") == "true")
-                throw NotFoundException("tts.no-cache = true")
+                throw NotFoundException("tts.no-cache=true")
             val ttsFile = fileStorage.getFile(path)
-            logger.info("[HIT] get(ttsRequest = $ttsRequest)")
+            logger.info("[HIT] get ttsRequest=$ttsRequest")
             if (download) {
                 ByteArrayOutputStream().apply {
                     fileStorage.readFile(path, this)
@@ -44,7 +44,7 @@ class TtsAudioService {
             }
             audio.path = path
         } catch (e: FileStorage.NotFoundException) {
-            logger.info("[MISS] get(ttsRequest = $ttsRequest)")
+            logger.info("[MISS] get ttsRequest=$ttsRequest")
             audio.speak()
             logger.info("[DONE] get")
             if (asyncSave) {

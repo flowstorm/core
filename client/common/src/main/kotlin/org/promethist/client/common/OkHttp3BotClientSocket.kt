@@ -23,23 +23,23 @@ class OkHttp3BotClientSocket(url: String, raiseExceptions: Boolean = false, sock
         }
 
         override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
-            logger.debug("onMessage(bytes[${bytes.size}])")
+            logger.debug("Message ${bytes.size} bytes")
             listener?.onAudioData(bytes.toByteArray())
         }
 
         override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
-            logger.info("onClosing(webSocket = $webSocket, code = $code, reason = $reason)")
+            logger.info("Closing (webSocket=$webSocket, code=$code, reason=$reason)")
             state = BotSocket.State.Closing
         }
 
         override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
-            logger.info("onClosed(webSocket = $webSocket, code = $code, reason = $reason)")
+            logger.info("Closed (webSocket=$webSocket, code=$code, reason=$reason)")
             state = BotSocket.State.Closed
             listener?.onClose()
         }
 
         override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
-            logger.info("onFailure(webSocket = $webSocket, t = $t, reponse = $response)")
+            logger.info("Failure (webSocket=$webSocket, t=$t, reponse=$response)")
             state = BotSocket.State.Failed
             listener?.onFailure(t)
         }
@@ -49,7 +49,7 @@ class OkHttp3BotClientSocket(url: String, raiseExceptions: Boolean = false, sock
 
     override fun open() {
         val url = url.replace("http", "ws") + DEFAULT_URI
-        logger.info("open() {url = $url}")
+        logger.info("Opening (url=$url)")
         val request = Request.Builder().url(url).build()
         val socketBuilder = OkHttpClient.Builder()
         if (socketPing > 0)

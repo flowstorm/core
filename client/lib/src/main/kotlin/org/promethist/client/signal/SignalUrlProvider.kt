@@ -8,7 +8,7 @@ class SignalUrlProvider(name: String, format: Format, enabled: Boolean = true, v
         SignalConfigurableProvider(name, format, enabled, sleep, false) {
 
     override fun load() = with (url.openConnection() as HttpURLConnection) {
-        logger.debug("loading signal data from URL $url")
+        logger.debug("Loading signal data from URL $url")
         readTimeout = timeout
         connectTimeout = timeout
         requestMethod = method

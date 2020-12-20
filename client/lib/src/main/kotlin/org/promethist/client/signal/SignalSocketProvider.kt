@@ -6,11 +6,11 @@ class SignalSocketProvider(name: String, format: Format, enabled: Boolean = true
         SignalConfigurableProvider(name, format, enabled, 0, continuous) {
 
     override fun load() {
-        logger.debug("loading signal data from socket $host:$port")
+        logger.debug("Loading signal data from socket $host:$port")
         Socket(host, port).use {
             load(it.getInputStream())
         }
     }
 
-    override fun toString() = this::class.simpleName + "(name = $name, format = $format, continuous = $continuous, host = $host, port = $port)"
+    override fun toString() = this::class.simpleName + "(name=$name, format=$format, continuous=$continuous, host=$host, port=$port)"
 }

@@ -14,7 +14,7 @@ class DialogueFactory {
     private val dialogues: MutableMap<Triple<String?, String, PropertyMap>, AbstractDialogue> = mutableMapOf()
 
     private fun create(id: String, args: PropertyMap): AbstractDialogue {
-        logger.info("creating new instance $id $args")
+        logger.info("Creating new instance $id $args")
         val dialogue = loader.newObjectWithArgs<AbstractDialogue>(id + "/model", args)
         dialogue.loader = loader
         dialogue.validate()
@@ -22,11 +22,11 @@ class DialogueFactory {
     }
 
     fun get(id: String, buildId: String, args: PropertyMap): AbstractDialogue {
-        logger.debug("getting instance $id $args")
+        logger.debug("Getting instance $id $args")
         val triple = Triple(id, buildId,  args)
         return dialogues.getOrPut(triple) {create(triple.first, triple.third)}
     }
 
     fun get(frame: DialogueStackFrame): AbstractDialogue =
-            get(frame.id ?: frame.name ?: error("missing frame identification"), frame.buildId, frame.args)
+            get(frame.id ?: frame.name ?: error("Missing frame identification"), frame.buildId, frame.args)
 }

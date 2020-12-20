@@ -67,7 +67,7 @@ class BotCallSocketAdapter : AbstractBotSocketAdapter() {
     private fun sendMessage(message: OutputMessage) = remote.sendString(defaultMapper.writeValueAsString(message))
 
     override fun sendEvent(event: BotEvent) {
-        logger.info("call event $event")
+        logger.info("Sending event $event")
         when (event) {
             is BotEvent.SessionEnded -> {
                 val mark = OutputMessage.Mark(streamSid!!, Mark("Sleeping"))
@@ -85,7 +85,7 @@ class BotCallSocketAdapter : AbstractBotSocketAdapter() {
     override fun sendAudioData(data: ByteArray, count: Int?) {
         val payload = getMulawData(data)
         val message = OutputMessage.Media(streamSid!!, OutputMessage.Media.Media(payload))
-        logger.info("call media ${data.size} (MP3) > ${payload.size} (MULAW) bytes")
+        logger.info("Sending audio MP3 ${data.size} bytes as MULAW ${payload.size} bytes")
         sendMessage(message)
     }
 
@@ -102,7 +102,7 @@ class BotCallSocketAdapter : AbstractBotSocketAdapter() {
                         config.locale = Locale.forLanguageTag(it["locale"])
                     //TODO zoneId from zip/city/state/country
 
-                    logger.info("call from $deviceId")
+                    logger.info("Call from $deviceId")
                     onRequest(
                         createRequest(
                             Input(transcript = Input.Transcript("#intro")),
@@ -133,7 +133,7 @@ class BotCallSocketAdapter : AbstractBotSocketAdapter() {
         val code = DataConverter.digest(data)
         val mulawFile = File(workDir, "$code.mulaw")
         if (!mulawFile.exists()) {
-            logger.info("generating MULAW $code")
+            logger.info("Generating MULAW $code")
             val mp3File = File(workDir, "$code.mp3")
             mp3File.writeBytes(data)
             ProcessBuilder(

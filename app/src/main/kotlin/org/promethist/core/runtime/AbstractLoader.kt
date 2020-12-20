@@ -35,12 +35,12 @@ abstract class AbstractLoader(open val noCache: Boolean, open val useScript: Boo
 
     override fun <T : Any> loadClass(name: String): KClass<T> = if (useScript) {
         cache("$name.kts") {
-            logger.info("loading class $name from resource file $name.kts")
+            logger.info("Loading class $name from resource file $name.kts")
             Kotlin.loadClass<T>(InputStreamReader(getInputStream("$name.kts")))
         }
     } else {
         cache("$name.jar") {
-            logger.info("loading class $name from resource file $name.jar")
+            logger.info("Loading class $name from resource file $name.jar")
             val buildId = it.metadata?.get("buildId") ?: error("missing buildId meta in $name.jar")
             val jarFile = File(System.getProperty("java.io.tmpdir"), "model.$buildId.jar")
             getInputStream("$name.jar").use { input ->
@@ -55,22 +55,22 @@ abstract class AbstractLoader(open val noCache: Boolean, open val useScript: Boo
     }
 
     override fun loadText(name: String): String = cache("$name.txt") {
-        logger.info("loading text $name")
+        logger.info("Loading text $name")
         String(getInputStream("$name.txt").readBytes())
     }
 
     override fun <T : Any> loadObject(name: String, typeReference: TypeReference<T>): T = cache("$name.json") {
-        logger.info("loading object $name")
+        logger.info("Loading object $name")
         mapper.readValue<T>(getInputStream("$name.json"), typeReference)
     }
 
     override fun <T : Any> newObject(name: String, vararg args: Any?): T {
-        logger.info("creating object $name ${args.toList()}")
+        logger.info("Creating object $name ${args.toList()}")
         return Kotlin.newObject(loadClass(name), *args)
     }
 
     override fun <T : Any> newObjectWithArgs(name: String, args: PropertyMap): T {
-        logger.info("creating object $name ${args.toList()}")
+        logger.info("Creating object $name ${args.toList()}")
         return Kotlin.newObjectWithArgs(loadClass(name), args)
     }
 }

@@ -42,7 +42,7 @@ class AppConfig: Serializable, Cloneable {
             }
             if (get("config.log", "false") == "true")
                 properties.forEach {
-                    logger.info("${it.key} = ${it.value}")
+                    logger.info("${it.key}=${it.value}")
             }
         } catch (e: FileNotFoundException) {
             if (!loaded)

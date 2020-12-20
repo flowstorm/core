@@ -57,7 +57,7 @@ class SignalProcessor(
                 }
             }
             if (groupValues.isNotEmpty()) {
-                logger.info("signal group '${group.name}' type ${group.type} values $groupValues")
+                logger.info("Signal group '${group.name}' type ${group.type} values $groupValues")
                 try {
                     emitter(group, groupValues)
                 } catch (e: Throwable) {

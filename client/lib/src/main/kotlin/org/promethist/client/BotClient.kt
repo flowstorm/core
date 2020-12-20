@@ -63,7 +63,7 @@ class BotClient(
             val currentTime = System.currentTimeMillis()
             lastStateDuration = currentTime - lastTime
             lastTime = currentTime
-            logger.info("onStateChange(state = $state)")
+            logger.info("State changed to $state")
             if ((state == State.Responding) && (sttMode == SttConfig.Mode.Duplex) && !inputAudioStreamOpen) {
                 inputAudioStreamOpen()
             } else {
@@ -75,7 +75,7 @@ class BotClient(
     private var lostThread: LazyThread? = null
 
     fun open() {
-        logger.info("open()")
+        logger.info("Open")
         if (state != State.Closed)
             error("open can be called only when client is closed (current state = $state)")
         if (inputAudioDevice != null) {
@@ -102,14 +102,14 @@ class BotClient(
     }
 
     override fun onOpen() {
-        logger.info("onOpen()")
+        logger.info("Open")
         state = State.Open
         val config = BotConfig(tts = tts, voice = context.voice, sttMode = sttMode)
         socket.sendEvent(BotEvent.Init(context.key, context.deviceId, context.token, config))
     }
 
     fun close() {
-        logger.info("close()")
+        logger.info("Close")
         inputAudioRecorder?.stop()
         inputAudioStreamClose(false)
         outputAudioPlayCancel()
@@ -120,7 +120,7 @@ class BotClient(
     }
 
     override fun onClose() {
-        logger.info("onClose()")
+        logger.info("Close")
         state = State.Closed
     }
 
@@ -130,7 +130,7 @@ class BotClient(
     }
 
     override fun onEvent(event: BotEvent) {
-        logger.debug("onBotEvent(event = $event)")
+        logger.debug("Event received $event")
         when (event) {
             is BotEvent.Ready -> onReady()
             is BotEvent.SessionStarted -> onSessionStarted(event.sessionId)
@@ -139,7 +139,7 @@ class BotClient(
             is BotEvent.Recognized -> onRecognized(event.text)
             is BotEvent.Response -> onResponse(event.response)
             is BotEvent.Error -> onError(event.text)
-            else -> logger.warn("unknown event type ${event::class.simpleName}")
+            else -> logger.warn("Unknown event type ${event::class.simpleName}")
         }
     }
 
@@ -167,7 +167,7 @@ class BotClient(
     }
 
     private fun onSessionStarted(sessionId: String) {
-        logger.info("onSessionStarted(sessionId = $sessionId)")
+        logger.info("Session $sessionId started")
         context.sessionId = sessionId
         callback.onSessionId(this, context.sessionId)
         inputAudioRecorder?.start(sessionId)
@@ -175,7 +175,7 @@ class BotClient(
     }
 
     private fun onSessionEnded() {
-        logger.info("onSessionEnded()")
+        logger.info("Session ended")
         inputAudioStreamClose(false)
         builtinAudio("sleep")
         context.sessionId = null
@@ -184,7 +184,7 @@ class BotClient(
     }
 
     private fun onResponse(response: Response) {
-        logger.debug("onResponse(response = $response)")
+        logger.debug("Response received $response")
         outputAudioPlayCancel()
         if (response.logs.isNotEmpty())
             callback.onLog(this, response.logs)
@@ -223,7 +223,7 @@ class BotClient(
     }
 
     private fun onRecognized(text: String) {
-        logger.info("onRecognized(text = $text)")
+        logger.info("Text recognized \"$text\"")
         callback.onRecognized(this, text)
         outputAudioPlayCancel()
         builtinAudio("recognized")
@@ -234,7 +234,7 @@ class BotClient(
     }
 
     fun touch(openInputAudio: Boolean = true) {
-        logger.info("touch(openInputAudio = $openInputAudio), state = $state")
+        logger.info("Touch (openInputAudio=$openInputAudio, state=$state)")
         when (state) {
             State.Closed, State.Failed -> {
                 if (lostThread != null && lostThread!!.running)
@@ -268,17 +268,17 @@ class BotClient(
     }
 
     fun audio(data: ByteArray) {
-        logger.info("audio(data = ByteArray[${data.size}])")
+        logger.info("Audio ${data.size} bytes")
         callback.audio(this, data)
     }
 
     fun image(url: String) {
-        logger.info("image(url = $url)")
+        logger.info("Image $url")
         callback.image(this, url)
     }
 
     fun text(text: String) {
-        logger.info("text(text = $text)")
+        logger.info("Text $text")
         callback.text(this, text)
     }
 
@@ -313,7 +313,7 @@ class BotClient(
 
     fun inputAudioStreamOpen() {
         if (inputAudioDevice != null) {
-            logger.info("inputAudioStreamOpen()")
+            logger.info("Open")
             if (!inputAudioStreamOpen) {
                 builtinAudio("listening")
                 state = State.Listening
@@ -325,13 +325,13 @@ class BotClient(
     }
 
     private fun onInputAudioStreamOpen() {
-        logger.info("onInputAudioStreamOpen()")
+        logger.info("Opened")
         inputAudioStreamOpen = true
     }
 
     private fun inputAudioStreamClose(sendEvent: Boolean = true) {
         if (inputAudioDevice != null) {
-            logger.info("inputAudioStreamClose()")
+            logger.info("Close")
             if (inputAudioStreamOpen && sendEvent)
                 socket.sendEvent(BotEvent.InputAudioStreamClose())
             inputAudioStreamOpen = false
@@ -339,7 +339,7 @@ class BotClient(
     }
 
     fun sendInputAudioData(data: ByteArray, count: Int) {
-        logger.debug("sendInputAudioData($count bytes)")
+        logger.debug("Sending input audio $count bytes")
         socket.sendAudioData(data, count)
     }
 

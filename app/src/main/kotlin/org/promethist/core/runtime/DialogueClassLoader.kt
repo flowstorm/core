@@ -13,7 +13,7 @@ class DialogueClassLoader(parent: ClassLoader) : ClassLoader(parent) {
     }
 
     override fun findClass(name: String): Class<*> {
-        logger.info("find class $name")
+        logger.info("Finding class $name")
         return classes[name] ?: super.findClass(name)
     }
 }

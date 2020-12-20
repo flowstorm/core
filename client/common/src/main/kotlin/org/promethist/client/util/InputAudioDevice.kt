@@ -19,19 +19,19 @@ abstract class InputAudioDevice(val speechDevice: SpeechDevice) : AudioDevice, R
     private val buffer = ByteArray(100000)
 
     override fun start() {
-        logger.info("start()")
+        logger.info("Starting")
         started = true
     }
 
     override fun stop() {
-        logger.info("stop()")
+        logger.info("Stopping")
         started = false
     }
 
     abstract fun read(buffer: ByteArray): Int
 
     override fun close(waitFor: Boolean) {
-        logger.info("close(waitFor = $waitFor)")
+        logger.info("Closing (waitFor=$waitFor)")
         started = false
         close = true
         if (waitFor)
@@ -40,7 +40,7 @@ abstract class InputAudioDevice(val speechDevice: SpeechDevice) : AudioDevice, R
     }
 
     override fun run() {
-        logger.info("run()")
+        logger.info("Running")
         try {
             while (!close) {
                 if (started) {

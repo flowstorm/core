@@ -21,7 +21,7 @@ abstract class BotClientSocket(open val url: String, open val raiseExceptions: B
                 if (state == BotSocket.State.Failed)
                     open()
             }
-            logger.info("watcher run end")
+            logger.info("Watcher run end")
         }
     }
 
@@ -41,12 +41,12 @@ abstract class BotClientSocket(open val url: String, open val raiseExceptions: B
 
     override fun sendEvent(event: BotEvent) {
         if (state != BotSocket.State.Open) {
-            val message = "socket not open for sendEvent(event = $event)"
+            val message = "Socket not open for sending event ($event)"
             if (raiseExceptions)
                 throw IOException(message)
             logger.warn(message)
         } else {
-            logger.info("sendEvent(event = $event)")
+            logger.info("Sending event ($event)")
             val text = objectMapper.writeValueAsString(event)
             sendText(text)
         }
@@ -54,12 +54,12 @@ abstract class BotClientSocket(open val url: String, open val raiseExceptions: B
 
     override fun sendAudioData(data: ByteArray, count: Int?) {
         if (state != BotSocket.State.Open) {
-            val message = "socket not open for sendBinaryData(data[${data.size}], count = $count)"
+            val message = "Socket not open for sending binary ${data.size} bytes (count=$count)"
             if (raiseExceptions)
                 throw IOException(message)
             logger.warn(message)
         } else {
-            logger.debug("sendBinaryData(data[${data.size}], count = $count)")
+            logger.debug("Sending binary ${data.size} bytes (count=$count)")
             sendBytes(if (count != null)
                 ByteBuffer.wrap(data, 0, count)
             else
@@ -67,6 +67,6 @@ abstract class BotClientSocket(open val url: String, open val raiseExceptions: B
         }
     }
 
-    override fun close() = logger.info("close()")
+    override fun close() = logger.info("Close")
 
 }

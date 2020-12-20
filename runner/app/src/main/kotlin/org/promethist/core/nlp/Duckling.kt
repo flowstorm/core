@@ -20,7 +20,7 @@ class Duckling: Component {
     private val logger by LoggerDelegate()
 
     override fun process(context: Context): Context {
-        logger.info("calling Duckling with input ${context.input}")
+        logger.info("Calling Duckling with input ${context.input}")
 
         try {
             val response = webTarget.request().post(

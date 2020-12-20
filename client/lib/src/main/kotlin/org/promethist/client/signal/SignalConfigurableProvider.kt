@@ -55,7 +55,7 @@ abstract class SignalConfigurableProvider(val name: String, val format: Format, 
     abstract fun load()
 
     override fun run() {
-        logger.info("running $this")
+        logger.info("Running $this")
         while (true) {
             try {
                 load()

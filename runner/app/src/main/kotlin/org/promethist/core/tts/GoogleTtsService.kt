@@ -33,7 +33,7 @@ object GoogleTtsService: TtsService {
                 .setVolumeGainDb(ttsRequest.speakingVolumeGain)
                 .build()
 
-        TtsServiceFactory.logger.info("speak(ttsRequest = $ttsRequest)")
+        TtsServiceFactory.logger.info("speak ttsRequest=$ttsRequest")
         // Perform the text-to-speech request on the text input with the selected voice parameters and stream file type
         val response = client.synthesizeSpeech(input, voice, audioConfig)
 

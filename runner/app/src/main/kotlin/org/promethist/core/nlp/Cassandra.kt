@@ -21,10 +21,10 @@ class Cassandra : Component {
 
     override fun process(context: Context): Context {
         if (context.session.dialogueStack.isEmpty()) {
-            logger.info("processing NER - nothing to do")
+            logger.info("Processing NER - nothing to do")
             return context.pipeline.process(context)
         }
-        logger.info("processing NER with input ${context.input}")
+        logger.info("Processing NER with input ${context.input}")
 
         try {
             context.turn.input =

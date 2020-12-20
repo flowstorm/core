@@ -106,10 +106,10 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
     fun createRequest(input: Input, initiationId: String? = null, attributes: MutablePropertyMap = Dynamic()) =
             Request(appKey, deviceId, token, sessionId ?: error("missing session id"), initiationId, input, attributes)
 
-    override fun open() = logger.info("open()")
+    override fun open() = logger.info("Open")
 
     override fun close() {
-        logger.info("close()")
+        logger.info("Close")
         if (inputAudioStreamOpen)
             inputAudioStreamClose(true)
         sttService.close()
@@ -117,7 +117,7 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
 
     fun inputAudioStreamOpen() {
         if (sttStream == null) {
-            logger.info("STT STREAM OPEN")
+            logger.info("Opening STT stream")
             sttStream = sttService.createStream(sttConfig, expectedPhrases)
         }
         sttLastTime = System.currentTimeMillis()
@@ -125,14 +125,14 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
 
     fun inputAudioStreamClose(sttClose: Boolean = (sttConfig.mode != SttConfig.Mode.Duplex)) {
         if (sttClose && inputAudioStreamOpen) {
-            logger.info("STT STREAM CLOSE")
+            logger.info("Closing STT stream")
             sttStream?.close()
             sttStream = null
         }
     }
 
     fun onInputAudio(payload: ByteArray, offset: Int, length: Int) {
-        logger.debug("onInputAudio(payload[${payload.size}], offset = $offset, length = $length)")
+        logger.debug("Input audio ${payload.size} received (offset=$offset, length=$length)")
         if (inputAudioStreamOpen) {
             if ((sttLastTime + config.silenceTimeout < System.currentTimeMillis()) && (sttConfig.mode != SttConfig.Mode.Duplex))
                 onSilence()

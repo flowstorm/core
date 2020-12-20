@@ -17,7 +17,7 @@ class DialogueManager : Component {
     private val logger by LoggerDelegate()
 
     override fun process(context: Context): Context = with(context) {
-        this@DialogueManager.logger.info("processing DM")
+        this@DialogueManager.logger.info("Processing DM")
         if (session.dialogueStack.isEmpty()) {
             session.dialogueStack.push(
                     Frame(application.dialogue_id.toString(), session.sessionId, application.properties, 0))
@@ -64,7 +64,7 @@ class DialogueManager : Component {
         val model = models.first { it.id == modelId }
         val dialogueName = model.dialogueId
 
-        context.logger.info("IR match (model=${model.name}, id=${model.id}, answer=$nodeId, score=${context.input.intent.score}")
+        context.logger.info("IR match (model=${model.name}, id=${model.id}, answer=$nodeId, score=${context.input.intent.score})")
 
         return when {
             // intent is from current dialogue
@@ -252,7 +252,7 @@ class DialogueManager : Component {
         var rest = nodes
         do {
             dialogueNodes = rest.takeWhile { it.dialogue.dialogueName == rest.first().dialogue.dialogueName }
-            logger.info("passed nodes ${dialogueNodes.first().dialogue.dialogueName} >> " +
+            logger.info("Passed nodes ${dialogueNodes.first().dialogue.dialogueName} >> " +
                     dialogueNodes.map { it.toString() }.reduce { acc, s -> "$acc > $s" })
             rest = rest.drop(dialogueNodes.size)
         } while (rest.isNotEmpty())

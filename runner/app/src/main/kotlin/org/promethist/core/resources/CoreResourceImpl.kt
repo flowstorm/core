@@ -141,10 +141,10 @@ class CoreResourceImpl : CoreResource {
     private fun initSession(key: String, deviceId: String, token: String?, sessionId: String, initiationId: String?, input: Input): Session {
         val storedSession = sessionResource.get(sessionId)
         val session = if (storedSession != null) {
-            logger.info("Restoring the existing session.")
+            logger.info("Restoring the existing session")
             storedSession
         } else {
-            logger.info("Starting a new session.")
+            logger.info("Starting a new session")
             val contentResponse = contentDistributionResource.resolve(
                     ContentRequest(deviceId, token, key, input.locale.language)
             )

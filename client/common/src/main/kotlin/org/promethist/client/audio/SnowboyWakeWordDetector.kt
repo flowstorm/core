@@ -40,7 +40,7 @@ class SnowboyWakeWordDetector(config: org.promethist.client.audio.WakeWordConfig
             if (exists()) this else File(tempDir, "snowboy.umdl")
         }
 
-        logger.info("loading $libFile, resFile = $resFile, modelFile = $modelFile, wakeWordBuffer.size = ${wakeWordBuffer.size}")
+        logger.info("Loading $libFile (resFile=$resFile, modelFile=$modelFile, wakeWordBuffer.size=${wakeWordBuffer.size})")
         System.load(libFile.absolutePath)
         detector = SnowboyDetect(resFile.absolutePath, modelFile.absolutePath).apply {
             SetSensitivity(config.sensitivity.toString())

@@ -25,7 +25,7 @@ class JwsBotClientSocket(url: String, raiseExceptions: Boolean = false, socketPi
             }
 
             override fun onClose(code: Int, reason: String?, remote: Boolean) {
-                logger.info("onClose(code = $code, reason = $reason, remote = $remote)")
+                logger.info("onClose(code=$code, reason=$reason, remote=$remote)")
                 state = BotSocket.State.Closed
                 listener?.onClose()
             }
@@ -35,10 +35,10 @@ class JwsBotClientSocket(url: String, raiseExceptions: Boolean = false, socketPi
                 listener?.onEvent(event)
             }
 
-            override fun onError(ex: Exception) {
-                logger.info("onError(ex = $ex)")
+            override fun onError(e: Exception) {
+                logger.info("onError(e=$e)")
                 state = BotSocket.State.Failed
-                listener?.onFailure(ex)
+                listener?.onFailure(e)
             }
 
         }

@@ -49,7 +49,7 @@ class DialogueRunner(
                 0 -> error("no intent model ${context.intentModels.map { it.name }} matching text \"$text\"")
                 1 -> matches.first()
                 else -> {
-                    context.logger.warn("multiple intents $matches matched text \"$text\"")
+                    context.logger.warn("Multiple intents $matches matched text \"$text\"")
                     matches.first()
                 }
             }

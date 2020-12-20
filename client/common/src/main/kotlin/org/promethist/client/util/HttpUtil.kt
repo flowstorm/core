@@ -36,12 +36,12 @@ object HttpUtil {
     fun httpRequest(url: String, httpRequest: HttpRequest? = null, cache: Boolean = true): ByteArray? {
         val tmpFile = File(tmpDir, "http-cache" + url.hashCode().toString() + ".bin")
         return if (((httpRequest == null) || (httpRequest.method == "GET") && cache) && tmpFile.exists()) {
-            logger.debug("httpRequest HIT $tmpFile")
+            logger.debug("HTT request HIT $tmpFile")
             tmpFile.readBytes()
         } else {
             val data = httpRequestStream(url, httpRequest)?.readBytes()
             if ((data != null) && (httpRequest == null || (httpRequest!!.method == "GET" && cache))) {
-                logger.debug("httpRequest SAVE $tmpFile")
+                logger.debug("HTTP request SAVE $tmpFile")
                 tmpFile.writeBytes(data!!)
             }
             data

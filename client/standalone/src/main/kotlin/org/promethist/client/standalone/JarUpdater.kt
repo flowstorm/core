@@ -32,7 +32,7 @@ class JarUpdater(distUrl: String, val jarFile: File, val sleepTime: Long = 15, v
                         if (remoteLastModified > localLastModified) {
                             if (doUpdate) {
                                 val jarDestFile = File("${jarFile.path}.update")
-                                logger.info("auto update download from $jarFileUrl to $jarDestFile")
+                                logger.info("Auto update download from $jarFileUrl to $jarDestFile")
                                 val response = client.newCall(getRequest).execute()
                                 response.body?.byteStream()?.use { input ->
                                     FileOutputStream(jarDestFile).use { output ->
@@ -47,9 +47,9 @@ class JarUpdater(distUrl: String, val jarFile: File, val sleepTime: Long = 15, v
                             }
                         }
                     }
-                    logger.debug("auto update check $jarFileUrl (lastModified = $lastModifiedHeader)")
+                    logger.debug("Auto update check $jarFileUrl (lastModified=$lastModifiedHeader)")
                 } catch (t: Throwable) {
-                    logger.warn("auto update failed", t)
+                    logger.warn("Auto update failed", t)
                 }
             }
             Thread.sleep(1000 * sleepTime)

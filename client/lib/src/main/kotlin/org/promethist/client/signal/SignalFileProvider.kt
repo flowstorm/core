@@ -24,7 +24,7 @@ class SignalFileProvider(
         val lastModifiedTime = attr.lastModifiedTime().toMillis()
         if (lastModifiedTime > lastModified) {
             lastModified = lastModifiedTime
-            logger.debug("loading signal data from file $path")
+            logger.debug("Loading signal data from file $path")
             load(Files.newInputStream(path, StandardOpenOption.READ))
         }
     }
