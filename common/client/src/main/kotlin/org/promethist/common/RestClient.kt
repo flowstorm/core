@@ -45,17 +45,17 @@ object RestClient {
         return proxy<I>(resource, targetUrl)
     }
 
-    fun <T> call(url: URL, responseType: Class<T>, method: String = "GET", headers: Map<String, String>? = null, output: Any? = null): T =
-        call<Any>(url, method, headers, output).run {
+    fun <T> call(url: URL, responseType: Class<T>, method: String = "GET", headers: Map<String, String>? = null, output: Any? = null, timeout: Int = 30000): T =
+        call<Any>(url, method, headers, output, timeout).run {
             inputStream.use {
                 mapper.readValue(it, responseType)
             }
         }
 
-    fun <T> call(url: URL, method: String = "GET", headers: Map<String, String>? = null, output: Any? = null): HttpURLConnection {
+    fun <T> call(url: URL, method: String = "GET", headers: Map<String, String>? = null, output: Any? = null, timeout: Int = 30000): HttpURLConnection {
         val conn = url.openConnection() as HttpURLConnection
-        conn.readTimeout = 30000
-        conn.connectTimeout = 15000
+        conn.readTimeout = timeout
+        conn.connectTimeout = 5000
         conn.requestMethod = method
         conn.doInput = true
         conn.doOutput = (output != null)
