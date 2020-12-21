@@ -24,15 +24,22 @@ abstract class AttributeDelegate<V: Any>(private val clazz: KClass<*>, val names
                 attribute
             }
         }.let { attribute ->
-            if (!clazz.isSubclassOf(Memory::class) && attribute is Memory<*>) {
+            if (attribute is Memory<*>) {
                 if (attribute.serializable) {
                     (attribute as Memory<Any>)._value = Memorable.unpack(attribute, thisRef::class.java)
                     attribute.serializable = false
                 }
-                attribute._value
+                if (!clazz.isSubclassOf(Memory::class)) {
+                    attribute._value
+                } else {
+                    attribute
+                }
             } else {
                 (attribute as MemoryCollection<Any>).forEach {
-                    it._value = Memorable.unpack(it, thisRef::class.java)
+                    if (it.serializable) {
+                        it._value = Memorable.unpack(it, thisRef::class.java)
+                        it.serializable = false
+                    }
                 }
                 attribute
             } as V
