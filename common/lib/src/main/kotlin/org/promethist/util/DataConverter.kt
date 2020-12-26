@@ -3,23 +3,9 @@ package org.promethist.util
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
-import java.security.MessageDigest
 
 object DataConverter {
 
-    private val md5Digest = MessageDigest.getInstance("SHA-1")
-
-    fun digest(input: ByteArray): String {
-        val hexChars = "0123456789ABCDEF"
-        val bytes = md5Digest.digest(input)
-        val result = StringBuilder(bytes.size * 2)
-        bytes.forEach {
-            val i = it.toInt()
-            result.append(hexChars[i shr 4 and 0x0f])
-            result.append(hexChars[i and 0x0f])
-        }
-        return result.toString().toLowerCase()
-    }
     /**
      * Write PCM data as WAV file
      * @param os  Stream to save file to

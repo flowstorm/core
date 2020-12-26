@@ -4,5 +4,6 @@ data class DialogueBuild(
         val _id: String,
         val success: Boolean,
         val logs: List<String> = listOf(),
-        val error: String = ""
+        val error: String = "",
+        val duration: Long = 0
 )

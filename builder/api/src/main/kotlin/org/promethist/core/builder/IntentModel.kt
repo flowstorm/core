@@ -10,4 +10,5 @@ data class IntentModel(val buildId: String, val dialogueId: String, val nodeId: 
     constructor(buildId: String, dialogueId: String) : this(buildId, dialogueId, null)
 
     override fun toString(): String = "IntentModel(name='$name', id='$id')"
+
 }

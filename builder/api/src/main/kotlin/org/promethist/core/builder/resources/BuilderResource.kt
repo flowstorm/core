@@ -1,6 +1,10 @@
 package org.promethist.core.builder.resources
 
 import io.swagger.annotations.Api
+import io.swagger.annotations.ApiParam
+import org.promethist.core.builder.Info
+import org.promethist.core.builder.Request
+import org.promethist.core.builder.Response
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
 
@@ -9,14 +13,11 @@ import javax.ws.rs.core.MediaType
 @Consumes(MediaType.APPLICATION_JSON)
 interface BuilderResource {
 
-    data class BuilderInfo(val compiler: String)
-    data class BuilderResponse(val status: Int)
-
     @GET
     @Path("/info")
-    fun info(): BuilderInfo
+    fun info(): Info
 
     @POST
     @Path("/build")
-    fun build(): BuilderResponse
+    fun build(@ApiParam("Request", required = true) request: Request): Response
 }
