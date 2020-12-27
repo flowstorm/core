@@ -1,6 +1,7 @@
 package org.promethist.core.resources
 
 import ch.qos.logback.classic.Level
+import org.promethist.common.monitoring.Monitor
 import org.promethist.core.*
 import org.promethist.core.context.ContextFactory
 import org.promethist.core.context.ContextPersister
@@ -10,7 +11,6 @@ import org.promethist.core.model.DialogueEvent
 import org.promethist.core.model.Session
 import org.promethist.core.model.TtsConfig
 import org.promethist.core.model.metrics.Metric
-import org.promethist.core.monitoring.Monitor
 import org.promethist.core.resources.ContentDistributionResource.ContentRequest
 import org.promethist.core.runtime.DialogueLog
 import org.promethist.core.type.Dynamic

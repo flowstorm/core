@@ -1,7 +1,7 @@
 package org.promethist.core.builder
 
 import org.promethist.core.model.Model
-import org.promethist.util.Digest
+import org.promethist.security.Digest
 
 data class IntentModel(val buildId: String, val dialogueId: String, val nodeId: Int?) : Model {
     override val name: String = dialogueId + if (nodeId != null) "#${nodeId}" else ""

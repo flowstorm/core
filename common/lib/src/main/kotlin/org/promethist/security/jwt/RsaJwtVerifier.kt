@@ -1,4 +1,4 @@
-package org.promethist.util.jwt
+package org.promethist.security.jwt
 
 import com.auth0.jwk.JwkProviderBuilder
 import com.auth0.jwt.JWT

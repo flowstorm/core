@@ -4,6 +4,7 @@ import org.promethist.common.AppConfig
 import org.promethist.core.dialogue.AbstractDialogue
 import org.promethist.core.model.DialogueSourceCode
 import org.promethist.core.model.DialogueBuild
+import org.promethist.core.model.IntentModel
 import org.promethist.core.resources.FileResource
 import org.promethist.core.runtime.DialogueClassLoader
 import org.promethist.core.runtime.Kotlin

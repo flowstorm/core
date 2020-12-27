@@ -2,6 +2,7 @@ package org.promethist.core.builder
 
 import org.promethist.core.dialogue.AbstractDialogue
 import org.promethist.core.model.DialogueSourceCode
+import org.promethist.core.model.IntentModel
 import java.util.*
 
 interface IntentModelBuilder {

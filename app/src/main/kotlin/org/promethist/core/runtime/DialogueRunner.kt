@@ -6,6 +6,7 @@ import org.litote.kmongo.newId
 import org.promethist.common.TextConsole
 import org.promethist.common.messaging.StdOutSender
 import org.promethist.core.*
+import org.promethist.core.model.IntentModel
 import org.promethist.core.dialogue.AbstractDialogue
 import org.promethist.core.model.*
 import org.promethist.core.provider.LocalFileStorage
@@ -62,10 +63,10 @@ class DialogueRunner(
         private fun initModels(dialogue: AbstractDialogue) {
             val map = mutableMapOf<Model, Map<Int, List<String>>>()
 
-            map.put(org.promethist.core.builder.IntentModel(dialogue.buildId, dialogue.dialogueId, null), dialogue.globalIntents.map { it.id to it.utterances.toList() }.toMap())
+            map.put(IntentModel(dialogue.buildId, dialogue.dialogueId, null), dialogue.globalIntents.map { it.id to it.utterances.toList() }.toMap())
 
             dialogue.userInputs.forEach {
-                map.put(org.promethist.core.builder.IntentModel(dialogue.buildId, dialogue.dialogueId, it.id), it.intents.map { it.id to it.utterances.toList() }.toMap())
+                map.put(IntentModel(dialogue.buildId, dialogue.dialogueId, it.id), it.intents.map { it.id to it.utterances.toList() }.toMap())
             }
 
             models = map.toMap()

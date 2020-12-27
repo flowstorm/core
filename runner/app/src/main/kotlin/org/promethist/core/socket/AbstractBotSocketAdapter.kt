@@ -7,11 +7,11 @@ import org.promethist.client.BotEvent
 import org.promethist.client.BotSocket
 import org.promethist.common.AppConfig
 import org.promethist.common.ServiceUrlResolver
+import org.promethist.common.monitoring.Monitor
 import org.promethist.core.*
 import org.promethist.core.model.SttConfig
 import org.promethist.core.model.TtsConfig
 import org.promethist.core.model.Voice
-import org.promethist.core.monitoring.Monitor
 import org.promethist.core.storage.FileStorage
 import org.promethist.core.stt.SttCallback
 import org.promethist.core.stt.SttService

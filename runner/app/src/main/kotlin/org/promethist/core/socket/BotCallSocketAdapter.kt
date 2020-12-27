@@ -10,7 +10,7 @@ import org.promethist.core.Defaults
 import org.promethist.core.Input
 import org.promethist.core.model.SttConfig
 import org.promethist.core.type.Dynamic
-import org.promethist.util.Digest
+import org.promethist.security.Digest
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader

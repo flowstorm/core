@@ -4,6 +4,7 @@ import org.promethist.common.RestClient
 import org.promethist.core.builder.IntentModelBuilder.Output
 import org.promethist.core.dialogue.AbstractDialogue
 import org.promethist.core.model.DialogueSourceCode
+import org.promethist.core.model.IntentModel
 import org.promethist.util.LoggerDelegate
 import java.net.URL
 import java.util.*

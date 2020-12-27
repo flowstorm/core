@@ -1,4 +1,4 @@
-package org.promethist.core.monitoring
+package org.promethist.common.monitoring
 
 class StdOutMonitor : AbstractMonitor() {
     override fun capture(e: Throwable, extras: Map<String, Any?>) {

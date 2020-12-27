@@ -1,6 +1,6 @@
-package org.promethist.core.dialogue
+package org.promethist.util
 
-class ExampleExpander {
+object TextExpander {
     data class Expansion(val texts: List<String>, val start: Int, val end: Int)
 
     fun expand(text: String): List<String> {
@@ -47,7 +47,7 @@ class ExampleExpander {
             for (txt in texts) {
                 for (replacement in expansions[i].texts) {
                     val res = (txt.substring(0, expansions[i].start) + replacement + txt.substring(expansions[i].end))
-                            .trim().replace(" +".toRegex(), " ")
+                        .trim().replace(" +".toRegex(), " ")
                     if (res.isNotBlank()) {
                         result.add(res)
                     }

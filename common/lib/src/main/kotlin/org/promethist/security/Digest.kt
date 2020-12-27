@@ -1,4 +1,4 @@
-package org.promethist.util
+package org.promethist.security
 
 import java.security.MessageDigest
 import java.util.*

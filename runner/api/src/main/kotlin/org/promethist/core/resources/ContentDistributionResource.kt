@@ -1,7 +1,6 @@
 package org.promethist.core.resources
 
 import io.swagger.annotations.Api
-import io.swagger.annotations.Authorization
 import org.promethist.core.model.Application
 import org.promethist.core.model.Device
 import org.promethist.core.model.Space
@@ -12,15 +11,10 @@ import javax.ws.rs.POST
 import javax.ws.rs.Produces
 import javax.ws.rs.core.MediaType
 
-@Api(tags = ["Content Distribution"], authorizations = [Authorization("Authorization")])
+@Api(tags = ["Content Distribution"])
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 interface ContentDistributionResource {
-
-    @POST
-    fun resolve(
-            contentRequest: ContentRequest
-    ): ContentResponse
 
     data class ContentRequest(
             val deviceId: String,
@@ -37,4 +31,7 @@ interface ContentDistributionResource {
             val test: Boolean,
             val sessionProperties: MutablePropertyMap
     )
+
+    @POST
+    fun resolve(contentRequest: ContentRequest): ContentResponse
 }

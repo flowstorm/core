@@ -3,6 +3,7 @@ package org.promethist.core.dialogue
 import com.fasterxml.jackson.databind.PropertyNamingStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import org.promethist.common.ObjectUtil
+import org.promethist.util.TextExpander.expand
 import java.util.regex.Pattern
 import kotlin.random.Random
 
@@ -48,7 +49,7 @@ object ParaphrasingExtension {
         var end = 0
         while (m.find()) {
             val start = m.start()
-            val replacement = ExampleExpander().expand(replaceBy[m.group().trim()]!!).random()
+            val replacement = expand(replaceBy[m.group().trim()]!!).random()
             newMessage += message.substring(end, start) + " " + replacement + " "
             end = m.end()
         }
@@ -86,20 +87,19 @@ object ParaphrasingExtension {
     operator fun invoke(message: String) = paraphrase(message)
 
     init {
-        val expander = ExampleExpander()
-        rules.mustContain = rules.mustContain.flatMap { expander.expand(it.toLowerCase()) }
-        rules.headRemove = rules.headRemove.flatMap { expander.expand(it.toLowerCase()) }.sortedByDescending { it.length }
-        rules.tailRemove = rules.tailRemove.flatMap { expander.expand(it.toLowerCase()) }.sortedByDescending { it.length }
+        rules.mustContain = rules.mustContain.flatMap { expand(it.toLowerCase()) }
+        rules.headRemove = rules.headRemove.flatMap { expand(it.toLowerCase()) }.sortedByDescending { it.length }
+        rules.tailRemove = rules.tailRemove.flatMap { expand(it.toLowerCase()) }.sortedByDescending { it.length }
 
         rules.replaces.forEach { rule ->
-            expander.expand(rule[0].toLowerCase()).forEach {text ->
+            expand(rule[0].toLowerCase()).forEach {text ->
                 this.replacePattern.add(text.trim())
                 this.replaceBy[text.trim()] = rule[1].trim()
             }
         }
         replacePattern = replacePattern.sortedByDescending { it.length }.toMutableList()
-        rules.headAddStatement = rules.headAddStatement.flatMap { expander.expand(it.toLowerCase()) }
-        rules.headAddQuestion = rules.headAddQuestion.flatMap { expander.expand(it.toLowerCase()) }
+        rules.headAddStatement = rules.headAddStatement.flatMap { expand(it.toLowerCase()) }
+        rules.headAddQuestion = rules.headAddQuestion.flatMap { expand(it.toLowerCase()) }
     }
 }
 

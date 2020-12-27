@@ -4,12 +4,14 @@ import io.swagger.annotations.Api
 import io.swagger.annotations.ApiParam
 import io.swagger.annotations.Authorization
 import org.promethist.core.model.DevicePairing
+import org.promethist.security.Authenticated
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
 
 @Api(tags = ["Device Pairing"], authorizations = [Authorization("Authorization")])
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@Authenticated
 interface DevicePairingResource {
 
     @GET
