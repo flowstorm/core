@@ -23,8 +23,10 @@ class CheckResource {
                 config["name"],
                 config["namespace"],
                 config.get("package", JerseyApplication.instance::class.java.`package`.name),
+                config.get("base.ref", "unknown"),
                 config["git.ref"],
                 config["git.commit"],
-                config["app.image"])
+                config["app.image"]
+        )
     }
 }
