@@ -4,12 +4,14 @@ import io.swagger.annotations.Api
 import io.swagger.annotations.ApiParam
 import org.promethist.core.model.Community
 import org.promethist.core.repository.CommunityRepository
+import org.promethist.security.Authenticated
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
 
 @Api(tags = ["Communities"])
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@Authenticated
 interface CommunityResource : CommunityRepository {
     @GET
     fun getCommunities(): List<Community>

@@ -260,7 +260,7 @@ abstract class AbstractDialogue : DialogueModel {
     fun describe(): String {
         val sb = StringBuilder()
         nodeMap.forEach {
-            sb.append(it.key).append(" = ").appendln(it.value)
+            sb.append(it.key).append(" = ").appendLine(it.value)
         }
         return sb.toString()
     }

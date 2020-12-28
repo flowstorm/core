@@ -14,9 +14,10 @@ import org.elasticsearch.common.xcontent.XContentType
 import org.litote.kmongo.Id
 import org.promethist.common.AppConfig
 import org.promethist.common.ObjectUtil
+import org.promethist.common.monitoring.Monitor
 import org.promethist.core.Context
 import org.promethist.core.model.Entity
-import org.promethist.core.monitoring.Monitor
+import org.promethist.core.monitoring.capture
 import org.promethist.core.repository.ProfileRepository
 import org.promethist.core.resources.SessionResource
 import org.promethist.core.runtime.DialogueLog

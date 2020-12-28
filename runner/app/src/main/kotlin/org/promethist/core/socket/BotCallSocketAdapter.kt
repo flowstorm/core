@@ -10,7 +10,7 @@ import org.promethist.core.Defaults
 import org.promethist.core.Input
 import org.promethist.core.model.SttConfig
 import org.promethist.core.type.Dynamic
-import org.promethist.util.DataConverter
+import org.promethist.security.Digest
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
@@ -130,7 +130,7 @@ class BotCallSocketAdapter : AbstractBotSocketAdapter() {
     }
 
     private fun getMulawData(data: ByteArray): ByteArray {
-        val code = DataConverter.digest(data)
+        val code = Digest.md5(data)
         val mulawFile = File(workDir, "$code.mulaw")
         if (!mulawFile.exists()) {
             logger.info("Generating MULAW $code")
@@ -146,7 +146,7 @@ class BotCallSocketAdapter : AbstractBotSocketAdapter() {
                 val proc = start()
                 val input = BufferedReader(InputStreamReader(proc.inputStream))
                 while (true)
-                    buf.appendln(input.readLine() ?: break)
+                    buf.appendLine(input.readLine() ?: break)
                 if (proc.waitFor() != 0)
                     error(buf)
             }

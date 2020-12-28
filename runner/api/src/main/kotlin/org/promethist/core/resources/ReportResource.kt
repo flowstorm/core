@@ -4,11 +4,13 @@ import io.swagger.annotations.Api
 import io.swagger.annotations.ApiParam
 import org.promethist.core.model.Report
 import org.promethist.core.type.PropertyMap
+import org.promethist.security.Authenticated
 import javax.ws.rs.GET
 import javax.ws.rs.Path
 import javax.ws.rs.QueryParam
 
 @Api(tags = ["Reports"])
+@Authenticated
 interface ReportResource {
 
     @GET

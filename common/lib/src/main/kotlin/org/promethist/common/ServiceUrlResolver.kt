@@ -9,6 +9,7 @@ object ServiceUrlResolver {
     val servicePorts = mapOf(
             "bot" to 3000,
             "core" to 8080,
+            "builder" to 8081,
             "admin" to 8089,
             "illusionist" to 8090,
             "cassandra" to 8093,

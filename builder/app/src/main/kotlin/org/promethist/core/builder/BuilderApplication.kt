@@ -3,6 +3,8 @@ package org.promethist.core.builder
 import org.promethist.common.AppConfig
 import org.promethist.common.JerseyApplication
 import org.promethist.common.ResourceBinder
+import org.promethist.common.ServiceUrlResolver
+import org.promethist.core.resources.FileResource
 
 open class BuilderApplication : JerseyApplication() {
 
@@ -11,7 +13,22 @@ open class BuilderApplication : JerseyApplication() {
 
         register(object : ResourceBinder() {
             override fun configure() {
-                //TODO
+
+                bindAsContract(DialogueBuilder::class.java)
+
+                val illusionistTrainingUrl = ServiceUrlResolver.getEndpointUrl("illusionist-training")
+                val illusionistBuilder = IllusionistModelBuilder(
+                    illusionistTrainingUrl,
+                    AppConfig.instance["illusionist.apiKey"],
+                    AppConfig.instance.get("illusionist.approach", "cosine")
+                )
+
+                bind(illusionistBuilder).to(IntentModelBuilder::class.java)
+
+                val coreUrl = ServiceUrlResolver.getEndpointUrl("core")
+
+                // filestore
+                bindTo(FileResource::class.java, "$coreUrl/file")
             }
         })
     }

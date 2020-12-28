@@ -9,6 +9,7 @@ import org.promethist.core.model.ClientCommand
 import org.promethist.core.model.enumContains
 import org.promethist.core.runtime.Api
 import org.promethist.core.type.*
+import org.promethist.util.TextExpander
 import java.io.File
 import java.io.FileInputStream
 import java.net.URL
@@ -30,8 +31,6 @@ abstract class BasicDialogue : AbstractDialogue() {
         @Deprecated("Use pass instead, toIntent will be removed")
         val toIntent = pass
         val api = Api()
-
-        private val expander = ExampleExpander()
     }
 
     enum class SpeechDirection {
@@ -270,7 +269,7 @@ abstract class BasicDialogue : AbstractDialogue() {
     /**
      * evaluate # in response text
      */
-    open fun evaluateTextTemplate(text: String) = expander.expand(text).run {
+    open fun evaluateTextTemplate(text: String) = TextExpander.expand(text).run {
         enumerate(this[Random.nextInt(size)]).
         replace(Regex("#([\\w\\.\\d]+)")) {
             if (enumContains<ClientCommand>(it.groupValues[1])) {

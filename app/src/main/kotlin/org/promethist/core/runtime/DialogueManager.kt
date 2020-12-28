@@ -1,7 +1,7 @@
 package org.promethist.core.runtime
 
 import org.promethist.core.*
-import org.promethist.core.builder.IntentModel
+import org.promethist.core.model.IntentModel
 import org.promethist.core.dialogue.AbstractDialogue
 import org.promethist.core.dialogue.BasicDialogue
 import org.promethist.util.LoggerDelegate

@@ -1,4 +1,4 @@
-package org.promethist.core.monitoring
+package org.promethist.common.monitoring
 
 import io.sentry.Sentry
 import io.sentry.SentryEvent

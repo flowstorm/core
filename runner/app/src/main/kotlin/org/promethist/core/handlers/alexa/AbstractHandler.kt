@@ -19,10 +19,10 @@ import org.promethist.client.BotContext
 import org.promethist.common.AppConfig
 import org.promethist.common.JerseyApplication
 import org.promethist.common.ObjectUtil
+import org.promethist.common.monitoring.Monitor
 import org.promethist.core.BotCore
 import org.promethist.core.Response
 import org.promethist.core.model.TtsConfig
-import org.promethist.core.monitoring.Monitor
 import org.promethist.core.type.Dynamic
 import org.promethist.core.type.Location
 import org.promethist.util.LoggerDelegate

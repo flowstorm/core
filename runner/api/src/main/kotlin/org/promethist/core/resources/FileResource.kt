@@ -3,6 +3,7 @@ package org.promethist.core.resources
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiParam
 import org.promethist.core.model.FileObject
+import org.promethist.security.Authenticated
 import java.io.InputStream
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
@@ -26,6 +27,7 @@ interface FileResource {
 
     @POST
     @Path("{path: .*}")
+    @Authenticated
     fun writeFile(
             @ApiParam(required = true) @PathParam("path") path: String,
             @ApiParam(required = true) @HeaderParam("Content-Type") contentType: String,
@@ -35,6 +37,7 @@ interface FileResource {
 
     @DELETE
     @Path("{path: .*}")
+    @Authenticated
     fun deleteFile(
             @ApiParam(required = true) @PathParam("path") path: String
     ): Boolean
