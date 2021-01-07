@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.promethist.client</groupId>
         <artifactId>promethist-client</artifactId>
-        <version>2.16</version>
+        <version>2.17-SNAPSHOT</version>
     </parent>
     <artifactId>promethist-client-lib</artifactId>
     <name>Promethist Client Lib</name>
