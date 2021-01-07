@@ -5,4 +5,5 @@ hs_*.log
 venv
 .DS_Store
 client/custom
+release.properties
 dependency-reduced-pom.xml

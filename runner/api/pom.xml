@@ -16,9 +16,9 @@
 
     <properties>
         <swagger.version>1.5.22</swagger.version>
-        <api.basedomain>promethist.com</api.basedomain>
-        <api.locations>org.promethist.common.resources,org.promethist.core.resources</api.locations>
-        <api.description>Promethist API</api.description>
+        <promethist.api.basedomain>promethist.com</promethist.api.basedomain>
+        <promethist.api.locations>org.promethist.common.resources,org.promethist.core.resources</promethist.api.locations>
+        <promethist.api.description>Promethist API</promethist.api.description>
     </properties>
 
     <dependencies>
@@ -99,16 +99,16 @@
                     <apiSources>
                         <apiSource>
                             <springmvc>false</springmvc>
-                            <locations>${api.locations}</locations>
+                            <locations>${promethist.api.locations}</locations>
                             <schemes>https,http</schemes>
-                            <host>core.${api.basedomain}</host>
+                            <host>core.${promethist.api.basedomain}</host>
                             <basePath>/</basePath>
                             <outputFormats>json,yaml</outputFormats>
                             <swaggerDirectory>${project.build.outputDirectory}/META-INF/core-api</swaggerDirectory>
                             <info>
                                 <title>${project.name}</title>
                                 <version>${project.version}</version>
-                                <description>${api.description}</description>
+                                <description>${promethist.api.description}</description>
                                 <termsOfService>https://promethist.ai/terms</termsOfService>
                                 <contact>
                                     <email>support@promethist.ai</email>

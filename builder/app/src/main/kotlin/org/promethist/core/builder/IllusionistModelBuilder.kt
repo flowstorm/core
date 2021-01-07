@@ -19,6 +19,10 @@ class IllusionistModelBuilder(val apiUrl: String, val apiKey: String, val approa
 
     private val logger by LoggerDelegate()
 
+    init {
+        logger.info("Created with API URL $apiUrl (approach=$approach)")
+    }
+
     override fun build(irModel: IntentModel, language: Locale, intents: List<AbstractDialogue.Intent>, oodExamples: List<DialogueSourceCode.GlobalIntent>) {
         build(irModel.id, irModel.name, language, intents, oodExamples)
     }

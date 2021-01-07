@@ -20,7 +20,7 @@ open class BuilderApplication : JerseyApplication() {
                 val illusionistBuilder = IllusionistModelBuilder(
                     illusionistTrainingUrl,
                     AppConfig.instance["illusionist.apiKey"],
-                    AppConfig.instance.get("illusionist.approach", "cosine")
+                    AppConfig.instance.get("illusionist.approach", "logistic")
                 )
 
                 bind(illusionistBuilder).to(IntentModelBuilder::class.java)
