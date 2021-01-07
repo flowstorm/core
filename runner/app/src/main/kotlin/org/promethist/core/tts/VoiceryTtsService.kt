@@ -26,7 +26,7 @@ object VoiceryTtsService : TtsService {
             if (ttsRequest.style.isNotBlank())
                 this["style"] = ttsRequest.style
         }
-        val res = RestClient.webTarget("https://api.voicery.com/generate").request()
+        val res = RestClient.webTarget("https://voicery.com/generate").request()
                 .header("Content-Type", "application/json")
                 .header("Authorization", "Bearer " + AppConfig.instance["voicery.key"])
                 .post(Entity.json(req))

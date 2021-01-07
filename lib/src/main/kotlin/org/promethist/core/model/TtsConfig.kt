@@ -18,7 +18,7 @@ data class TtsConfig(
 
     enum class Gender { Male, Female }
 
-    override fun toString(): String = "TtsConfig(voice = $voice, provider = $provider, locale = $locale, gender = $gender, name = $name)"
+    override fun toString(): String = "TtsConfig(voice=$voice, provider=$provider, locale=$locale, gender=$gender, name=$name)"
 
     companion object {
 
@@ -41,8 +41,8 @@ data class TtsConfig(
                 TtsConfig(Voice.Michael, Provider.Microsoft, en_US, Gender.Male, "en-US-GuyNeural"),
                 TtsConfig(Voice.Mary, Provider.Microsoft, en_US, Gender.Female, "en-US-AriaNeural"),
                 TtsConfig(Voice.Milan, Provider.Microsoft, cs_CZ, Gender.Male,"cs-CZ-Jakub"),
-                TtsConfig(Voice.Victor, Provider.Voicery, en_US, Gender.Male,"steven"),
-                TtsConfig(Voice.Victoria, Provider.Voicery, en_US, Gender.Female,"katie")
+                //TtsConfig(Voice.Victor, Provider.Voicery, en_US, Gender.Male,"steven"),
+                //TtsConfig(Voice.Victoria, Provider.Voicery, en_US, Gender.Female,"katie")
         )
         fun forVoice(voice: Voice) = values.singleOrNull { it.voice == voice } ?: error("Undefined TTS config for voice $voice")
     }

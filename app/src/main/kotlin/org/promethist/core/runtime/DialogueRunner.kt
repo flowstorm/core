@@ -121,7 +121,6 @@ class DialogueRunner(
                     
                     Examples:
                         product/some-dialogue/1 someText=bla maxMath:Int=5 doMath:Boolean=true
-                        https://filestore.develop.promethist.com product/some-subdialogue/1
                         
                     Notes:
                         When local storage is used current working directory must contain filestore folder with
