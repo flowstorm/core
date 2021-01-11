@@ -12,9 +12,9 @@ interface IntentModelBuilder {
         data class Item(val questions: Array<out String>, val answer: String, val threshold: Float)
     }
 
-    fun build(modelId: String, name: String, language: Locale, intents: List<AbstractDialogue.Intent>, oodExamples: List<DialogueSourceCode.GlobalIntent>)
+    fun build(modelId: String, name: String, language: Locale, intents: List<AbstractDialogue.Intent>, oodExamples: List<String>)
 
-    fun build(irModel: IntentModel, language: Locale, intents: List<AbstractDialogue.Intent>, oodExamples: List<DialogueSourceCode.GlobalIntent>)
+    fun build(irModel: IntentModel, language: Locale, intents: List<AbstractDialogue.Intent>, oodExamples: List<String>)
 
     fun build(modelId: String, name: String, language: Locale, intents: Map<String, Output.Item>)
 }

@@ -23,21 +23,18 @@ class IllusionistModelBuilder(val apiUrl: String, val apiKey: String, val approa
         logger.info("Created with API URL $apiUrl (approach=$approach)")
     }
 
-    override fun build(irModel: IntentModel, language: Locale, intents: List<AbstractDialogue.Intent>, oodExamples: List<DialogueSourceCode.GlobalIntent>) {
+    override fun build(irModel: IntentModel, language: Locale, intents: List<AbstractDialogue.Intent>, oodExamples: List<String>) {
         build(irModel.id, irModel.name, language, intents, oodExamples)
     }
 
-    override fun build(modelId: String, name: String, language: Locale, intents: List<AbstractDialogue.Intent>, oodExamples: List<DialogueSourceCode.GlobalIntent>) {
+    override fun build(modelId: String, name: String, language: Locale, intents: List<AbstractDialogue.Intent>, oodExamples: List<String>) {
         val items = mutableMapOf<String, Output.Item>()
         intents.forEach { intent ->
             items[intent.name] = Output.Item(intent.utterances, intent.id.toString(), intent.threshold)
         }
 
-        val oodStrings = mutableListOf<String>()
-        oodExamples.forEach { intent -> oodStrings.addAll(intent.utterances) }
-
         if (approach == "logistic") {
-            items[outOfDomainActionName] = Output.Item(oodStrings.toTypedArray(), outOfDomainActionName, 0.0F)
+            items[outOfDomainActionName] = Output.Item(oodExamples.toTypedArray(), outOfDomainActionName, 0.0F)
         }
 
         build(modelId, name, language, items)
