@@ -76,7 +76,7 @@ class DialogueBuilder(
         /**
          * Builds and stores dialogue model with intent model and included files using file resource.
          */
-        fun build(oodExamples: List<DialogueSourceCode.GlobalIntent> = listOf()): DialogueBuild {
+        fun build(oodExamples: List<String> = listOf()): DialogueBuild {
             val time = System.currentTimeMillis()
             try {
                 logger.info("Start building dialogue model ${source.dialogueId}")
@@ -227,7 +227,7 @@ class DialogueBuilder(
             }
         }
 
-        private fun buildIntentModels(dialogue: AbstractDialogue, oodExamples: List<DialogueSourceCode.GlobalIntent>) {
+        private fun buildIntentModels(dialogue: AbstractDialogue, oodExamples: List<String>) {
             logger.info("Building intent models for dialogue model ${source.dialogueId}")
             val irModels = mutableListOf<IntentModel>()
             val language = Locale(dialogue.language)
@@ -241,9 +241,7 @@ class DialogueBuilder(
             dialogue.userInputs.forEach {
                 val irModel = IntentModel(source.buildId, source.dialogueId, it.id)
                 irModels.add(irModel)
-                intentModelBuilder.build(irModel, language, it.intents.asList(), (oodExamples + dialogue.globalIntents.map {
-                    DialogueSourceCode.GlobalIntent(it.id, it.name, it.threshold, it.utterances.toList(), it.entities)
-                } ))
+                intentModelBuilder.build(irModel, language, it.intents.asList(), (oodExamples + dialogue.globalIntents.map { it.utterances.toList()}.flatten() ))
             }
             logger.info("Built ${irModels.size} intent models")
         }
