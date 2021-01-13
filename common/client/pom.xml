@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.promethist.common</groupId>
         <artifactId>promethist-common</artifactId>
-        <version>2.15</version>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
     <artifactId>promethist-common-client</artifactId>
     <name>Promethist Common Client</name>
