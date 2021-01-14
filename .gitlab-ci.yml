@@ -10,7 +10,7 @@ stages:
 #
 .distribute java client:
   stage: distribute
-  image: registry.promethist.ai/common/system/builder
+  image: registry.gitlab.com/promethist/system/builder
   variables:
     DIR: client/XXX
     NAME: NAME
@@ -28,7 +28,7 @@ stages:
 #
 .document release:
   stage: document
-  image: registry.promethist.ai/common/system/builder
+  image: registry.gitlab.com/promethist/system/builder
   variables:
     DIR: api
     NAME: NAME
@@ -44,7 +44,7 @@ stages:
 
 .document snapshot:
   stage: document
-  image: registry.promethist.ai/common/system/builder
+  image: registry.gitlab.com/promethist/system/builder
   variables:
     DIR: api
     NAME: NAME
@@ -63,7 +63,7 @@ stages:
 #
 build release packages:
   stage: build
-  image: registry.promethist.ai/common/system/builder
+  image: registry.gitlab.com/promethist/system/builder
   only:
     refs:
       - tags
@@ -80,7 +80,7 @@ build release packages:
 #
 build snaphot packages:
   stage: build
-  image: registry.promethist.ai/common/system/builder
+  image: registry.gitlab.com/promethist/system/builder
   only:
     refs:
       - develop

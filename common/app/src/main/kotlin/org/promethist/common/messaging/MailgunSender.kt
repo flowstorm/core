@@ -3,8 +3,11 @@ package org.promethist.common.messaging
 import com.commit451.mailgun.Contact
 import com.commit451.mailgun.Mailgun
 import com.commit451.mailgun.SendMessageRequest
+import org.promethist.util.LoggerDelegate
 
-class MailgunSender(val mailgun: Mailgun, val from: Contact) : MessageSender {
+class MailgunSender(private val mailgun: Mailgun, val from: Contact) : MessageSender {
+
+    private val logger by LoggerDelegate()
 
     override fun sendMessage(recipient: MessageSender.Recipient, subject: String, templateName: String, templateVariables: Map<String, String>) {
 
@@ -17,6 +20,7 @@ class MailgunSender(val mailgun: Mailgun, val from: Contact) : MessageSender {
                 .templateVariables(templateVariables)
                 .text("") //we send empty text body when using a template
 
+        logger.info("Sending mail to $recipient with subject: $subject")
         mailgun.sendMessage(requestBuilder.build()).blockingGet()
     }
 
@@ -29,6 +33,7 @@ class MailgunSender(val mailgun: Mailgun, val from: Contact) : MessageSender {
                 .subject(subject)
                 .text(text)
 
+        logger.info("Sending mail to $recipient with subject: $subject")
         mailgun.sendMessage(requestBuilder.build()).blockingGet()
     }
 }

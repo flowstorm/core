@@ -6,5 +6,7 @@ interface MessageSender {
 
     fun sendMessage(recipient: Recipient, subject: String, text: String)
 
-    data class Recipient(val address: String, val name: String)
+    data class Recipient(val address: String, val name: String) {
+        override fun toString() = "$name <$address>"
+    }
 }

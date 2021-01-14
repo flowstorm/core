@@ -5,6 +5,7 @@ import org.promethist.util.LoggerDelegate
 object ServiceUrlResolver {
 
     val logger by LoggerDelegate()
+    private val baseDomain = AppConfig.instance.get("baseDomain", "promethist.com")
 
     val servicePorts = mapOf(
             "bot" to 3000,
@@ -21,7 +22,7 @@ object ServiceUrlResolver {
     enum class RunMode { local, docker, dist, detect }
     enum class Protocol { http, ws }
 
-    fun getEndpointUrl(serviceName: String, runMode: RunMode = RunMode.detect, protocol: Protocol = Protocol.http, namespace: String? = AppConfig.instance["namespace"], domain: String = "promethist.com", log: Boolean = true): String {
+    fun getEndpointUrl(serviceName: String, runMode: RunMode = RunMode.detect, protocol: Protocol = Protocol.http, namespace: String? = AppConfig.instance["namespace"], domain: String = baseDomain, log: Boolean = true): String {
         return (AppConfig.instance.getOrNull("$serviceName.url")?.let { url ->
             url.replaceFirst("http", protocol.name)
         } ?: when (runMode) {

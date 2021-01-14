@@ -10,7 +10,7 @@
         <version>2.17-SNAPSHOT</version>
     </parent>
     <artifactId>promethist-core-runner-api</artifactId>
-    <name>Promethist Core Runtime API</name>
+    <name>Promethist Core Runner API</name>
 
     <properties>
         <swagger.version>1.5.22</swagger.version>
