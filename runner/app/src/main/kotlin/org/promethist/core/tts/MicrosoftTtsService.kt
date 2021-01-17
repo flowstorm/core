@@ -2,7 +2,6 @@ package org.promethist.core.tts
 
 import org.promethist.common.AppConfig
 import org.promethist.common.RestClient
-import org.promethist.core.model.TtsConfig
 import org.promethist.core.model.Voice
 import org.promethist.util.LoggerDelegate
 import org.w3c.dom.Document
@@ -71,17 +70,16 @@ object MicrosoftTtsService: TtsService {
     }
 
     override fun speak(ttsRequest: TtsRequest): ByteArray {
-        val ttsConfig = TtsConfig.forVoice(ttsRequest.voice)
         // we need to transform SSML to match Microsoft requirements
         val ssml = XmlTransformer.transform(if (ttsRequest.isSsml) ttsRequest.text else "<speak>${ttsRequest.text}</speak>") { ssml ->
             val speak = ssml.documentElement
             speak.setAttribute("version", "1.0")
             speak.setAttribute("xmlns", "https://www.w3.org/2001/10/synthesis")
             speak.setAttribute("xmlns:mstts", "https://www.w3.org/2001/mstts")
-            speak.setAttribute("xml:lang", ttsConfig.locale.toLanguageTag())
+            speak.setAttribute("xml:lang", ttsRequest.config.locale.toLanguageTag())
             if (speak.getElementsByTagName("voice").length == 0) {
                 val voice = ssml.createElement("voice")
-                voice.setAttribute("name", ttsConfig.name)
+                voice.setAttribute("name", ttsRequest.config.name)
                 val childNodes = speak.childNodes
                 for (i in 0 until childNodes.length) {
                     val child = childNodes.item(i)
@@ -100,7 +98,7 @@ object MicrosoftTtsService: TtsService {
     @Throws(Exception::class)
     fun main(args: Array<String>) {
         val str = "<speak><s>Mluv na mě jen když zrovna svítí světlo.</s> <s>Je to jasné?</s> </speak>"
-        val audioData = speak(TtsRequest(Voice.Milan, str, true))
+        val audioData = speak(TtsRequest(Voice.Milan.config, str, true))
         println("${audioData.size}")
         File("/Users/tomas.zajicek/Downloads/testx.mp3").writeBytes(audioData)
     }

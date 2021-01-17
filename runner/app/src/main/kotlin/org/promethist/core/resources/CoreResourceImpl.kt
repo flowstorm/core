@@ -6,10 +6,7 @@ import org.promethist.core.*
 import org.promethist.core.context.ContextFactory
 import org.promethist.core.context.ContextPersister
 import org.promethist.core.dialogue.AbstractDialogue
-import org.promethist.core.model.DevicePairing
-import org.promethist.core.model.DialogueEvent
-import org.promethist.core.model.Session
-import org.promethist.core.model.TtsConfig
+import org.promethist.core.model.*
 import org.promethist.core.model.metrics.Metric
 import org.promethist.core.resources.ContentDistributionResource.ContentRequest
 import org.promethist.core.runtime.DialogueLog
@@ -83,7 +80,7 @@ class CoreResourceImpl : CoreResource {
                     }
                 }
                 turn.responseItems.forEach {
-                    it.voice = it.voice ?: TtsConfig.defaultVoice(locale?.language ?: "en")
+                    it.ttsConfig = it.ttsConfig ?: Voice.forLanguage(locale?.language ?: "en").config
                 }
                 Response(locale, turn.responseItems, dialogueLog.log,
                         turn.attributes[AbstractDialogue.defaultNamespace].map { it.key to (it.value as Memory<*>).value }.toMap().toMutableMap(),
@@ -204,20 +201,20 @@ class CoreResourceImpl : CoreResource {
                 pairingResource.createOrUpdateDevicePairing(devicePairing)
                 val pairingCode = devicePairing.pairingCode.toCharArray().joinToString(", ")
                 if (request.input.locale.language == "cs")
-                    add(Response.Item(voice = TtsConfig.defaultVoice("cs"),
+                    add(Response.Item(ttsConfig = Voice.forLanguage("cs").config,
                         text = getMessageResourceString("cs", "PAIRING", listOf(pairingCode))))
                 else
-                    add(Response.Item(voice = TtsConfig.defaultVoice("en"),
+                    add(Response.Item(ttsConfig = Voice.forLanguage("en").config,
                         text = getMessageResourceString("en", "PAIRING", listOf(pairingCode))))
             } else {
                 if (request.input.locale.language == "cs")
-                    add(Response.Item(voice = TtsConfig.defaultVoice("cs"),
+                    add(Response.Item(ttsConfig = Voice.forLanguage("cs").config,
                         text = getMessageResourceString("cs", type, listOf(code))))
                 else
-                    add(Response.Item(voice = TtsConfig.defaultVoice("en"),
+                    add(Response.Item(ttsConfig = Voice.forLanguage("en").config,
                         text = getMessageResourceString("en", type, listOf(code))))
                 if (text != null)
-                    add(Response.Item(voice = TtsConfig.defaultVoice("en"),
+                    add(Response.Item(ttsConfig = Voice.forLanguage("en").config,
                         text = text))
             }
         }, dialogueLog.log, mutableMapOf(), null, mutableListOf(), sessionEnded = true)

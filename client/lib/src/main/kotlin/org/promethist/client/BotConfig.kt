@@ -2,6 +2,7 @@ package org.promethist.client
 
 import org.promethist.core.Defaults
 import org.promethist.core.model.SttConfig
+import org.promethist.core.model.TtsConfig
 import org.promethist.core.model.Voice
 import java.io.Serializable
 import java.time.ZoneId
@@ -14,8 +15,9 @@ data class BotConfig(
         val sttMode: SttConfig.Mode = SttConfig.Mode.SingleUtterance,
         var sttSampleRate: Int = 16000,
         var tts: TtsType = TtsType.None,
-        var returnSsml: Boolean = false,
+        var ttsConfig: TtsConfig? = null,
         var voice: Voice? = null,
+        var returnSsml: Boolean = false,
         var silenceTimeout: Long = 5000,
         var test: Boolean = false) : Serializable {
 

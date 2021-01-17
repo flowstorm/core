@@ -20,7 +20,6 @@ import org.promethist.client.standalone.io.Microphone
 import org.promethist.client.standalone.io.OutputAudioDevice
 import org.promethist.client.standalone.io.RespeakerMicArrayV2
 import org.promethist.client.standalone.io.SpeechDeviceFactory
-import org.promethist.core.model.TtsConfig
 import org.slf4j.LoggerFactory
 import java.io.*
 import java.util.*
@@ -28,7 +27,7 @@ import javax.sound.sampled.*
 
 class ToolCommand: CommandRunner<Application.Config, ToolCommand.Config> {
 
-    enum class Action { voices, play, sample, audio, test, respeaker2, nmea, signal, props }
+    enum class Action { play, sample, audio, test, respeaker2, nmea, signal, props }
 
     private val BUF_SIZE = 3200
 
@@ -244,7 +243,6 @@ class ToolCommand: CommandRunner<Application.Config, ToolCommand.Config> {
         (LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME) as Logger).level = Level.toLevel(globalConfig.logLevel)
         when (config.action) {
             //Action.tts -> tts(config)
-            Action.voices -> TtsConfig.values.forEach { println(it) }
             Action.respeaker2 -> RespeakerMicArrayV2.test()
             Action.audio -> audio()
             Action.test -> test()

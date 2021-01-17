@@ -10,7 +10,6 @@ import org.promethist.common.ServiceUrlResolver
 import org.promethist.common.monitoring.Monitor
 import org.promethist.core.*
 import org.promethist.core.model.SttConfig
-import org.promethist.core.model.TtsConfig
 import org.promethist.core.model.Voice
 import org.promethist.core.storage.FileStorage
 import org.promethist.core.stt.SttCallback
@@ -190,8 +189,8 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
             val item = items[i]
             if (item.text == null)
                 item.text = ""
-            var voice = config.voice ?: item.voice ?: TtsConfig.defaultVoice(response.locale?.language ?: "en")
-            if (voice.name.startsWith('A')) {
+            var ttsConfig = item.ttsConfig ?: config.ttsConfig ?: Voice.forLanguage(response.locale?.language ?: "en").config
+            if (ttsConfig.provider.startsWith('A')) {
                 // Amazon Polly synthesis - strip <audio> tag and create audio item
                 item.ssml = item.ssml?.replace(Regex("<audio.*?src=\"(.*?)\"[^\\>]+>")) {
                     if (item.text!!.isBlank())
@@ -204,9 +203,8 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
             // set voice by <voice> tag
             item.ssml = item.ssml?.replace(Regex("<voice.*?name=\"(.*?)\">(.*)</voice>")) {
                 val name = it.groupValues[1]
-                TtsConfig.values.forEach { config ->
-                    if (name == config.name || name == config.voice.name)
-                        voice = config.voice
+                Voice.values().find { voice -> name == voice.name || name == voice.config.name } ?.let { voice ->
+                    ttsConfig = voice.config
                 }
                 it.groupValues[2]
             }
@@ -219,35 +217,34 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
             }
 
             if (item.audio == null && !item.text.isNullOrBlank()) {
-                item.voice = voice
                 val ttsRequest =
-                        TtsRequest(
-                                voice,
-                                ((if (item.ssml != null) item.ssml else item.text) ?: "").replace(Regex("#(\\w+)")) {
-                                    // command processing
-                                    when (it.groupValues[1]) {
-                                        //TO BE REMOVED version command is now handled by a global intent in Basic Dialogue classes for each specific localization
-                                        "version" -> {
-                                            item.text = "Server version ${AppConfig.version}, environment ${AppConfig.instance.get("namespace", "unknown")}."
-                                            item.voice = Voice.Audrey
-                                            item.text!!
-                                        }
-                                        else -> ""
-                                    }
-                                },
-                                item.ssml != null,
-                                ttsStyle
-                        ).apply {
-                            with(response) {
-                                if (attributes.containsKey("speakingRate"))
-                                    speakingRate = attributes["speakingRate"].toString().toDouble()
-                                if (attributes.containsKey("speakingPitch"))
-                                    speakingPitch = attributes["speakingPitch"].toString().toDouble()
-                                if (attributes.containsKey("speakingVolumeGain"))
-                                    speakingVolumeGain = attributes["speakingVolumeGain"].toString().toDouble()
+                    TtsRequest(
+                        ttsConfig,
+                        ((if (item.ssml != null) item.ssml else item.text) ?: "").replace(Regex("#(\\w+)")) {
+                            // command processing
+                            when (it.groupValues[1]) {
+                                //TO BE REMOVED version command is now handled by a global intent in Basic Dialogue classes for each specific localization
+                                "version" -> {
+                                    item.text = "Server version ${AppConfig.version}, environment ${AppConfig.instance.get("namespace", "unknown")}."
+                                    item.ttsConfig = Voice.Audrey.config
+                                    item.text!!
+                                }
+                                else -> ""
                             }
+                        },
+                        item.ssml != null,
+                        ttsStyle
+                    ).apply {
+                        with(response) {
+                            if (attributes.containsKey("speakingRate"))
+                                speakingRate = attributes["speakingRate"].toString().toDouble()
+                            if (attributes.containsKey("speakingPitch"))
+                                speakingPitch = attributes["speakingPitch"].toString().toDouble()
+                            if (attributes.containsKey("speakingVolumeGain"))
+                                speakingVolumeGain = attributes["speakingVolumeGain"].toString().toDouble()
                         }
-                if (config.tts != BotConfig.TtsType.None && !ttsRequest.text.isBlank()) {
+                    }
+                if (config.tts != BotConfig.TtsType.None && ttsRequest.text.isNotBlank()) {
                     val audio = ttsAudioService.get(
                             ttsRequest,
                             config.tts != BotConfig.TtsType.RequiredLinks,

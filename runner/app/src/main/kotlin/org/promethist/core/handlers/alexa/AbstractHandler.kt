@@ -90,7 +90,7 @@ abstract class AbstractHandler(private val predicate: Predicate<HandlerInput>) :
 
         fun addResponse(response: Response): ResponseBuilder = input.responseBuilder.apply {
             val shouldEndSession = response.sessionEnded && response.sleepTimeout == 0
-            val ssml = response.ssml(TtsConfig.Provider.Amazon)
+            val ssml = response.ssml("Amazon")
             withSpeech(ssml)
             response.items.forEach { item ->
                 // image

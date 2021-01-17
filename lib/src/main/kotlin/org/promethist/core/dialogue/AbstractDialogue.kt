@@ -17,12 +17,13 @@ import kotlin.reflect.full.isSubtypeOf
 
 abstract class AbstractDialogue : DialogueModel {
 
-    //dialogue config - must/may be overrided
+    //dialogue config - must/may be overridden
     open val buildId: String = "unknown" // used for generated classes, others are unknown
-    open val language get() = TtsConfig.forVoice(voice)?.locale.language ?: error("unknown voice")
+    open val language: String = "en"
     open val sttMode: SttConfig.Mode? = null
     open val background: String? = null
-    open val voice = Voice.Grace
+    open val voice: Voice? = null
+    open val ttsConfig: TtsConfig get() = voice?.config ?: Voice.forLanguage(language).config
     val locale by lazy { Locale(language) }
 
     abstract val clientLocation: Location

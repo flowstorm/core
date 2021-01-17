@@ -213,10 +213,10 @@ class DialogueManager : Component {
                                 val background = node.dialogue.background ?: node.background
                                 if (node.dialogue is BasicDialogue) {
                                     AbstractDialogue.run(context, node) {
-                                        (node.dialogue as BasicDialogue).addResponseItem(text, image = node.image, audio = node.audio, video = node.video, code = node.code, background = background, repeatable = node.isRepeatable)
+                                        (node.dialogue as BasicDialogue).addResponseItem(text, node.image, node.audio, node.video, node.code, background, repeatable = node.isRepeatable)
                                     }
                                 } else {
-                                    turn.addResponseItem(text, image = node.image, audio = node.audio, video = node.video, code = node.code, background = background, repeatable = node.isRepeatable)
+                                    turn.addResponseItem(text, node.image, node.audio, node.video, node.code, background, repeatable = node.isRepeatable)
                                 }
                             }
                             is AbstractDialogue.Command -> {

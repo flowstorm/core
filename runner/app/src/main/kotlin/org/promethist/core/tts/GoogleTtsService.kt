@@ -2,7 +2,6 @@ package org.promethist.core.tts
 
 import com.google.cloud.texttospeech.v1.*
 import io.sentry.Sentry
-import org.promethist.core.model.TtsConfig
 
 object GoogleTtsService: TtsService {
 
@@ -17,10 +16,9 @@ object GoogleTtsService: TtsService {
         }
 
         // Build the voice request, select the language code ("en-US") and the ssml voice gender ("neutral")
-        val config = TtsConfig.forVoice(ttsRequest.voice)
         val voice = VoiceSelectionParams.newBuilder()
-                .setName(config.name)
-                .setLanguageCode(config.locale.toLanguageTag())
+                .setName(ttsRequest.config.name)
+                .setLanguageCode(ttsRequest.config.locale.toLanguageTag())
                 //.setSsmlGender(SsmlVoiceGender.MALE)
                 .build()
 
