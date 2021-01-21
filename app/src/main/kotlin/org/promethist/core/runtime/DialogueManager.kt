@@ -147,7 +147,7 @@ class DialogueManager : Component {
                                     frame.copy(nodeId = transition.node.id)
                                 } else {
                                     markRequiredEntities(frame, context)
-                                    // intent recognition
+                                    // process the rest of the pipeline components
                                     processPipeline()
 
                                     if (context.input.action != null) {
