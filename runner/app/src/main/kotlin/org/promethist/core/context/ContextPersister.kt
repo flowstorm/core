@@ -45,7 +45,7 @@ class ContextPersister {
         context.session.turns.add(context.turn)
         context.session.datetime = Date()
         context.communities.values.forEach {
-            context.communityStorage.update(it)
+            context.communityRepository.update(it)
         }
 
 

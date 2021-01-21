@@ -4,6 +4,7 @@ import org.promethist.core.*
 import org.promethist.core.model.IntentModel
 import org.promethist.core.dialogue.AbstractDialogue
 import org.promethist.core.dialogue.BasicDialogue
+import org.promethist.core.repository.DialogueEventRepository
 import org.promethist.util.LoggerDelegate
 import org.slf4j.Logger
 import javax.inject.Inject
@@ -91,10 +92,10 @@ class DialogueManager : Component {
     }
 
     private fun getActionFrame(frame: Frame, context: Context): Frame {
-        val node = getNode(frame, context) as AbstractDialogue.UserInput
+        val node = getNode(frame, context) as? AbstractDialogue.UserInput
         val dialogue = dialogueFactory.get(frame)
 
-        val actions = node.actions + dialogue.globalActions
+        val actions = (node?.actions ?: emptyArray()) + dialogue.globalActions
         actions.firstOrNull { it.action == context.input.action }?.let {
             return frame.copy(nodeId = it.id)
         }
@@ -109,7 +110,7 @@ class DialogueManager : Component {
         if (context.input.action == "outofdomain") {
             return getIntentFrame(context.intentModels as List<IntentModel>, frame, context)
         }
-        error("Action ${context.input.action} not found in dialogue.")
+        error("Action ${context.input.action} not found in dialogue")
     }
 
     private fun getNode(frame: Frame, context: Context): AbstractDialogue.Node =
@@ -124,112 +125,134 @@ class DialogueManager : Component {
         val processedNodes = mutableListOf<AbstractDialogue.Node>()
         try {
             loop@ while (true) {
-                if (processedNodes.size >= 40)
-                    error("Too many steps (over 40) in dialogue turn (${processedNodes.size})")
-                node = getNode(frame, context)
-                if (node !is AbstractDialogue.UserInput && processedNodes.contains(node))
-                    error("$node is repeating in turn")
-                processedNodes.add(node)
-                if (node.id < 0)
-                    turn.attributes[AbstractDialogue.defaultNamespace].set("nodeId", node.id)
+                try {
+                    if (processedNodes.size >= 40)
+                        error("Too many steps (over 40) in dialogue turn (${processedNodes.size})")
+                    node = getNode(frame, context)
+                    if (node !is AbstractDialogue.UserInput && processedNodes.contains(node))
+                        error("$node is repeating in turn")
+                    processedNodes.add(node)
+                    if (node.id < 0)
+                        turn.attributes[AbstractDialogue.defaultNamespace].set("nodeId", node.id)
 
-                when (node) {
-                    is AbstractDialogue.UserInput -> {
-                        if (shouldProcessUserInput(processedNodes, node)) {
-                            //first user input in turn
-                            val intentModels = getIntentModels(frame, context)
-                            context.intentModels = intentModels
+                    when (node) {
+                        is AbstractDialogue.UserInput -> {
+                            if (shouldProcessUserInput(processedNodes, node)) {
+                                //first user input in turn
+                                val intentModels = getIntentModels(frame, context)
+                                context.intentModels = intentModels
 
-                            val transition = node.process(context)
-                            frame = if (transition != null) {
-                                frame.copy(nodeId = transition.node.id)
-                            } else {
-                                markRequiredEntities(frame, context)
-                                // intent recognition
-                                processPipeline()
-
-                                if (context.input.action != null) {
-                                    getActionFrame(frame, context)
+                                val transition = node.process(context)
+                                frame = if (transition != null) {
+                                    frame.copy(nodeId = transition.node.id)
                                 } else {
-                                    getIntentFrame(intentModels, frame, context)
+                                    markRequiredEntities(frame, context)
+                                    // intent recognition
+                                    processPipeline()
+
+                                    if (context.input.action != null) {
+                                        getActionFrame(frame, context)
+                                    } else {
+                                        getIntentFrame(intentModels, frame, context)
+                                    }
                                 }
+                            } else {
+                                //last user input in turn
+                                addExpectedPhrases(context, node.expectedPhrases, node.intents.asList())
+                                context.turn.sttMode = node.sttMode ?: node.dialogue.sttMode
+                                frame.copy(nodeId = node.id).let {
+                                    turn.endFrame = it
+                                    session.dialogueStack.push(it)
+                                }
+                                break@loop
                             }
-                        } else {
-                            //last user input in turn
-                            addExpectedPhrases(context, node.expectedPhrases, node.intents.asList())
-                            context.turn.sttMode = node.sttMode ?: node.dialogue.sttMode
-                            frame.copy(nodeId = node.id).let {
+                        }
+                        is AbstractDialogue.Function -> {
+                            val transition = node.exec(context)
+                            frame = frame.copy(nodeId = transition.node.id)
+                        }
+                        is AbstractDialogue.StopSession -> {
+                            session.dialogueStack.clear()
+                            break@loop
+                        }
+                        is AbstractDialogue.Sleep -> {
+                            frame.copy(nodeId = node.next.id).let {
                                 turn.endFrame = it
                                 session.dialogueStack.push(it)
                             }
+                            sleepTimeout = node.timeout
                             break@loop
                         }
-                    }
-                    is AbstractDialogue.Function -> {
-                        val transition = node.exec(context)
-                        frame = frame.copy(nodeId = transition.node.id)
-                    }
-                    is AbstractDialogue.StopSession -> {
-                        session.dialogueStack.clear()
-                        break@loop
-                    }
-                    is AbstractDialogue.Sleep -> {
-                        frame.copy(nodeId = node.next.id).let {
-                            turn.endFrame = it
-                            session.dialogueStack.push(it)
-                        }
-                        sleepTimeout = node.timeout
-                        break@loop
-                    }
-                    is AbstractDialogue.GoBack,
-                    is AbstractDialogue.Repeat -> {
-                        if (session.dialogueStack.isEmpty()) {
-                            break@loop
-                        } else {
-                            frame = session.dialogueStack.pop()
-                            if (node is AbstractDialogue.Repeat || (node as AbstractDialogue.GoBack).repeat) {
-                                session.turns.last { it.endFrame == frame }
-                                        .responseItems.forEach { if (it.repeatable) turn.responseItems.add(it) }
-                            }
-                        }
-                    }
-                    is AbstractDialogue.StopDialogue -> {
-                        while (frame.id == node.dialogue.dialogueId) {
+                        is AbstractDialogue.GoBack,
+                        is AbstractDialogue.Repeat -> {
                             if (session.dialogueStack.isEmpty()) {
                                 break@loop
-                            }
-                            frame = session.dialogueStack.pop()
-                        }
-                    }
-                    is AbstractDialogue.SubDialogue -> {
-                        val args = node.getConstructorArgs(context)
-                        session.dialogueStack.push(frame.copy(nodeId = node.next.id))
-                        frame = Frame(node.dialogueId, session.sessionId, args, 0)
-                    }
-                    is AbstractDialogue.TransitNode -> {
-                        when (node) {
-                            is AbstractDialogue.Response -> {
-                                val text = node.getText(context)
-                                val background = node.dialogue.background ?: node.background
-                                if (node.dialogue is BasicDialogue) {
-                                    AbstractDialogue.run(context, node) {
-                                        (node.dialogue as BasicDialogue).addResponseItem(text, node.image, node.audio, node.video, node.code, background, repeatable = node.isRepeatable)
-                                    }
-                                } else {
-                                    turn.addResponseItem(text, node.image, node.audio, node.video, node.code, background, repeatable = node.isRepeatable)
+                            } else {
+                                frame = session.dialogueStack.pop()
+                                if (node is AbstractDialogue.Repeat || (node as AbstractDialogue.GoBack).repeat) {
+                                    session.turns.last { it.endFrame == frame }
+                                        .responseItems.forEach { if (it.repeatable) turn.responseItems.add(it) }
                                 }
                             }
-                            is AbstractDialogue.Command -> {
-                                turn.addResponseItem('#' + node.command, code = node.code, repeatable = false)
-                            }
-                            is AbstractDialogue.GlobalIntent,
-                            is AbstractDialogue.GlobalAction -> {
-                                if (session.turns.isNotEmpty()) //it is empty only when GlobalIntent/Action is reached in first turn(UInput right after start)
-                                    session.dialogueStack.push(session.turns.last().endFrame)
+                        }
+                        is AbstractDialogue.StopDialogue -> {
+                            while (frame.id == node.dialogue.dialogueId) {
+                                if (session.dialogueStack.isEmpty()) {
+                                    break@loop
+                                }
+                                frame = session.dialogueStack.pop()
                             }
                         }
-                        frame = frame.copy(nodeId = node.next.id)
+                        is AbstractDialogue.SubDialogue -> {
+                            val args = node.getConstructorArgs(context)
+                            session.dialogueStack.push(frame.copy(nodeId = node.next.id))
+                            frame = Frame(node.dialogueId, session.sessionId, args, 0)
+                        }
+                        is AbstractDialogue.TransitNode -> {
+                            when (node) {
+                                is AbstractDialogue.Response -> {
+                                    val text = node.getText(context)
+                                    val background = node.dialogue.background ?: node.background
+                                    if (node.dialogue is BasicDialogue) {
+                                        AbstractDialogue.run(context, node) {
+                                            (node.dialogue as BasicDialogue).addResponseItem(
+                                                text,
+                                                node.image,
+                                                node.audio,
+                                                node.video,
+                                                node.code,
+                                                background,
+                                                repeatable = node.isRepeatable
+                                            )
+                                        }
+                                    } else {
+                                        turn.addResponseItem(
+                                            text,
+                                            node.image,
+                                            node.audio,
+                                            node.video,
+                                            node.code,
+                                            background,
+                                            repeatable = node.isRepeatable
+                                        )
+                                    }
+                                }
+                                is AbstractDialogue.Command -> {
+                                    turn.addResponseItem('#' + node.command, code = node.code, repeatable = false)
+                                }
+                                is AbstractDialogue.GlobalIntent,
+                                is AbstractDialogue.GlobalAction -> {
+                                    if (session.turns.isNotEmpty()) //it is empty only when GlobalIntent/Action is reached in first turn(UInput right after start)
+                                        session.dialogueStack.push(session.turns.last().endFrame)
+                                }
+                            }
+                            frame = frame.copy(nodeId = node.next.id)
+                        }
                     }
+                } catch (e: AbstractDialogue.DialogueScriptException) {
+                    context.createDialogueEvent(e)
+                    context.input.action = "error"
+                    frame = getActionFrame(frame, context)
                 }
             }
         } finally {

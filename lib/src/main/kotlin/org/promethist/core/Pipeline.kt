@@ -8,5 +8,5 @@ interface Pipeline {
 
     fun process(context: Context): Context
 
-    class PipelineComponentFailed(component: Component, cause: Throwable) : Throwable("Pipeline component failed: ${component::class.simpleName}", cause)
+    class PipelineComponentFailure(component: Component, cause: Throwable) : Throwable("Pipeline component ${component::class.simpleName} failed", cause)
 }

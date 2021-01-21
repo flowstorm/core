@@ -104,34 +104,9 @@ class CoreResourceImpl : CoreResource {
             contextPersister.persist(processedContext)
             return processedContext
         } catch (e: Throwable) {
-            val messages = mutableListOf<String>()
-            var c: Throwable? = e
-            while (c != null) {
-                messages.add(c::class.simpleName + ":" + c.message)
-                c = c.cause
-            }
-            val text = messages.joinToString(" \nCAUSED BY: ")
-            with (context) {
-                dialogueEvent = DialogueEvent(
-                        datetime = Date(),
-                        type = DialogueEvent.Type.ServerError,
-                        user = user,
-                        sessionId = session.sessionId,
-                        properties = session.properties,
-                        applicationName = application.name,
-                        dialogue_id = application.dialogue_id,
-                        //TODO Replace with actual node ID after node sequence is added in Context
-                        nodeId = 0,
-                        text = text,
-                        space_id = session.space_id,
-                )
-                if (e !is AbstractDialogue.DialogueScriptException) {
-                    monitor.capture(e)
-                }
-            }
+            context.createDialogueEvent(e)
+            monitor.capture(e)
             throw e
-        } finally {
-            if (context.dialogueEvent != null) dialogueEventResource.create(context.dialogueEvent!!)
         }
     }
 
@@ -146,14 +121,14 @@ class CoreResourceImpl : CoreResource {
                     ContentRequest(deviceId, token, key, input.locale.language)
             )
             Session(
-                    sessionId = sessionId,
-                    initiationId = initiationId,
-                    device = contentResponse.device,
-                    user = contentResponse.user,
-                    test = contentResponse.test,
-                    application = contentResponse.application,
-                    properties = Dynamic(contentResponse.sessionProperties),
-                    space_id = contentResponse.space._id,
+                sessionId = sessionId,
+                initiationId = initiationId,
+                device = contentResponse.device,
+                user = contentResponse.user,
+                test = contentResponse.test,
+                application = contentResponse.application,
+                properties = Dynamic(contentResponse.sessionProperties),
+                space_id = contentResponse.space._id
             )
         }
         sessionResource.update(session)
@@ -185,15 +160,7 @@ class CoreResourceImpl : CoreResource {
             else ->
                 text = (e.cause?:e).message
         }
-        val messages = mutableListOf<String>()
-
-        var c: Throwable? = e
-        while (c != null) {
-            messages.add(c::class.simpleName + ":" + c.message)
-            c = c.cause
-        }
-
-        dialogueLog.logger.error(messages.joinToString("\nCAUSED BY: "))
+        dialogueLog.logger.error(DialogueEvent.toText(e))
 
         return Response(request.input.locale, mutableListOf<Response.Item>().apply {
             if (text?.startsWith("admin:NotFoundException: Device") == true) {
