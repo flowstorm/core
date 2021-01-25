@@ -16,7 +16,7 @@ stages:
     NAME: NAME
   only:
     refs:
-      - develop
+      - master
       - tags
   script:
     - cd $DIR
@@ -50,11 +50,11 @@ stages:
     NAME: NAME
   only:
     refs:
-      - develop
+      - master
   script:
     - cd $DIR
     - mvn dokka:dokka
-    - rsync -arv --delete ./target/dokka/$NAME /ext/cluster/default/develop/site/default/apidoc/
+    - rsync -arv --delete ./target/dokka/$NAME /ext/cluster/default/preview/site/default/apidoc/
 
 #
 # JOBS
@@ -83,11 +83,11 @@ build snaphot packages:
   image: registry.gitlab.com/promethist/system/builder
   only:
     refs:
-      - develop
+      - master
   artifacts:
     untracked: true
   script:
-    - mvn -B deploy -Dapi.basedomain=develop.promethist.com
+    - mvn -B deploy -Dapi.basedomain=preview.promethist.com
 
 #
 # lib
