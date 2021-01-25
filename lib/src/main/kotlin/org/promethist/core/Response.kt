@@ -27,35 +27,36 @@ data class Response(
             var audio: String? = null,
             var code: String? = null,
             var background: String? = null,
-            var voice: Voice? = null,
+            var ttsConfig: TtsConfig? = null,
             var repeatable: Boolean = true
     ) {
         fun text() = text ?: ""
-        fun ssml(provider: TtsConfig.Provider) = ssml(ssml ?: text(), provider)
+        fun ssml(provider: String) = ssml(ssml ?: text(), provider)
     }
 
     fun text() = items.joinToString("\n") { it.text ?: "..." }.trim()
-    fun ssml(provider: TtsConfig.Provider) =
+    fun ssml(provider: String) =
             ssml(items.joinToString("\n") { it.ssml ?: it.text ?: "" }.trim(), provider)
 
     companion object {
 
-        fun ssml(ssml: String, provider: TtsConfig.Provider): String {
+        fun ssml(ssml: String, provider: String): String {
+            val voices = Voice.values()
             val replacedSsml = ssml.replace(Regex("<voice.*?name=\"(.*?)\">(.*)</voice>")) {
                 var name = it.groupValues[1]
-                for (i in TtsConfig.values.indices) {
-                    val config = TtsConfig.values[i]
-                    if (name == config.voice.name) {
-                        if (config.provider == provider) {
-                            name = config.name
+                for (i in voices.indices) {
+                    val voice = voices[i]
+                    if (name == voice.name) {
+                        if (voice.config.provider == provider) {
+                            name = voice.name
                         } else {
-                            for (i2 in TtsConfig.values.indices) {
-                                val config2 = TtsConfig.values[i2]
-                                if (config2.provider == provider && config2.gender == config.gender && config2.locale == config.locale) {
-                                    name = if (provider == TtsConfig.Provider.Google) // Google only supports switching gender
-                                        config2.gender.name.toLowerCase()
+                            for (i2 in voices.indices) {
+                                val config = voices[i2].config
+                                if (config.provider == provider && config.gender == config.gender && config.locale == config.locale) {
+                                    name = if (provider == "Google") // Google only supports switching gender
+                                        config.gender.name.toLowerCase()
                                     else
-                                        config2.name
+                                        config.name
                                     break
                                 }
                             }
@@ -63,7 +64,7 @@ data class Response(
                         break
                     }
                 }
-                """<voice ${if (provider == TtsConfig.Provider.Google) "gender" else "name"}="$name">${it.groupValues[2]}</voice>"""
+                """<voice ${if (provider == "Google") "gender" else "name"}="$name">${it.groupValues[2]}</voice>"""
             }
             val finalSsml = if (replacedSsml.startsWith("<speak>"))
                 replacedSsml

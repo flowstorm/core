@@ -1,7 +1,7 @@
 package org.promethist.core
 
 import org.glassfish.hk2.api.IterableProvider
-import org.promethist.core.Pipeline.PipelineComponentFailed
+import org.promethist.core.Pipeline.PipelineComponentFailure
 import org.promethist.util.LoggerDelegate
 import java.util.*
 import javax.inject.Inject
@@ -21,8 +21,8 @@ class PipelineFactory {
                 try {
                     processedContext = component.process(processedContext)
                 } catch (e: Throwable) {
-                    if (e is PipelineComponentFailed) throw e
-                    throw PipelineComponentFailed(component, e)
+                    if (e is PipelineComponentFailure) throw e
+                    throw PipelineComponentFailure(component, e)
                 }
             }
             return processedContext

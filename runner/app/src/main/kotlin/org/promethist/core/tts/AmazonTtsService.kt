@@ -8,7 +8,6 @@ import com.amazonaws.services.polly.model.OutputFormat
 import com.amazonaws.services.polly.model.SynthesizeSpeechRequest
 import com.amazonaws.services.polly.model.TextType
 import org.promethist.common.AppConfig
-import org.promethist.core.model.TtsConfig
 import org.promethist.core.model.Voice
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -24,14 +23,15 @@ object AmazonTtsService: TtsService {
             ClientConfiguration())
 
     override fun speak(ttsRequest: TtsRequest): ByteArray {
-        val ttsConfig = TtsConfig.forVoice(ttsRequest.voice)
         val buf = ByteArrayOutputStream()
         val request = SynthesizeSpeechRequest()
                 .withText(ttsRequest.text)
                 .withTextType(if (ttsRequest.isSsml) TextType.Ssml else TextType.Text)
-                .withVoiceId(ttsConfig.name)
+                .withVoiceId(ttsRequest.config.name)
                 .withOutputFormat(OutputFormat.Mp3)
-        request.engine = "neural"
+        ttsRequest.config.engine?.let {
+            request.engine = it
+        }
         val result = client.synthesizeSpeech(request)
         result.audioStream.copyTo(buf)
         buf.close()
@@ -40,7 +40,7 @@ object AmazonTtsService: TtsService {
 
     @JvmStatic
     fun main(args: Array<String>) {
-        val ttsRequest = TtsRequest(Voice.Audrey,
+        val ttsRequest = TtsRequest(Voice.Audrey.config,
                 """<speak><amazon:domain name="news">There has been a concerted effort among aides and allies to get President Donald Trump to stop conducting the daily coronavirus briefings, multiple sources tell CNN.</amazon:domain></speak>""",
                 true
         )

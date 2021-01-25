@@ -32,7 +32,7 @@ class PromethistApp : ActionsSdkApp() {
         fun addResponse(response: Response) = getResponseBuilder(request).apply {
             add(SimpleResponse().apply {
                 displayText = response.text()
-                ssml = response.ssml(TtsConfig.Provider.Google)
+                ssml = response.ssml("Google")
             })
             response.items.forEach {
                 if (it.image != null) {

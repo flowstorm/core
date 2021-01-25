@@ -2,12 +2,8 @@ package org.promethist.core.tts
 
 import org.promethist.common.AppConfig
 import org.promethist.common.RestClient
-import org.promethist.core.model.TtsConfig
-import org.promethist.core.model.Voice
 import org.promethist.util.LoggerDelegate
-import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import java.io.FileOutputStream
 import java.io.InputStream
 import javax.ws.rs.client.Entity
 
@@ -20,7 +16,7 @@ object VoiceryTtsService : TtsService {
         val req = mutableMapOf(
                 "text" to ttsRequest.text,
                 "ssml" to ttsRequest.isSsml,
-                "speaker" to TtsConfig.forVoice(ttsRequest.voice).name,
+                "speaker" to ttsRequest.config.name,
                 "sampleRate" to ttsRequest.sampleRate
         ).apply {
             if (ttsRequest.style.isNotBlank())
@@ -42,10 +38,10 @@ object VoiceryTtsService : TtsService {
 
     @JvmStatic
     fun main(args: Array<String>) {
-        val ttsRequest = TtsRequest(Voice.Victoria,
+        /*val ttsRequest = TtsRequest(Voice.Victoria.config,
                 """<speak>Hello world from Voicery! How are you?</speak>""",
                 true
         )
-        ByteArrayInputStream(speak(ttsRequest)).copyTo(FileOutputStream("/Users/tomas.zajicek/Downloads/voicery.mp3"))
+        ByteArrayInputStream(speak(ttsRequest)).copyTo(FileOutputStream("/Users/tomas.zajicek/Downloads/voicery.mp3"))*/
     }
 }

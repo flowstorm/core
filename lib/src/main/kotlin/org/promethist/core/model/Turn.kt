@@ -26,7 +26,10 @@ data class Turn(
 
     val time: DateTime get() = DateTime.ofInstant(datetime.toInstant(), ZoneId.systemDefault())
 
-    fun addResponseItem(text: String?, image: String? = null, audio: String? = null, video: String? = null, code: String? = null, background: String? = null, repeatable: Boolean = true, voice: Voice? = null) {
+    fun addResponseItem(text: String?, image: String? = null, audio: String? = null, video: String? = null, code: String? = null, background: String? = null, repeatable: Boolean = true, voice: Voice?) =
+        addResponseItem(text, image, audio, video, code, background, repeatable, voice?.config)
+
+    fun addResponseItem(text: String?, image: String? = null, audio: String? = null, video: String? = null, code: String? = null, background: String? = null, repeatable: Boolean = true, ttsConfig: TtsConfig? = null) {
         val plainText = text?.replace(Regex("\\<.*?\\>"), "")
         val item = Response.Item(plainText,
                 ssml = if (text != plainText) text else null,
@@ -36,7 +39,7 @@ data class Turn(
                 code = code,
                 background = background,
                 repeatable = repeatable,
-                voice = voice
+                ttsConfig = ttsConfig
         )
         item.ssml = item.ssml?.replace(Regex("<image.*?src=\"(.*?)\"[^\\>]+>")) {
             item.image = it.groupValues[1]

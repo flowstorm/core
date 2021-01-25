@@ -1,6 +1,8 @@
 package org.promethist.core
 
 import java.util.*
+import kotlin.reflect.KType
+import kotlin.reflect.full.createType
 
 interface Pipeline {
 
@@ -8,5 +10,9 @@ interface Pipeline {
 
     fun process(context: Context): Context
 
-    class PipelineComponentFailed(component: Component, cause: Throwable) : Throwable("Pipeline component failed: ${component::class.simpleName}", cause)
+    fun removeComponent(type:KType) {
+        components.removeIf { it::class.createType() == type }
+    }
+
+    class PipelineComponentFailure(component: Component, cause: Throwable) : Throwable("Pipeline component ${component::class.simpleName} failed", cause)
 }

@@ -2,6 +2,7 @@ package org.promethist.core.nlp
 
 import org.promethist.core.Component
 import org.promethist.core.Context
+import kotlin.reflect.full.createType
 
 class Action : Component {
     override fun process(context: Context): Context {
@@ -11,7 +12,11 @@ class Action : Component {
 
         if (text.matches("$ACTION_PREFIX([\\w\\-]+)".toRegex())) {
             context.input.action  = text.substringAfter(ACTION_PREFIX)
-            return context //do not process the rest of pipeline
+
+            //when action is detected, we remove illusionist from pipeline
+            context.pipeline.removeComponent(Illusionist::class.createType())
+
+            return context
         }
 
         return context.pipeline.process(context)

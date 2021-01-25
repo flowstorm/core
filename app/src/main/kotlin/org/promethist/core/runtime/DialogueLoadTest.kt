@@ -47,6 +47,7 @@ object DialogueLoadTest {
                 logger,
                 dialogue.locale,
                 SimpleCommunityStorage(),
+                SimpleDialogueEventRepository(),
                 StdOutSender()
         )
 
