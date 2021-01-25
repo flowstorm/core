@@ -1,5 +1,8 @@
 package org.promethist.core
 
+import com.amazonaws.client.builder.AwsClientBuilder
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder
+import com.amazonaws.services.dynamodbv2.document.DynamoDB
 import com.fasterxml.jackson.core.Version
 import com.fasterxml.jackson.databind.module.SimpleAbstractTypeResolver
 import com.fasterxml.jackson.databind.module.SimpleModule
@@ -8,6 +11,7 @@ import com.mongodb.client.MongoDatabase
 import org.glassfish.hk2.api.Factory
 import org.glassfish.hk2.api.PerLookup
 import org.glassfish.hk2.utilities.binding.AbstractBinder
+import org.glassfish.jersey.client.JerseyClientBuilder.createClient
 import org.glassfish.jersey.process.internal.RequestScoped
 import org.litote.kmongo.KMongo
 import org.promethist.common.*
@@ -24,8 +28,12 @@ import org.promethist.core.model.SpaceImpl
 import org.promethist.common.monitoring.StdOutMonitor
 import org.promethist.core.nlp.*
 import org.promethist.core.provider.LocalFileStorage
+import org.promethist.core.repository.EventRepository
 import org.promethist.core.repository.ProfileRepository
-import org.promethist.core.repository.mongo.MongoProfileRepository
+import org.promethist.core.repository.SessionRepository
+import org.promethist.core.repository.dynamodb.DynamoEventRepository
+import org.promethist.core.repository.dynamodb.DynamoProfileRepository
+import org.promethist.core.repository.dynamodb.DynamoSessionRepository
 import org.promethist.core.resources.*
 import org.promethist.core.runtime.*
 import org.promethist.core.servlets.AlexaSkillServlet
@@ -56,9 +64,7 @@ open class RunnerApplication : JerseyApplication() {
 
                 //we only need to register resource implementations when they are required to be injected into another class
                 bind(CommunityResourceImpl::class.java).to(CommunityResource::class.java)
-                bind(SessionResourceImpl::class.java).to(SessionResource::class.java)
                 bind(DevicePairingResourceImpl::class.java).to(DevicePairingResource::class.java)
-                bind(DialogueEventResourceImpl::class.java).to(DialogueEventResource::class.java)
 
                 bind(TtsAudioService::class.java).to(TtsAudioService::class.java).`in`(Singleton::class.java)
 
@@ -90,11 +96,26 @@ open class RunnerApplication : JerseyApplication() {
 
                 //TODO replace by object repository
                 bindTo(MongoDatabase::class.java,
-                        KMongo.createClient(ConnectionString(AppConfig.instance["database.url"]))
+                        KMongo.createClient(ConnectionString(AppConfig.instance["database.mongo.url"]))
                                 .getDatabase(AppConfig.instance["name"] + "-" + dsuffix))
-                bind(MongoProfileRepository::class.java).to(ProfileRepository::class.java)
+                bindTo(DynamoDB::class.java,
+                    DynamoDB(AmazonDynamoDBClientBuilder
+                        .standard()
+                        .withEndpointConfiguration(AwsClientBuilder.EndpointConfiguration(
+                            AppConfig.instance["database.dynamo.url"],
+                            AppConfig.instance["database.dynamo.region"]))
+                        .build()))
 
                 this.bindAsContract(DialogueLog::class.java).`in`(RequestScoped::class.java)
+
+                bind(ProfileResourceImpl::class.java).to(ProfileResource::class.java)
+                bind(DynamoProfileRepository::class.java).to(ProfileRepository::class.java)
+
+                bind(SessionResourceImpl::class.java).to(SessionResource::class.java)
+                bind(DynamoSessionRepository::class.java).to(SessionRepository::class.java)
+
+                bind(DialogueEventResourceImpl::class.java).to(DialogueEventResource::class.java)
+                bind(DynamoEventRepository::class.java).to(EventRepository::class.java)
 
                 bind(KMongoIdParamConverterProvider::class.java).to(ParamConverterProvider::class.java).`in`(Singleton::class.java)
                 bindFactory(QueryValueFactory::class.java).to(Query::class.java).`in`(PerLookup::class.java)
