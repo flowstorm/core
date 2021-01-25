@@ -8,6 +8,8 @@ import org.promethist.core.resources.FileResource
 
 open class BuilderApplication : JerseyApplication() {
 
+    val dataspace = AppConfig.instance.get("dsuffix", AppConfig.instance["namespace"])
+
     init {
         AppConfig.instance["name"] = "core-builder"
 
@@ -16,7 +18,7 @@ open class BuilderApplication : JerseyApplication() {
 
                 bindAsContract(DialogueBuilder::class.java)
 
-                val illusionistTrainingUrl = ServiceUrlResolver.getEndpointUrl("illusionist-training")
+                val illusionistTrainingUrl = ServiceUrlResolver.getEndpointUrl("illusionist-training", namespace = dataspace)
                 val illusionistBuilder = IllusionistModelBuilder(
                     illusionistTrainingUrl,
                     AppConfig.instance["illusionist.apiKey"],

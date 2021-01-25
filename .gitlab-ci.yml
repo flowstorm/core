@@ -73,7 +73,7 @@ build release packages:
     untracked: true
   script:
     - mvn -B versions:set -DnewVersion=$CI_COMMIT_REF_NAME
-    - mvn -B deploy -Dapi.basedomain=promethist.com
+    - mvn -B deploy -Dapi.basedomain=promethist.com -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false
 
 #
 # build all snaphot packages
@@ -87,7 +87,7 @@ build snaphot packages:
   artifacts:
     untracked: true
   script:
-    - mvn -B deploy -Dapi.basedomain=preview.promethist.com
+    - mvn -B deploy -Dapi.basedomain=preview.promethist.com -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false
 
 #
 # lib
