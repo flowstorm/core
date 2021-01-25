@@ -8,7 +8,7 @@ import org.promethist.core.type.MutablePropertyMap
 import java.util.*
 
 data class DialogueEvent(
-    val _id: Id<DialogueEvent> = newId(),
+    override val _id: Id<DialogueEvent> = newId(),
     var datetime: Date = Date(),
     val type: Type,
     val user: User,
@@ -19,7 +19,7 @@ data class DialogueEvent(
     val properties: MutablePropertyMap = mutableMapOf(),
     val text: String,
     val space_id: Id<Space> = NullId()
-) {
+) : Entity<DialogueEvent>{
     enum class Type { ServerError, UserError, UserComment }
 
     constructor(context: Context, dialogue: AbstractDialogue, type: Type, text: String) : this(

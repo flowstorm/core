@@ -201,7 +201,7 @@ abstract class AmazonAlexaHandler(private val predicate: Predicate<HandlerInput>
     companion object {
 
         val database: MongoDatabase by lazy {
-            KMongo.createClient(ConnectionString(AppConfig.instance["database.url"]))
+            KMongo.createClient(ConnectionString(AppConfig.instance["database.mongo.url"]))
                 .getDatabase(AppConfig.instance["name"] + "-" + AppConfig.instance.get("dsuffix", AppConfig.instance["namespace"]))
         }
 
