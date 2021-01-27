@@ -8,7 +8,6 @@ import org.promethist.core.context.ContextPersister
 import org.promethist.core.dialogue.AbstractDialogue
 import org.promethist.core.model.*
 import org.promethist.core.model.metrics.Metric
-import org.promethist.core.repository.SessionRepository
 import org.promethist.core.resources.ContentDistributionResource.ContentRequest
 import org.promethist.core.runtime.DialogueLog
 import org.promethist.core.type.Dynamic
