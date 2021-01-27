@@ -192,7 +192,7 @@ abstract class AbstractHandler(private val predicate: Predicate<HandlerInput>) :
     companion object {
 
         val database: MongoDatabase by lazy {
-            KMongo.createClient(ConnectionString(AppConfig.instance["database.mongo.url"]))
+            KMongo.createClient(ConnectionString(AppConfig.instance["database.url"]))
                 .getDatabase(AppConfig.instance["name"] + "-" + AppConfig.instance.get("dsuffix", AppConfig.instance["namespace"]))
         }
 
