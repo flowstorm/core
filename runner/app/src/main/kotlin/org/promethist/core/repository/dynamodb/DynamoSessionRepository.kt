@@ -18,7 +18,7 @@ import org.promethist.core.repository.SessionRepository
 
 class DynamoSessionRepository : DynamoAbstractEntityRepository<Session>(), SessionRepository {
 
-    private val sessionsTable by lazy { database.getTable("session") }
+    private val sessionsTable by lazy { database.getTable(tableName("session")) }
 
     override fun getSessions(query: Query): List<Session> {
         val spec = ScanSpec()

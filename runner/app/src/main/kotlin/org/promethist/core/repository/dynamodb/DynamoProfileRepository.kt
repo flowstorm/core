@@ -19,7 +19,7 @@ import kotlin.collections.toList
 
 class DynamoProfileRepository : DynamoAbstractEntityRepository<Profile>(), ProfileRepository {
 
-    private val profilesTable by lazy { database.getTable("profile") }
+    private val profilesTable by lazy { database.getTable(tableName("profile")) }
 
     override fun findBy(userId: Id<User>, spaceId: Id<Space>): Profile? {
         val spec = ScanSpec()

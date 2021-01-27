@@ -14,7 +14,7 @@ import org.promethist.core.repository.EventRepository
 
 class DynamoEventRepository : DynamoAbstractEntityRepository<DialogueEvent>(), EventRepository {
 
-    private val dialogueEventTable by lazy { database.getTable("dialogueEvent") }
+    private val dialogueEventTable by lazy { database.getTable(tableName("dialogueEvent")) }
 
     override fun getDialogueEvents(query: Query): List<DialogueEvent> {
         val spec = ScanSpec()
