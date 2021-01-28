@@ -2,7 +2,10 @@
 
 package org.promethist.core.repository.dynamodb
 
+import com.amazonaws.services.dynamodbv2.document.Item
 import com.amazonaws.services.dynamodbv2.document.KeyAttribute
+import com.amazonaws.services.dynamodbv2.document.Table
+import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec
 import com.amazonaws.services.dynamodbv2.document.utils.NameMap
 import com.amazonaws.services.dynamodbv2.document.utils.ValueMap
@@ -11,10 +14,9 @@ import org.promethist.common.ObjectUtil
 import org.promethist.common.query.DynamoDbFiltersFactory
 import org.promethist.common.query.Query
 import org.promethist.core.model.Session
+import org.promethist.core.model.Turn
 import org.promethist.core.model.User
 import org.promethist.core.repository.SessionRepository
-import org.promethist.core.repository.dynamodb.Helpers.Companion.toItem
-import org.promethist.core.repository.dynamodb.Helpers.Companion.toSession
 
 
 class DynamoSessionRepository : DynamoAbstractEntityRepository<Session>(), SessionRepository {
@@ -78,5 +80,32 @@ class DynamoSessionRepository : DynamoAbstractEntityRepository<Session>(), Sessi
         return create(entity) // it will be updated if the id is the same
     }
 
+
+    companion object {
+        fun Item.toSession(turnsTable: Table, limit: Int = 0): Session {
+            val session = ObjectUtil.defaultMapper.readValue(this.toJSON(), Session::class.java)
+            val spec: QuerySpec = QuerySpec().withKeyConditionExpression("sessionId = :v_id")
+                .withValueMap(ValueMap().withString(":v_id", session._id.toString()))
+            if (limit > 0) {
+                spec.withMaxPageSize(limit)
+            }
+            session.turns.addAll(turnsTable
+                .query(spec)
+                .map { item -> ObjectUtil.defaultMapper.readValue(item.toJSON(), Turn::class.java) })
+            return session
+        }
+
+        fun Session.toItem(turnsTable: Table): Item {
+            turns.forEach { turn ->
+                turn.sessionId = _id
+                turnsTable.putItem(Item.fromJSON(ObjectUtil.defaultMapper.writeValueAsString(turn)))
+            }
+            val turnsBackup = turns
+            turns = mutableListOf()
+            return Item.fromJSON(ObjectUtil.defaultMapper.writeValueAsString(this)).also {
+                turns = turnsBackup
+            }
+        }
+    }
 }
 
