@@ -2,7 +2,6 @@
 
 package org.promethist.core.repository.dynamodb
 
-import com.amazonaws.services.dynamodbv2.document.Item
 import com.amazonaws.services.dynamodbv2.document.KeyAttribute
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec
 import com.amazonaws.services.dynamodbv2.document.utils.NameMap
@@ -14,11 +13,14 @@ import org.promethist.common.query.Query
 import org.promethist.core.model.Session
 import org.promethist.core.model.User
 import org.promethist.core.repository.SessionRepository
+import org.promethist.core.repository.dynamodb.Helpers.Companion.toItem
+import org.promethist.core.repository.dynamodb.Helpers.Companion.toSession
 
 
 class DynamoSessionRepository : DynamoAbstractEntityRepository<Session>(), SessionRepository {
 
     private val sessionsTable by lazy { database.getTable(tableName("session")) }
+    private val turnsTable by lazy { database.getTable(tableName("turn")) }
 
     override fun getSessions(query: Query): List<Session> {
         val spec = ScanSpec()
@@ -33,7 +35,7 @@ class DynamoSessionRepository : DynamoAbstractEntityRepository<Session>(), Sessi
         spec.withNameMap(nameMap)
         spec.withValueMap(valueMap)
         spec.withMaxResultSize(query.limit)
-        return sessionsTable.scan(spec).map { item -> ObjectUtil.defaultMapper.readValue(item.toJSON(), Session::class.java) }.sortedByDescending { item -> item.datetime }
+        return sessionsTable.scan(spec).map { item -> item.toSession(turnsTable) }.sortedByDescending { item -> item.datetime }
     }
 
     override fun getForUser(userId: Id<User>): List<Session> {
@@ -41,21 +43,17 @@ class DynamoSessionRepository : DynamoAbstractEntityRepository<Session>(), Sessi
             .withFilterExpression(".#user.#id = :value")
             .withNameMap(NameMap().with("#user", "user").with("#id", "_id"))
             .withValueMap(ValueMap().withString(":value", userId.toString()))
-        return sessionsTable.scan(spec).map { item -> ObjectUtil.defaultMapper.readValue(item.toJSON(), Session::class.java) }
+        return sessionsTable.scan(spec).map { item -> item.toSession(turnsTable) }
     }
 
     override fun get(sessionId: String): Session? {
         val index = sessionsTable.getIndex("sessionId")
-        return index.query(KeyAttribute("sessionId", sessionId)).singleOrNull()?.let {
-            ObjectUtil.defaultMapper.readValue(it.toJSON(), Session::class.java)
-        }
+        return index.query(KeyAttribute("sessionId", sessionId)).singleOrNull()?.toSession(turnsTable, limit = 10)
     }
 
 
     override fun get(id: Id<Session>): Session? {
-        return sessionsTable.getItem(KeyAttribute("_id", id.toString()))?.let {
-            ObjectUtil.defaultMapper.readValue(it.toJSON(), Session::class.java)
-        }
+        return sessionsTable.getItem(KeyAttribute("_id", id.toString()))?.toSession(turnsTable)
     }
 
     override fun find(query: Query): List<Session> {
@@ -66,13 +64,13 @@ class DynamoSessionRepository : DynamoAbstractEntityRepository<Session>(), Sessi
         spec.withNameMap(nameMap)
         spec.withValueMap(valueMap)
         spec.withMaxResultSize(query.limit)
-        return sessionsTable.scan(spec).map { item -> ObjectUtil.defaultMapper.readValue(item.toJSON(), Session::class.java) }
+        return sessionsTable.scan(spec).map { item -> item.toSession(turnsTable) }
     }
 
-    override fun getAll(): List<Session> = sessionsTable.scan().toList().map { item -> ObjectUtil.defaultMapper.readValue(item.toJSON(), Session::class.java) }
+    override fun getAll(): List<Session> = sessionsTable.scan().toList().map { item -> item.toSession(turnsTable) }
 
     override fun create(session: Session): Session {
-        sessionsTable.putItem(Item.fromJSON(ObjectUtil.defaultMapper.writeValueAsString(session)))
+        sessionsTable.putItem(session.toItem(turnsTable))
         return session
     }
 
