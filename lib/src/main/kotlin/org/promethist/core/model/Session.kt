@@ -17,7 +17,7 @@ data class  Session(
         val space_id: Id<Space> = NullId(),  //nullable only for backward compatibility
         var location: Location? = null,
         val initiationId: String? = null,
-        val turns: MutableList<Turn> = mutableListOf(),
+        var turns: MutableList<Turn> = mutableListOf(),
         val metrics: MutableList<Metric> = mutableListOf(),
         val properties: MutablePropertyMap = mutableMapOf(),
         val attributes: Attributes = Attributes(),
