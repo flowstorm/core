@@ -4,32 +4,42 @@ package org.promethist.core.repository.dynamodb
 
 import com.amazonaws.services.dynamodbv2.document.Item
 import com.amazonaws.services.dynamodbv2.document.KeyAttribute
-import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec
+import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec
+import org.jetbrains.kotlin.utils.addToStdlib.ifNotEmpty
 import org.litote.kmongo.Id
 import org.promethist.common.ObjectUtil
 import org.promethist.common.query.DynamoDbFiltersFactory
 import org.promethist.common.query.Query
 import org.promethist.core.model.DialogueEvent
+import org.promethist.core.model.Session
 import org.promethist.core.repository.EventRepository
+import java.util.*
 
 class DynamoEventRepository : DynamoAbstractEntityRepository<DialogueEvent>(), EventRepository {
 
     private val dialogueEventTable by lazy { database.getTable(tableName("dialogueEvent")) }
 
     override fun getDialogueEvents(query: Query): List<DialogueEvent> {
-        val spec = ScanSpec()
-        val (filterExpression, nameMap, valueMap) = DynamoDbFiltersFactory.createFilters(query)
+        val spec = QuerySpec()
+        var datetime: Date? = null
+        if (query.seek_id != null) {
+            datetime = ObjectUtil.defaultMapper.readValue(dialogueEventTable.getItem(KeyAttribute("_id", query.seek_id)).toJSON(), Session::class.java).datetime
+        }
+        val (filterExpression, keywordExpression, nameMap, valueMap) = DynamoDbFiltersFactory.createFilters(query, indexValues=mutableListOf("space_id", "datetime"), datetime=datetime)
 
         if (query.seek_id != null) {
-            val datetime = ObjectUtil.defaultMapper.readValue(dialogueEventTable.getItem(KeyAttribute("_id", query.seek_id)).toJSON(), DialogueEvent::class.java).datetime
-            DynamoDbFiltersFactory.handleDatetime(query, datetime, filterExpression, nameMap, valueMap)
+            filterExpression.add("( #id <> :id )")
+            nameMap.with("#id", "_id")
+            valueMap.withString(":id", query.seek_id)
         }
-
-        spec.withFilterExpression(filterExpression.joinToString(separator = " and "))
+        filterExpression.ifNotEmpty { spec.withFilterExpression(this.joinToString(separator = " and ")) }
+        keywordExpression.ifNotEmpty { spec.withKeyConditionExpression(this.joinToString(separator = " and ")) }
         spec.withNameMap(nameMap)
         spec.withValueMap(valueMap)
         spec.withMaxResultSize(query.limit)
-        return dialogueEventTable.scan(spec).map { item -> ObjectUtil.defaultMapper.readValue(item.toJSON(), DialogueEvent::class.java) }.sortedByDescending { item -> item.datetime }
+        spec.withScanIndexForward(false)
+
+        return dialogueEventTable.getIndex("space_id").query(spec).map { item -> ObjectUtil.defaultMapper.readValue(item.toJSON(), DialogueEvent::class.java)}
     }
 
     override fun getAll(): List<DialogueEvent> {
@@ -42,17 +52,7 @@ class DynamoEventRepository : DynamoAbstractEntityRepository<DialogueEvent>(), E
         }
     }
 
-    override fun find(query: Query): List<DialogueEvent> {
-        val spec = ScanSpec()
-        val (filterExpression, nameMap, valueMap) = DynamoDbFiltersFactory.createFilters(query)
-
-        spec.withFilterExpression(filterExpression.joinToString(separator = " and "))
-        spec.withNameMap(nameMap)
-        spec.withValueMap(valueMap)
-
-        spec.withMaxResultSize(query.limit)
-        return dialogueEventTable.scan(spec).map {item -> ObjectUtil.defaultMapper.readValue(item.toJSON(), DialogueEvent::class.java) }
-    }
+    override fun find(query: Query): List<DialogueEvent> = getDialogueEvents(query)
 
     override fun create(dialogueEvent: DialogueEvent): DialogueEvent {
         dialogueEventTable.putItem(Item.fromJSON(ObjectUtil.defaultMapper.writeValueAsString(dialogueEvent)))

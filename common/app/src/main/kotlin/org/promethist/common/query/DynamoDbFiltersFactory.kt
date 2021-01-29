@@ -1,41 +1,25 @@
 package org.promethist.common.query
 
-import com.amazonaws.services.dynamodbv2.document.KeyAttribute
+import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.reflect.*
 import com.amazonaws.services.dynamodbv2.document.utils.NameMap
 import com.amazonaws.services.dynamodbv2.document.utils.ValueMap
-import org.promethist.common.ObjectUtil
 import javax.ws.rs.NotSupportedException
 
 object DynamoDbFiltersFactory {
 
-    fun handleDatetime(
-        query: Query,
-        datetime: Date,
-        filterExpression: MutableList<String>,
-        nameMap: NameMap,
-        valueMap: ValueMap
-    ) {
-        filterExpression.add("( ( #datetime = :time and #id <> :id ) or #datetime < :time )")
-        nameMap.with("#id", "_id").with("#datetime", "datetime")
-        valueMap.withString(":time", SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(datetime)).withString(":id", query.seek_id)
-    }
-
-    fun updateFilters(
-        query: Query,
-        filterExpression: MutableList<String>,
-        nameMap: NameMap,
-        valueMap: ValueMap
-    ) = createFilters(query, filterExpression, nameMap, valueMap).let { }
-
     fun createFilters(
         query: Query,
         filterExpression: MutableList<String> = mutableListOf(),
+        keywordExpression: MutableList<String> = mutableListOf(),
         nameMap: NameMap = NameMap(),
-        valueMap: ValueMap = ValueMap()
-    ): Triple<MutableList<String>, NameMap, ValueMap> {
+        valueMap: ValueMap = ValueMap(),
+        indexValues: List<String> = listOf(),
+        datetime: Date? = null
+    ): Quadruple {
+        val datetimes = query.filters.filter { filter -> filter.path == "datetime" }.sortedBy { item -> item.value }.toList()
+
         query.filters.forEachIndexed { index, filter ->
             val operator = when (filter.operator) {
                 Query.Operator.eq -> " = "
@@ -48,11 +32,30 @@ object DynamoDbFiltersFactory {
                 Query.Operator.regex -> throw NotSupportedException("regex not supported for DynamoDb")
             }
             val field = filter.path
-            filterExpression.add("#row$index $operator :placeholder$index")
-            nameMap.with("#row$index", field)
-            valueMap.withString(":placeholder$index", filter.value)
+            if (field in indexValues){
+                if (field != "datetime" || datetimes.size < 2) {
+                    keywordExpression.add("#row$index $operator :placeholder$index")
+                    nameMap.with("#row$index", field)
+                    valueMap.withString(":placeholder$index", filter.value)
+                }
+            } else {
+                filterExpression.add("#row$index $operator :placeholder$index")
+                nameMap.with("#row$index", field)
+                valueMap.withString(":placeholder$index", filter.value)
+            }
         }
-        return Triple(filterExpression, nameMap, valueMap)
+        if (datetimes.size == 2 && "datetime" in indexValues) {
+            keywordExpression.add("#placeholderTime BETWEEN :lowerbound AND :upperbound")
+            nameMap.with("#placeholderTime", "datetime")
+            valueMap.withString(":lowerbound", datetimes[0].value)
+            valueMap.withString(":upperbound", datetime?.let { SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(it) } ?: datetimes[1].value)
+        }
+        if (datetimes.isEmpty() && datetime != null && "datetime" in indexValues) {
+            keywordExpression.add("#placeholderTime  <= :upperbound")
+            nameMap.with("#placeholderTime", "datetime")
+            valueMap.withString(":upperbound", SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(datetime))
+        }
+        return Quadruple(filterExpression,keywordExpression, nameMap, valueMap)
     }
-
+    data class Quadruple(val A: MutableList<String>, val B: MutableList<String>, val C: NameMap, val D: ValueMap )
 }

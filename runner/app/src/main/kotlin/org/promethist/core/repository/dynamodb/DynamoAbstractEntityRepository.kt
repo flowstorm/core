@@ -11,5 +11,7 @@ abstract class DynamoAbstractEntityRepository<E: Entity<E>> : EntityRepository<E
     @Inject
     lateinit var database: DynamoDB
 
-    protected fun tableName(name: String) = AppConfig.instance["name"] + "." + name
+    companion object {
+        fun tableName(name: String) = AppConfig.instance["name"] + "." + name
+    }
 }
