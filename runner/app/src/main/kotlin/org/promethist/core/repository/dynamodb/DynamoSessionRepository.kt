@@ -9,6 +9,7 @@ import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec
 import com.amazonaws.services.dynamodbv2.document.spec.ScanSpec
 import com.amazonaws.services.dynamodbv2.document.utils.NameMap
 import com.amazonaws.services.dynamodbv2.document.utils.ValueMap
+import org.jetbrains.kotlin.utils.addToStdlib.ifNotEmpty
 import org.litote.kmongo.Id
 import org.promethist.common.ObjectUtil
 import org.promethist.common.query.DynamoDbFiltersFactory
@@ -17,6 +18,7 @@ import org.promethist.core.model.Session
 import org.promethist.core.model.Turn
 import org.promethist.core.model.User
 import org.promethist.core.repository.SessionRepository
+import java.util.*
 
 
 class DynamoSessionRepository : DynamoAbstractEntityRepository<Session>(), SessionRepository {
@@ -25,19 +27,26 @@ class DynamoSessionRepository : DynamoAbstractEntityRepository<Session>(), Sessi
     private val turnsTable by lazy { database.getTable(tableName("turn")) }
 
     override fun getSessions(query: Query): List<Session> {
-        val spec = ScanSpec()
-        val (filterExpression, nameMap, valueMap) = DynamoDbFiltersFactory.createFilters(query)
+        val spec = QuerySpec()
+        var datetime: Date? = null
+        if (query.seek_id != null) {
+            datetime = ObjectUtil.defaultMapper.readValue(sessionsTable.getItem(KeyAttribute("_id", query.seek_id)).toJSON(), Session::class.java).datetime
+        }
+        val (filterExpression, keywordExpression, nameMap, valueMap) = DynamoDbFiltersFactory.createFilters(query, indexValues=mutableListOf("space_id", "datetime"), datetime=datetime)
 
         if (query.seek_id != null) {
-            val datetime = ObjectUtil.defaultMapper.readValue(sessionsTable.getItem(KeyAttribute("_id", query.seek_id)).toJSON(), Session::class.java).datetime
-            DynamoDbFiltersFactory.handleDatetime(query, datetime, filterExpression, nameMap, valueMap)
+            filterExpression.add("( #id <> :id )")
+            nameMap.with("#id", "_id")
+            valueMap.withString(":id", query.seek_id)
         }
-
-        spec.withFilterExpression(filterExpression.joinToString(separator = " and "))
+        filterExpression.ifNotEmpty { spec.withFilterExpression(this.joinToString(separator = " and ")) }
+        keywordExpression.ifNotEmpty { spec.withKeyConditionExpression(this.joinToString(separator = " and ")) }
         spec.withNameMap(nameMap)
         spec.withValueMap(valueMap)
         spec.withMaxResultSize(query.limit)
-        return sessionsTable.scan(spec).map { item -> item.toSession(turnsTable) }.sortedByDescending { item -> item.datetime }
+        spec.withScanIndexForward(false)
+
+        return sessionsTable.getIndex("space_id").query(spec).map { item -> item.toSession(turnsTable) }
     }
 
     override fun getForUser(userId: Id<User>): List<Session> {
@@ -58,16 +67,7 @@ class DynamoSessionRepository : DynamoAbstractEntityRepository<Session>(), Sessi
         return sessionsTable.getItem(KeyAttribute("_id", id.toString()))?.toSession(turnsTable)
     }
 
-    override fun find(query: Query): List<Session> {
-        val spec = ScanSpec()
-        val (filterExpression, nameMap, valueMap) = DynamoDbFiltersFactory.createFilters(query)
-
-        spec.withFilterExpression(filterExpression.joinToString(separator = " and "))
-        spec.withNameMap(nameMap)
-        spec.withValueMap(valueMap)
-        spec.withMaxResultSize(query.limit)
-        return sessionsTable.scan(spec).map { item -> item.toSession(turnsTable) }
-    }
+    override fun find(query: Query): List<Session> = getSessions(query)
 
     override fun getAll(): List<Session> = sessionsTable.scan().toList().map { item -> item.toSession(turnsTable) }
 

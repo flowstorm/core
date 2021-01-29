@@ -350,7 +350,7 @@ class BotClient(
     fun doText(text: String, attributes: PropertyMap = emptyMap()) {
         if (context.sessionId == null || (sleepLimitTime > 0 && sleepLimitTime < System.currentTimeMillis()))
             context.sessionId = UUID.randomUUID().toString()
-        if (socket.state == BotSocket.State.Open && (state == State.Sleeping || state == State.Listening)) {
+        if (socket.state == BotSocket.State.Open) {
             val request = Request(
                     context.key,
                     context.deviceId,
