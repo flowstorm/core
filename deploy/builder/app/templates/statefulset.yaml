@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  serviceName: {{ .Values.name }}
+  replicas: {{ if ne .Values.namespace "develop" }}{{ .Values.replicas }}{{ else }}1{{ end }}
+  selector:
+    matchLabels:
+      app: {{ .Values.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.name }}
+    spec:
+      containers:
+        - name: app
+          image: {{ .Values.app.image.name }}:{{ .Values.app.image.tag }}
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          env:
+            - name: JAVA_OPTIONS
+              value: "-Xmx{{ .Values.app.mem }}m"
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /key.json
+            - name: APP_PROPERTIES
+              value: /app.local.properties
+          ports:
+            - containerPort: {{ .Values.app.port }}
+              name: http-app
+          volumeMounts:
+            - name: config
+              mountPath: /app.properties
+              subPath: app.properties
+            - name: config-local
+              mountPath: /app.local.properties
+              subPath: app.local.properties
+            - name: google-sa
+              mountPath: /key.json
+              subPath: key.json
+          resources:
+          {{- toYaml .Values.app.resources | nindent 12 }}
+      imagePullSecrets:
+        - name: {{ .Values.imagePullSecrets }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ .Values.name }}
+        - name: config-local
+          secret:
+            secretName: app-local
+        - name: google-sa
+          secret:
+            secretName: google-sa

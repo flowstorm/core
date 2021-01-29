@@ -48,6 +48,7 @@ abstract class BotClientSocket(open val url: String, open val raiseExceptions: B
         } else {
             logger.info("Sending event ($event)")
             val text = objectMapper.writeValueAsString(event)
+            logger.debug(text)
             sendText(text)
         }
     }

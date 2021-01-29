@@ -18,6 +18,7 @@ class OkHttp3BotClientSocket(url: String, raiseExceptions: Boolean = false, sock
         }
 
         override fun onMessage(webSocket: WebSocket, text: String) {
+            logger.debug(text)
             val event = objectMapper.readValue(text, BotEvent::class.java)
             listener?.onEvent(event)
         }

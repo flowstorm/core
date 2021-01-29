@@ -1,0 +1,26 @@
+namespace: default
+name: promethist-runner
+replicas: 2
+imagePullSecrets: promethistai-registry
+imagePullPolicy: IfNotPresent
+service:
+  type: ClusterIP
+  app:
+    port: 80
+app:
+  port: 8080
+  image:
+    name: registry.gitlab.com/promethist/core/runner/app
+    tag: latest
+  mem: 1024
+  resources:
+    requests:
+      cpu: 0.01
+      memory: 1024Mi
+  logging: "FALSE"
+  tracing: "OFF"
+slack:
+  enable: true
+git:
+  ref: branch_or_tag
+  commit: short_sha

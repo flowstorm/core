@@ -1,4 +1,5 @@
 stages:
+  - deploy_packages
   - build
   - distribute
   - document
@@ -22,6 +23,44 @@ stages:
     - cd $DIR
     - mvn -B package # maybe useless - should be already packaged by build job
     - cp target/$NAME.jar /ext/cluster/default/default/repository/dist/$NAME-$CI_COMMIT_REF_NAME.jar
+
+#
+# .build
+#
+
+.build snapshot:
+  stage: build
+  image: docker:stable
+  variables:
+    DIR: DIR
+  only:
+    refs:
+      - master
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker build --force-rm --tag $CI_REGISTRY_IMAGE/$DIR --build-arg API_REF=$CI_COMMIT_SHORT_SHA --build-arg API_HOST=$CI_PROJECT_NAME.preview.promethist.com --build-arg VERSION=1.0.0-SNAPSHOT $DIR
+    - docker push $CI_REGISTRY_IMAGE/$DIR
+
+.build release:
+  stage: build
+  image: docker:stable
+  variables:
+    DIR: DIR
+  only:
+    refs:
+      - tags
+  except:
+    - /^(!master).+@/
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker build --force-rm --cache-from $CI_REGISTRY_IMAGE/$DIR --tag $CI_REGISTRY_IMAGE/$DIR:$CI_COMMIT_REF_NAME --build-arg API_REF=$CI_COMMIT_REF_NAME --build-arg API_HOST=$CI_PROJECT_NAME.promethist.com --build-arg VERSION=$CI_COMMIT_REF_NAME $DIR
+    - docker push $CI_REGISTRY_IMAGE/$DIR:$CI_COMMIT_REF_NAME
 
 #
 # .document
@@ -59,10 +98,10 @@ stages:
 #
 # JOBS
 #
-# build all release packages
+# deploy all release packages
 #
-build release packages:
-  stage: build
+deploy release packages:
+  stage: deploy_packages
   image: registry.gitlab.com/promethist/system/builder
   only:
     refs:
@@ -76,10 +115,10 @@ build release packages:
     - mvn -B deploy -Dapi.basedomain=promethist.com -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false
 
 #
-# build all snaphot packages
+# deploy all snaphot packages
 #
-build snaphot packages:
-  stage: build
+deploy snaphot packages:
+  stage: deploy_packages
   image: registry.gitlab.com/promethist/system/builder
   only:
     refs:
@@ -90,7 +129,42 @@ build snaphot packages:
     - mvn -B deploy -Dapi.basedomain=preview.promethist.com -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false
 
 #
-# lib
+# build docker images
+#
+build release runner/app:
+  extends: '.build release'
+  variables:
+    DIR: runner/app
+  only:
+    changes:
+      - runner/app/**/*
+
+build snapshot runner/app:
+  extends: '.build snapshot'
+  variables:
+    DIR: runner/app
+  only:
+    changes:
+      - runner/app/**/*
+
+build release builder/app:
+  extends: '.build release'
+  variables:
+    DIR: builder/app
+  only:
+    changes:
+      - builder/app/**/*
+
+build snapshot builder/app:
+  extends: '.build snapshot'
+  variables:
+    DIR: builder/app
+  only:
+    changes:
+      - builder/app/**/*
+
+#
+# documents
 #
 document release lib:
   extends: '.document release'
@@ -107,9 +181,6 @@ document snapshot lib:
     changes:
       - lib/**/*
 
-#
-# app
-#
 document release app:
   extends: '.document release'
   variables:
@@ -125,9 +196,6 @@ document snapshot app:
     changes:
       - app/**/*
 
-#
-# runner/api
-#
 document release runner/api:
   extends: '.document release'
   variables:
@@ -143,9 +211,6 @@ document snapshot runner/api:
     changes:
       - runner/api/**/*
 
-#
-# builder/api
-#
 document release builder/api:
   extends: '.document release'
   variables:
@@ -162,7 +227,7 @@ document snapshot builder/api:
       - builder/api/**/*
 
 #
-# client/standalone
+# distribute client/standalone
 #
 distribute client client/standalone:
   extends: '.distribute java client'

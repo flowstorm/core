@@ -31,6 +31,7 @@ class JwsBotClientSocket(url: String, raiseExceptions: Boolean = false, socketPi
             }
 
             override fun onMessage(text: String) {
+                logger.debug(text)
                 val event = objectMapper.readValue(text, BotEvent::class.java)
                 listener?.onEvent(event)
             }
