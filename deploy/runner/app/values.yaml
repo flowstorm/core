@@ -1,3 +1,5 @@
+baseDomain: promethist.com
+clusterIssuer: letsencrypt
 namespace: default
 name: promethist-runner
 replicas: 2
@@ -19,8 +21,6 @@ app:
       memory: 1024Mi
   logging: "FALSE"
   tracing: "OFF"
-slack:
-  enable: true
 git:
   ref: branch_or_tag
   commit: short_sha

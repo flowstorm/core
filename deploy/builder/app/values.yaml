@@ -1,3 +1,4 @@
+baseDomain: promethist.com
 namespace: default
 name: promethist-builder
 replicas: 2

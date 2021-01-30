@@ -14,13 +14,13 @@ open class ClientConfig {
     @Parameter(names = ["-o", "--output"], order = 11, description = "Output file (e.g. stdout, /path/to/output.txt)")
     var output = "stdout"
 
-    @Parameter(names = ["-u", "--url"], order = 12, description = "Port URL")
+    @Parameter(names = ["-u", "--url"], order = 12, description = "Core URL")
     var url = ServiceUrlResolver.getEndpointUrl("core")
 
-    @Parameter(names = ["-k", "--key"], order = 13, description = "Port contract key")
+    @Parameter(names = ["-k", "--key"], order = 13, description = "Application key")
     var key = AppConfig.instance.get("port.key", "promethist")
 
-    @Parameter(names = ["-x", "--secret"], order = 14, description = "Port contract secret (some contracts may require)")
+    @Parameter(names = ["-x", "--secret"], order = 14, description = "Application secret (some may require)")
     var secret: String? = null
 
     @Parameter(names = ["-l", "--language"], order = 15, description = "Preferred conversation language")

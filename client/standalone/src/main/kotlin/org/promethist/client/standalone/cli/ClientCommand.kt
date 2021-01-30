@@ -122,8 +122,8 @@ class ClientCommand: CommandRunner<Application.Config, ClientCommand.Config> {
         @Parameter(names = ["-sp", "--socketPing"], order = 80, description = "Socket ping period (in seconds, 0 = do not ping)")
         var socketPing = 10L
 
-        @Parameter(names = ["-st", "--socketType"], order = 81, description = "Socket implementation type (okhttp3, jetty, jws)")
-        var socketType = ClientCommand.BotSocketType.OkHttp3
+        @Parameter(names = ["-st", "--socketType"], order = 81, description = "Socket implementation type (OkHttp3, JWS)")
+        var socketType = BotSocketType.OkHttp3
 
         @Parameter(names = ["-aa", "--autoUpdate"], order = 82, description = "Auto update JAR file")
         var autoUpdate = false
