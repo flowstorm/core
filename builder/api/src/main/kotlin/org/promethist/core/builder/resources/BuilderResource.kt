@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiParam
 import org.promethist.core.builder.Info
 import org.promethist.core.builder.Request
 import org.promethist.core.builder.Response
+import org.promethist.core.model.EntityDataset
 import org.promethist.security.Authenticated
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
@@ -22,4 +23,8 @@ interface BuilderResource {
     @Path("/build")
     @Authenticated
     fun build(@ApiParam("Request", required = true) request: Request): Response
+
+    @POST
+    @Path("/train/entity")
+    fun trainEntityModel(dataset: EntityDataset)
 }
