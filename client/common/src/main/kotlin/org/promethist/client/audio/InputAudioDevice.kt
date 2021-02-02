@@ -1,11 +1,8 @@
-package org.promethist.client.util
+package org.promethist.client.audio
 
-import org.promethist.client.audio.AudioCallback
-import org.promethist.client.audio.AudioDevice
-import org.promethist.client.audio.SpeechDevice
 import org.promethist.util.LoggerDelegate
 
-abstract class InputAudioDevice(val speechDevice: SpeechDevice) : AudioDevice, Runnable {
+abstract class InputAudioDevice(val speechDevice: SpeechDevice = NoSpeechDevice) : AudioDevice, Runnable {
 
     private val logger by LoggerDelegate()
     var started = false

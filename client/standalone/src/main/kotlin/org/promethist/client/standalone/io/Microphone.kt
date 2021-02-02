@@ -3,7 +3,7 @@ package org.promethist.client.standalone.io
 import org.promethist.client.audio.AudioDevice.Format
 import org.promethist.client.audio.SpeechDevice
 import org.promethist.client.audio.WakeWordConfig
-import org.promethist.client.util.InputAudioDevice
+import org.promethist.client.audio.InputAudioDevice
 import javax.sound.sampled.AudioFormat
 import javax.sound.sampled.AudioSystem
 import javax.sound.sampled.DataLine
