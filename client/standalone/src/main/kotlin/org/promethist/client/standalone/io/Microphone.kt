@@ -9,7 +9,7 @@ import javax.sound.sampled.AudioSystem
 import javax.sound.sampled.DataLine
 import javax.sound.sampled.TargetDataLine
 
-class Microphone(speechDevice: SpeechDevice, wakeWord: WakeWordConfig? = null, private val channels: Int, private val channel: Int = 0) : InputAudioDevice(speechDevice) {
+class Microphone(speechDevice: SpeechDevice = NoSpeechDevice, wakeWord: WakeWordConfig? = null, private val channels: Int, private val channel: Int = 0) : InputAudioDevice(speechDevice) {
 
     private val format = AudioFormat(Format.DEFAULT.sampleRate.toFloat(), Format.DEFAULT.sampleSize, channels, true, false)
     private val sampleSize = format.sampleSizeInBits / 8

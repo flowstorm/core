@@ -321,6 +321,8 @@ class BotClient(
                 inputAudioDevice.start()
                 socket.sendEvent(BotEvent.InputAudioStreamOpen())
             }
+        } else {
+            state = State.Listening
         }
     }
 
