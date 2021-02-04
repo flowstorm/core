@@ -213,28 +213,15 @@ class DialogueManager : Component {
                                 is AbstractDialogue.Response -> {
                                     val text = node.getText(context)
                                     val background = node.dialogue.background ?: node.background
-                                    if (node.dialogue is BasicDialogue) {
-                                        AbstractDialogue.run(context, node) {
-                                            (node.dialogue as BasicDialogue).addResponseItem(
-                                                text,
-                                                node.image,
-                                                node.audio,
-                                                node.video,
-                                                node.code,
-                                                background,
-                                                repeatable = node.isRepeatable
-                                            )
+                                    with (node) {
+                                        if (node.dialogue is BasicDialogue) {
+                                            AbstractDialogue.run(context, node) {
+                                                (node.dialogue as BasicDialogue)
+                                                    .addResponseItem(text, image, audio, video, code, background, isRepeatable, ttsConfig)
+                                            }
+                                        } else {
+                                            turn.addResponseItem(text, image, audio, video, code, background, isRepeatable, ttsConfig)
                                         }
-                                    } else {
-                                        turn.addResponseItem(
-                                            text,
-                                            node.image,
-                                            node.audio,
-                                            node.video,
-                                            node.code,
-                                            background,
-                                            repeatable = node.isRepeatable
-                                        )
                                     }
                                 }
                                 is AbstractDialogue.Command -> {
@@ -252,7 +239,11 @@ class DialogueManager : Component {
                 } catch (e: AbstractDialogue.DialogueScriptException) {
                     context.createDialogueEvent(e)
                     context.input.action = "error"
-                    frame = getActionFrame(frame, context)
+                    try {
+                        frame = getActionFrame(frame, context)
+                    } catch (fe: IllegalStateException) { // action error not found, let's throw original exception
+                        throw e
+                    }
                 }
             }
         } finally {

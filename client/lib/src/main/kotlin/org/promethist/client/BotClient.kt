@@ -67,7 +67,8 @@ class BotClient(
             if ((state == State.Responding) && (sttMode == SttConfig.Mode.Duplex) && !inputAudioStreamOpen) {
                 inputAudioStreamOpen()
             } else {
-                callback.onBotStateChange(this, state)
+                if (field != state)
+                    callback.onBotStateChange(this, state)
                 field = state
             }
         }
@@ -126,7 +127,8 @@ class BotClient(
 
     private fun outputAudioPlayCancel() {
         outputQueue.clear(OutputQueue.Item.Type.Server)
-        callback.audioCancel()
+        if (inputAudioDevice != null)
+            callback.audioCancel()
     }
 
     override fun onEvent(event: BotEvent) {
@@ -278,7 +280,7 @@ class BotClient(
     }
 
     fun text(text: String) {
-        logger.info("Text $text")
+        logger.info("Text: $text")
         callback.text(this, text)
     }
 

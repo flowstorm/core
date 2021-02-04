@@ -11,6 +11,7 @@ import org.promethist.core.type.MemoryCollection
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.full.isSubclassOf
+import kotlin.reflect.jvm.jvmErasure
 
 abstract class AttributeDelegate<V: Any>(private val clazz: KClass<*>, val namespace: (() -> String), private val expiration: DateTimeUnit? = null, val default: (Context.() -> V)) {
 
@@ -42,7 +43,20 @@ abstract class AttributeDelegate<V: Any>(private val clazz: KClass<*>, val names
                     }
                 }
                 attribute
-            } as V
+            }.let {
+                val propClass = property.returnType.jvmErasure
+                val valueClass = it::class
+                if (propClass == valueClass) {
+                    it as V
+                } else {
+                    with (AbstractDialogue.run) {
+                        context.logger.warn("Attribute ${property.name} value type mishmash (expected ${propClass.qualifiedName}, got ${valueClass.qualifiedName}, using default value instead)")
+                        val defaultValue = default.invoke(context)
+                        setValue(thisRef, property, defaultValue)
+                        defaultValue
+                    }
+                }
+            }
         }
 
     open operator fun setValue(thisRef: AbstractDialogue, property: KProperty<*>, any: V) {

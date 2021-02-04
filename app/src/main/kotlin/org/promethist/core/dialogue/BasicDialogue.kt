@@ -6,6 +6,7 @@ import org.promethist.core.Context
 import org.promethist.core.dialogue.attribute.*
 import org.promethist.core.dialogue.metric.MetricDelegate
 import org.promethist.core.model.ClientCommand
+import org.promethist.core.model.TtsConfig
 import org.promethist.core.model.enumContains
 import org.promethist.core.runtime.Api
 import org.promethist.core.type.*
@@ -259,6 +260,8 @@ abstract class BasicDialogue : AbstractDialogue() {
 //    This method was not used anywhere but it won't work since communityResource.get() requires space ID which is not accessible in this class
 //    fun communityAttributes(communityName: String) =
 //            run.context.communityResource.get(communityName, null)?.attributes ?: Dynamic.EMPTY
+    fun addResponseItem(text: String?, image: String? = null, audio: String? = null, video: String? = null, code: String? = null, background: String? = null, repeatable: Boolean = true, ttsConfig: TtsConfig? = null) =
+        run.context.turn.addResponseItem(text?.let { evaluateTextTemplate(it) }, image, audio, video, code, background, repeatable, ttsConfig ?: this.ttsConfig)
 
     fun addResponseItem(text: String?, image: String? = null, audio: String? = null, video: String? = null, code: String? = null, background: String? = null, repeatable: Boolean = true) =
             run.context.turn.addResponseItem(text?.let { evaluateTextTemplate(it) }, image, audio, video, code, background, repeatable, ttsConfig)

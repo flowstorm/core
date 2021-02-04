@@ -9,6 +9,7 @@ import org.promethist.core.model.Voice
 import org.promethist.core.runtime.Loader
 import org.promethist.core.type.Location
 import org.promethist.core.type.PropertyMap
+import org.promethist.core.type.Throwables.root
 import java.util.*
 import kotlin.random.Random
 import kotlin.reflect.KProperty
@@ -138,6 +139,7 @@ abstract class AbstractDialogue : DialogueModel {
     open inner class Response(
             id: Int,
             val isRepeatable: Boolean = true,
+            val ttsConfig: TtsConfig? = null,
             val background: String? = null,
             val image: String? = null,
             val audio: String? = null,
@@ -147,13 +149,52 @@ abstract class AbstractDialogue : DialogueModel {
     ): TransitNode(id) {
         val texts = text
 
-        constructor(id: Int, isRepeatable: Boolean = true, background: String? = null, image: String? = null, audio: String? = null, video: String? = null, vararg text: (Context.(Response) -> String)) : this(id, isRepeatable, background, image, audio, video, null, *text)
+        constructor(
+            id: Int,
+            isRepeatable: Boolean = true,
+            background: String? = null,
+            image: String? = null,
+            audio: String? = null,
+            video: String? = null,
+            code: String? = null,
+            vararg text: (Context.(Response) -> String)
+        ) : this(id, isRepeatable, null, background, image, audio, video, code, *text)
 
-        constructor(id: Int, isRepeatable: Boolean, background: String?, vararg text: (Context.(Response) -> String)) : this(id, isRepeatable, background, null, null, null, null, *text)
+        constructor(
+            id: Int,
+            isRepeatable: Boolean = true,
+            background: String? = null,
+            image: String? = null,
+            audio: String? = null,
+            video: String? = null,
+            vararg text: (Context.(Response) -> String)
+        ) : this(id, isRepeatable, background, image, audio, video, null, *text)
 
-        constructor(id: Int, isRepeatable: Boolean, vararg text: (Context.(Response) -> String)) : this(id, isRepeatable, null, null, null, null, null, *text)
+        constructor(
+            id: Int,
+            isRepeatable: Boolean,
+            background: String?,
+            ttsConfig: TtsConfig?,
+            vararg text: (Context.(Response) -> String)
+        ) : this(id, isRepeatable, ttsConfig, background, null, null, null, null, *text)
 
-        constructor(id: Int, vararg text: (Context.(Response) -> String)) : this(id, true, *text)
+        constructor(
+            id: Int,
+            isRepeatable: Boolean,
+            background: String?,
+            vararg text: (Context.(Response) -> String)
+        ) : this(id, isRepeatable, background, null, null, null, null, *text)
+
+        constructor(
+            id: Int,
+            isRepeatable: Boolean,
+            vararg text: (Context.(Response) -> String)
+        ) : this(id, isRepeatable, null, null, null, null, null, *text)
+
+        constructor(
+            id: Int,
+            vararg text: (Context.(Response) -> String)
+        ) : this(id, true, *text)
 
         constructor(vararg text: (Context.(Response) -> String)) : this(nextId--, true, *text)
 
@@ -268,7 +309,7 @@ abstract class AbstractDialogue : DialogueModel {
 
     class Run(val node: Node, val context: Context)
 
-    class DialogueScriptException(node: Node, cause: Throwable) : Throwable("DialogueScript failed at ${node.dialogue.dialogueName}:${node.dialogue.version}#${node.id}", cause)
+    class DialogueScriptException(node: Node, cause: Throwable) : Throwable("DialogueScript failed at ${node.dialogue.dialogueName}:${node.dialogue.version}#${node.id} because of ${cause.root.message}", cause)
 
     companion object {
 
