@@ -96,7 +96,7 @@ class DynamoSessionRepository : DynamoAbstractEntityRepository<Session>(), Sessi
         }
 
         fun Session.toItem(turnsTable: Table): Item {
-            turns.forEach { turn ->
+            turns.takeLast(1).forEach() { turn ->
                 turn.sessionId = _id
                 turnsTable.putItem(Item.fromJSON(ObjectUtil.defaultMapper.writeValueAsString(turn)))
             }
