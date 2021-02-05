@@ -44,10 +44,9 @@ import javax.ws.rs.ext.ParamConverterProvider
 
 open class RunnerApplication : JerseyApplication() {
 
-    val dataspace = AppConfig.instance.get("dsuffix", AppConfig.instance["namespace"])
-
     init {
         AppConfig.instance["name"] = "core"
+        logger.info("dsuffix=$dsuffix")
 
         register(object : ResourceBinder() {
             override fun configure() {
@@ -92,7 +91,7 @@ open class RunnerApplication : JerseyApplication() {
                 //TODO replace by object repository
                 bindTo(MongoDatabase::class.java,
                         KMongo.createClient(ConnectionString(AppConfig.instance["database.url"]))
-                                .getDatabase(AppConfig.instance["name"] + "-" + dataspace))
+                                .getDatabase(AppConfig.instance["name"] + "-" + dsuffix))
                 bind(MongoProfileRepository::class.java).to(ProfileRepository::class.java)
 
                 this.bindAsContract(DialogueLog::class.java).`in`(RequestScoped::class.java)
@@ -106,18 +105,18 @@ open class RunnerApplication : JerseyApplication() {
         register(object : AbstractBinder() {
             override fun configure() {
                 //Intent recognition
-                bind(RestClient.webTarget(ServiceUrlResolver.getEndpointUrl("illusionist", namespace = dataspace))
+                bind(RestClient.webTarget(ServiceUrlResolver.getEndpointUrl("illusionist", namespace = dsuffix))
                         .path("/query")
                         .queryParam("key", AppConfig.instance["illusionist.apiKey"])
                 ).to(WebTarget::class.java).named("illusionist")
 
                 //Duckling
-                bind(RestClient.webTarget(ServiceUrlResolver.getEndpointUrl("duckling", namespace = dataspace))
+                bind(RestClient.webTarget(ServiceUrlResolver.getEndpointUrl("duckling", namespace = dsuffix))
                         .path("/parse")
                 ).to(WebTarget::class.java).named("duckling")
 
                 //Casandra
-                bind(RestClient.webTarget(ServiceUrlResolver.getEndpointUrl("cassandra", namespace = dataspace))
+                bind(RestClient.webTarget(ServiceUrlResolver.getEndpointUrl("cassandra", namespace = dsuffix))
                         .path("/query")
                 ).to(WebTarget::class.java).named("cassandra")
 
@@ -151,11 +150,9 @@ open class RunnerApplication : JerseyApplication() {
         override fun provide(): FileStorage = when (AppConfig.instance.get("storage.type", "Google")) {
             "FileSystem" -> LocalFileStorage(File(AppConfig.instance["storage.base"]))
             "AmazonS3" -> AmazonS3Storage()
-            else -> GoogleStorage().apply {
-                bucket = "filestore-" + AppConfig.instance.get("dsuffix", AppConfig.instance["namespace"])
-            }
+            else -> GoogleStorage("filestore-$dsuffix")
         }
-        override fun dispose(p0: FileStorage?) {}
+        override fun dispose(storage: FileStorage?) {}
     }
 
     override val serverConfig: ServerConfig
@@ -169,6 +166,9 @@ open class RunnerApplication : JerseyApplication() {
         )
 
     companion object {
+
+        val dsuffix = AppConfig.instance.get("dsuffix", AppConfig.instance["namespace"])
+
         @JvmStatic
         fun main(args: Array<String>) = JettyServer.run(RunnerApplication())
     }
