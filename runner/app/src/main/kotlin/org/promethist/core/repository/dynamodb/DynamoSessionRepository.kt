@@ -72,7 +72,17 @@ class DynamoSessionRepository : DynamoAbstractEntityRepository<Session>(), Sessi
     override fun getAll(): List<Session> = sessionsTable.scan().toList().map { item -> item.toSession(turnsTable) }
 
     override fun create(session: Session): Session {
-        sessionsTable.putItem(session.toItem(turnsTable))
+        sessionsTable.putItem(session.run {
+            turns.lastOrNull()?.let { turn ->
+                turn.sessionId = _id
+                turnsTable.putItem(Item.fromJSON(ObjectUtil.defaultMapper.writeValueAsString(turn)))
+            }
+            val turnsBackup = turns
+            turns = mutableListOf()
+            Item.fromJSON(ObjectUtil.defaultMapper.writeValueAsString(this)).also {
+                turns = turnsBackup
+            }
+        })
         return session
     }
 
@@ -93,18 +103,6 @@ class DynamoSessionRepository : DynamoAbstractEntityRepository<Session>(), Sessi
                 .query(spec)
                 .map { item -> ObjectUtil.defaultMapper.readValue(item.toJSON(), Turn::class.java) })
             return session
-        }
-
-        fun Session.toItem(turnsTable: Table): Item {
-            turns.takeLast(1).forEach() { turn ->
-                turn.sessionId = _id
-                turnsTable.putItem(Item.fromJSON(ObjectUtil.defaultMapper.writeValueAsString(turn)))
-            }
-            val turnsBackup = turns
-            turns = mutableListOf()
-            return Item.fromJSON(ObjectUtil.defaultMapper.writeValueAsString(this)).also {
-                turns = turnsBackup
-            }
         }
     }
 }
