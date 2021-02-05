@@ -22,8 +22,9 @@ class DynamoProfileRepository : DynamoAbstractEntityRepository<Profile>(), Profi
     private val profilesTable by lazy { database.getTable(tableName("profile")) }
 
     override fun findBy(userId: Id<User>, spaceId: Id<Space>): Profile? {
-        val spec = ScanSpec()
-            .withFilterExpression("#userid = :value and #spaceid = :value2")
+        val spec = QuerySpec()
+            .withKeyConditionExpression("#userid = :value")
+            .withFilterExpression("#spaceid = :value2")
             .withNameMap(NameMap()
                 .with("#userid", "user_id")
                 .with("#spaceid", "space_id"))
@@ -31,7 +32,7 @@ class DynamoProfileRepository : DynamoAbstractEntityRepository<Profile>(), Profi
                 .withString(":value", userId.toString())
                 .withString(":value2", spaceId.toString())
             )
-        return profilesTable.scan(spec).map { item -> ObjectUtil.defaultMapper.readValue(item.toJSON(), Profile::class.java) }.singleOrNull()
+        return profilesTable.getIndex("user_id").query(spec).map { item -> ObjectUtil.defaultMapper.readValue(item.toJSON(), Profile::class.java) }.singleOrNull()
     }
 
     override fun get(id: Id<Profile>): Profile? {
