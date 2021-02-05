@@ -24,8 +24,12 @@ import org.promethist.core.model.SpaceImpl
 import org.promethist.common.monitoring.StdOutMonitor
 import org.promethist.core.nlp.*
 import org.promethist.core.provider.LocalFileStorage
+import org.promethist.core.repository.EventRepository
 import org.promethist.core.repository.ProfileRepository
+import org.promethist.core.repository.SessionRepository
+import org.promethist.core.repository.mongo.MongoEventRepository
 import org.promethist.core.repository.mongo.MongoProfileRepository
+import org.promethist.core.repository.mongo.MongoSessionRepository
 import org.promethist.core.resources.*
 import org.promethist.core.runtime.*
 import org.promethist.core.servlets.AlexaSkillServlet
@@ -93,6 +97,8 @@ open class RunnerApplication : JerseyApplication() {
                     KMongo.createClient(ConnectionString(AppConfig.instance["database.url"]))
                         .getDatabase(AppConfig.instance["name"] + "-" + dsuffix))
                 bind(MongoProfileRepository::class.java).to(ProfileRepository::class.java)
+                bind(MongoSessionRepository::class.java).to(SessionRepository::class.java)
+                bind(MongoEventRepository::class.java).to(EventRepository::class.java)
 
                 this.bindAsContract(DialogueLog::class.java).`in`(RequestScoped::class.java)
 
