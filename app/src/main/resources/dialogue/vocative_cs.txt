@@ -361,7 +361,7 @@ Hana;Hano
 Hanna;Hanno
 Harald;Haralde
 Harry;Harry
-Havel;Havli
+Havel;Havle
 Havla;Havlo
 Heath;Heathi
 Hedvika;Hedviko
@@ -504,7 +504,7 @@ Juta;Juto
 Kadlec;Kadlče
 Kajetán;Kajetáne
 Kaley;Kaley
-Karel;Karli
+Karel;Karle
 Karen;Karen
 Kári;Kári
 Karin;Karin
@@ -546,7 +546,7 @@ Kraus;Krausi
 Krejčí;Krejčí
 Kristýna;Kristýno
 Kryšpín;Kryšpíne
-Křesomysl;Křesomysli
+Křesomysl;Křesomysle
 Kůň;Koni
 Kunal;Kunale
 Kurt;Kurte
