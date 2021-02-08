@@ -11,7 +11,11 @@ class EntitySequenceAttributeDelegate<E: NamedEntity>(
         namespace: (() -> String),
         val nextValue: (SequenceAttribute<E, String>.() -> E?)
 ) {
-    private val attributeDelegate = ContextualAttributeDelegate(scope, MemoryMutableSet::class, namespace) { MemoryMutableSet<String>() }
+    private val attributeDelegate = ContextualAttributeDelegate(scope, MemoryMutableSet::class, namespace) {
+        MemoryMutableSet<String>()
+    }.apply {
+        valueTypeControl = false
+    }
 
     operator fun getValue(thisRef: AbstractDialogue, property: KProperty<*>): SequenceAttribute<E, String> {
         val memories = attributeDelegate.getValue(thisRef, property)

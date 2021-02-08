@@ -14,7 +14,7 @@ abstract class SequenceAttribute<E, V : Any>(
         val nextBlock: (SequenceAttribute<E, V>.() -> E?)) {
 
     val next get() = nextBlock(this)
-    val last get() = last() ?: error("no item in sequence (access next property first)")
+    val last get() = last() ?: error("no item in sequence")
 
     fun last() = memories.maxBy { it.time }?.let { memory ->
         list.find { toMemoryValue(it) == memory.value }

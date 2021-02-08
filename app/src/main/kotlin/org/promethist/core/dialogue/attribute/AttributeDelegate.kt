@@ -15,6 +15,8 @@ import kotlin.reflect.jvm.jvmErasure
 
 abstract class AttributeDelegate<V: Any>(private val clazz: KClass<*>, val namespace: (() -> String), private val expiration: DateTimeUnit? = null, val default: (Context.() -> V)) {
 
+    var valueTypeControl: Boolean = true
+
     abstract fun attribute(namespace: String, name: String, lambda: (Memorable?) -> Memorable): Memorable
 
     operator fun getValue(thisRef: AbstractDialogue, property: KProperty<*>): V =
@@ -46,7 +48,7 @@ abstract class AttributeDelegate<V: Any>(private val clazz: KClass<*>, val names
             }.let {
                 val propClass = property.returnType.jvmErasure
                 val valueClass = it::class
-                if (propClass == valueClass) {
+                if (!valueTypeControl || propClass == valueClass) {
                     it as V
                 } else {
                     with (AbstractDialogue.run) {

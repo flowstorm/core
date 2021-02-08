@@ -10,7 +10,11 @@ class NamedEntitySetAttributeDelegate<E: NamedEntity>(
         scope: ContextualAttributeDelegate.Scope,
         namespace: (() -> String)
 ) {
-    private val attributeDelegate = ContextualAttributeDelegate(scope, StringMutableSet::class, namespace) { StringMutableSet() }
+    private val attributeDelegate = ContextualAttributeDelegate(scope, StringMutableSet::class, namespace) {
+        StringMutableSet()
+    }.apply {
+        valueTypeControl = false
+    }
 
     operator fun getValue(thisRef: AbstractDialogue, property: KProperty<*>): MutableSet<E> {
         val names = attributeDelegate.getValue(thisRef, property)

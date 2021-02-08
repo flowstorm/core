@@ -13,7 +13,11 @@ class MapAttributeDelegate<E : Any>(
         fun put(key: String): E?
     }
 
-    private val attributeDelegate = ContextualAttributeDelegate(scope, MutableSet::class, namespace) { StringMutableSet() }
+    private val attributeDelegate = ContextualAttributeDelegate(scope, MutableSet::class, namespace) {
+        StringMutableSet()
+    }.apply {
+        valueTypeControl = false
+    }
 
     operator fun getValue(thisRef: AbstractDialogue, property: KProperty<*>): KeyMap<E> {
         val keys = attributeDelegate.getValue(thisRef, property)
