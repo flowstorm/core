@@ -48,7 +48,7 @@ abstract class AttributeDelegate<V: Any>(private val clazz: KClass<*>, val names
             }.let {
                 val propClass = property.returnType.jvmErasure
                 val valueClass = it::class
-                if (!valueTypeControl || propClass == valueClass) {
+                if (!valueTypeControl || valueClass.isSubclassOf(propClass)) {
                     it as V
                 } else {
                     with (AbstractDialogue.run) {
