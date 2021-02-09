@@ -2,6 +2,7 @@ package org.promethist.core.resources
 
 import org.litote.kmongo.Id
 import org.promethist.common.query.Query
+import org.promethist.common.security.Authorized
 import org.promethist.core.model.Profile
 import org.promethist.core.repository.ProfileRepository
 import javax.inject.Inject
@@ -12,6 +13,7 @@ import javax.ws.rs.core.MediaType
 
 @Path("/profiles")
 @Produces(MediaType.APPLICATION_JSON)
+@Authorized
 class ProfileResourceImpl : ProfileResource {
 
     @Inject

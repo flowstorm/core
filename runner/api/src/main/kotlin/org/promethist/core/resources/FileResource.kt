@@ -27,7 +27,6 @@ interface FileResource {
 
     @POST
     @Path("{path: .*}")
-    @Authenticated
     fun writeFile(
             @ApiParam(required = true) @PathParam("path") path: String,
             @ApiParam(required = true) @HeaderParam("Content-Type") contentType: String,
@@ -37,7 +36,6 @@ interface FileResource {
 
     @DELETE
     @Path("{path: .*}")
-    @Authenticated
     fun deleteFile(
             @ApiParam(required = true) @PathParam("path") path: String
     ): Boolean

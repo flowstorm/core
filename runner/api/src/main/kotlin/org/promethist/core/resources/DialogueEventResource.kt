@@ -11,7 +11,6 @@ import javax.ws.rs.core.MediaType
 
 @Api(tags = ["Dialogue Event"])
 @Produces(MediaType.APPLICATION_JSON)
-@Authenticated
 interface DialogueEventResource : DialogueEventRepository {
     @GET
     fun getDialogueEvents(): List<DialogueEvent>

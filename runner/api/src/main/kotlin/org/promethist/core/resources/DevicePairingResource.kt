@@ -11,7 +11,6 @@ import javax.ws.rs.core.MediaType
 @Api(tags = ["Device Pairing"], authorizations = [Authorization("Authorization")])
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-@Authenticated
 interface DevicePairingResource {
 
     @GET
