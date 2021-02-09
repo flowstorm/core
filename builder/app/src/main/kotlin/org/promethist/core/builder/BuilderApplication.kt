@@ -18,9 +18,9 @@ open class BuilderApplication : JerseyApplication() {
 
                 bindAsContract(DialogueBuilder::class.java)
 
-                val illusionistTrainingUrl = ServiceUrlResolver.getEndpointUrl("illusionist-training", namespace = dataspace)
+                val illusionistUrl = ServiceUrlResolver.getEndpointUrl("illusionist", namespace = dataspace)
                 val illusionistBuilder = IllusionistModelBuilder(
-                    illusionistTrainingUrl,
+                    illusionistUrl,
                     AppConfig.instance["illusionist.apiKey"],
                     AppConfig.instance.get("illusionist.approach", "logistic")
                 )

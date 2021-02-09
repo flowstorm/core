@@ -43,7 +43,7 @@ class IllusionistModelBuilder(val apiUrl: String, val apiKey: String, val approa
     override fun build(modelId: String, name: String, language: Locale, intents: Map<String, Output.Item>) {
         val output = Output(Output.Model(name, language.toString(), approach = approach), intents)
 
-        val url = URL("$apiUrl/models/$modelId?key=$apiKey")
+        val url = URL("$apiUrl/training/models/$modelId?key=$apiKey")
 //        logger.info("$url < $output")
         try {
             RestClient.call<Any>(url, "POST", output = output, timeout = buildTimeout)
