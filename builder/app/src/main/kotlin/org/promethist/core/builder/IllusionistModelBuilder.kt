@@ -1,6 +1,7 @@
 package org.promethist.core.builder
 
 import org.promethist.common.RestClient
+import org.promethist.common.ServiceUrlResolver
 import org.promethist.core.builder.IntentModelBuilder.Output
 import org.promethist.core.dialogue.AbstractDialogue
 import org.promethist.core.model.DialogueSourceCode
@@ -18,9 +19,16 @@ class IllusionistModelBuilder(val apiUrl: String, val apiKey: String, val approa
     }
 
     private val logger by LoggerDelegate()
+    private val url by lazy {
+        (if (apiUrl.startsWith("http://localhost"))
+            ServiceUrlResolver.getEndpointUrl("illusionist-training")
+        else
+            apiUrl
+        ) + "/training"
+    }
 
     init {
-        logger.info("Created with API URL $apiUrl (approach=$approach)")
+        logger.info("Created with API URL $url (approach=$approach)")
     }
 
     override fun build(irModel: IntentModel, language: Locale, intents: List<AbstractDialogue.Intent>, oodExamples: List<String>) {
@@ -43,7 +51,7 @@ class IllusionistModelBuilder(val apiUrl: String, val apiKey: String, val approa
     override fun build(modelId: String, name: String, language: Locale, intents: Map<String, Output.Item>) {
         val output = Output(Output.Model(name, language.toString(), approach = approach), intents)
 
-        val url = URL("$apiUrl/training/models/$modelId?key=$apiKey")
+        val url = URL("$url/models/$modelId?key=$apiKey")
 //        logger.info("$url < $output")
         try {
             RestClient.call<Any>(url, "POST", output = output, timeout = buildTimeout)
