@@ -6,6 +6,7 @@ import org.litote.kmongo.*
 import org.litote.kmongo.id.ObjectIdGenerator
 import org.promethist.common.query.MongoFiltersFactory
 import org.promethist.common.query.Query
+import org.promethist.common.security.Authorized
 import org.promethist.core.model.Session
 import org.promethist.core.model.User
 import javax.inject.Inject
@@ -15,6 +16,7 @@ import javax.ws.rs.core.MediaType
 
 @Path("/sessions")
 @Produces(MediaType.APPLICATION_JSON)
+@Authorized
 class SessionResourceImpl: SessionResource {
 
     @Inject

@@ -11,7 +11,6 @@ import javax.ws.rs.core.MediaType
 @Api(tags = ["Communities"])
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-@Authenticated
 interface CommunityResource : CommunityRepository {
     @GET
     fun getCommunities(): List<Community>

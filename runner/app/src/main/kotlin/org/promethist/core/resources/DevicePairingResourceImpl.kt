@@ -2,6 +2,7 @@ package org.promethist.core.resources
 
 import com.mongodb.client.MongoDatabase
 import org.litote.kmongo.*
+import org.promethist.common.security.Authorized
 import org.promethist.core.model.DevicePairing
 import java.util.*
 import javax.inject.Inject
@@ -12,6 +13,7 @@ import javax.ws.rs.core.MediaType
 
 @Path("/devicePairing")
 @Produces(MediaType.APPLICATION_JSON)
+@Authorized
 class DevicePairingResourceImpl : DevicePairingResource {
 
     @Inject

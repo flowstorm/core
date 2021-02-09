@@ -9,6 +9,7 @@ import org.bson.conversions.Bson
 import org.litote.kmongo.*
 import org.promethist.common.query.MongoFiltersFactory
 import org.promethist.common.query.Query
+import org.promethist.common.security.Authorized
 import org.promethist.core.model.Application
 import org.promethist.core.model.Report
 import org.promethist.core.model.Session
@@ -28,6 +29,7 @@ import kotlin.collections.toList
 
 @Path("/reports")
 @Produces(MediaType.APPLICATION_JSON)
+@Authorized
 class ReportResourceImpl: ReportResource {
 
     @Inject

@@ -2,6 +2,7 @@ package org.promethist.core.resources
 
 import com.mongodb.client.MongoDatabase
 import org.litote.kmongo.*
+import org.promethist.common.security.Authorized
 import org.promethist.core.model.Community
 import javax.inject.Inject
 import javax.ws.rs.Path
@@ -10,6 +11,7 @@ import javax.ws.rs.core.MediaType
 
 @Path("/communities")
 @Produces(MediaType.APPLICATION_JSON)
+@Authorized
 class CommunityResourceImpl : CommunityResource {
 
     @Inject
