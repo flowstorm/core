@@ -10,14 +10,10 @@ class NamedEntityListAttributeDelegate<E: NamedEntity>(
         scope: ContextualAttributeDelegate.Scope,
         namespace: (() -> String)
 ) {
-    private val attributeDelegate = ContextualAttributeDelegate(scope, StringMutableList::class, namespace) {
-        StringMutableList()
-    }.apply {
-        valueTypeControl = false
-    }
+    private val attributeDelegate = ContextualAttributeDelegate(scope, StringMutableList::class, namespace) { StringMutableList() }
 
     operator fun getValue(thisRef: AbstractDialogue, property: KProperty<*>): MutableList<E> {
-        val names = attributeDelegate.getValue(thisRef, property)
+        val names = attributeDelegate.getValue(thisRef, property, false)
         return object : ArrayList<E>(names.mapNotNull { name -> entities.find { it.name == name } }) {
             override fun add(entity: E): Boolean {
                 names.add(entity.name)

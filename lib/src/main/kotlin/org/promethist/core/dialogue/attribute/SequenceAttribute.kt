@@ -9,9 +9,9 @@ import org.promethist.core.type.MemoryMutableSet
 import kotlin.random.Random
 
 abstract class SequenceAttribute<E, V : Any>(
-        val list: List<E>,
-        private val memories: MemoryMutableSet<V>,
-        val nextBlock: (SequenceAttribute<E, V>.() -> E?)) {
+    val list: List<E>,
+    private val memories: MemoryMutableSet<V>,
+    val nextBlock: (SequenceAttribute<E, V>.() -> E?)) {
 
     val next get() = nextBlock(this)
     val last get() = last() ?: error("no item in sequence")
