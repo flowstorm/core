@@ -1,5 +1,6 @@
 package org.promethist.core.builder.resources
 
+import org.promethist.common.security.Authorized
 import org.promethist.core.builder.DialogueBuilder
 import org.promethist.core.builder.Info
 import org.promethist.core.builder.Request
@@ -23,6 +24,7 @@ class BuilderResourceImpl : BuilderResource {
         return Info(buf.toString().trim())
     }
 
+    @Authorized
     override fun build(request: Request): Response = with (request) {
         val builder = dialogueBuilder.create(sourceCode)
         val build = builder.build(oodExamples)
