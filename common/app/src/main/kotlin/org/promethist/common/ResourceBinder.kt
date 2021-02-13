@@ -10,11 +10,11 @@ abstract class ResourceBinder : AbstractBinder() {
         return bind(type).to(iface)
     }
 
-    inline fun <reified I>bindTo(iface: Class<I>, targetUrl: String): BindingBuilder<I> {
+    inline fun <reified I> bindTo(iface: Class<I>, targetUrl: String, token: String? = null): BindingBuilder<I> {
         return bindFactory(object : Factory<I> {
 
             override fun provide(): I {
-                return RestClient.resource(iface, targetUrl)
+                return RestClient.resource(iface, targetUrl, token)
             }
 
             override fun dispose(obj: I) {

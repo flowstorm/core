@@ -30,7 +30,7 @@ open class BuilderApplication : JerseyApplication() {
                 val coreUrl = ServiceUrlResolver.getEndpointUrl("core")
 
                 // filestore
-                bindTo(FileResource::class.java, "$coreUrl/file")
+                bindTo(FileResource::class.java, "$coreUrl/file", AppConfig.instance["core.apiKey"])
             }
         })
     }
