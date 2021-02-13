@@ -13,6 +13,9 @@ data class TtsConfig(
         val amazonAlexaVoice: String? = null,
         val googleAssistantVoice: String? = null
 ) {
+    constructor(provider: String, locale: Locale, gender: Gender, name: String, engine: String?) :
+            this(provider, locale, gender, name, engine, null, null)
+
     enum class Gender { Male, Female }
 
     @get:JsonIgnore
