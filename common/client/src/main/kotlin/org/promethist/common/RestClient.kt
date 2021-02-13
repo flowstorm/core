@@ -12,37 +12,43 @@ import javax.inject.Named
 import javax.ws.rs.Path
 import javax.ws.rs.WebApplicationException
 import javax.ws.rs.client.ClientBuilder
+import javax.ws.rs.client.ClientRequestContext
+import javax.ws.rs.client.ClientRequestFilter
 import javax.ws.rs.client.WebTarget
+import javax.ws.rs.core.HttpHeaders
 import kotlin.reflect.KFunction
 import kotlin.reflect.jvm.javaMethod
 import org.promethist.common.ObjectUtil.defaultMapper as mapper
 
 object RestClient {
 
-    inline fun <reified I> proxy(obj: I, target: String): I =
+    inline fun <reified I> proxy(obj: I, target: WebTarget): I =
         Proxy.newProxyInstance(I::class.java.classLoader, arrayOf<Class<*>>(I::class.java)) { _, method, args ->
             try {
                 if (args != null) {
                     method.invoke(obj, *args)
-                }                 else {
+                } else {
                     method.invoke(obj)
                 }
             } catch (e: Throwable) {
                 throw when {
                     e.cause is WebApplicationException -> e.cause!!
                     e is WebApplicationException -> e
-                    else -> InvocationTargetException(e, "Call to ${I::class.simpleName}.${method.name} on $target failed"
-                            + (e.cause?.let {  " - ${it.message}" }))
+                    else -> InvocationTargetException(
+                        e,
+                        "Call to ${I::class.simpleName}.${method.name} on ${target.uri} failed"
+                                + (e.cause?.let { " - ${it.message}" })
+                    )
                 }
             }
         } as I
 
-    inline fun <reified I>instance(iface: Class<I>, targetUrl: String): I {
-        val provider = JacksonJaxbJsonProvider()
-        provider.setMapper(mapper)
-        val target = ClientBuilder.newClient().register(provider).target(targetUrl)
+    inline fun <reified I> resource(iface: Class<I>, targetUrl: String, token: String? = null): I =
+        resource(iface, webTarget(targetUrl, token))
+
+    inline fun <reified I> resource(iface: Class<I>, target: WebTarget): I {
         val resource = WebResourceFactory.newResource(iface, target)
-        return proxy<I>(resource, targetUrl)
+        return proxy<I>(resource, target)
     }
 
     fun <T> call(url: URL, responseType: Class<T>, method: String = "GET", headers: Map<String, String>? = null, output: Any? = null, timeout: Int = 30000): T =
@@ -73,13 +79,21 @@ object RestClient {
     }
 
     @Named
-    fun webTarget(targetUrl: String): WebTarget {
+    fun webTarget(targetUrl: String, token: String? = null): WebTarget {
         val provider = JacksonJaxbJsonProvider()
         provider.setMapper(mapper)
 
-        return ClientBuilder.newClient()
-                .register(provider)
-                .target(targetUrl)
+        return with(ClientBuilder.newClient()) {
+            register(provider)
+            token?.let { register(AuthorizationHeaderFilter(it)) }
+            target(targetUrl)
+        }
+    }
+
+    class AuthorizationHeaderFilter(val token: String) : ClientRequestFilter {
+        override fun filter(requestContext: ClientRequestContext) {
+            requestContext.headers.add(HttpHeaders.AUTHORIZATION, "Bearer $token")
+        }
     }
 }
 

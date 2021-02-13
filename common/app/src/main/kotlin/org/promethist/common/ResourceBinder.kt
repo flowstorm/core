@@ -14,7 +14,7 @@ abstract class ResourceBinder : AbstractBinder() {
         return bindFactory(object : Factory<I> {
 
             override fun provide(): I {
-                return RestClient.instance(iface, targetUrl)
+                return RestClient.resource(iface, targetUrl)
             }
 
             override fun dispose(obj: I) {
