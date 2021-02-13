@@ -28,10 +28,10 @@ import org.promethist.core.repository.ProfileRepository
 import org.promethist.core.repository.mongo.MongoProfileRepository
 import org.promethist.core.resources.*
 import org.promethist.core.runtime.*
-import org.promethist.core.servlets.AlexaSkillServlet
+import org.promethist.core.servlets.AmazonAlexaServlet
 import org.promethist.core.servlets.BotCallServlet
 import org.promethist.core.servlets.BotClientServlet
-import org.promethist.core.servlets.GoogleAppServlet
+import org.promethist.core.servlets.GoogleAssistantServlet
 import org.promethist.core.storage.FileStorage
 import org.promethist.core.storage.GoogleStorage
 import org.promethist.core.storage.AmazonS3Storage
@@ -159,9 +159,9 @@ open class RunnerApplication : JerseyApplication() {
         get() = ServerConfig(this, super.serverConfig.servlets +
                 mapOf(
                         BotClientServlet::class.java to "/socket/*",
-                        GoogleAppServlet::class.java to "/google/*",
+                        GoogleAssistantServlet::class.java to "/google/*",
                         BotCallServlet::class.java to "/call/*",
-                        AlexaSkillServlet::class.java to "/alexa/*",
+                        AmazonAlexaServlet::class.java to "/alexa/*",
                 )
         )
 

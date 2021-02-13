@@ -9,7 +9,9 @@ data class TtsConfig(
         val locale: Locale,
         val gender: Gender,
         val name: String,
-        val engine: String? = null
+        val engine: String? = null,
+        val amazonAlexaVoice: String? = null,
+        val googleAssistantVoice: String? = null
 ) {
     enum class Gender { Male, Female }
 

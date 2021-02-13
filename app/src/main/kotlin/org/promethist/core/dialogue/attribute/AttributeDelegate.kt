@@ -44,17 +44,11 @@ abstract class AttributeDelegate<V: Any>(private val clazz: KClass<*>, val names
                 }
                 attribute
             }.let {
-                val propClass = property.returnType.jvmErasure
-                val valueClass = it::class
-                if (!valueTypeControl || valueClass.isSubclassOf(propClass)) {
-                    it as V
-                } else {
-                    with (AbstractDialogue.run) {
-                        context.logger.warn("Attribute ${property.name} value type mishmash (expected ${propClass.qualifiedName}, got ${valueClass.qualifiedName}, using default value instead)")
-                        val defaultValue = default.invoke(context)
-                        setValue(thisRef, property, defaultValue)
-                        defaultValue
-                    }
+                it as? V ?: with (AbstractDialogue.run) {
+                    context.logger.warn("Attribute ${property.name} value type mishmash (expected ${property.returnType.jvmErasure.qualifiedName}, got ${it::class.qualifiedName}, using default value instead)")
+                    val defaultValue = default.invoke(context)
+                    setValue(thisRef, property, defaultValue)
+                    defaultValue
                 }
             }
         }

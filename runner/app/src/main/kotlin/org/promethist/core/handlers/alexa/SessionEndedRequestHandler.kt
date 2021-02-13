@@ -7,7 +7,7 @@ import com.amazon.ask.request.Predicates.requestType
 import org.promethist.core.BotCore
 import java.util.*
 
-class SessionEndedRequestHandler : AbstractHandler(requestType(SessionEndedRequest::class.java)) {
+class SessionEndedRequestHandler : AmazonAlexaHandler(requestType(SessionEndedRequest::class.java)) {
 
     override fun handle(input: HandlerInput): Optional<Response> {
         val context = getContext(input)

@@ -3,7 +3,6 @@ package org.promethist.core
 import org.promethist.core.model.LogEntry
 import org.promethist.core.model.SttConfig
 import org.promethist.core.model.TtsConfig
-import org.promethist.core.model.Voice
 import org.promethist.core.type.PropertyMap
 import java.util.*
 
@@ -31,46 +30,21 @@ data class Response(
             var repeatable: Boolean = true
     ) {
         fun text() = text ?: ""
-        fun ssml(provider: String) = ssml(ssml ?: text(), provider)
     }
+
+    enum class IVA { AmazonAlexa, GoogleAssistant }
 
     fun text() = items.joinToString("\n") { it.text ?: "..." }.trim()
-    fun ssml(provider: String) =
-            ssml(items.joinToString("\n") { it.ssml ?: it.text ?: "" }.trim(), provider)
-
-    companion object {
-
-        fun ssml(ssml: String, provider: String): String {
-            val voices = Voice.values()
-            val replacedSsml = ssml.replace(Regex("<voice.*?name=\"(.*?)\">(.*)</voice>")) {
-                var name = it.groupValues[1]
-                for (i in voices.indices) {
-                    val voice = voices[i]
-                    if (name == voice.name) {
-                        if (voice.config.provider == provider) {
-                            name = voice.name
-                        } else {
-                            for (i2 in voices.indices) {
-                                val config = voices[i2].config
-                                if (config.provider == provider && config.gender == config.gender && config.locale == config.locale) {
-                                    name = if (provider == "Google") // Google only supports switching gender
-                                        config.gender.name.toLowerCase()
-                                    else
-                                        config.name
-                                    break
-                                }
-                            }
-                        }
-                        break
-                    }
-                }
-                """<voice ${if (provider == "Google") "gender" else "name"}="$name">${it.groupValues[2]}</voice>"""
-            }
-            val finalSsml = if (replacedSsml.startsWith("<speak>"))
-                replacedSsml
+    fun ssml(iva: IVA) = items.joinToString("\n") {
+        val ssml = it.ssml ?: if (it.text != null && !it.text!!.startsWith('#')) it.text!! else ""
+        if (ssml.isNotBlank() && it.ttsConfig != null) {
+            val ttsConfig = it.ttsConfig!!
+            if (iva == IVA.AmazonAlexa && ttsConfig.amazonAlexaVoice != null)
+                "<voice name=\"${ttsConfig.amazonAlexaVoice}\">$ssml</voice>"
+            else if (iva == IVA.GoogleAssistant && ttsConfig.googleAssistantVoice != null)
+                "<voice name=\"${ttsConfig.googleAssistantVoice}\">$ssml</voice>"
             else
-                "<speak>$replacedSsml</speak>"
-            return finalSsml
-        }
-    }
+                ssml
+        } else ssml
+    }.trim()
 }
