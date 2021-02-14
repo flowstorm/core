@@ -35,16 +35,24 @@ data class Response(
     enum class IVA { AmazonAlexa, GoogleAssistant }
 
     fun text() = items.joinToString("\n") { it.text ?: "..." }.trim()
+
     fun ssml(iva: IVA) = items.joinToString("\n") {
         val ssml = it.ssml ?: if (it.text != null && !it.text!!.startsWith('#')) it.text!! else ""
         if (ssml.isNotBlank() && it.ttsConfig != null) {
             val ttsConfig = it.ttsConfig!!
-            if (iva == IVA.AmazonAlexa && ttsConfig.amazonAlexaVoice != null)
-                "<voice name=\"${ttsConfig.amazonAlexaVoice}\">$ssml</voice>"
-            else if (iva == IVA.GoogleAssistant && ttsConfig.googleAssistantVoice != null)
-                "<voice name=\"${ttsConfig.googleAssistantVoice}\">$ssml</voice>"
-            else
-                ssml
+            when (iva) {
+                IVA.AmazonAlexa -> {
+                    when {
+                        ttsConfig.amazonAlexa != null ->
+                            "<voice name=\"${ttsConfig.amazonAlexa}\">$ssml</voice>"
+                        ttsConfig.provider == "Amazon" ->
+                            "<voice name=\"${ttsConfig.name}\">$ssml</voice>"
+                        else -> ssml
+                    }
+                }
+                IVA.GoogleAssistant ->
+                    "<voice gender=\"${ttsConfig.gender.name.toLowerCase()}\" variant=\"${ttsConfig.googleAssistant ?: 1}\">$ssml</voice>"
+            }
         } else ssml
     }.trim()
 }

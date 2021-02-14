@@ -5,13 +5,13 @@ import org.promethist.security.Digest
 import java.util.*
 
 data class TtsConfig(
-        val provider: String,
-        val locale: Locale,
-        val gender: Gender,
-        val name: String,
-        val engine: String? = null,
-        val amazonAlexaVoice: String? = null,
-        val googleAssistantVoice: String? = null
+    val provider: String,
+    val locale: Locale,
+    val gender: Gender,
+    val name: String,
+    val engine: String? = null,
+    val amazonAlexa: String? = null,
+    val googleAssistant: String? = null
 ) {
     constructor(provider: String, locale: Locale, gender: Gender, name: String, engine: String?) :
             this(provider, locale, gender, name, engine, null, null)
