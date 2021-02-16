@@ -19,7 +19,7 @@ class DynamoEventRepository : DynamoAbstractEntityRepository<DialogueEvent>(), E
 
     private val dialogueEventTable by lazy { database.getTable(tableName("dialogueEvent")) }
 
-    override fun getDialogueEvents(query: Query): List<DialogueEvent> {
+    override fun find(query: Query): List<DialogueEvent> {
         val spec = QuerySpec()
         var datetime: Date? = null
         if (query.seek_id != null) {
@@ -46,13 +46,13 @@ class DynamoEventRepository : DynamoAbstractEntityRepository<DialogueEvent>(), E
         return dialogueEventTable.scan().toList().map { item -> ObjectUtil.defaultMapper.readValue(item.toJSON(), DialogueEvent::class.java) }
     }
 
-    override fun get(id: Id<DialogueEvent>): DialogueEvent? {
+    override fun get(id: Id<DialogueEvent>): DialogueEvent = find(id)!!
+
+    override fun find(id: Id<DialogueEvent>): DialogueEvent? {
         return dialogueEventTable.getItem(KeyAttribute("_id", id.toString()))?.let {
             ObjectUtil.defaultMapper.readValue(it.toJSON(), DialogueEvent::class.java)
         }
     }
-
-    override fun find(query: Query): List<DialogueEvent> = getDialogueEvents(query)
 
     override fun create(dialogueEvent: DialogueEvent): DialogueEvent {
         dialogueEventTable.putItem(Item.fromJSON(ObjectUtil.defaultMapper.writeValueAsString(dialogueEvent)))

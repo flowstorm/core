@@ -7,15 +7,12 @@ import org.promethist.common.query.MongoFiltersFactory
 import org.promethist.common.query.Query
 import org.promethist.core.model.Session
 import org.promethist.core.model.User
+import org.promethist.core.repository.EntityRepository
 import org.promethist.core.repository.SessionRepository
 
 class MongoSessionRepository:  MongoAbstractEntityRepository<Session>(), SessionRepository {
 
     private val sessions by lazy { database.getCollection<Session>() }
-
-    override fun getSessions(query: Query): List<Session> {
-        return find(query)
-    }
 
     override fun create(session: Session): Session {
         sessions.insertOne(session)
@@ -27,17 +24,17 @@ class MongoSessionRepository:  MongoAbstractEntityRepository<Session>(), Session
         return entity
     }
 
-    override fun get(sessionId: String): Session? {
-        return sessions.find(Session::sessionId eq sessionId).singleOrNull()
+    override fun get(sessionId: String): Session {
+        return sessions.find(Session::sessionId eq sessionId).singleOrNull() ?: throw EntityRepository.EntityNotFound("Session $sessionId not found")
     }
 
     override fun getAll(): List<Session> {
         return sessions.find().toMutableList()
     }
 
-    override fun get(id: Id<Session>): Session? {
-        return sessions.find(Session::_id eq id).singleOrNull()
-    }
+    override fun find(id: Id<Session>): Session? = sessions.find(Session::_id eq id).singleOrNull()
+
+    override fun get(id: Id<Session>): Session = find(id) ?: throw EntityRepository.EntityNotFound("Session $id not found")
 
     override fun find(query: Query): List<Session> {
         val pipeline: MutableList<Bson> = mutableListOf()
@@ -61,7 +58,7 @@ class MongoSessionRepository:  MongoAbstractEntityRepository<Session>(), Session
         return sessions.aggregate(pipeline).toMutableList()
     }
 
-    override fun getForUser(userId: Id<User>): List<Session> {
+    override fun findBy(userId: Id<User>): List<Session> {
         return sessions.find(Session::user / User::_id eq userId).toMutableList()
     }
 }

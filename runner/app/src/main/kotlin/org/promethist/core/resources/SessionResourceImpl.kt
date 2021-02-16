@@ -1,10 +1,6 @@
 package org.promethist.core.resources
 
-import com.mongodb.client.MongoDatabase
-import org.bson.conversions.Bson
 import org.litote.kmongo.*
-import org.litote.kmongo.id.ObjectIdGenerator
-import org.promethist.common.query.MongoFiltersFactory
 import org.promethist.common.query.Query
 import org.promethist.core.model.Session
 import org.promethist.core.model.User
@@ -24,7 +20,7 @@ class SessionResourceImpl: SessionResource {
     @Inject
     lateinit var query: Query
 
-    override fun getSessions(): List<Session> = sessionRepository.getSessions(query)
+    override fun getSessions(): List<Session> = sessionRepository.find(query)
 
     override fun create(session: Session) {
         sessionRepository.create(session)
@@ -34,7 +30,7 @@ class SessionResourceImpl: SessionResource {
         sessionRepository.update(session)
     }
 
-    override fun get(sessionId: String): Session? = sessionRepository.get(sessionId)
+    override fun get(sessionId: String): Session = sessionRepository.get(sessionId)
 
-    override fun getForUser(userId: Id<User>): List<Session> = sessionRepository.getForUser(userId)
+    override fun getForUser(userId: Id<User>): List<Session> = sessionRepository.findBy(userId)
 }
