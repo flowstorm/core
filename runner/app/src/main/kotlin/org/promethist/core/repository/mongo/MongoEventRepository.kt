@@ -17,11 +17,9 @@ class MongoEventRepository : MongoAbstractEntityRepository<DialogueEvent>(), Eve
 
     private val dialogueEventCollection by lazy { database.getCollection<DialogueEvent>() }
 
-    override fun get(id: Id<DialogueEvent>): DialogueEvent? = dialogueEventCollection.findOneById(id)
-    override fun find(query: Query): List<DialogueEvent> =
-        dialogueEventCollection.aggregate(MongoFiltersFactory.createPipeline(DialogueEvent::class, query)).toList()
+    override fun find(id: Id<DialogueEvent>): DialogueEvent? = dialogueEventCollection.findOneById(id)
 
-    override fun getDialogueEvents(query: Query): List<DialogueEvent> {
+    override fun find(query: Query): List<DialogueEvent> {
         val pipeline: MutableList<Bson> = mutableListOf()
         pipeline.apply {
             query.seek_id?.let { seekId ->
@@ -45,6 +43,7 @@ class MongoEventRepository : MongoAbstractEntityRepository<DialogueEvent>(), Eve
     }
 
     override fun getAll(): List<DialogueEvent> = dialogueEventCollection.find().toList()
+    override fun get(id: Id<DialogueEvent>): DialogueEvent = find(id)!!
 
     override fun create(dialogueEvent: DialogueEvent): DialogueEvent {
         dialogueEventCollection.insertOne(dialogueEvent)
