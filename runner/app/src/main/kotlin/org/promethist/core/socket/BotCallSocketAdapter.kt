@@ -59,7 +59,7 @@ class BotCallSocketAdapter : AbstractBotSocketAdapter() {
     override var config = BotConfig(Defaults.locale, Defaults.zoneId, true, SttConfig.Mode.Duplex, 8000, BotConfig.TtsType.RequiredStreaming)
     override val sttConfig
         get() = SttConfig(locale
-                ?: config.locale, config.zoneId, config.sttSampleRate, SttConfig.Encoding.MULAW, config.sttMode)
+                ?: config.locale, config.zoneId, config.sttSampleRate, SttConfig.Encoding.MULAW, config.sttMode, "phone_call")
     private var streamSid: String? = null
     private val workDir = File(System.getProperty("java.io.tmpdir"))
     private val outSound = javaClass.getResourceAsStream("/audio/out.mp3").readBytes()
