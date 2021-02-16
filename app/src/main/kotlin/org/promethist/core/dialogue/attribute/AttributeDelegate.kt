@@ -8,6 +8,7 @@ import org.promethist.core.type.DateTime
 import org.promethist.core.type.Memorable
 import org.promethist.core.type.Memory
 import org.promethist.core.type.MemoryCollection
+import java.lang.ClassCastException
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.full.isSubclassOf
@@ -25,31 +26,37 @@ abstract class AttributeDelegate<V: Any>(private val clazz: KClass<*>, val names
                 attribute
             }
         }.let { attribute ->
-            if (attribute is Memory<*>) {
-                if (attribute.serializable) {
-                    (attribute as Memory<Any>)._value = Memorable.unpack(attribute, thisRef::class.java)
-                    attribute.serializable = false
-                }
-                if (!clazz.isSubclassOf(Memory::class)) {
-                    attribute._value
+            try {
+                if (attribute is Memory<*>) {
+                    if (attribute.serializable) {
+                        (attribute as Memory<Any>)._value = Memorable.unpack(attribute, thisRef::class.java)
+                        attribute.serializable = false
+                    }
+                    if (!clazz.isSubclassOf(Memory::class)) {
+                        attribute._value
+                    } else {
+                        attribute
+                    }
                 } else {
+                    (attribute as MemoryCollection<Any>).forEach {
+                        if (it.serializable) {
+                            it._value = Memorable.unpack(it, thisRef::class.java)
+                            it.serializable = false
+                        }
+                    }
                     attribute
-                }
-            } else {
-                (attribute as MemoryCollection<Any>).forEach {
-                    if (it.serializable) {
-                        it._value = Memorable.unpack(it, thisRef::class.java)
-                        it.serializable = false
+                }.let {
+                    val propClass = property.returnType.jvmErasure
+                    val valueClass = it::class
+                    if (!valueTypeControl || valueClass.isSubclassOf(propClass)) {
+                        it as V
+                    } else {
+                        restoreDefault(thisRef, property, "Attribute ${property.name} value type mismatch " +
+                                "(expected ${propClass.qualifiedName}, got ${valueClass.qualifiedName}, using default value instead)")
                     }
                 }
-                attribute
-            }.let {
-                it as? V ?: with (AbstractDialogue.run) {
-                    context.logger.warn("Attribute ${property.name} value type mishmash (expected ${property.returnType.jvmErasure.qualifiedName}, got ${it::class.qualifiedName}, using default value instead)")
-                    val defaultValue = default.invoke(context)
-                    setValue(thisRef, property, defaultValue)
-                    defaultValue
-                }
+            } catch (e: Exception) {
+                restoreDefault(thisRef, property, "Cannot deserialize attribute ${property.name}. Reason: ${e::class.java.name}: ${e.message} (using default value instead)")
             }
         }
 
@@ -57,5 +64,12 @@ abstract class AttributeDelegate<V: Any>(private val clazz: KClass<*>, val names
 
     open operator fun setValue(thisRef: AbstractDialogue, property: KProperty<*>, any: V) {
         attribute(namespace.invoke(), property.name) { Memorable.pack(any) }
+    }
+
+    private fun restoreDefault(thisRef: AbstractDialogue, property: KProperty<*>, message: String) = with (AbstractDialogue.run) {
+        context.logger.warn(message)
+        val defaultValue = default.invoke(context)
+        setValue(thisRef, property, defaultValue)
+        defaultValue
     }
 }

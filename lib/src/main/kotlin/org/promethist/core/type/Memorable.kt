@@ -3,7 +3,6 @@ package org.promethist.core.type
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import org.promethist.common.ObjectUtil
-import kotlin.reflect.jvm.jvmName
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "_class")
 @JsonSubTypes(
@@ -22,8 +21,8 @@ interface Memorable {
 
         fun convert(any: Any): Any = when {
             Memory.canContainNatively(any) -> any
-            any is Collection<*> -> any.map { mapOf(it!!::class.jvmName to convert(it)) }
-            any is Map<*, *> -> any.mapValues { mapOf(it.value!!::class.jvmName to convert(it.value!!)) }
+            any is Collection<*> -> any.map { mapOf(MemoryTypeIdResolver().idFromValue(it!!) to convert(it)) }
+            any is Map<*, *> -> any.mapValues { mapOf(MemoryTypeIdResolver().idFromValue(it.value!!) to convert(it.value!!)) }
             else -> ObjectUtil.defaultMapper.convertValue(any, Map::class.java)
         }
 
