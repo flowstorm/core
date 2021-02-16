@@ -21,13 +21,9 @@ class DialogueEventResourceImpl: DialogueEventResource {
     @Inject
     lateinit var query: Query
 
-    override fun getDialogueEvents(): List<DialogueEvent> {
-        return eventRepository.getDialogueEvents(query)
-    }
+    override fun getDialogueEvents(): List<DialogueEvent> = eventRepository.find(query)
 
-    override fun create(dialogueEvent: DialogueEvent) {
-        eventRepository.create(dialogueEvent)
-    }
+    override fun create(dialogueEvent: DialogueEvent) = eventRepository.create(dialogueEvent).let {  }
 
-    override fun get(eventId: Id<DialogueEvent>): DialogueEvent? = eventRepository.get(eventId)
+    override fun get(eventId: Id<DialogueEvent>): DialogueEvent = eventRepository.get(eventId)
 }

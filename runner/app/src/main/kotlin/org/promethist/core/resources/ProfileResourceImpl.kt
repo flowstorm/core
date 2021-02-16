@@ -22,13 +22,9 @@ class ProfileResourceImpl : ProfileResource {
     @Inject
     lateinit var query: Query
 
-
     override fun find(): List<Profile> = profileRepository.find(query)
 
-    override fun get(profileId: Id<Profile>): Profile {
-        return profileRepository.get(profileId)
-            ?: throw NotFoundException("Profile $profileId not found.")
-    }
+    override fun get(profileId: Id<Profile>): Profile = profileRepository.get(profileId)
 
     override fun create(profile: Profile) = error("Not supported")
 

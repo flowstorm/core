@@ -17,6 +17,7 @@ import org.promethist.common.query.Query
 import org.promethist.core.model.Session
 import org.promethist.core.model.Turn
 import org.promethist.core.model.User
+import org.promethist.core.repository.EntityRepository
 import org.promethist.core.repository.SessionRepository
 import java.util.*
 
@@ -26,7 +27,27 @@ class DynamoSessionRepository : DynamoAbstractEntityRepository<Session>(), Sessi
     private val sessionsTable by lazy { database.getTable(tableName("session")) }
     private val turnsTable by lazy { database.getTable(tableName("turn")) }
 
-    override fun getSessions(query: Query): List<Session> {
+    override fun findBy(userId: Id<User>): List<Session> {
+        val spec = ScanSpec()
+            .withFilterExpression(".#user.#id = :value")
+            .withNameMap(NameMap().with("#user", "user").with("#id", "_id"))
+            .withValueMap(ValueMap().withString(":value", userId.toString()))
+        return sessionsTable.scan(spec).map { item -> item.toSession(turnsTable) }
+    }
+
+    override fun get(sessionId: String): Session {
+        val index = sessionsTable.getIndex("sessionId")
+        return index.query(KeyAttribute("sessionId", sessionId)).singleOrNull()?.toSession(turnsTable, limit = 10) ?: throw EntityRepository.EntityNotFound("Session $sessionId not found")
+    }
+
+    override fun get(id: Id<Session>): Session = find(id) ?: throw EntityRepository.EntityNotFound("Session $id not found")
+
+
+    override fun find(id: Id<Session>): Session? {
+        return sessionsTable.getItem(KeyAttribute("_id", id.toString()))?.toSession(turnsTable)
+    }
+
+    override fun find(query: Query): List<Session> {
         val spec = QuerySpec()
         var datetime: Date? = null
         if (query.seek_id != null) {
@@ -48,26 +69,6 @@ class DynamoSessionRepository : DynamoAbstractEntityRepository<Session>(), Sessi
 
         return sessionsTable.getIndex("space_id").query(spec).map { item -> item.toSession(turnsTable) }
     }
-
-    override fun getForUser(userId: Id<User>): List<Session> {
-        val spec = ScanSpec()
-            .withFilterExpression(".#user.#id = :value")
-            .withNameMap(NameMap().with("#user", "user").with("#id", "_id"))
-            .withValueMap(ValueMap().withString(":value", userId.toString()))
-        return sessionsTable.scan(spec).map { item -> item.toSession(turnsTable) }
-    }
-
-    override fun get(sessionId: String): Session? {
-        val index = sessionsTable.getIndex("sessionId")
-        return index.query(KeyAttribute("sessionId", sessionId)).singleOrNull()?.toSession(turnsTable, limit = 10)
-    }
-
-
-    override fun get(id: Id<Session>): Session? {
-        return sessionsTable.getItem(KeyAttribute("_id", id.toString()))?.toSession(turnsTable)
-    }
-
-    override fun find(query: Query): List<Session> = getSessions(query)
 
     override fun getAll(): List<Session> = sessionsTable.scan().toList().map { item -> item.toSession(turnsTable) }
 
