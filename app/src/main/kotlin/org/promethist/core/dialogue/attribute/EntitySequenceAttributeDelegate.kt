@@ -11,14 +11,10 @@ class EntitySequenceAttributeDelegate<E: NamedEntity>(
         namespace: (() -> String),
         val nextValue: (SequenceAttribute<E, String>.() -> E?)
 ) {
-    private val attributeDelegate = ContextualAttributeDelegate(scope, MemoryMutableSet::class, namespace) {
-        MemoryMutableSet<String>()
-    }.apply {
-        valueTypeControl = false
-    }
+    private val attributeDelegate = ContextualAttributeDelegate(scope, MemoryMutableSet::class, namespace) { MemoryMutableSet<String>() }
 
     operator fun getValue(thisRef: AbstractDialogue, property: KProperty<*>): SequenceAttribute<E, String> {
-        val memories = attributeDelegate.getValue(thisRef, property)
+        val memories = attributeDelegate.getValue(thisRef, property, false)
         return object : SequenceAttribute<E, String>(entities, memories, nextValue) {
             override fun toMemoryValue(e: E) = e.name
         }

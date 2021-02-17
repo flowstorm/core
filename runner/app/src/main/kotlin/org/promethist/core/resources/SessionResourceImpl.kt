@@ -2,6 +2,7 @@ package org.promethist.core.resources
 
 import org.litote.kmongo.*
 import org.promethist.common.query.Query
+import org.promethist.common.security.Authorized
 import org.promethist.core.model.Session
 import org.promethist.core.model.User
 import org.promethist.core.repository.SessionRepository
@@ -12,6 +13,7 @@ import javax.ws.rs.core.MediaType
 
 @Path("/sessions")
 @Produces(MediaType.APPLICATION_JSON)
+@Authorized
 class SessionResourceImpl: SessionResource {
 
     @Inject

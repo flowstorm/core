@@ -11,12 +11,11 @@ import org.promethist.client.BotContext
 import org.promethist.common.AppConfig
 import org.promethist.core.BotCore
 import org.promethist.core.Response
-import org.promethist.core.model.TtsConfig
 import org.promethist.core.type.Dynamic
 import org.promethist.util.LoggerDelegate
 import java.util.*
 
-class PromethistApp : ActionsSdkApp() {
+class GoogleAssistantApp : ActionsSdkApp() {
 
     companion object {
         val appKey = object : ThreadLocal<String>() {
@@ -32,7 +31,7 @@ class PromethistApp : ActionsSdkApp() {
         fun addResponse(response: Response) = getResponseBuilder(request).apply {
             add(SimpleResponse().apply {
                 displayText = response.text()
-                ssml = response.ssml("Google")
+                ssml = response.ssml(Response.IVA.GoogleAssistant)
             })
             response.items.forEach {
                 if (it.image != null) {

@@ -15,11 +15,9 @@ import kotlin.reflect.jvm.jvmErasure
 
 abstract class AttributeDelegate<V: Any>(private val clazz: KClass<*>, val namespace: (() -> String), private val expiration: DateTimeUnit? = null, val default: (Context.() -> V)) {
 
-    var valueTypeControl: Boolean = true
-
     abstract fun attribute(namespace: String, name: String, lambda: (Memorable?) -> Memorable): Memorable
 
-    operator fun getValue(thisRef: AbstractDialogue, property: KProperty<*>): V =
+    fun getValue(thisRef: AbstractDialogue, property: KProperty<*>, valueTypeControl: Boolean): V =
         attribute(namespace.invoke(), property.name) { attribute ->
             if (attribute == null || (expiration != null && attribute is Memory<*> && attribute.time + expiration < DateTime.now())) {
                 Memorable.pack(default.invoke(AbstractDialogue.run.context))
@@ -46,20 +44,16 @@ abstract class AttributeDelegate<V: Any>(private val clazz: KClass<*>, val names
                 }
                 attribute
             }.let {
-                val propClass = property.returnType.jvmErasure
-                val valueClass = it::class
-                if (!valueTypeControl || valueClass.isSubclassOf(propClass)) {
-                    it as V
-                } else {
-                    with (AbstractDialogue.run) {
-                        context.logger.warn("Attribute ${property.name} value type mishmash (expected ${propClass.qualifiedName}, got ${valueClass.qualifiedName}, using default value instead)")
-                        val defaultValue = default.invoke(context)
-                        setValue(thisRef, property, defaultValue)
-                        defaultValue
-                    }
+                it as? V ?: with (AbstractDialogue.run) {
+                    context.logger.warn("Attribute ${property.name} value type mishmash (expected ${property.returnType.jvmErasure.qualifiedName}, got ${it::class.qualifiedName}, using default value instead)")
+                    val defaultValue = default.invoke(context)
+                    setValue(thisRef, property, defaultValue)
+                    defaultValue
                 }
             }
         }
+
+    operator fun getValue(thisRef: AbstractDialogue, property: KProperty<*>): V = getValue(thisRef, property, true)
 
     open operator fun setValue(thisRef: AbstractDialogue, property: KProperty<*>, any: V) {
         attribute(namespace.invoke(), property.name) { Memorable.pack(any) }

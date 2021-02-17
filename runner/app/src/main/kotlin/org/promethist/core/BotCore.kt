@@ -10,7 +10,7 @@ import java.util.*
 object BotCore {
 
     val url = ServiceUrlResolver.getEndpointUrl("core", ServiceUrlResolver.RunMode.local)
-    val resource = RestClient.instance(CoreResource::class.java, url)
+    val resource = RestClient.resource(CoreResource::class.java, url)
 
     private val contexts = mutableMapOf<String, BotContext>()
 

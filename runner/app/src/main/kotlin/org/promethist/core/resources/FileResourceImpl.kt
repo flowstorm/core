@@ -1,5 +1,6 @@
 package org.promethist.core.resources
 
+import org.promethist.common.security.Authorized
 import org.promethist.core.storage.FileStorage
 import java.io.InputStream
 import javax.inject.Inject
@@ -33,9 +34,11 @@ class FileResourceImpl: FileResource {
                 .build()
     }
 
+    @Authorized
     override fun writeFile(path: String, contentType: String, meta: List<String>, input: InputStream) =
             fileStorage.writeFile(path, contentType, meta, input)
 
+    @Authorized
     override fun deleteFile(path: String) = fileStorage.deleteFile(path)
 
     override fun getFile(path: String) = try {

@@ -5,7 +5,7 @@ import com.amazon.ask.model.IntentRequest
 import com.amazon.ask.request.Predicates.intentName
 import org.promethist.core.BotCore
 
-class MessageIntentHandler : AbstractHandler(intentName("MessageIntent")) {
+class MessageIntentHandler : AmazonAlexaHandler(intentName("MessageIntent")) {
 
     override fun handle(input: HandlerInput) = withContext(input) {
         val text = (input.requestEnvelope.request as IntentRequest).intent.slots["text"]!!.value

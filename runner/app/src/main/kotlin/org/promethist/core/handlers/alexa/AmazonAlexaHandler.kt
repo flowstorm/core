@@ -18,18 +18,18 @@ import org.litote.kmongo.getCollection
 import org.promethist.client.BotContext
 import org.promethist.common.AppConfig
 import org.promethist.common.JerseyApplication
-import org.promethist.common.ObjectUtil
+import org.promethist.common.ObjectUtil.defaultMapper
 import org.promethist.common.monitoring.Monitor
 import org.promethist.core.BotCore
 import org.promethist.core.Response
-import org.promethist.core.model.TtsConfig
+import org.promethist.core.model.Card
 import org.promethist.core.type.Dynamic
 import org.promethist.core.type.Location
 import org.promethist.util.LoggerDelegate
 import java.util.*
 import java.util.function.Predicate
 
-abstract class AbstractHandler(private val predicate: Predicate<HandlerInput>) : RequestHandler {
+abstract class AmazonAlexaHandler(private val predicate: Predicate<HandlerInput>) : RequestHandler {
 
     val title = AppConfig.instance["title"]
 
@@ -90,9 +90,18 @@ abstract class AbstractHandler(private val predicate: Predicate<HandlerInput>) :
 
         fun addResponse(response: Response): ResponseBuilder = input.responseBuilder.apply {
             val shouldEndSession = response.sessionEnded && response.sleepTimeout == 0
-            val ssml = response.ssml("Amazon")
+            val ssml = response.ssml(Response.IVA.AmazonAlexa)
             withSpeech(ssml)
             response.items.forEach { item ->
+                // command
+                if (item.text?.startsWith('#') == true) {
+                    when (item.text()) {
+                        "#card" -> {
+                            val card = defaultMapper.readValue(item.code, Card::class.java)
+                            withSimpleCard(card.title, card.text)
+                        }
+                    }
+                }
                 // image
                 if (item.image != null) {
                     when {
@@ -100,8 +109,8 @@ abstract class AbstractHandler(private val predicate: Predicate<HandlerInput>) :
                             val documentMapType: TypeReference<HashMap<String, Any>> =
                                 object : TypeReference<HashMap<String, Any>>() {}
                             val document: Map<String, Any> =
-                                ObjectUtil.defaultMapper.readValue(documentJsonTemplate, documentMapType)
-                            val dataSources: Map<String, Any> = ObjectUtil.defaultMapper.readValue(
+                                defaultMapper.readValue(documentJsonTemplate, documentMapType)
+                            val dataSources: Map<String, Any> = defaultMapper.readValue(
                                 dataSourcesJson(item.image ?: ""),
                                 documentMapType
                             )

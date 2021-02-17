@@ -13,14 +13,10 @@ class MapAttributeDelegate<E : Any>(
         fun put(key: String): E?
     }
 
-    private val attributeDelegate = ContextualAttributeDelegate(scope, MutableSet::class, namespace) {
-        StringMutableSet()
-    }.apply {
-        valueTypeControl = false
-    }
+    private val attributeDelegate = ContextualAttributeDelegate(scope, MutableSet::class, namespace) { StringMutableSet() }
 
     operator fun getValue(thisRef: AbstractDialogue, property: KProperty<*>): KeyMap<E> {
-        val keys = attributeDelegate.getValue(thisRef, property)
+        val keys = attributeDelegate.getValue(thisRef, property, false)
         return object : HashMap<String, E>(keys.map { it to entities[it] }.toMap()), KeyMap<E> {
 
             override fun get(key: String): E? = if (keys.contains(key)) entities[key] else null

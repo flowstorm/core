@@ -258,6 +258,7 @@ class ClientCommand: CommandRunner<Application.Config, ClientCommand.Config> {
             override fun onSessionId(client: BotClient, sessionId: String?) {
                 super.onSessionId(client, sessionId)
                 if (sessionId == null) {
+                    responded = true
                     val version = config.version
                     loadConfig()
                     if (version != config.version) {
@@ -384,7 +385,7 @@ class ClientCommand: CommandRunner<Application.Config, ClientCommand.Config> {
                     else -> {
                         if (text.startsWith("audio:"))
                             client.socket.sendAudioData(File(text.substring(6)).readBytes())
-                        else if (client.state == BotClient.State.Responding) {
+                        else if (client.state == BotClient.State.Responding || client.state == BotClient.State.Listening) {
                             responded = false
                             client.doText(text)
                         }

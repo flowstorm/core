@@ -10,14 +10,10 @@ class NamedEntitySetAttributeDelegate<E: NamedEntity>(
         scope: ContextualAttributeDelegate.Scope,
         namespace: (() -> String)
 ) {
-    private val attributeDelegate = ContextualAttributeDelegate(scope, StringMutableSet::class, namespace) {
-        StringMutableSet()
-    }.apply {
-        valueTypeControl = false
-    }
+    private val attributeDelegate = ContextualAttributeDelegate(scope, StringMutableSet::class, namespace) { StringMutableSet() }
 
     operator fun getValue(thisRef: AbstractDialogue, property: KProperty<*>): MutableSet<E> {
-        val names = attributeDelegate.getValue(thisRef, property)
+        val names = attributeDelegate.getValue(thisRef, property, false)
         return object : LinkedHashSet<E>(names.mapNotNull { name -> entities.find { it.name == name } }) {
             override fun add(entity: E): Boolean {
                 names.add(entity.name)

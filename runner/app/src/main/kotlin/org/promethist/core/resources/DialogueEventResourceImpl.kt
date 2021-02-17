@@ -2,6 +2,7 @@ package org.promethist.core.resources
 
 import org.litote.kmongo.*
 import org.promethist.common.query.Query
+import org.promethist.common.security.Authorized
 import org.promethist.core.model.DialogueEvent
 import org.promethist.core.repository.EventRepository
 import javax.inject.Inject
@@ -11,6 +12,7 @@ import javax.ws.rs.core.MediaType
 
 @Path("/dialogueEvent")
 @Produces(MediaType.APPLICATION_JSON)
+@Authorized
 class DialogueEventResourceImpl: DialogueEventResource {
 
     @Inject

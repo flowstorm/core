@@ -12,7 +12,6 @@ import javax.ws.rs.Produces
 import javax.ws.rs.core.MediaType
 
 @Api(description = "Core Service")
-@Authenticated
 interface CoreResource {
     @PUT
     @Path("process")

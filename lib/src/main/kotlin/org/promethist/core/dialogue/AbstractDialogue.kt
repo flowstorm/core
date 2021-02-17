@@ -2,13 +2,13 @@ package org.promethist.core.dialogue
 
 import org.promethist.core.Context
 import org.promethist.core.ExpectedPhrase
+import org.promethist.core.dialogue.attribute.SequenceAttribute
 import org.promethist.core.model.DialogueModel
 import org.promethist.core.model.SttConfig
 import org.promethist.core.model.TtsConfig
 import org.promethist.core.model.Voice
 import org.promethist.core.runtime.Loader
-import org.promethist.core.type.Location
-import org.promethist.core.type.PropertyMap
+import org.promethist.core.type.*
 import org.promethist.core.type.Throwables.root
 import java.util.*
 import kotlin.random.Random
@@ -198,8 +198,32 @@ abstract class AbstractDialogue : DialogueModel {
 
         constructor(vararg text: (Context.(Response) -> String)) : this(nextId--, true, *text)
 
+        private val sequence by lazy {
+            val list = List(texts.size) { it }.shuffled()
+            val memories = context.session.attributes[dialogueName].getOrPut("response$id") {
+                Memorable.pack(MemoryMutableSet<Int>())
+            } as MemoryMutableSet<Int>
+            object : SequenceAttribute<Int, Int>(list, memories, { nextInLine(1.second) }) {
+                override fun toMemoryValue(e: Int) = e
+            }
+        }
+
         fun getText(context: Context, index: Int = -1) = run(context, this) {
-            if (texts.isNotEmpty()) texts[if (index < 0) Random.nextInt(texts.size) else index](context, this) else null
+            if (texts.isNotEmpty())
+                texts[
+                    when {
+                        (texts.size == 1) -> 0
+                        (index > -1) -> index
+                        else -> {
+                            val index = sequence.next
+                            if (index == null || index >= texts.size)
+                                Random.nextInt(texts.size)
+                            else
+                                index
+                        }
+                    }
+                ](context, this)
+            else null
         } as String?
     }
 

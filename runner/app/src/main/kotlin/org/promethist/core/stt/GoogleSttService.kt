@@ -26,9 +26,8 @@ class GoogleSttService(private val callback: SttCallback) : SttService {
                 .addSpeechContexts(SpeechContext.newBuilder()
                         .addAllPhrases(expectedPhrases.map { it.text })
                         .build())
+                .setModel(config.model)
                 .buildPartial()
-        //		            .setModel("default")
-        //		            .build();
         val observer = GoogleSttObserver(callback, config.locale, config.zoneId, singleUtterance)
         val stream = client.streamingRecognizeCallable().splitCall(observer)
         return GoogleSttStream.create(stream, recognitionConfig, singleUtterance)

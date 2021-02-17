@@ -11,7 +11,6 @@ import javax.ws.rs.core.MediaType
 
 @Api(tags = ["Sessions"])
 @Produces(MediaType.APPLICATION_JSON)
-@Authenticated
 interface SessionResource {
 
     @GET

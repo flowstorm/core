@@ -10,7 +10,6 @@ import javax.ws.rs.Path
 import javax.ws.rs.QueryParam
 
 @Api(tags = ["Reports"])
-@Authenticated
 interface ReportResource {
 
     @GET

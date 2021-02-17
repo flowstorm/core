@@ -7,7 +7,7 @@ import com.amazon.ask.request.Predicates.requestType
 import org.promethist.core.BotCore
 import java.util.*
 
-class LaunchRequestHandler : AbstractHandler(requestType(LaunchRequest::class.java)) {
+class LaunchRequestHandler : AmazonAlexaHandler(requestType(LaunchRequest::class.java)) {
 
     override fun handle(input: HandlerInput): Optional<Response> = withContext(input) {
         val speech = BotCore.doIntro(context)

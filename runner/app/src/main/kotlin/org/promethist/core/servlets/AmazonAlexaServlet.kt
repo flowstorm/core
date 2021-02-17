@@ -5,8 +5,8 @@ import com.amazon.ask.servlet.SkillServlet
 import org.promethist.core.handlers.alexa.*
 import javax.servlet.annotation.WebServlet
 
-@WebServlet(name = "Alexa Skill Servlet", urlPatterns = ["/alexa"])
-class AlexaSkillServlet : SkillServlet(
+@WebServlet(name = "Amazon Alexa Servlet", urlPatterns = ["/alexa"])
+class AmazonAlexaServlet : SkillServlet(
         Skills.standard()
             .addRequestHandlers(
                     CancelAndStopIntentHandler(),
