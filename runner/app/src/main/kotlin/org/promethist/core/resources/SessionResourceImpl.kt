@@ -30,7 +30,7 @@ class SessionResourceImpl: SessionResource {
         sessionRepository.update(session)
     }
 
-    override fun get(sessionId: String): Session = sessionRepository.get(sessionId)
+    override fun get(sessionId: String): Session? = sessionRepository.findBy(sessionId)
 
     override fun getForUser(userId: Id<User>): List<Session> = sessionRepository.findBy(userId)
 }

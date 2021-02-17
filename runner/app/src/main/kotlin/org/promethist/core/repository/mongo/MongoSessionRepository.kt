@@ -24,8 +24,8 @@ class MongoSessionRepository:  MongoAbstractEntityRepository<Session>(), Session
         return entity
     }
 
-    override fun get(sessionId: String): Session {
-        return sessions.find(Session::sessionId eq sessionId).singleOrNull() ?: throw EntityRepository.EntityNotFound("Session $sessionId not found")
+    override fun findBy(sessionId: String): Session? {
+        return sessions.find(Session::sessionId eq sessionId).singleOrNull()
     }
 
     override fun getAll(): List<Session> {

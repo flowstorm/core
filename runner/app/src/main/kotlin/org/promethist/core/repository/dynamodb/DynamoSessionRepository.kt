@@ -35,9 +35,9 @@ class DynamoSessionRepository : DynamoAbstractEntityRepository<Session>(), Sessi
         return sessionsTable.scan(spec).map { item -> item.toSession(turnsTable) }
     }
 
-    override fun get(sessionId: String): Session {
+    override fun findBy(sessionId: String): Session? {
         val index = sessionsTable.getIndex("sessionId")
-        return index.query(KeyAttribute("sessionId", sessionId)).singleOrNull()?.toSession(turnsTable, limit = 10) ?: throw EntityRepository.EntityNotFound("Session $sessionId not found")
+        return index.query(KeyAttribute("sessionId", sessionId)).singleOrNull()?.toSession(turnsTable, limit = 10)
     }
 
     override fun get(id: Id<Session>): Session = find(id) ?: throw EntityRepository.EntityNotFound("Session $id not found")

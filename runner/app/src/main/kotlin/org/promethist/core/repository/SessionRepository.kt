@@ -7,5 +7,5 @@ import org.promethist.core.model.User
 
 interface SessionRepository : EntityRepository<Session> {
     fun findBy(userId: Id<User>): List<Session>
-    fun get(sessionId: String): Session
+    fun findBy(sessionId: String): Session?
 }
