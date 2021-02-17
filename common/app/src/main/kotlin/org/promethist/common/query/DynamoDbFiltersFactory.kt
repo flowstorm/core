@@ -1,6 +1,5 @@
 package org.promethist.common.query
 
-import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec
 import java.text.SimpleDateFormat
 import java.util.*
 import com.amazonaws.services.dynamodbv2.document.utils.NameMap
@@ -55,7 +54,7 @@ object DynamoDbFiltersFactory {
             nameMap.with("#placeholderTime", "datetime")
             valueMap.withString(":upperbound", SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(datetime))
         }
-        return Quadruple(filterExpression,keywordExpression, nameMap, valueMap)
+        return Quadruple(filterExpression, keywordExpression, nameMap, valueMap)
     }
     data class Quadruple(val A: MutableList<String>, val B: MutableList<String>, val C: NameMap, val D: ValueMap )
 }
