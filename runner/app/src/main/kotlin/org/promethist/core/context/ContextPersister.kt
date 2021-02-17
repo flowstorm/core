@@ -16,7 +16,7 @@ import org.promethist.common.AppConfig
 import org.promethist.common.ObjectUtil
 import org.promethist.common.monitoring.Monitor
 import org.promethist.core.Context
-import org.promethist.core.model.Entity
+import org.promethist.common.model.Entity
 import org.promethist.core.monitoring.capture
 import org.promethist.core.repository.ProfileRepository
 import org.promethist.core.resources.SessionResource

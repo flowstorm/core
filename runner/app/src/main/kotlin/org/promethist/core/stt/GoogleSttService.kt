@@ -14,20 +14,23 @@ class GoogleSttService(private val callback: SttCallback) : SttService {
     override fun createStream(config: SttConfig, expectedPhrases: List<ExpectedPhrase>): GoogleSttStream {
         val singleUtterance = (config.mode == SttConfig.Mode.SingleUtterance)
 
-        val recognitionConfig = RecognitionConfig.newBuilder()
-                .setEncoding(when (config.encoding) {
-                    SttConfig.Encoding.MULAW -> RecognitionConfig.AudioEncoding.MULAW
-                    else -> RecognitionConfig.AudioEncoding.LINEAR16
-                })
-                .setLanguageCode(config.locale.language)
-                .setSampleRateHertz(config.sampleRate)
-                .setMaxAlternatives(5)
-                .setEnableWordTimeOffsets(true)
-                .addSpeechContexts(SpeechContext.newBuilder()
-                        .addAllPhrases(expectedPhrases.map { it.text })
-                        .build())
-                .setModel(config.model)
-                .buildPartial()
+        val recognitionConfig = RecognitionConfig.newBuilder().apply {
+            encoding = when (config.encoding) {
+                SttConfig.Encoding.MULAW -> RecognitionConfig.AudioEncoding.MULAW
+                else -> RecognitionConfig.AudioEncoding.LINEAR16
+            }
+            languageCode = config.locale.language
+            sampleRateHertz = config.sampleRate
+            maxAlternatives = 5
+            enableWordTimeOffsets = true
+            addSpeechContexts(
+                SpeechContext.newBuilder()
+                    .addAllPhrases(expectedPhrases.map { it.text })
+                    .build()
+            )
+            if (!singleUtterance)
+                model = config.model
+        }.buildPartial()
         val observer = GoogleSttObserver(callback, config.locale, config.zoneId, singleUtterance)
         val stream = client.streamingRecognizeCallable().splitCall(observer)
         return GoogleSttStream.create(stream, recognitionConfig, singleUtterance)

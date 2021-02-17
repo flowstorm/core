@@ -2,7 +2,7 @@ package org.promethist.core.repository
 
 import org.litote.kmongo.Id
 import org.promethist.common.query.Query
-import org.promethist.core.model.Entity
+import org.promethist.common.model.Entity
 
 interface EntityRepository<E : Entity<E>> {
     fun get(id: Id<E>): E

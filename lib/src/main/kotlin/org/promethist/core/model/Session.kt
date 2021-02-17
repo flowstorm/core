@@ -4,11 +4,12 @@ import org.litote.kmongo.Id
 import org.litote.kmongo.newId
 import org.promethist.core.model.metrics.Metric
 import org.promethist.core.type.*
+import org.promethist.common.model.TimeEntity
 import java.util.*
 
 data class  Session(
         override val _id: Id<Session> = newId(),
-        var datetime: Date = Date(),
+        override var datetime: Date = Date(),
         val sessionId: String,
         val test: Boolean = false,
         var user: User,
@@ -22,7 +23,7 @@ data class  Session(
         val properties: MutablePropertyMap = mutableMapOf(),
         val attributes: Attributes = Attributes(),
         val dialogueStack: DialogueStack = LinkedList()
-) : Entity<Session> {
+) : TimeEntity<Session> {
     val isInitiated get() = initiationId != null
     val clientType get()  = attributes[DialogueModel.defaultNamespace]?.get("clientType")?.let {
         (it as Memory<String>).value

@@ -5,11 +5,12 @@ import org.litote.kmongo.newId
 import org.promethist.core.Context
 import org.promethist.core.dialogue.AbstractDialogue
 import org.promethist.core.type.MutablePropertyMap
+import org.promethist.common.model.TimeEntity
 import java.util.*
 
 data class DialogueEvent(
-    val _id: Id<DialogueEvent> = newId(),
-    var datetime: Date = Date(),
+    override val _id: Id<DialogueEvent> = newId(),
+    override var datetime: Date = Date(),
     val type: Type,
     val user: User,
     val sessionId: String,
@@ -19,7 +20,7 @@ data class DialogueEvent(
     val properties: MutablePropertyMap = mutableMapOf(),
     val text: String,
     val space_id: Id<Space> = NullId()
-) {
+) : TimeEntity<DialogueEvent> {
     enum class Type { ServerError, UserError, UserComment }
 
     constructor(context: Context, dialogue: AbstractDialogue, type: Type, text: String) : this(

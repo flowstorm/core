@@ -13,7 +13,7 @@ import javax.ws.rs.core.MediaType
 @Produces(MediaType.APPLICATION_JSON)
 interface DialogueEventResource : DialogueEventRepository {
     @GET
-    fun getDialogueEvents(): List<DialogueEvent>
+    fun list(): List<DialogueEvent>
 
     fun get(eventId: Id<DialogueEvent>): DialogueEvent?
     override fun create(dialogueEvent: DialogueEvent)

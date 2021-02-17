@@ -1,7 +1,7 @@
 package org.promethist.core.repository.mongo
 
 import com.mongodb.client.MongoDatabase
-import org.promethist.core.model.Entity
+import org.promethist.common.model.Entity
 import org.promethist.core.repository.EntityRepository
 import javax.inject.Inject
 

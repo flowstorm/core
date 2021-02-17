@@ -111,7 +111,7 @@ class CoreResourceImpl : CoreResource {
     }
 
     private fun initSession(key: String, deviceId: String, token: String?, sessionId: String, initiationId: String?, input: Input): Session {
-        val storedSession = sessionResource.get(sessionId)
+        val storedSession = sessionResource.getForId(sessionId)
         val session = if (storedSession != null) {
             logger.info("Restoring the existing session")
             storedSession

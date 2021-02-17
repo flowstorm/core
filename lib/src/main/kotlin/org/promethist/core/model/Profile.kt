@@ -3,6 +3,7 @@ package org.promethist.core.model
 import org.litote.kmongo.Id
 import org.litote.kmongo.newId
 import org.promethist.core.type.Attributes
+import org.promethist.common.model.Entity
 
 data class Profile(
         override val _id: Id<Profile> = newId(),

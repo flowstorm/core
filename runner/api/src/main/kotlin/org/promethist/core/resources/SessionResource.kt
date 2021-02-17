@@ -14,9 +14,9 @@ import javax.ws.rs.core.MediaType
 interface SessionResource {
 
     @GET
-    fun getSessions():List<Session>
+    fun list(): List<Session>
 
-    fun get(sessionId: String): Session?
+    fun getForId(sessionId: String): Session?
     fun create(session: Session)
     fun getForUser(userId: Id<User>): List<Session>
     fun update(session: Session)
