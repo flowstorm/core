@@ -42,11 +42,9 @@ class DynamoEventRepository : DynamoAbstractEntityRepository<DialogueEvent>(), E
         return dialogueEventTable.getIndex("space_id").query(spec).map { item -> ObjectUtil.defaultMapper.readValue(item.toJSON(), DialogueEvent::class.java)}
     }
 
-    override fun getAll(): List<DialogueEvent> {
+    override fun all(): List<DialogueEvent> {
         return dialogueEventTable.scan().toList().map { item -> ObjectUtil.defaultMapper.readValue(item.toJSON(), DialogueEvent::class.java) }
     }
-
-    override fun get(id: Id<DialogueEvent>): DialogueEvent = find(id)!!
 
     override fun find(id: Id<DialogueEvent>): DialogueEvent? {
         return dialogueEventTable.getItem(KeyAttribute("_id", id.toString()))?.let {

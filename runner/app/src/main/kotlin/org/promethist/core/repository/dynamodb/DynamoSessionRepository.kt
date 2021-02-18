@@ -17,7 +17,7 @@ import org.promethist.common.query.Query
 import org.promethist.core.model.Session
 import org.promethist.core.model.Turn
 import org.promethist.core.model.User
-import org.promethist.core.repository.EntityRepository
+import org.promethist.common.repository.EntityRepository
 import org.promethist.core.repository.SessionRepository
 import java.util.*
 
@@ -70,7 +70,7 @@ class DynamoSessionRepository : DynamoAbstractEntityRepository<Session>(), Sessi
         return sessionsTable.getIndex("space_id").query(spec).map { item -> item.toSession(turnsTable) }
     }
 
-    override fun getAll(): List<Session> = sessionsTable.scan().toList().map { item -> item.toSession(turnsTable) }
+    override fun all(): List<Session> = sessionsTable.scan().toList().map { item -> item.toSession(turnsTable) }
 
     override fun create(session: Session): Session {
         sessionsTable.putItem(session.run {

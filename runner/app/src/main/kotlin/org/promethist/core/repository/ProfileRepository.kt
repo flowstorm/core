@@ -1,6 +1,7 @@
 package org.promethist.core.repository
 
 import org.litote.kmongo.Id
+import org.promethist.common.repository.EntityRepository
 import org.promethist.core.model.Profile
 import org.promethist.core.model.Space
 import org.promethist.core.model.User

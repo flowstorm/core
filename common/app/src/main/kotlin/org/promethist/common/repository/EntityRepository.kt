@@ -1,12 +1,12 @@
-package org.promethist.core.repository
+package org.promethist.common.repository
 
 import org.litote.kmongo.Id
-import org.promethist.common.query.Query
 import org.promethist.common.model.Entity
+import org.promethist.common.query.Query
 
 interface EntityRepository<E : Entity<E>> {
-    fun getAll(): List<E>
-    fun get(id: Id<E>): E
+    fun all(): List<E>
+    fun get(id: Id<E>): E = find(id) ?:  throw EntityNotFound("Entity $id not found in repository ${this::class.simpleName}")
     fun find(id: Id<E>): E?
     fun find(query: Query): List<E>
     fun create(entity: E): E

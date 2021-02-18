@@ -14,10 +14,10 @@ import javax.ws.rs.core.MediaType
 interface SessionResource {
 
     @GET
-    fun list(): List<Session>
+    fun find(): List<Session>
 
-    fun getForId(sessionId: String): Session?
+    fun findBy(sessionId: String): Session?
     fun create(session: Session)
-    fun getForUser(userId: Id<User>): List<Session>
+    fun findBy(userId: Id<User>): List<Session>
     fun update(session: Session)
 }

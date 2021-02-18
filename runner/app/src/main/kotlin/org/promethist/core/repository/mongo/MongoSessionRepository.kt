@@ -7,7 +7,7 @@ import org.promethist.common.query.MongoFiltersFactory
 import org.promethist.common.query.Query
 import org.promethist.core.model.Session
 import org.promethist.core.model.User
-import org.promethist.core.repository.EntityRepository
+import org.promethist.common.repository.EntityRepository
 import org.promethist.core.repository.SessionRepository
 
 class MongoSessionRepository:  MongoAbstractEntityRepository<Session>(), SessionRepository {
@@ -28,7 +28,7 @@ class MongoSessionRepository:  MongoAbstractEntityRepository<Session>(), Session
         return sessions.find(Session::sessionId eq sessionId).singleOrNull()
     }
 
-    override fun getAll(): List<Session> {
+    override fun all(): List<Session> {
         return sessions.find().toMutableList()
     }
 

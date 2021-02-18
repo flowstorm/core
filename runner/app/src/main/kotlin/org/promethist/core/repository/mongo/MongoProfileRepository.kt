@@ -9,7 +9,7 @@ import org.promethist.common.query.Query
 import org.promethist.core.model.Profile
 import org.promethist.core.model.Space
 import org.promethist.core.model.User
-import org.promethist.core.repository.EntityRepository
+import org.promethist.common.repository.EntityRepository
 import org.promethist.core.repository.ProfileRepository
 import kotlin.collections.toList
 
@@ -21,7 +21,7 @@ class MongoProfileRepository : MongoAbstractEntityRepository<Profile>(), Profile
     override fun find(query: Query): List<Profile> =
         profiles.aggregate(MongoFiltersFactory.createPipeline(Profile::class, query)).toList()
 
-    override fun getAll(): List<Profile> = profiles.find().toList()
+    override fun all(): List<Profile> = profiles.find().toList()
     override fun get(id: Id<Profile>): Profile = find(id) ?: throw EntityRepository.EntityNotFound("Profile $id not found")
 
     override fun create(profile: Profile): Profile {

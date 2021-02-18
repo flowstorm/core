@@ -14,7 +14,7 @@ import org.promethist.common.ObjectUtil
 import org.promethist.common.query.DynamoDbFiltersFactory
 import org.promethist.common.query.Query
 import org.promethist.core.model.*
-import org.promethist.core.repository.EntityRepository
+import org.promethist.common.repository.EntityRepository
 import org.promethist.core.repository.ProfileRepository
 import kotlin.collections.toList
 
@@ -57,7 +57,7 @@ class DynamoProfileRepository : DynamoAbstractEntityRepository<Profile>(), Profi
     }
 
 
-    override fun getAll(): List<Profile> = profilesTable.scan().toList().map { item -> ObjectUtil.defaultMapper.readValue(item.toJSON(), Profile::class.java) }
+    override fun all(): List<Profile> = profilesTable.scan().toList().map { item -> ObjectUtil.defaultMapper.readValue(item.toJSON(), Profile::class.java) }
     override fun get(id: Id<Profile>): Profile = find(id) ?: throw EntityRepository.EntityNotFound("Profile $id not found")
 
     override fun create(profile: Profile): Profile {

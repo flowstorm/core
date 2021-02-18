@@ -42,8 +42,7 @@ class MongoEventRepository : MongoAbstractEntityRepository<DialogueEvent>(), Eve
         return dialogueEventCollection.aggregate(pipeline).toMutableList()
     }
 
-    override fun getAll(): List<DialogueEvent> = dialogueEventCollection.find().toList()
-    override fun get(id: Id<DialogueEvent>): DialogueEvent = find(id)!!
+    override fun all(): List<DialogueEvent> = dialogueEventCollection.find().toList()
 
     override fun create(dialogueEvent: DialogueEvent): DialogueEvent {
         dialogueEventCollection.insertOne(dialogueEvent)

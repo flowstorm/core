@@ -23,7 +23,7 @@ class SessionResourceImpl: SessionResource {
     @Inject
     lateinit var query: Query
 
-    override fun list(): List<Session> = sessionRepository.find(query)
+    override fun find(): List<Session> = sessionRepository.find(query)
 
     override fun create(session: Session) {
         sessionRepository.create(session)
@@ -33,7 +33,7 @@ class SessionResourceImpl: SessionResource {
         sessionRepository.update(session)
     }
 
-    override fun getForId(sessionId: String): Session? = sessionRepository.findBy(sessionId)
+    override fun findBy(sessionId: String): Session? = sessionRepository.findBy(sessionId)
 
-    override fun getForUser(userId: Id<User>): List<Session> = sessionRepository.findBy(userId)
+    override fun findBy(userId: Id<User>): List<Session> = sessionRepository.findBy(userId)
 }
