@@ -25,13 +25,9 @@ class SessionResourceImpl: SessionResource {
 
     override fun find(): List<Session> = sessionRepository.find(query)
 
-    override fun create(session: Session) {
-        sessionRepository.create(session)
-    }
+    override fun create(session: Session) = sessionRepository.create(session)
 
-    override fun update(session: Session) {
-        sessionRepository.update(session)
-    }
+    override fun update(session: Session) = sessionRepository.update(session)
 
     override fun findBy(sessionId: String): Session? = sessionRepository.findBy(sessionId)
 

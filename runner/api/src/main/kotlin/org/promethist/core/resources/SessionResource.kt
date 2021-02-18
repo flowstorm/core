@@ -17,7 +17,7 @@ interface SessionResource {
     fun find(): List<Session>
 
     fun findBy(sessionId: String): Session?
-    fun create(session: Session)
+    fun create(session: Session): Session
     fun findBy(userId: Id<User>): List<Session>
-    fun update(session: Session)
+    fun update(session: Session): Session
 }
