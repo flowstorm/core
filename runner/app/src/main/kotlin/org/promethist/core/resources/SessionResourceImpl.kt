@@ -1,10 +1,13 @@
 package org.promethist.core.resources
 
 import org.litote.kmongo.*
+import org.promethist.common.query.Query
 import org.promethist.common.resources.EntityResourceBase
 import org.promethist.common.security.Authorized
 import org.promethist.core.model.Session
 import org.promethist.core.model.User
+import org.promethist.core.repository.SessionRepository
+import javax.inject.Inject
 import javax.ws.rs.Path
 import javax.ws.rs.Produces
 import javax.ws.rs.core.MediaType
@@ -12,25 +15,25 @@ import javax.ws.rs.core.MediaType
 @Path("/sessions")
 @Produces(MediaType.APPLICATION_JSON)
 @Authorized
-class SessionResourceImpl: SessionResource, EntityResourceBase<Session>() {
+class SessionResourceImpl: SessionResource {
 
-    override val collection by lazy { database.getCollection<Session>() }
+    @Inject
+    lateinit var sessionRepository: SessionRepository
 
-    override fun list() = collection.aggregate(seek<Session>()).toMutableList()
+    @Inject
+    lateinit var query: Query
+
+    override fun list(): List<Session> = sessionRepository.find(query)
 
     override fun create(session: Session) {
-        collection.insertOne(session)
+        sessionRepository.create(session)
     }
 
     override fun update(session: Session) {
-        collection.updateOneById(session._id, session, upsert())
+        sessionRepository.update(session)
     }
 
-    override fun getForId(sessionId: String): Session? {
-        return collection.find(Session::sessionId eq sessionId).singleOrNull()
-    }
+    override fun getForId(sessionId: String): Session? = sessionRepository.findBy(sessionId)
 
-    override fun getForUser(userId: Id<User>): List<Session> {
-        return collection.find(Session::user / User::_id eq userId).toMutableList()
-    }
+    override fun getForUser(userId: Id<User>): List<Session> = sessionRepository.findBy(userId)
 }

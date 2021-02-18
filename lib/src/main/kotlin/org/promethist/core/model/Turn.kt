@@ -1,5 +1,6 @@
 package org.promethist.core.model
 
+import org.litote.kmongo.Id
 import org.promethist.core.ExpectedPhrase
 import org.promethist.core.Input
 import org.promethist.core.Response
@@ -20,7 +21,8 @@ data class Turn(
         @Transient val expectedPhrases: MutableList<ExpectedPhrase> = mutableListOf(),
         var sttMode: SttConfig.Mode? = null,
         var duration: Long? = null,
-        val log: MutableList<LogEntry> = mutableListOf()
+        val log: MutableList<LogEntry> = mutableListOf(),
+        var sessionId: Id<Session>? = null
 ) {
     data class Request(var attributes: PropertyMap? = null)
 
