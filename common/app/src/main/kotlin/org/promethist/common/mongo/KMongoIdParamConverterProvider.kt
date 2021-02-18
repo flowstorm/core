@@ -11,9 +11,11 @@ class KMongoIdParamConverterProvider : ParamConverterProvider {
             if (p0 == Id::class.java) IdParamConverter() else null
 
     class IdParamConverter<T> : ParamConverter<T> {
-        override fun fromString(string: String): T {
+        override fun fromString(string: String?): T? {
             @Suppress("UNCHECKED_CAST")
-            return ObjectIdGenerator.create(string) as T
+            return string?.let {
+                ObjectIdGenerator.create(string) as T
+            }
         }
 
         override fun toString(value: T): String {
