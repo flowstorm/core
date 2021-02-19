@@ -58,8 +58,7 @@ class BotCallSocketAdapter : AbstractBotSocketAdapter() {
     override var token: String? = null
     override var config = BotConfig(Defaults.locale, Defaults.zoneId, true, SttConfig.Mode.Duplex, 8000, BotConfig.TtsType.RequiredStreaming)
     override val sttConfig
-        get() = SttConfig(locale
-                ?: config.locale, config.zoneId, config.sttSampleRate, SttConfig.Encoding.MULAW, config.sttMode, "phone_call")
+        get() = SttConfig(config.locale, config.zoneId, config.sttSampleRate, SttConfig.Encoding.MULAW, config.sttMode, "phone_call")
     private var streamSid: String? = null
     private val workDir = File(System.getProperty("java.io.tmpdir"))
     private val outSound = javaClass.getResourceAsStream("/audio/out.mp3").readBytes()
@@ -99,7 +98,7 @@ class BotCallSocketAdapter : AbstractBotSocketAdapter() {
                     appKey = it["appKey"] ?: "promethist"
                     val initiationId: String? = it["initiationId"]
                     if (it.containsKey("locale"))
-                        config.locale = Locale.forLanguageTag(it["locale"])
+                        config.locale = Locale.forLanguageTag(it["locale"]!!.replace('_', '-'))
                     //TODO zoneId from zip/city/state/country
 
                     logger.info("Call from $deviceId")

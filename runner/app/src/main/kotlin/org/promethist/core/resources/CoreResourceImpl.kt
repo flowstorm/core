@@ -116,7 +116,7 @@ class CoreResourceImpl : CoreResource {
             logger.info("Restoring the existing session")
             storedSession
         } else {
-            logger.info("Starting a new session")
+            logger.info("Starting a new session $sessionId")
             val contentResponse = contentDistributionResource.resolve(
                     ContentRequest(deviceId, token, key, input.locale.language)
             )

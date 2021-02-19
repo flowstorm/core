@@ -19,7 +19,9 @@ class GoogleSttService(private val callback: SttCallback) : SttService {
                 SttConfig.Encoding.MULAW -> RecognitionConfig.AudioEncoding.MULAW
                 else -> RecognitionConfig.AudioEncoding.LINEAR16
             }
-            languageCode = config.locale.language
+            languageCode = config.locale.toString().replace('_', '-').let {
+                if (it == "en") "en-US" else it
+            }
             sampleRateHertz = config.sampleRate
             maxAlternatives = 5
             enableWordTimeOffsets = true

@@ -2,7 +2,6 @@ package org.promethist.core.resources
 
 import org.litote.kmongo.*
 import org.promethist.common.query.Query
-import org.promethist.common.resources.EntityResourceBase
 import org.promethist.common.security.Authorized
 import org.promethist.core.model.Session
 import org.promethist.core.model.User
@@ -27,7 +26,7 @@ class SessionResourceImpl: SessionResource {
 
     override fun create(session: Session) = sessionRepository.create(session)
 
-    override fun update(session: Session) = sessionRepository.update(session)
+    override fun update(session: Session) = sessionRepository.update(session, true)
 
     override fun findBy(sessionId: String): Session? = sessionRepository.findBy(sessionId)
 

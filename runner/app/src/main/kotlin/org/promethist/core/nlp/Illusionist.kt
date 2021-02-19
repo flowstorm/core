@@ -16,7 +16,7 @@ class Illusionist : Component {
     @Inject
     lateinit var webTargets: IterableProvider<WebTarget>
 
-    val webTarget: WebTarget get() = webTargets.named("illusionist").get()
+    private val webTarget: WebTarget get() = webTargets.named("illusionist").get()
 
     private val logger by LoggerDelegate()
 
@@ -36,7 +36,7 @@ class Illusionist : Component {
         val responses = webTarget.path("/multi_model").request().post(Entity.json(request), object : GenericType<List<Response>>() {})
 
         if (responses[0].answer == OUT_OF_DOMAIN_ACTION) {
-            context.input.action  = OUT_OF_DOMAIN_ACTION
+            context.input.action = OUT_OF_DOMAIN_ACTION
         }
 
         for (response in responses) {

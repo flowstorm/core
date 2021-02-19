@@ -2,7 +2,6 @@ package org.promethist.core.dialogue
 
 import org.promethist.core.Context
 import org.promethist.core.ExpectedPhrase
-import org.promethist.core.dialogue.attribute.SequenceAttribute
 import org.promethist.core.model.DialogueModel
 import org.promethist.core.model.SttConfig
 import org.promethist.core.model.TtsConfig
@@ -198,16 +197,6 @@ abstract class AbstractDialogue : DialogueModel {
 
         constructor(vararg text: (Context.(Response) -> String)) : this(nextId--, true, *text)
 
-        private val sequence by lazy {
-            val list = List(texts.size) { it }.shuffled()
-            val memories = context.session.attributes[dialogueName].getOrPut("response$id") {
-                Memorable.pack(MemoryMutableSet<Int>())
-            } as MemoryMutableSet<Int>
-            object : SequenceAttribute<Int, Int>(list, memories, { nextInLine(1.second) }) {
-                override fun toMemoryValue(e: Int) = e
-            }
-        }
-
         fun getText(context: Context, index: Int = -1) = run(context, this) {
             if (texts.isNotEmpty())
                 texts[
@@ -215,11 +204,12 @@ abstract class AbstractDialogue : DialogueModel {
                         (texts.size == 1) -> 0
                         (index > -1) -> index
                         else -> {
-                            val index = sequence.next
-                            if (index == null || index >= texts.size)
-                                Random.nextInt(texts.size)
-                            else
-                                index
+                            val memory = context.userProfile.attributes[dialogueName].getOrPut("response$id") {
+                                Memorable.pack(Memory(0))
+                            } as Memory<Int>
+                            val shuffledIndexes = List(texts.size) { it }.shuffled(Random(id.xor(context.userProfile.user_id.hashCode())))
+                            val nextIndex = (++memory.value).rem(texts.size)
+                            shuffledIndexes[nextIndex]
                         }
                     }
                 ](context, this)
