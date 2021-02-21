@@ -26,11 +26,7 @@ open class BuilderApplication : JerseyApplication() {
                 )
 
                 bind(illusionistBuilder).to(IntentModelBuilder::class.java)
-
-                val cassandraTrainingUrl = ServiceUrlResolver.getEndpointUrl("cassandra-training")
-                val cassandraBuilder = CassandraModelBuilder(cassandraTrainingUrl)
-
-                bind(cassandraBuilder).to(CassandraModelBuilder::class.java)
+                bind(illusionistBuilder).to(EntityModelBuilder::class.java)
 
                 val coreUrl = ServiceUrlResolver.getEndpointUrl("core")
 

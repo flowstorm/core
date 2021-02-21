@@ -1,11 +1,7 @@
 package org.promethist.core.builder.resources
 
 import org.promethist.common.security.Authorized
-import org.promethist.core.builder.CassandraModelBuilder
-import org.promethist.core.builder.DialogueBuilder
-import org.promethist.core.builder.Info
-import org.promethist.core.builder.Request
-import org.promethist.core.builder.Response
+import org.promethist.core.builder.*
 import org.promethist.core.model.EntityDataset
 import javax.inject.Inject
 import javax.ws.rs.Path
@@ -20,7 +16,7 @@ class BuilderResourceImpl : BuilderResource {
     lateinit var dialogueBuilder: DialogueBuilder
 
     @Inject
-    lateinit var nlpTrainer: CassandraModelBuilder
+    lateinit var entityModelBuilder: EntityModelBuilder
 
     override fun info(): Info {
         val buf = StringBuilder()
@@ -39,6 +35,6 @@ class BuilderResourceImpl : BuilderResource {
 
     @Authorized
     override fun trainEntityModel(dataset: EntityDataset) {
-        nlpTrainer.train(dataset)
+        entityModelBuilder.trainEntityModel(dataset)
     }
 }
