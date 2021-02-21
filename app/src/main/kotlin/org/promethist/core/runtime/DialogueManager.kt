@@ -134,10 +134,13 @@ class DialogueManager : Component {
                     processedNodes.add(node)
                     if (node.id < 0)
                         turn.attributes[AbstractDialogue.defaultNamespace].set("nodeId", node.id)
+                    if (turn.inputId != null && turn.nextId == null)
+                        turn.nextId = node.id
 
                     when (node) {
                         is AbstractDialogue.UserInput -> {
                             if (shouldProcessUserInput(processedNodes, node)) {
+                                turn.inputId = node.id
                                 //first user input in turn
                                 val intentModels = getIntentModels(frame, context)
                                 context.intentModels = intentModels
