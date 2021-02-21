@@ -5,13 +5,14 @@ import org.promethist.common.ServiceUrlResolver
 import org.promethist.core.builder.IntentModelBuilder.Output
 import org.promethist.core.dialogue.AbstractDialogue
 import org.promethist.core.model.DialogueSourceCode
+import org.promethist.core.model.EntityDataset
 import org.promethist.core.model.IntentModel
 import org.promethist.util.LoggerDelegate
 import java.net.URL
 import java.util.*
 import javax.ws.rs.WebApplicationException
 
-class IllusionistModelBuilder(val apiUrl: String, val apiKey: String, val approach: String) : IntentModelBuilder {
+class IllusionistModelBuilder(val apiUrl: String, val apiKey: String, val approach: String) : IntentModelBuilder, EntityModelBuilder {
 
     companion object {
         const val buildTimeout = 180000
@@ -59,5 +60,10 @@ class IllusionistModelBuilder(val apiUrl: String, val apiKey: String, val approa
             RestClient.call<Any>(url, "PUT", output = output, timeout = buildTimeout)
         }
         logger.info("Built intent model name=$name, id=$modelId")
+    }
+
+    override fun trainEntityModel(dataset: EntityDataset) {
+        val url = URL("$url/entity/train/${dataset._id}?language=${dataset.language}" )
+        RestClient.call<Any>(url, "POST", output = dataset, timeout = buildTimeout)
     }
 }
