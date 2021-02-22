@@ -2,7 +2,6 @@
 
 package org.promethist.core.repository.dynamodb
 
-import com.amazonaws.services.dynamodbv2.document.Item
 import com.amazonaws.services.dynamodbv2.document.KeyAttribute
 import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec
 import org.jetbrains.kotlin.utils.addToStdlib.ifNotEmpty
@@ -12,7 +11,6 @@ import org.promethist.common.query.DynamoDbFiltersFactory
 import org.promethist.common.query.Query
 import org.promethist.common.repository.DynamoAbstractEntityRepository
 import org.promethist.core.model.DialogueEvent
-import org.promethist.core.model.Session
 import org.promethist.core.repository.EventRepository
 import java.util.*
 
@@ -24,7 +22,7 @@ class DynamoEventRepository : DynamoAbstractEntityRepository<DialogueEvent>(), E
         val spec = QuerySpec()
         var datetime: Date? = null
         if (query.seek_id != null) {
-            datetime = ObjectUtil.defaultMapper.readValue(table.getItem(KeyAttribute("_id", query.seek_id)).toJSON(), Session::class.java).datetime
+            datetime = ObjectUtil.defaultMapper.readValue(table.getItem(KeyAttribute("_id", query.seek_id)).toJSON(), DialogueEvent::class.java).datetime
         }
         val (filterExpression, keywordExpression, nameMap, valueMap) = DynamoDbFiltersFactory.createFilters(query, indexValues=mutableListOf("space_id", "datetime"), datetime=datetime)
 
