@@ -3,6 +3,7 @@ package org.promethist.core.resources
 import io.swagger.annotations.Api
 import org.litote.kmongo.Id
 import org.promethist.core.model.Session
+import org.promethist.core.model.Turn
 import org.promethist.core.model.User
 import org.promethist.security.Authenticated
 import javax.ws.rs.GET
@@ -18,6 +19,6 @@ interface SessionResource {
 
     fun findBy(sessionId: String): Session?
     fun create(session: Session): Session
-    fun findBy(userId: Id<User>): List<Session>
+    fun create(turn: Turn): Turn
     fun update(session: Session): Session
 }

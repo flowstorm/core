@@ -43,7 +43,7 @@ object DialogueLoadTest {
                     user = user,
                         application = Application(name = "test", dialogue_id = ObjectId(dialogueId).toId())
                 ),
-                Turn(Input(transcript = Input.Transcript("some message"))),
+                Turn(input = Input(transcript = Input.Transcript("some message"))),
                 logger,
                 dialogue.locale,
                 SimpleCommunityStorage(),

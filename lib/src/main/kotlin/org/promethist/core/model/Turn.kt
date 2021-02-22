@@ -1,6 +1,7 @@
 package org.promethist.core.model
 
 import org.litote.kmongo.Id
+import org.litote.kmongo.newId
 import org.promethist.core.ExpectedPhrase
 import org.promethist.core.Input
 import org.promethist.core.Response
@@ -8,22 +9,26 @@ import org.promethist.core.model.Session.DialogueStackFrame
 import org.promethist.core.type.Attributes
 import org.promethist.core.type.DateTime
 import org.promethist.core.type.PropertyMap
+import org.promethist.common.model.TimeEntity
 import java.time.ZoneId
 import java.util.*
 
 data class Turn(
-        var input: Input,
-        val request: Request = Request(),
-        val datetime: Date = Date(),
-        var attributes: Attributes = Attributes(),
-        var endFrame: DialogueStackFrame? = null, //where the turn ends (input node)
-        val responseItems: MutableList<Response.Item> = mutableListOf(),
-        @Transient val expectedPhrases: MutableList<ExpectedPhrase> = mutableListOf(),
-        var sttMode: SttConfig.Mode? = null,
-        var duration: Long? = null,
-        val log: MutableList<LogEntry> = mutableListOf(),
-        var sessionId: Id<Session>? = null
-) {
+    override val _id: Id<Turn> = newId(),
+    val session_id: Id<Session>? = null, // cannot be NullId due to backward compatibility with turns stored in session entity
+    var input: Input,
+    var inputId: Int? = null,
+    var nextId: Int? = null,
+    val request: Request = Request(),
+    override var datetime: Date = Date(),
+    var attributes: Attributes = Attributes(),
+    var endFrame: DialogueStackFrame? = null, //where the turn ends (input node)
+    val responseItems: MutableList<Response.Item> = mutableListOf(),
+    @Transient val expectedPhrases: MutableList<ExpectedPhrase> = mutableListOf(),
+    var sttMode: SttConfig.Mode? = null,
+    var duration: Long? = null,
+    val log: MutableList<LogEntry> = mutableListOf()
+) : TimeEntity<Turn> {
     data class Request(var attributes: PropertyMap? = null)
 
     val time: DateTime get() = DateTime.ofInstant(datetime.toInstant(), ZoneId.systemDefault())

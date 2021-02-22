@@ -27,9 +27,11 @@ import org.promethist.core.provider.LocalFileStorage
 import org.promethist.core.repository.EventRepository
 import org.promethist.core.repository.ProfileRepository
 import org.promethist.core.repository.SessionRepository
+import org.promethist.core.repository.TurnRepository
 import org.promethist.core.repository.mongo.MongoEventRepository
 import org.promethist.core.repository.mongo.MongoProfileRepository
 import org.promethist.core.repository.mongo.MongoSessionRepository
+import org.promethist.core.repository.mongo.MongoTurnRepository
 import org.promethist.core.resources.*
 import org.promethist.core.runtime.*
 import org.promethist.core.servlets.AmazonAlexaServlet
@@ -98,6 +100,7 @@ open class RunnerApplication : JerseyApplication() {
                         .getDatabase(AppConfig.instance["name"] + "-" + dsuffix))
                 bind(MongoProfileRepository::class.java).to(ProfileRepository::class.java)
                 bind(MongoSessionRepository::class.java).to(SessionRepository::class.java)
+                bind(MongoTurnRepository::class.java).to(TurnRepository::class.java)
                 bind(MongoEventRepository::class.java).to(EventRepository::class.java)
 
                 this.bindAsContract(DialogueLog::class.java).`in`(RequestScoped::class.java)

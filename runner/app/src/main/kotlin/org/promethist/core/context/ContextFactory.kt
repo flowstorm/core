@@ -40,7 +40,7 @@ class ContextFactory {
             pipeline,
             userProfile,
             session,
-            Turn(input = request.input).also {
+            Turn(session_id = session._id, input = request.input).also {
                 it.request.attributes = request.attributes
             },
             dialogueLog.logger,
