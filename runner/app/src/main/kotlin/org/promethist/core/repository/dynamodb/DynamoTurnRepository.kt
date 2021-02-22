@@ -2,25 +2,39 @@
 
 package org.promethist.core.repository.dynamodb
 
-import com.amazonaws.services.dynamodbv2.document.Item
 import com.amazonaws.services.dynamodbv2.document.KeyAttribute
 import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec
+import com.amazonaws.services.dynamodbv2.document.utils.ValueMap
 import org.jetbrains.kotlin.utils.addToStdlib.ifNotEmpty
 import org.litote.kmongo.Id
 import org.promethist.common.ObjectUtil
 import org.promethist.common.query.DynamoDbFiltersFactory
 import org.promethist.common.query.Query
 import org.promethist.common.repository.DynamoAbstractEntityRepository
-import org.promethist.core.model.DialogueEvent
 import org.promethist.core.model.Session
-import org.promethist.core.repository.EventRepository
+import org.promethist.core.model.Turn
+import org.promethist.core.repository.TurnRepository
 import java.util.*
 
-class DynamoEventRepository : DynamoAbstractEntityRepository<DialogueEvent>(), EventRepository {
+class DynamoTurnRepository: DynamoAbstractEntityRepository<Turn>(), TurnRepository {
 
-    override val table by lazy { database.getTable(tableName("dialogueEvent")) }
+    override val table by lazy { database.getTable(tableName("turn")) }
 
-    override fun find(query: Query): List<DialogueEvent> {
+    override fun findBy(session_id: Id<Session>): List<Turn> {
+        val spec: QuerySpec = QuerySpec().withKeyConditionExpression("sessionId = :v_id")
+            .withValueMap(ValueMap().withString(":v_id", session_id.toString()))
+        return table.query(spec).toEntityList()
+    }
+
+    override fun findBy(session_ids: List<Id<Session>>): List<Turn> {
+        return session_ids.map { findBy(it) }.flatten()
+    }
+
+    override fun find(id: Id<Turn>): Turn? {
+        return table.getItem(KeyAttribute("_id", id.toString()))?.toEntity()
+    }
+
+    override fun find(query: Query): List<Turn> {
         val spec = QuerySpec()
         var datetime: Date? = null
         if (query.seek_id != null) {
@@ -43,11 +57,5 @@ class DynamoEventRepository : DynamoAbstractEntityRepository<DialogueEvent>(), E
         return table.getIndex("space_id").query(spec).toEntityList()
     }
 
-    override fun all(): List<DialogueEvent> {
-        return table.scan().toEntityList()
-    }
-
-    override fun find(id: Id<DialogueEvent>): DialogueEvent? {
-        return table.getItem(KeyAttribute("_id", id.toString()))?.toEntity()
-    }
+    override fun all(): List<Turn> = table.scan().toEntityList()
 }
