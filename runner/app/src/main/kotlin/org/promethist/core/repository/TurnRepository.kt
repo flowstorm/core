@@ -7,4 +7,5 @@ import org.promethist.core.model.Turn
 
 interface TurnRepository : EntityRepository<Turn> {
     fun findBy(session_id: Id<Session>): List<Turn>
+    fun findBy(session_ids: List<Id<Session>>): List<Turn>
 }

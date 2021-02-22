@@ -25,7 +25,7 @@ class SessionResourceImpl: SessionResource {
     @Inject
     lateinit var query: Query
 
-    override fun find(): List<Session> = sessionRepository.find(query).onEach { load(it) }
+    override fun find(): List<Session> = sessionRepository.find(query).apply { load(this) }
 
     override fun create(session: Session) = sessionRepository.create(session)
 
@@ -37,6 +37,13 @@ class SessionResourceImpl: SessionResource {
     }
 
     override fun findBy(sessionId: String): Session? = sessionRepository.findBy(sessionId)?.let { load(it) }
+
+    private fun load(sessions: List<Session>) = sessions.filter { it.turns.isEmpty() }.let { sessions ->
+        val turns = turnRepository.findBy(sessions.map { it._id })
+        sessions.forEach { s ->
+            s.turns = turns.filter { turn -> turn.session_id == s._id }
+        }
+    }
 
     private fun load(session: Session) = session.apply {
         if (turns.isEmpty()) {
