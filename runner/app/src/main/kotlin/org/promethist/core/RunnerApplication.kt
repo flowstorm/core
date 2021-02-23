@@ -129,7 +129,7 @@ open class RunnerApplication : JerseyApplication() {
                 ).to(WebTarget::class.java).named("cassandra")
 
                 //Triton
-                bind(RestClient.webTarget(AppConfig.instance.get("triton.url"))
+                bind(RestClient.webTarget(ServiceUrlResolver.getEndpointUrl("triton", namespace = dsuffix))
                         .path("/v2/models")
                 ).to(WebTarget::class.java).named("triton")
             }
