@@ -75,7 +75,7 @@ class DynamoSessionRepository : DynamoAbstractEntityRepository<Session>(), Sessi
     override fun create(session: Session): Session {
         sessionsTable.putItem(session.run {
             turns.lastOrNull()?.let { turn ->
-                turn.sessionId = _id
+                //FIXME turn.sessionId = _id
                 turnsTable.putItem(Item.fromJSON(ObjectUtil.defaultMapper.writeValueAsString(turn)))
             }
             val turnsBackup = turns
@@ -100,9 +100,9 @@ class DynamoSessionRepository : DynamoAbstractEntityRepository<Session>(), Sessi
             if (limit > 0) {
                 spec.withMaxPageSize(limit)
             }
-            session.turns.addAll(turnsTable
+            /*FIXME session.turns.addAll(turnsTable
                 .query(spec)
-                .map { item -> ObjectUtil.defaultMapper.readValue(item.toJSON(), Turn::class.java) })
+                .map { item -> ObjectUtil.defaultMapper.readValue(item.toJSON(), Turn::class.java) })*/
             return session
         }
     }

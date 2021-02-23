@@ -17,6 +17,8 @@ import org.promethist.common.ObjectUtil
 import org.promethist.common.monitoring.Monitor
 import org.promethist.core.Context
 import org.promethist.common.model.Entity
+import org.promethist.core.model.Session
+import org.promethist.core.model.Turn
 import org.promethist.core.monitoring.capture
 import org.promethist.core.repository.ProfileRepository
 import org.promethist.core.resources.SessionResource
@@ -42,19 +44,18 @@ class ContextPersister {
     fun persist(context: Context) {
         context.turn.log.addAll(dialogueLog.log)
         context.turn.duration = System.currentTimeMillis() - context.turn.datetime.time
-        context.session.turns.add(context.turn)
         context.session.datetime = Date()
         context.communities.values.forEach {
             context.communityRepository.update(it)
         }
-
-
         try {
+            saveToElastic(context.turn)
             saveToElastic(context.session)
             saveToElastic(context.userProfile)
         } catch (e: Throwable) {
             monitor.capture(e, context.session)
         }
+        sessionResource.create(context.turn)
         sessionResource.update(context.session)
         profileRepository.update(context.userProfile, true)
     }
@@ -66,12 +67,15 @@ class ContextPersister {
             doc(jsonWriter.writeValueAsBytes(entity), XContentType.JSON)
             docAsUpsert(true)
             val res = client.update(this, RequestOptions.DEFAULT)
-            println(res.result)
         }
     }
 
     interface EntityMixin {
         @JsonIgnore fun get_id(): Id<*>
+    }
+
+    interface SessionMixin {
+        @JsonIgnore fun getTurns(): MutableList<Turn> = mutableListOf()
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NONE)
@@ -81,6 +85,7 @@ class ContextPersister {
 
         private val jsonWriter = ObjectUtil.createMapper()
                 .addMixIn(Entity::class.java, EntityMixin::class.java)
+                .addMixIn(Session::class.java, SessionMixin::class.java)
                 .addMixIn(Memorable::class.java, MemorableMixin::class.java)
 
         val elasticClient by lazy {

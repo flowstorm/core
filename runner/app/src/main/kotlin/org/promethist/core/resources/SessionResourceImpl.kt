@@ -1,11 +1,11 @@
 package org.promethist.core.resources
 
-import org.litote.kmongo.*
 import org.promethist.common.query.Query
 import org.promethist.common.security.Authorized
 import org.promethist.core.model.Session
-import org.promethist.core.model.User
+import org.promethist.core.model.Turn
 import org.promethist.core.repository.SessionRepository
+import org.promethist.core.repository.TurnRepository
 import javax.inject.Inject
 import javax.ws.rs.Path
 import javax.ws.rs.Produces
@@ -20,15 +20,34 @@ class SessionResourceImpl: SessionResource {
     lateinit var sessionRepository: SessionRepository
 
     @Inject
+    lateinit var turnRepository: TurnRepository
+
+    @Inject
     lateinit var query: Query
 
-    override fun find(): List<Session> = sessionRepository.find(query)
+    override fun find(): List<Session> = sessionRepository.find(query).apply { load(this) }
 
     override fun create(session: Session) = sessionRepository.create(session)
 
-    override fun update(session: Session) = sessionRepository.update(session, true)
+    override fun create(turn: Turn) = turnRepository.create(turn)
 
-    override fun findBy(sessionId: String): Session? = sessionRepository.findBy(sessionId)
+    override fun update(session: Session) = session.run {
+        turns = emptyList()
+        sessionRepository.update(session, true)
+    }
 
-    override fun findBy(userId: Id<User>): List<Session> = sessionRepository.findBy(userId)
+    override fun findBy(sessionId: String): Session? = sessionRepository.findBy(sessionId)?.let { load(it) }
+
+    private fun load(sessions: List<Session>) = sessions.filter { it.turns.isEmpty() }.let { sessions ->
+        val turns = turnRepository.findBy(sessions.map { it._id })
+        sessions.forEach { s ->
+            s.turns = turns.filter { turn -> turn.session_id == s._id }
+        }
+    }
+
+    private fun load(session: Session) = session.apply {
+        if (turns.isEmpty()) {
+            turns = turnRepository.findBy(session._id)
+        }
+    }
 }
