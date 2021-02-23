@@ -81,7 +81,7 @@ open class RunnerApplication : JerseyApplication() {
                 bindAsContract(DialogueFactory::class.java)
                 bind(DialogueManager::class.java).to(Component::class.java).named("dm")
                 // Sentiment
-                bind(Sentiment::class.java).to(Component::class.java).named("sentiment")
+                bind(Triton::class.java).to(Component::class.java).named("triton")
                 // Duckling (time values)
                 bind(Duckling::class.java).to(Component::class.java).named("duckling")
                 // NER component (second)

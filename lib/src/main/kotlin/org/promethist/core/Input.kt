@@ -3,6 +3,7 @@ package org.promethist.core
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import org.promethist.core.model.Sentiment
 import org.promethist.core.type.InputEntity
 import org.promethist.core.type.value.Value
 import java.time.ZoneId
@@ -59,10 +60,10 @@ data class Input(
     val intent get() = intents.firstOrNull() ?: error("No intent class recognized in input")
 
     @get:JsonIgnore
-    val sentimets get() = classes.filter { it.type == Class.Type.Sentiment }
+    val sentiments get() = classes.filter { it.type == Class.Type.Sentiment }
 
     @get:JsonIgnore
-    val sentiment get() = classes.firstOrNull() ?: error("No sentiment class recognized in input")
+    val sentiment get() = sentiments.firstOrNull() ?: Class(Class.Type.Sentiment, Sentiment.UNKNOWN.name)
 
     @get:JsonIgnore
     val numbers: List<Number> get() {
