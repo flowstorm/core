@@ -116,18 +116,18 @@ open class RunnerApplication : JerseyApplication() {
         register(object : AbstractBinder() {
             override fun configure() {
                 //Intent recognition
-                bind(RestClient.webTarget(ServiceUrlResolver.getEndpointUrl("illusionist", namespace = dsuffix))
+                bind(RestClient.webTarget(ServiceUrlResolver.getEndpointUrl("illusionist"))
                         .path("/query")
                         .queryParam("key", AppConfig.instance["illusionist.apiKey"])
                 ).to(WebTarget::class.java).named("illusionist")
 
                 //Duckling
-                bind(RestClient.webTarget(ServiceUrlResolver.getEndpointUrl("duckling", namespace = dsuffix))
+                bind(RestClient.webTarget(ServiceUrlResolver.getEndpointUrl("duckling"))
                         .path("/parse")
                 ).to(WebTarget::class.java).named("duckling")
 
                 //Casandra
-                bind(RestClient.webTarget(ServiceUrlResolver.getEndpointUrl("cassandra", namespace = dsuffix))
+                bind(RestClient.webTarget(ServiceUrlResolver.getEndpointUrl("cassandra"))
                         .path("/query")
                 ).to(WebTarget::class.java).named("cassandra")
 

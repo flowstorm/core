@@ -86,7 +86,7 @@ class DialogueBuilder(
                 saveJavaArchive(buildPath)
                 buildIntentModels(dialogue, oodExamples)
                 val duration = System.currentTimeMillis() - time
-                logger.info("Finished build of dialogue model ${source.dialogueId} in $duration ms")
+                logger.info("Finished build ${source.buildId} of dialogue model ${source.dialogueId} in $duration ms")
                 return DialogueBuild(source.buildId, true, getLogs(), duration = duration)
             } catch (t: Throwable) {
                 val fullError = getExceptionChain("", t)
@@ -134,6 +134,7 @@ class DialogueBuilder(
                 //todo remove args?
                 Kotlin.newObjectWithArgs(Kotlin.loadClass(StringReader(scriptCode)), source.parameters)
             } else {
+                val time0 = System.currentTimeMillis()
                 compileByteCode()
                 val time1 = System.currentTimeMillis()
                 classFiles.forEach {
@@ -147,7 +148,7 @@ class DialogueBuilder(
                 val kotlinClass = Reflection.createKotlinClass(javaClass)
                 //val dialogue = modelClass.getDeclaredConstructor().newInstance() as Dialogue
                 val dialogue = Kotlin.newObjectWithArgs(kotlinClass, source.parameters) as AbstractDialogue
-                logger.info("Dialogue model classes loaded in ${time2 - time1} ms, instantiated in ${System.currentTimeMillis() - time2} ms")
+                logger.info("Dialogue model classes compiled in ${time1 - time0} ms, loaded in ${time2 - time1} ms, instantiated in ${System.currentTimeMillis() - time2} ms")
                 dialogue
             }
             dialogue.validate()
