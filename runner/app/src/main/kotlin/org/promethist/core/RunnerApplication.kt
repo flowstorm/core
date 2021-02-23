@@ -82,6 +82,8 @@ open class RunnerApplication : JerseyApplication() {
                 // DM component (third - dialog user input decides whether to process the rest of pipeline or not)
                 bindAsContract(DialogueFactory::class.java)
                 bind(DialogueManager::class.java).to(Component::class.java).named("dm")
+                // Sentiment
+                bind(Triton::class.java).to(Component::class.java).named("triton")
                 // Duckling (time values)
                 bind(Duckling::class.java).to(Component::class.java).named("duckling")
                 // NER component (second)
@@ -129,6 +131,10 @@ open class RunnerApplication : JerseyApplication() {
                         .path("/query")
                 ).to(WebTarget::class.java).named("cassandra")
 
+                //Triton
+                bind(RestClient.webTarget(AppConfig.instance.get("triton.url"))
+                        .path("/v2/models")
+                ).to(WebTarget::class.java).named("triton")
             }
         })
 

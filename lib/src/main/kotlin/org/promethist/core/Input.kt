@@ -3,6 +3,7 @@ package org.promethist.core
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import org.promethist.core.model.Sentiment
 import org.promethist.core.type.InputEntity
 import org.promethist.core.type.value.Value
 import java.time.ZoneId
@@ -19,7 +20,7 @@ data class Input(
     data class Transcript(var text: String, val confidence: Float = 1.0F)
 
     data class Class(val type: Type, val name: String, val score: Float = 1.0F, val model_id: String = "") {
-        enum class Type { Intent, Entity }
+        enum class Type { Intent, Entity, Sentiment }
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
@@ -57,6 +58,12 @@ data class Input(
 
     @get:JsonIgnore
     val intent get() = intents.firstOrNull() ?: error("No intent class recognized in input")
+
+    @get:JsonIgnore
+    val sentiments get() = classes.filter { it.type == Class.Type.Sentiment }
+
+    @get:JsonIgnore
+    val sentiment get() = sentiments.firstOrNull() ?: Class(Class.Type.Sentiment, Sentiment.UNKNOWN.name)
 
     @get:JsonIgnore
     val numbers: List<Number> get() {
