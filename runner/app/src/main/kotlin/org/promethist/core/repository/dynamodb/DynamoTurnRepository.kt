@@ -38,7 +38,7 @@ class DynamoTurnRepository: DynamoAbstractEntityRepository<Turn>(), TurnReposito
         val spec = QuerySpec()
         var datetime: Date? = null
         if (query.seek_id != null) {
-            datetime = ObjectUtil.defaultMapper.readValue(table.getItem(KeyAttribute("_id", query.seek_id)).toJSON(), Session::class.java).datetime
+            datetime = ObjectUtil.defaultMapper.readValue(table.getItem(KeyAttribute("_id", query.seek_id)).toJSON(), Turn::class.java).datetime
         }
         val (filterExpression, keywordExpression, nameMap, valueMap) = DynamoDbFiltersFactory.createFilters(query, indexValues=mutableListOf("space_id", "datetime"), datetime=datetime)
 
