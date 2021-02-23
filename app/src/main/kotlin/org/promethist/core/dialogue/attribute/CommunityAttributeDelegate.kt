@@ -15,7 +15,7 @@ class CommunityAttributeDelegate<V: Any>(
 
     private val community get() = with (AbstractDialogue.run.context) {
         communities.getOrPut(communityName) {
-            communityRepository.get(communityName, spaceId = session.properties["organization_id"] as String) ?: Community(name = communityName, space_id = session.properties["organization_id"] as String?).apply {
+            communityRepository.get(communityName, spaceId = session.space_id.toString()) ?: Community(name = communityName, space_id = session.space_id.toString()).apply {
                 communityRepository.create(this)
             }
         }
