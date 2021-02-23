@@ -31,9 +31,10 @@ class SessionResourceImpl: SessionResource {
 
     override fun create(turn: Turn) = turnRepository.create(turn)
 
-    override fun update(session: Session) = session.run {
+    override fun update(session: Session) = session.copy().run {
         turns = emptyList()
-        sessionRepository.update(session, true)
+        sessionRepository.update(this, true)
+        session
     }
 
     override fun findBy(sessionId: String): Session? = sessionRepository.findBy(sessionId)?.let { load(it) }
