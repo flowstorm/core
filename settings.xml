@@ -1,0 +1,9 @@
+<settings>
+    <servers>
+        <server>
+            <id>promethistai</id>
+            <username>deployer</username>
+            <privateKey>${privateKey}</privateKey>
+        </server>
+    </servers>
+</settings>
