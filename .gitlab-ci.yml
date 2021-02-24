@@ -111,6 +111,7 @@ deploy release packages:
   artifacts:
     untracked: true
   script:
+    - chmod 600 $DEPLOYER_KEY
     - mvn -B versions:set -DnewVersion=$CI_COMMIT_REF_NAME
     - mvn -B deploy -s settings.xml -DprivateKey=$DEPLOYER_KEY -Dapi.basedomain=promethist.com -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false
 
@@ -126,6 +127,7 @@ deploy snaphot packages:
   artifacts:
     untracked: true
   script:
+    - chmod 600 $DEPLOYER_KEY
     - mvn -B deploy -s settings.xml -DprivateKey=$DEPLOYER_KEY -Dapi.basedomain=preview.promethist.com -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false
 
 #
