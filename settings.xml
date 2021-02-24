@@ -4,6 +4,9 @@
             <id>promethistai</id>
             <username>deployer</username>
             <privateKey>${privateKey}</privateKey>
+            <configuration>
+                <scpArgs>-o "StrictHostKeyChecking no"</scpArgs>
+            </configuration>
         </server>
     </servers>
 </settings>
