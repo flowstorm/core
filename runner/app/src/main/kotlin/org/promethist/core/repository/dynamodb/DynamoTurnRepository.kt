@@ -18,10 +18,10 @@ import java.util.*
 
 class DynamoTurnRepository: DynamoAbstractEntityRepository<Turn>(), TurnRepository {
 
-    override val table by lazy { database.getTable(tableName("turn")) }
+    override val tableName = "turn"
 
     override fun findBy(session_id: Id<Session>): List<Turn> {
-        val spec: QuerySpec = QuerySpec().withKeyConditionExpression("sessionId = :v_id")
+        val spec: QuerySpec = QuerySpec().withKeyConditionExpression("session_id = :v_id")
             .withValueMap(ValueMap().withString(":v_id", session_id.toString()))
         return table.query(spec).toEntityList()
     }

@@ -21,7 +21,7 @@ import java.util.*
 
 class DynamoSessionRepository : DynamoAbstractEntityRepository<Session>(), SessionRepository {
 
-    override val table by lazy { database.getTable(tableName("session")) }
+    override val tableName = "session"
 
     override fun findBy(userId: Id<User>): List<Session> {
         val spec = ScanSpec()

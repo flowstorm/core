@@ -16,7 +16,7 @@ import org.promethist.core.repository.ProfileRepository
 
 class DynamoProfileRepository : DynamoAbstractEntityRepository<Profile>(), ProfileRepository {
 
-    override val table by lazy { database.getTable(tableName("profile")) }
+    override val tableName = "profile"
 
     override fun findBy(userId: Id<User>, spaceId: Id<Space>): Profile? {
         val spec = QuerySpec()
