@@ -12,7 +12,8 @@ abstract class DynamoAbstractEntityRepository<E: Entity<E>> : EntityRepository<E
     @Inject
     lateinit var database: DynamoDB
 
-    protected abstract val table: Table
+    abstract val tableName: String
+    open val table by lazy { database.getTable(tableName(tableName)) }
 
     protected fun tableName(name: String) = AppConfig.instance["name"] + "." + name
 

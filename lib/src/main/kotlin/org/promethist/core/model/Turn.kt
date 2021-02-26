@@ -31,8 +31,6 @@ data class Turn(
 ) : TimeEntity<Turn> {
     data class Request(var attributes: PropertyMap? = null)
 
-    val sessionId get() = session_id // Compatibility with hash key in DynamoDB named sessionId
-
     val time: DateTime get() = DateTime.ofInstant(datetime.toInstant(), ZoneId.systemDefault())
 
     fun addResponseItem(text: String?, image: String? = null, audio: String? = null, video: String? = null, code: String? = null, background: String? = null, repeatable: Boolean = true, voice: Voice?) =

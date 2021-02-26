@@ -16,7 +16,7 @@ import java.util.*
 
 class DynamoEventRepository : DynamoAbstractEntityRepository<DialogueEvent>(), EventRepository {
 
-    override val table by lazy { database.getTable(tableName("dialogueEvent")) }
+    override val tableName = "dialogueEvent"
 
     override fun find(query: Query): List<DialogueEvent> {
         val spec = QuerySpec()
