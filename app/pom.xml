@@ -5,23 +5,23 @@
     <packaging>jar</packaging>
 
     <parent>
-        <groupId>org.promethist.core</groupId>
-        <artifactId>promethist-core</artifactId>
+        <groupId>ai.flowstorm.core</groupId>
+        <artifactId>flowstorm-core</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
-    <artifactId>promethist-core-app</artifactId>
-    <name>Promethist Core App</name>
+    <artifactId>flowstorm-core-app</artifactId>
+    <name>Flowstorm Core App</name>
 
     <dependencies>
 
         <dependency>
-            <groupId>org.promethist.core</groupId>
-            <artifactId>promethist-core-lib</artifactId>
+            <groupId>ai.flowstorm.core</groupId>
+            <artifactId>flowstorm-core-lib</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.promethist.common</groupId>
-            <artifactId>promethist-common-app</artifactId>
+            <groupId>ai.flowstorm.common</groupId>
+            <artifactId>flowstorm-common-app</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

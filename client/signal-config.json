@@ -45,7 +45,7 @@
     {
       "name": "signals-from-url",
       "type": "SignalUrlProvider",
-      "url": "https://port.promethist.port/check",
+      "url": "https://core.flowstorm.ai/check",
       "format": "JSON",
       "timeout": 1000
     }

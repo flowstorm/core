@@ -5,29 +5,29 @@
     <packaging>jar</packaging>
 
     <parent>
-        <groupId>org.promethist.core</groupId>
-        <artifactId>promethist-core-builder</artifactId>
+        <groupId>ai.flowstorm.core</groupId>
+        <artifactId>flowstorm-core-builder</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
-    <artifactId>promethist-core-builder-api</artifactId>
-    <name>Promethist Core Builder API</name>
+    <artifactId>flowstorm-core-builder-api</artifactId>
+    <name>Flowstorm Core Builder API</name>
 
     <properties>
         <swagger.version>1.5.22</swagger.version>
-        <promethist.api.basedomain>promethist.com</promethist.api.basedomain>
-        <promethist.api.locations>org.promethist.common.resources,org.promethist.core.builder.resources</promethist.api.locations>
-        <promethist.api.description>Promethist API</promethist.api.description>
+        <flowstorm.api.basedomain>flowstorm.ai</flowstorm.api.basedomain>
+        <flowstorm.api.locations>ai.flowstorm.common.resources,ai.flowstorm.core.builder.resources</flowstorm.api.locations>
+        <flowstorm.api.description>Flowstorm API</flowstorm.api.description>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>org.promethist.core</groupId>
-            <artifactId>promethist-core-lib</artifactId>
+            <groupId>ai.flowstorm.core</groupId>
+            <artifactId>flowstorm-core-lib</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.promethist.core</groupId>
-            <artifactId>promethist-core-runner-api</artifactId>
+            <groupId>ai.flowstorm.core</groupId>
+            <artifactId>flowstorm-core-runner-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -102,20 +102,20 @@
                     <apiSources>
                         <apiSource>
                             <springmvc>false</springmvc>
-                            <locations>${promethist.api.locations}</locations>
+                            <locations>${flowstorm.api.locations}</locations>
                             <schemes>https,http</schemes>
-                            <host>core.${promethist.api.basedomain}</host>
+                            <host>core.${flowstorm.api.basedomain}</host>
                             <basePath>/</basePath>
                             <outputFormats>json,yaml</outputFormats>
                             <swaggerDirectory>${project.build.outputDirectory}/META-INF/core-api</swaggerDirectory>
                             <info>
                                 <title>${project.name}</title>
                                 <version>${project.version}</version>
-                                <description>${promethist.api.description}</description>
-                                <termsOfService>https://promethist.ai/terms</termsOfService>
+                                <description>${flowstorm.api.description}</description>
+                                <termsOfService>https://app.flowstorm.ai/terms</termsOfService>
                                 <contact>
-                                    <email>support@promethist.ai</email>
-                                    <name>PromethistAI Support</name>
+                                    <email>support@flowstorm.ai</email>
+                                    <name>Flowstorm Support</name>
                                     <url>https://promethist.ai</url>
                                 </contact>
                             </info>

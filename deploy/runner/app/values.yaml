@@ -1,7 +1,7 @@
-baseDomain: promethist.com
+baseDomain: flowstorm.ai
 clusterIssuer: letsencrypt
 namespace: default
-name: promethist-runner
+name: flowstorm-runner
 replicas: 2
 imagePullSecrets: promethistai-registry
 imagePullPolicy: IfNotPresent
@@ -12,7 +12,7 @@ service:
 app:
   port: 8080
   image:
-    name: registry.gitlab.com/promethist/core/runner/app
+    name: registry.gitlab.com/promethistai/core/runner/app
     tag: latest
   mem: 1024
   resources:

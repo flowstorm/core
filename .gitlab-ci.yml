@@ -11,7 +11,7 @@ stages:
 #
 .distribute java client:
   stage: distribute
-  image: registry.gitlab.com/promethist/system/builder
+  image: registry.gitlab.com/promethistai/system/builder
   variables:
     DIR: client/XXX
     NAME: NAME
@@ -41,7 +41,7 @@ stages:
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
-    - docker build --force-rm --tag $CI_REGISTRY_IMAGE/$DIR --build-arg API_REF=$CI_COMMIT_SHORT_SHA --build-arg API_HOST=$CI_PROJECT_NAME.preview.promethist.com --build-arg VERSION=1.0.0-SNAPSHOT $DIR
+    - docker build --force-rm --tag $CI_REGISTRY_IMAGE/$DIR --build-arg API_REF=$CI_COMMIT_SHORT_SHA --build-arg API_HOST=$CI_PROJECT_NAME.preview.flowstorm.ai --build-arg VERSION=1.0.0-SNAPSHOT $DIR
     - docker push $CI_REGISTRY_IMAGE/$DIR
 
 .build release:
@@ -59,7 +59,7 @@ stages:
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
-    - docker build --force-rm --cache-from $CI_REGISTRY_IMAGE/$DIR --tag $CI_REGISTRY_IMAGE/$DIR:$CI_COMMIT_REF_NAME --build-arg API_REF=$CI_COMMIT_REF_NAME --build-arg API_HOST=$CI_PROJECT_NAME.promethist.com --build-arg VERSION=$CI_COMMIT_REF_NAME $DIR
+    - docker build --force-rm --cache-from $CI_REGISTRY_IMAGE/$DIR --tag $CI_REGISTRY_IMAGE/$DIR:$CI_COMMIT_REF_NAME --build-arg API_REF=$CI_COMMIT_REF_NAME --build-arg API_HOST=$CI_PROJECT_NAME.flowstorm.ai --build-arg VERSION=$CI_COMMIT_REF_NAME $DIR
     - docker push $CI_REGISTRY_IMAGE/$DIR:$CI_COMMIT_REF_NAME
 
 #
@@ -67,7 +67,7 @@ stages:
 #
 .document release:
   stage: document
-  image: registry.gitlab.com/promethist/system/builder
+  image: registry.gitlab.com/promethistai/system/builder
   variables:
     DIR: api
     NAME: NAME
@@ -83,7 +83,7 @@ stages:
 
 .document snapshot:
   stage: document
-  image: registry.gitlab.com/promethist/system/builder
+  image: registry.gitlab.com/promethistai/system/builder
   variables:
     DIR: api
     NAME: NAME
@@ -102,7 +102,7 @@ stages:
 #
 deploy release packages:
   stage: deploy_packages
-  image: registry.gitlab.com/promethist/system/builder
+  image: registry.gitlab.com/promethistai/system/builder
   only:
     refs:
       - tags
@@ -113,14 +113,14 @@ deploy release packages:
   script:
     - chmod 600 $DEPLOYER_KEY
     - mvn -B versions:set -DnewVersion=$CI_COMMIT_REF_NAME
-    - mvn -B deploy -s settings.xml -DprivateKey=$DEPLOYER_KEY -Dapi.basedomain=promethist.com -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false
+    - mvn -B deploy -s settings.xml -DprivateKey=$DEPLOYER_KEY -Dapi.basedomain=flowstorm.ai -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false
 
 #
 # deploy all snaphot packages
 #
 deploy snaphot packages:
   stage: deploy_packages
-  image: registry.gitlab.com/promethist/system/builder
+  image: registry.gitlab.com/promethistai/system/builder
   only:
     refs:
       - master
@@ -128,7 +128,7 @@ deploy snaphot packages:
     untracked: true
   script:
     - chmod 600 $DEPLOYER_KEY
-    - mvn -B deploy -s settings.xml -DprivateKey=$DEPLOYER_KEY -Dapi.basedomain=preview.promethist.com -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false
+    - mvn -B deploy -s settings.xml -DprivateKey=$DEPLOYER_KEY -Dapi.basedomain=preview.flowstorm.ai -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false
 
 #
 # build docker images
@@ -172,13 +172,13 @@ document release lib:
   extends: '.document release'
   variables:
     DIR: lib
-    NAME: promethist-core-lib
+    NAME: flowstorm-core-lib
 
 document snapshot lib:
   extends: '.document snapshot'
   variables:
     DIR: lib
-    NAME: promethist-core-lib
+    NAME: flowstorm-core-lib
   only:
     changes:
       - lib/**/*
@@ -187,13 +187,13 @@ document release app:
   extends: '.document release'
   variables:
     DIR: app
-    NAME: promethist-core-app
+    NAME: flowstorm-core-app
 
 document snapshot app:
   extends: '.document snapshot'
   variables:
     DIR: app
-    NAME: promethist-core-app
+    NAME: flowstorm-core-app
   only:
     changes:
       - app/**/*
@@ -202,13 +202,13 @@ document release runner/api:
   extends: '.document release'
   variables:
     DIR: runner/api
-    NAME: promethist-core-runner-api
+    NAME: flowstorm-core-runner-api
 
 document snapshot runner/api:
   extends: '.document snapshot'
   variables:
     DIR: runner/api
-    NAME: promethist-core-runner-api
+    NAME: flowstorm-core-runner-api
   only:
     changes:
       - runner/api/**/*
@@ -217,13 +217,13 @@ document release builder/api:
   extends: '.document release'
   variables:
     DIR: builder/api
-    NAME: promethist-core-builder-api
+    NAME: flowstorm-core-builder-api
 
 document snapshot builder/api:
   extends: '.document snapshot'
   variables:
     DIR: builder/api
-    NAME: promethist-core-builder-api
+    NAME: flowstorm-core-builder-api
   only:
     changes:
       - builder/api/**/*
@@ -235,7 +235,7 @@ distribute client client/standalone:
   extends: '.distribute java client'
   variables:
     DIR: client/standalone
-    NAME: promethist
+    NAME: flowstorm
   only:
     changes:
       - client/**/*

@@ -1,7 +1,7 @@
 package `dialogue1`
 
-import org.promethist.core.dialogue.*
-import org.promethist.core.type.*
+import ai.flowstorm.core.dialogue.*
+import ai.flowstorm.core.type.*
 
 data class Model1(
         // dialogue properties

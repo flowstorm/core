@@ -5,12 +5,12 @@
     <packaging>jar</packaging>
 
     <parent>
-        <groupId>org.promethist.common</groupId>
-        <artifactId>promethist-common</artifactId>
+        <groupId>ai.flowstorm.common</groupId>
+        <artifactId>flowstorm-common</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
-    <artifactId>promethist-common-lib</artifactId>
-    <name>Promethist Common Lib</name>
+    <artifactId>flowstorm-common-lib</artifactId>
+    <name>Flowstorm Common Lib</name>
 
     <dependencies>
         <dependency>

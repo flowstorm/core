@@ -28,7 +28,7 @@ spec:
               servicePort: 8080
           - path: /builder
             backend:
-              serviceName: promethist-builder
+              serviceName: flowstorm-builder
               servicePort: 8080
           - path: /apidoc
             backend:

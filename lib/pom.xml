@@ -5,17 +5,17 @@
     <packaging>jar</packaging>
 
     <parent>
-        <groupId>org.promethist.core</groupId>
-        <artifactId>promethist-core</artifactId>
+        <groupId>ai.flowstorm.core</groupId>
+        <artifactId>flowstorm-core</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
-    <artifactId>promethist-core-lib</artifactId>
-    <name>Promethist Core Lib</name>
+    <artifactId>flowstorm-core-lib</artifactId>
+    <name>Flowstorm Core Lib</name>
 
     <dependencies>
         <dependency>
-            <groupId>org.promethist.common</groupId>
-            <artifactId>promethist-common-lib</artifactId>
+            <groupId>ai.flowstorm.common</groupId>
+            <artifactId>flowstorm-common-lib</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

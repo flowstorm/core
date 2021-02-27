@@ -77,7 +77,7 @@
       {
         "name": "signals-from-url",
         "type": "url",
-        "url": "https://port.promethist.com/check",
+        "url": "https://core.flowstorm.ai/check",
         "method": "GET",
         "headers": {
           "X-Test": 1

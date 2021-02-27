@@ -1,0 +1,77 @@
+package ai.flowstorm.core.context
+
+import ai.flowstorm.common.messaging.MessageSender
+import ai.flowstorm.core.Context
+import ai.flowstorm.core.Pipeline
+import ai.flowstorm.core.Request
+import ai.flowstorm.core.dialogue.AbstractDialogue
+import ai.flowstorm.core.model.Profile
+import ai.flowstorm.core.model.Session
+import ai.flowstorm.core.model.Turn
+import ai.flowstorm.core.repository.ProfileRepository
+import ai.flowstorm.core.resources.CommunityResource
+import ai.flowstorm.core.resources.DialogueEventResource
+import ai.flowstorm.core.runtime.DialogueLog
+import ai.flowstorm.core.type.Dynamic
+import ai.flowstorm.core.type.toLocation
+import javax.inject.Inject
+
+class ContextFactory {
+
+    @Inject
+    lateinit var communityResource: CommunityResource
+
+    @Inject
+    lateinit var dialogueEventResource: DialogueEventResource
+
+    @Inject
+    lateinit var profileRepository: ProfileRepository
+
+    @Inject
+    lateinit var dialogueLog: DialogueLog
+
+    @Inject
+    lateinit var messageSender: MessageSender
+
+    fun createContext(pipeline: Pipeline, session: Session, request: Request): Context {
+        val userProfile = profileRepository.findBy(session.user._id, session.space_id)
+            ?: Profile(user_id = session.user._id, space_id = session.space_id)
+        val context = Context(
+            pipeline,
+            userProfile,
+            session,
+            Turn(session_id = session._id, input = request.input).also {
+                it.request.attributes = request.attributes
+            },
+            dialogueLog.logger,
+            request.input.locale,
+            communityResource,
+            dialogueEventResource,
+            messageSender
+        )
+        request.attributes.forEach {
+            val name = if (it.key == "clientLocation")
+                "clientUserLocation"
+            else
+                it.key
+            val value = when (name) {
+                "clientUserLocation" ->
+                    (it.value as String).toLocation().apply {
+                        session.location = this
+                    }
+                "clientTemperature", "clientAmbientLight", "clientSpatialMotion" ->
+                    it.value.toString().toDouble() // can be integer or double
+                else -> {
+                    if ((it.value is String) && ((it.value as String).startsWith("lat=") || (it.value as String).startsWith("lng=")))
+                        (it.value as String).toLocation()
+                    else if (it.value is Map<*, *>)
+                        Dynamic(it.value as Map<String, Any>)
+                    else
+                        it.value // type by JSON
+                }
+            }
+            context.getAttributes(name)[AbstractDialogue.defaultNamespace].set(name, value)
+        }
+        return context
+    }
+}

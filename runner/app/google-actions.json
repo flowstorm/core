@@ -4,7 +4,7 @@
       "description": "Default Main Intent",
       "name": "MAIN",
       "fulfillment": {
-        "conversationName": "Promethist"
+        "conversationName": "Flowstorm"
       },
       "intent": {
         "name": "actions.intent.MAIN"
@@ -12,9 +12,9 @@
     }
   ],
   "conversations": {
-    "Promethist": {
-      "name": "Promethist",
-      "url": "https://port.promethist.com/google?key=promethist:5ea17702d28fd40eec1e9076",
+    "Flowstorm": {
+      "name": "Flowstorm",
+      "url": "https://core.flowstorm.ai/google?key=flowstorm:5ea17702d28fd40eec1e9076",
       "fulfillmentApiVersion": 2
     }
   },

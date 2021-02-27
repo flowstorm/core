@@ -1,7 +1,7 @@
 package `subdialogue1`
 
-import org.promethist.core.dialogue.Dialogue
-import org.promethist.core.type.Location
+import ai.flowstorm.core.dialogue.Dialogue
+import ai.flowstorm.core.type.Location
 
 data class Model1(
         // dialogue properties

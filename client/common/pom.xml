@@ -5,18 +5,18 @@
     <packaging>jar</packaging>
 
     <parent>
-        <groupId>org.promethist.client</groupId>
-        <artifactId>promethist-client</artifactId>
+        <groupId>ai.flowstorm.client</groupId>
+        <artifactId>flowstorm-client</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
-    <artifactId>promethist-client-common</artifactId>
-    <name>Promethist Client Common</name>
+    <artifactId>flowstorm-client-common</artifactId>
+    <name>Flowstorm Client Common</name>
 
     <dependencies>
 
         <dependency>
-            <groupId>org.promethist.client</groupId>
-            <artifactId>promethist-client-lib</artifactId>
+            <groupId>ai.flowstorm.client</groupId>
+            <artifactId>flowstorm-client-lib</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

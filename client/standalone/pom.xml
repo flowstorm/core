@@ -5,12 +5,12 @@
     <packaging>jar</packaging>
 
     <parent>
-        <groupId>org.promethist.client</groupId>
-        <artifactId>promethist-client</artifactId>
+        <groupId>ai.flowstorm.client</groupId>
+        <artifactId>flowstorm-client</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
-    <artifactId>promethist-client-standalone</artifactId>
-    <name>Promethist Client Standalone</name>
+    <artifactId>flowstorm-client-standalone</artifactId>
+    <name>Flowstorm Client Standalone</name>
 
     <properties>
         <pi4j.version>1.2</pi4j.version>
@@ -18,13 +18,13 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.promethist.client</groupId>
-            <artifactId>promethist-client-common</artifactId>
+            <groupId>ai.flowstorm.client</groupId>
+            <artifactId>flowstorm-client-common</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.promethist.common</groupId>
-            <artifactId>promethist-common-lib</artifactId>
+            <groupId>ai.flowstorm.common</groupId>
+            <artifactId>flowstorm-common-lib</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -101,7 +101,7 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
-        <finalName>promethist</finalName>
+        <finalName>flowstorm</finalName>
         <plugins>
             <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>
@@ -130,7 +130,7 @@
                 <configuration>
                     <transformers>
                         <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                            <mainClass>org.promethist.client.standalone.Application</mainClass>
+                            <mainClass>ai.flowstorm.client.standalone.Application</mainClass>
                         </transformer>
                         <!-- remove signatures to prevent problem in graal native-image -->
                         <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />

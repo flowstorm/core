@@ -1,4 +1,4 @@
-FROM registry.gitlab.com/promethist/system/java:openjdk-8-alpine
+FROM registry.gitlab.com/promethistai/system/java:openjdk-8-alpine
 
 RUN apk add --no-cache bash rsync && \
     cd /tmp && \

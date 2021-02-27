@@ -1,0 +1,13 @@
+[
+  {
+    "body": "dummy@flowstorm.ai",
+    "start": 0,
+    "value": {
+      "value": "dummy@flowstorm.ai",
+      "type": "value"
+    },
+    "end": 19,
+    "dim": "email",
+    "latent": false
+  }
+]
