@@ -28,36 +28,36 @@
             <name>Tomas Zajicek</name>
             <email>tomas.zajicek@promethist.ai</email>
             <organization>PromethistAI</organization>
-            <organizationUrl>https://github.com/PromethistAI</organizationUrl>
+            <organizationUrl>https://promethist.ai</organizationUrl>
             <timezone>UTC+02:00</timezone>
         </developer>
         <developer>
             <name>Tomas Kormanak</name>
             <email>tomas.kormanak@promethist.ai</email>
             <organization>PromethistAI</organization>
-            <organizationUrl>https://github.com/PromethistAI</organizationUrl>
+            <organizationUrl>https://promethist.ai</organizationUrl>
             <timezone>UTC+02:00</timezone>
         </developer>
         <developer>
             <name>Jan Pichl</name>
             <email>jan.pichl@promethist.ai</email>
             <organization>PromethistAI</organization>
-            <organizationUrl>https://github.com/PromethistAI</organizationUrl>
+            <organizationUrl>https://promethist.ai</organizationUrl>
             <timezone>UTC+02:00</timezone>
         </developer>
         <developer>
             <name>Jakub Konrad</name>
             <email>jakub.konrad@promethist.ai</email>
             <organization>PromethistAI</organization>
-            <organizationUrl>https://github.com/PromethistAI</organizationUrl>
+            <organizationUrl>https://promethist.ai</organizationUrl>
             <timezone>UTC+02:00</timezone>
         </developer>
     </developers>
 
     <scm>
-        <connection>scm:git:git://github.com/PromethistAI/core.git</connection>
-        <developerConnection>scm:git:git@github.com:PromethistAI/core.git</developerConnection>
-        <url>https://github.com/PromethistAI/core</url>
+        <connection>scm:git:git://github.com/flowstorm/core.git</connection>
+        <developerConnection>scm:git:git@github.com:flowstorm/core.git</developerConnection>
+        <url>https://github.com/flowstorm/core</url>
         <tag>1.0.0-SNAPSHOT</tag>
     </scm>
 
@@ -99,16 +99,16 @@
 
     <repositories>
         <repository>
-            <id>flowstorm</id>
-            <name>Flowstorm repository</name>
+            <id>promethistai</id>
+            <name>PromethistAI repository</name>
             <url>https://repository.promethist.ai/maven/</url>
         </repository>
     </repositories>
 
     <distributionManagement>
         <repository>
-            <id>flowstorm</id>
-            <name>Flowstorm repository</name>
+            <id>promethistai</id>
+            <name>PromethistAI repository</name>
             <url>scpexe://repository.promethist.ai/ext/cluster/default/default/repository/maven/</url>
         </repository>
     </distributionManagement>

@@ -5,7 +5,7 @@
             <username>deployer</username>
             <privateKey>${privateKey}</privateKey>
             <configuration>
-                <scpArgs>-o "StrictHostKeyChecking no"</scpArgs>
+                <scpArgs>-o StrictHostKeyChecking=no</scpArgs>
             </configuration>
         </server>
     </servers>
