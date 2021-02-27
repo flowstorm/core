@@ -11,7 +11,7 @@
     <url>https://github.com/PromethistAI/core</url>
 
     <organization>
-        <url>https://github.com/PromethistAI</url>
+        <url>https://promethist.ai</url>
         <name>PromethistAI</name>
     </organization>
     <inceptionYear>2019</inceptionYear>
@@ -87,16 +87,6 @@
         <module>builder</module>
     </modules>
 
-    <build>
-        <extensions>
-            <extension>
-                <groupId>org.apache.maven.wagon</groupId>
-                <artifactId>wagon-ssh-external</artifactId>
-                <version>1.0-beta-6</version>
-            </extension>
-        </extensions>
-    </build>
-
     <repositories>
         <repository>
             <id>promethistai</id>
@@ -109,7 +99,7 @@
         <repository>
             <id>promethistai</id>
             <name>PromethistAI repository</name>
-            <url>scpexe://repository.promethist.ai/ext/cluster/default/default/repository/maven/</url>
+            <url>file:/ext/cluster/default/default/repository/maven/</url>
         </repository>
     </distributionManagement>
 

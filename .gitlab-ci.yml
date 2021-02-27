@@ -79,7 +79,7 @@ stages:
   script:
     - cd $DIR
     - mvn dokka:dokka
-    - rsync -arv --delete ./target/dokka/$NAME /ext/cluster/default/default/site/default/apidoc/
+    - rsync -rv --delete ./target/dokka/$NAME /ext/cluster/default/default/site/default/apidoc/
 
 .document snapshot:
   stage: document
@@ -93,7 +93,7 @@ stages:
   script:
     - cd $DIR
     - mvn dokka:dokka
-    - rsync -arv --delete ./target/dokka/$NAME /ext/cluster/default/preview/site/default/apidoc/
+    - rsync -rv --delete ./target/dokka/$NAME /ext/cluster/default/preview/site/default/apidoc/
 
 #
 # JOBS
