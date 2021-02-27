@@ -3,7 +3,6 @@
 target
 hs_*.log
 venv
-*local*
 .DS_Store
 client/custom
 release.properties
