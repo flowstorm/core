@@ -7,7 +7,7 @@ class JwtToken internal constructor(username: String, val decodedJWT: DecodedJWT
 
     companion object {
         fun create(token: String) = JWT.decode(token).let { decodedJWT ->
-            JwtToken(decodedJWT.getClaim("https://flowstorm/user.email").let {
+            JwtToken(decodedJWT.getClaim("https://promethist/user.email").let {
                 (if (it.isNull) decodedJWT.getClaim("email") else it).asString()
             }, decodedJWT)
         }
