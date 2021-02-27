@@ -112,7 +112,7 @@ deploy release packages:
     untracked: true
   script:
     - mvn -B versions:set -DnewVersion=$CI_COMMIT_REF_NAME
-    - mvn -B deploy -s settings.xml -DprivateKey=$DEPLOYER_KEY -Dapi.basedomain=flowstorm.ai -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false
+    - mvn -B deploy -Dapi.basedomain=flowstorm.ai -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false
 
 #
 # deploy all snaphot packages
@@ -126,7 +126,7 @@ deploy snaphot packages:
   artifacts:
     untracked: true
   script:
-    - mvn -B deploy -s settings.xml -DprivateKey=$DEPLOYER_KEY -Dapi.basedomain=preview.flowstorm.ai -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false
+    - mvn -B deploy -Dapi.basedomain=preview.flowstorm.ai -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false
 
 #
 # build docker images
