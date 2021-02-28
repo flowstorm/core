@@ -15,7 +15,6 @@ import java.util.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import javax.inject.Inject
-import kotlin.jvm.internal.Reflection
 
 class DialogueBuilder(
     val sourceOnly: Boolean = false,
@@ -26,8 +25,6 @@ class DialogueBuilder(
 
     @Inject
     lateinit var intentModelBuilder: IntentModelBuilder
-
-    private val byteCodeClassLoader = DialogueClassLoader(this::class.java.classLoader)
 
     private val logger by LoggerDelegate()
 
@@ -45,14 +42,7 @@ class DialogueBuilder(
             proc.waitFor()
         }
 
-    interface Resource {
-        val filename: String
-        val stream: InputStream
-    }
-
     inner class Builder(val source: DialogueSourceCode) {
-        private val classFiles = mutableListOf<File>()
-        private val resources: MutableList<Resource> = mutableListOf()
         private val basePath = "dialogue/${source.dialogueId}/"
         private val buildPath = "dialogue/${source.dialogueId}/builds/${source.buildId}/"
         private val manifest
@@ -70,8 +60,7 @@ class DialogueBuilder(
             Implementation-Vendor: "(vendor)"
             """.trimIndent()
         private val scriptCode get() = "${source.code}\n//--export-class\n${source.className}::class\n"
-
-        fun addResource(resource: Resource) = resources.add(resource)
+        lateinit var jarBytes: ByteArray
 
         /**
          * Builds and stores dialogue model with intent model and included files using file resource.
@@ -82,8 +71,8 @@ class DialogueBuilder(
                 logger.info("Start building dialogue model ${source.dialogueId}")
                 saveSourceCode(buildPath)
                 val dialogue = createInstance()
-                saveResources(buildPath)
                 saveJavaArchive(buildPath)
+                saveSourceCode(buildPath)
                 buildIntentModels(dialogue, oodExamples)
                 val duration = System.currentTimeMillis() - time
                 logger.info("Finished build ${source.buildId} of dialogue model ${source.dialogueId} in $duration ms")
@@ -106,7 +95,6 @@ class DialogueBuilder(
 
         fun deploy() {
             saveSourceCode(basePath)
-            saveResources(basePath)
             saveJavaArchive(basePath)
         }
 
@@ -135,19 +123,12 @@ class DialogueBuilder(
                 Kotlin.newObjectWithArgs(Kotlin.loadClass(StringReader(scriptCode)), source.parameters)
             } else {
                 val time0 = System.currentTimeMillis()
-                compileByteCode()
+                val classFiles = compileClassFiles()
                 val time1 = System.currentTimeMillis()
-                classFiles.forEach {
-                    val className = "model.${source.buildId}.${it.nameWithoutExtension}"
-//                    logger.info("loading dialogue model class $className from $it")
-                    byteCodeClassLoader.loadClass(className, it.readBytes())
-                }
+                createJavaArchive(classFiles)
+                val kotlinClass = DialogueClassLoader.loadClass<AbstractDialogue>(this::class.java.classLoader, ByteArrayInputStream(jarBytes), source.buildId)
                 val time2 = System.currentTimeMillis()
-                val javaClass = byteCodeClassLoader.loadClass("model.${source.buildId}.Model")
-                //println(modelClass.isKotlinClass())
-                val kotlinClass = Reflection.createKotlinClass(javaClass)
-                //val dialogue = modelClass.getDeclaredConstructor().newInstance() as Dialogue
-                val dialogue = Kotlin.newObjectWithArgs(kotlinClass, source.parameters) as AbstractDialogue
+                val dialogue = Kotlin.newObjectWithArgs(kotlinClass, source.parameters)
                 logger.info("Dialogue model classes compiled in ${time1 - time0} ms, loaded in ${time2 - time1} ms, instantiated in ${System.currentTimeMillis() - time2} ms")
                 dialogue
             }
@@ -155,7 +136,7 @@ class DialogueBuilder(
             return dialogue
         }
 
-        private fun compileByteCode() {
+        private fun compileClassFiles(): Array<File> {
             val classLoader = javaClass.classLoader
             val classPath = if (classLoader is URLClassLoader) {
                 classLoader.urLs.map { it.toString() }.joinToString(":")
@@ -182,11 +163,7 @@ class DialogueBuilder(
                 error(buf)
             logger.debug("Kotlin compiler output:\n$buf")
 
-            File(workDir, "model/${source.buildId}").apply {
-                list { _, name -> name.endsWith(".class") }.forEach {
-                    classFiles.add(File(this, it))
-                }
-            }
+            return File(workDir, "model/${source.buildId}").listFiles { _, name -> name.endsWith(".class") }
         }
 
         private fun saveSourceCode(dir: String) {
@@ -198,7 +175,7 @@ class DialogueBuilder(
             }
         }
 
-        private fun saveJavaArchive(dir: String, jar: OutputStream? = null) {
+        private fun createJavaArchive(classFiles: Array<File>) {
             val buf = ByteArrayOutputStream()
             val zip = ZipOutputStream(buf)
             classFiles.forEach { classFile ->
@@ -210,21 +187,16 @@ class DialogueBuilder(
             manifest.byteInputStream().copyTo(zip)
             zip.closeEntry()
             zip.close()
-            val path = dir + "model.jar"
-            logger.info("Saving dialogue model ${source.dialogueName} resource file $path")
-            ByteArrayInputStream(buf.toByteArray()).let {
-                jar?.use { out -> it.copyTo(out) } ?:
-                fileResource.writeFile(path, "application/java-archive",
-                    listOf("version:${source.version}", "buildId:${source.buildId}"), it)
-            }
+            jarBytes = buf.toByteArray()
         }
 
-        private fun saveResources(dir: String) {
-            resources.forEach {
-                it.stream.reset()
-                val path = "${dir}resources/${it.filename}"
-                logger.info("Saving dialogue model ${source.dialogueName} resource file ${it.filename}")
-                fileResource.writeFile(path, "text/json", listOf(), it.stream)
+        private fun saveJavaArchive(dir: String, out: OutputStream? = null) {
+            val path = dir + "model.jar"
+            logger.info("Saving dialogue model ${source.dialogueName} resource file $path")
+            ByteArrayInputStream(jarBytes).let {
+                out?.use { out -> it.copyTo(out) } ?:
+                fileResource.writeFile(path, "application/java-archive",
+                    listOf("version:${source.version}", "buildId:${source.buildId}"), it)
             }
         }
 

@@ -4,12 +4,8 @@ import com.fasterxml.jackson.core.type.TypeReference
 import ai.flowstorm.core.model.FileObject
 import ai.flowstorm.core.type.PropertyMap
 import ai.flowstorm.util.LoggerDelegate
-import java.io.File
-import java.io.FileOutputStream
 import java.io.InputStream
 import java.io.InputStreamReader
-import java.net.URLClassLoader
-import kotlin.jvm.internal.Reflection
 import kotlin.reflect.KClass
 import ai.flowstorm.common.ObjectUtil.defaultMapper as mapper
 
@@ -33,24 +29,16 @@ abstract class AbstractLoader(open val noCache: Boolean, open val useScript: Boo
 
     abstract fun getFileObject(name: String): FileObject
 
-    override fun <T : Any> loadClass(name: String): KClass<T> = if (useScript) {
-        cache("$name.kts") {
-            logger.info("Loading class $name from resource file $name.kts")
-            Kotlin.loadClass<T>(InputStreamReader(getInputStream("$name.kts")))
+    override fun <T : Any> loadClass(className: String): KClass<T> = if (useScript) {
+        cache("$className.kts") {
+            logger.info("Loading class $className from resource file $className.kts")
+            Kotlin.loadClass<T>(InputStreamReader(getInputStream("$className.kts")))
         }
     } else {
-        cache("$name.jar") {
-            logger.info("Loading class $name from resource file $name.jar")
-            val buildId = it.metadata?.get("buildId") ?: error("missing buildId meta in $name.jar")
-            val jarFile = File(System.getProperty("java.io.tmpdir"), "model.$buildId.jar")
-            getInputStream("$name.jar").use { input ->
-                FileOutputStream(jarFile).use { output ->
-                    input.copyTo(output)
-                }
-            }
-            val classLoader = URLClassLoader(arrayOf(jarFile.toURI().toURL()), this::class.java.classLoader)
-            val javaClass = classLoader.loadClass("model.$buildId.Model")
-            Reflection.createKotlinClass(javaClass) as KClass<T>
+        cache("$className.jar") {
+            logger.info("Loading class $className from resource file $className.jar")
+            val buildId = it.metadata?.get("buildId") ?: error("missing buildId meta in $className.jar")
+            DialogueClassLoader.loadClass(this::class.java.classLoader, getInputStream("$className.jar"), buildId)
         }
     }
 
