@@ -60,7 +60,7 @@ class DialogueBuilder(
             Implementation-Vendor: "(vendor)"
             """.trimIndent()
         private val scriptCode get() = "${source.code}\n//--export-class\n${source.className}::class\n"
-        lateinit var jarBytes: ByteArray
+        private var jarBytes: ByteArray? = null
 
         /**
          * Builds and stores dialogue model with intent model and included files using file resource.
@@ -139,7 +139,11 @@ class DialogueBuilder(
         private fun compileClassFiles(): Array<File> {
             val classLoader = javaClass.classLoader
             val classPath = if (classLoader is URLClassLoader) {
-                classLoader.urLs.map { it.toString() }.joinToString(":")
+                classLoader.urLs.map { it.toString() }.filter {
+                    true
+                    //it.contains("flowstorm/core/lib") ||
+                    //it.contains("flowstorm")
+                }.joinToString(":")
             } else {
                 System.getProperty("java.class.path")
             }
@@ -192,11 +196,14 @@ class DialogueBuilder(
 
         private fun saveJavaArchive(dir: String, out: OutputStream? = null) {
             val path = dir + "model.jar"
-            logger.info("Saving dialogue model ${source.dialogueName} resource file $path")
-            ByteArrayInputStream(jarBytes).let {
-                out?.use { out -> it.copyTo(out) } ?:
-                fileResource.writeFile(path, "application/java-archive",
-                    listOf("version:${source.version}", "buildId:${source.buildId}"), it)
+            jarBytes?.let {
+                logger.info("Saving dialogue model ${source.dialogueName} resource file $path")
+                ByteArrayInputStream(it).let {
+                    out?.use { out -> it.copyTo(out) } ?: fileResource.writeFile(
+                        path, "application/java-archive",
+                        listOf("version:${source.version}", "buildId:${source.buildId}"), it
+                    )
+                }
             }
         }
 
