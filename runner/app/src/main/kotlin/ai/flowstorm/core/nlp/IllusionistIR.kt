@@ -11,7 +11,7 @@ import javax.ws.rs.client.Entity
 import javax.ws.rs.client.WebTarget
 import javax.ws.rs.core.GenericType
 
-class Illusionist : Component {
+class IllusionistIR : Component {
 
     @Inject
     lateinit var webTargets: IterableProvider<WebTarget>
@@ -33,7 +33,7 @@ class Illusionist : Component {
         var text = context.input.transcript.text
         context.input.entityMap.values.flatten().forEach { if (it.required) text = text.replace(it.text, it.className) } // Better to replace by index
         val request = Request(text, models.map { it.id })
-        val responses = webTarget.path("/multi_model").request().post(Entity.json(request), object : GenericType<List<Response>>() {})
+        val responses = webTarget.path("/intent/query/multi_model").request().post(Entity.json(request), object : GenericType<List<Response>>() {})
 
         if (responses[0].answer == OUT_OF_DOMAIN_ACTION) {
             context.input.action = OUT_OF_DOMAIN_ACTION

@@ -14,7 +14,7 @@ class Action : Component {
             context.input.action  = text.substringAfter(ACTION_PREFIX)
 
             //when action is detected, we remove illusionist from pipeline
-            context.pipeline.removeComponent(Illusionist::class.createType())
+            context.pipeline.removeComponent(IllusionistIR::class.createType())
 
             return context
         }

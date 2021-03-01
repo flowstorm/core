@@ -51,7 +51,7 @@ data class Input(
     }
 
     @get:JsonIgnore
-    val words: WordList by lazy { WordList(tokens.filterIsInstance<Word>()) }
+    val words get() = WordList(tokens.filterIsInstance<Word>())
 
     @get:JsonIgnore
     val intents get() = classes.filter { it.type == Class.Type.Intent }
