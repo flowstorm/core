@@ -140,9 +140,7 @@ class DialogueBuilder(
             val classLoader = javaClass.classLoader
             val classPath = if (classLoader is URLClassLoader) {
                 classLoader.urLs.map { it.toString() }.filter {
-                    true
-                    //it.contains("flowstorm/core/lib") ||
-                    //it.contains("flowstorm")
+                    true //TODO limit to only necessary dependencies
                 }.joinToString(":")
             } else {
                 System.getProperty("java.class.path")

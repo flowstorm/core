@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver
 import com.fasterxml.jackson.databind.util.StdConverter
 import ai.flowstorm.core.dialogue.AbstractDialogue
+import ai.flowstorm.core.runtime.DialogueRuntime
 
 @JsonSerialize(converter = Memory.MemoryConverter::class)
 open class Memory<V : Any>(
@@ -47,8 +48,8 @@ open class Memory<V : Any>(
 
     fun touch(init: Boolean = false) {
         count++
-        if (AbstractDialogue.isRunning) {
-            with(AbstractDialogue.run) {
+        if (DialogueRuntime.isRunning) {
+            with (DialogueRuntime.run) {
                 //if (!init && node.dialogue.clientLocation.isNotEmpty)
                 //    location = node.dialogue.clientLocation
                 time = context.turn.time

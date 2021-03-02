@@ -45,7 +45,7 @@ open class Api {
         val time = System.currentTimeMillis()
         val result = block(target.request().headers(headers))
         val duration = System.currentTimeMillis() - time
-        AbstractDialogue.ifRunning {
+        DialogueRuntime.ifRunning {
             context.logger.info("API call to ${target.uri} took $duration ms")
         }
         return result

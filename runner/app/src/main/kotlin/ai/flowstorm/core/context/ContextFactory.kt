@@ -36,6 +36,7 @@ class ContextFactory {
     fun createContext(pipeline: Pipeline, session: Session, request: Request): Context {
         val userProfile = profileRepository.findBy(session.user._id, session.space_id)
             ?: Profile(user_id = session.user._id, space_id = session.space_id)
+
         val context = Context(
             pipeline,
             userProfile,

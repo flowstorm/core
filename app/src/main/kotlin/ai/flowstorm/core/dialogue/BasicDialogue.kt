@@ -9,6 +9,7 @@ import ai.flowstorm.core.model.ClientCommand
 import ai.flowstorm.core.model.TtsConfig
 import ai.flowstorm.core.model.enumContains
 import ai.flowstorm.core.runtime.Api
+import ai.flowstorm.core.runtime.DialogueRuntime.run
 import ai.flowstorm.core.type.*
 import ai.flowstorm.util.TextExpander
 import java.io.File

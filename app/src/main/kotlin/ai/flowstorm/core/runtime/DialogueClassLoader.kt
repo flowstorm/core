@@ -10,19 +10,17 @@ import kotlin.reflect.KClass
 
 class DialogueClassLoader(parent: ClassLoader) : ClassLoader(parent) {
 
-    private val classes = mutableMapOf<String, Class<*>>()
     private val logger by LoggerDelegate()
 
-    fun loadClass(name: String, byteCode: ByteArray): DialogueClassLoader {
-        classes[name] = defineClass(name, byteCode, 0, byteCode.size)
-        return this
+    override fun loadClass(name: String): Class<*> {
+        logger.debug("Loading class $name")
+        return super.loadClass(name)
     }
 
     override fun findClass(name: String): Class<*> {
-        logger.info("Finding class $name")
-        return classes[name] ?: super.findClass(name)
+        logger.debug("Finding class $name")
+        return super.findClass(name)
     }
-
 
     companion object {
 
@@ -34,7 +32,7 @@ class DialogueClassLoader(parent: ClassLoader) : ClassLoader(parent) {
                     input.copyTo(output)
                 }
             }
-            val classLoader = URLClassLoader(arrayOf(jarFile.toURI().toURL()), parent)
+            val classLoader = URLClassLoader(arrayOf(jarFile.toURI().toURL()), DialogueClassLoader(parent))
             val javaClass = classLoader.loadClass("model.$buildId.Model")
             return Reflection.createKotlinClass(javaClass) as KClass<T>
         }

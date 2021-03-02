@@ -2,6 +2,7 @@ package ai.flowstorm.core.dialogue.metric
 
 import ai.flowstorm.core.dialogue.AbstractDialogue
 import ai.flowstorm.core.model.metrics.Metric
+import ai.flowstorm.core.runtime.DialogueRuntime
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -16,7 +17,7 @@ class MetricDelegate(private val metricSpec: String) : ReadWriteProperty<Abstrac
     val name = metricSpec.substringAfter(".")
 
     private val metric
-        get() = with(AbstractDialogue.run.context.session) {
+        get() = with(DialogueRuntime.run.context.session) {
             metrics.firstOrNull { it.namespace == namespace && it.name == name }
                     ?: Metric(namespace, name).also { metrics.add(it) }
         }

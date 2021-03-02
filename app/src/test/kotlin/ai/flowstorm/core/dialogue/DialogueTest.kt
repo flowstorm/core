@@ -6,6 +6,7 @@ import io.mockk.mockkObject
 import ai.flowstorm.core.Context
 import ai.flowstorm.core.dialogue.metric.MetricDelegate
 import ai.flowstorm.core.model.metrics.Metric
+import ai.flowstorm.core.runtime.DialogueRuntime
 import ai.flowstorm.core.type.Attributes
 import ai.flowstorm.core.type.DEFAULT_LOCATION
 import org.slf4j.LoggerFactory
@@ -31,8 +32,8 @@ open class DialogueTest {
         every { context.session.metrics } returns metrics
         every { context.session.attributes } returns attributes
         every { context.logger } returns LoggerFactory.getLogger(this.javaClass)
-        mockkObject(AbstractDialogue)
-        every { AbstractDialogue.run } returns AbstractDialogue.Run(dialogue.response1, context)
+        mockkObject(DialogueRuntime)
+        every { DialogueRuntime.run } returns AbstractDialogue.Run(dialogue.response1, context)
         every { context.turn.input.zoneId } returns ZoneId.of("Europe/Paris")
     }
 }

@@ -6,9 +6,11 @@ import ai.flowstorm.core.model.DialogueModel
 import ai.flowstorm.core.model.SttConfig
 import ai.flowstorm.core.model.TtsConfig
 import ai.flowstorm.core.model.Voice
+import ai.flowstorm.core.runtime.DialogueRuntime
+import ai.flowstorm.core.runtime.DialogueRuntime.run
+import ai.flowstorm.core.runtime.DialogueException
 import ai.flowstorm.core.runtime.Loader
 import ai.flowstorm.core.type.*
-import ai.flowstorm.core.type.Throwables.root
 import java.util.*
 import kotlin.random.Random
 import kotlin.reflect.KProperty
@@ -88,7 +90,8 @@ abstract class AbstractDialogue : DialogueModel {
 
         fun process(context: Context): Transition? {
             val transition = run(context, this) { lambda(context, this) } as Transition?
-            if (transition == null && intents.isEmpty() && actions.isEmpty()) throw DialogueScriptException(this, Exception("Can not pass processing to pipeline, there are no intents or actions following the user input node."))
+            if (transition == null && intents.isEmpty() && actions.isEmpty())
+                throw DialogueException(this, Exception("Can not pass processing to pipeline, there are no intents or actions following the user input node."))
 
             return transition
         }
@@ -225,8 +228,7 @@ abstract class AbstractDialogue : DialogueModel {
             val lambda: (Context.(Function) -> Transition)
     ): Node(id) {
         constructor(lambda: (Context.(Function) -> Transition)) : this(nextId--, lambda)
-        fun exec(context: Context): Transition =
-                run(context, this) { lambda(context, this) } as Transition
+        fun exec(context: Context): Transition = run(context, this) { lambda(context, this) } as Transition
     }
 
     open inner class Command(
@@ -323,8 +325,6 @@ abstract class AbstractDialogue : DialogueModel {
 
     class Run(val node: Node, val context: Context)
 
-    class DialogueScriptException(node: Node, cause: Throwable) : Throwable("DialogueScript failed at ${node.dialogue.dialogueName}:${node.dialogue.version}#${node.id} because of ${cause.root.message}", cause)
-
     companion object {
 
         const val GENERATED_USER_INPUT_ID = 10000
@@ -333,25 +333,7 @@ abstract class AbstractDialogue : DialogueModel {
         @Deprecated("Use `defaultNamespace` instead of `clientNamespace`")
         val clientNamespace = defaultNamespace
 
-        private val _run = ThreadLocal<Run>()
-
-        val isRunning get() = (_run.get() != null)
-
-        val run get() = _run.get() ?: error("dialogue code not running")
-
-        fun ifRunning(block: Run.() -> Unit) {
-            if (isRunning)
-                block(run)
-        }
-
-        fun run(context: Context, node: Node, block: () -> Any?): Any? =
-            try {
-                _run.set(Run(node, context))
-                block()
-            } catch (e: Throwable) {
-                throw DialogueScriptException(node, e)
-            } finally {
-                _run.remove()
-            }
+        @Deprecated("Use `DialogueRuntime.ifRunning` instead")
+        fun ifRunning(block: Run.() -> Unit) = DialogueRuntime.ifRunning(block)
     }
 }

@@ -4,7 +4,6 @@ import ai.flowstorm.core.*
 import ai.flowstorm.core.model.IntentModel
 import ai.flowstorm.core.dialogue.AbstractDialogue
 import ai.flowstorm.core.dialogue.BasicDialogue
-import ai.flowstorm.core.repository.DialogueEventRepository
 import ai.flowstorm.util.LoggerDelegate
 import org.slf4j.Logger
 import javax.inject.Inject
@@ -19,12 +18,18 @@ class DialogueManager : Component {
 
     override fun process(context: Context): Context = with(context) {
         this@DialogueManager.logger.info("Processing DM")
-        if (session.dialogueStack.isEmpty()) {
-            session.dialogueStack.push(
-                    Frame(application.dialogue_id.toString(), session.sessionId, application.properties, 0))
+        val contextClassLoader = Thread.currentThread().contextClassLoader
+        Thread.currentThread().contextClassLoader = DialogueClassLoader(contextClassLoader)
+        try {
+            if (session.dialogueStack.isEmpty()) {
+                session.dialogueStack.push(
+                    Frame(application.dialogue_id.toString(), session.sessionId, application.properties, 0)
+                )
+            }
+            proceed(context)
+        } finally {
+            Thread.currentThread().contextClassLoader = contextClassLoader
         }
-        proceed(context)
-
         return context
     }
 
@@ -218,7 +223,7 @@ class DialogueManager : Component {
                                     val background = node.dialogue.background ?: node.background
                                     with (node) {
                                         if (node.dialogue is BasicDialogue) {
-                                            AbstractDialogue.run(context, node) {
+                                            DialogueRuntime.run(context, node) {
                                                 (node.dialogue as BasicDialogue)
                                                     .addResponseItem(text, image, audio, video, code, background, isRepeatable, ttsConfig)
                                             }
@@ -239,7 +244,7 @@ class DialogueManager : Component {
                             frame = frame.copy(nodeId = node.next.id)
                         }
                     }
-                } catch (e: AbstractDialogue.DialogueScriptException) {
+                } catch (e: DialogueException) {
                     context.createDialogueEvent(e)
                     context.input.action = "error"
                     try {

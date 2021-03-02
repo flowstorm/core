@@ -1,8 +1,8 @@
 package ai.flowstorm.core.dialogue.attribute
 
 import ai.flowstorm.core.Context
-import ai.flowstorm.core.dialogue.AbstractDialogue
 import ai.flowstorm.core.dialogue.DateTimeUnit
+import ai.flowstorm.core.runtime.DialogueRuntime
 import ai.flowstorm.core.type.Memorable
 import kotlin.reflect.KClass
 
@@ -22,7 +22,7 @@ class ContextualAttributeDelegate<V: Any>(
 
     enum class Scope { Turn, Session, User, Client }
 
-    override fun attribute(namespace: String, name: String, init: (Memorable?) -> Memorable) = with (AbstractDialogue.run.context) {
+    override fun attribute(namespace: String, name: String, init: (Memorable?) -> Memorable) = with (DialogueRuntime.run.context) {
         val attributes = (when (scope) {
             Scope.Client -> getAttributes(name)
             Scope.User -> userProfile.attributes

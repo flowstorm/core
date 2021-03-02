@@ -4,11 +4,11 @@ import ai.flowstorm.core.Context
 import ai.flowstorm.core.dialogue.AbstractDialogue
 import ai.flowstorm.core.dialogue.DateTimeUnit
 import ai.flowstorm.core.dialogue.plus
+import ai.flowstorm.core.runtime.DialogueRuntime
 import ai.flowstorm.core.type.DateTime
 import ai.flowstorm.core.type.Memorable
 import ai.flowstorm.core.type.Memory
 import ai.flowstorm.core.type.MemoryCollection
-import java.lang.ClassCastException
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 import kotlin.reflect.full.isSubclassOf
@@ -21,7 +21,7 @@ abstract class AttributeDelegate<V: Any>(private val clazz: KClass<*>, val names
     fun getValue(thisRef: AbstractDialogue, property: KProperty<*>, valueTypeControl: Boolean): V =
         attribute(namespace.invoke(), property.name) { attribute ->
             if (attribute == null || (expiration != null && attribute is Memory<*> && attribute.time + expiration < DateTime.now())) {
-                Memorable.pack(default.invoke(AbstractDialogue.run.context))
+                Memorable.pack(default.invoke(DialogueRuntime.run.context))
             } else {
                 attribute
             }
@@ -66,7 +66,7 @@ abstract class AttributeDelegate<V: Any>(private val clazz: KClass<*>, val names
         attribute(namespace.invoke(), property.name) { Memorable.pack(any) }
     }
 
-    private fun restoreDefault(thisRef: AbstractDialogue, property: KProperty<*>, message: String) = with (AbstractDialogue.run) {
+    private fun restoreDefault(thisRef: AbstractDialogue, property: KProperty<*>, message: String) = with (DialogueRuntime.run) {
         context.logger.warn(message)
         val defaultValue = default.invoke(context)
         setValue(thisRef, property, defaultValue)

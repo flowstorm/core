@@ -51,6 +51,7 @@ import javax.ws.rs.ext.ParamConverterProvider
 open class RunnerApplication : JerseyApplication() {
 
     init {
+        System.setSecurityManager(DialogueSecurityManager())
         AppConfig.instance["name"] = "core"
         logger.info("dsuffix=$dsuffix")
 
