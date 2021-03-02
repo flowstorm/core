@@ -37,7 +37,21 @@ data class Turn(
         addResponseItem(text, image, audio, video, code, background, repeatable, voice?.config)
 
     fun addResponseItem(text: String?, image: String? = null, audio: String? = null, video: String? = null, code: String? = null, background: String? = null, repeatable: Boolean = true, ttsConfig: TtsConfig? = null) {
-        val plainText = text?.replace(Regex("\\<.*?\\>"), "")
+        val plainText = text?.let {
+            it.replace(Regex("\\<.*?\\>"), "")
+                .trim()
+                .capitalize()
+                .replace(Regex("[\\s]+"), " ")
+                .replace(Regex(",\$"), "...")
+                .replace(Regex("([^\\.\\!\\?…:])\$"), "$1.")
+                .replace(Regex(",([\\p{L}])"), ", $1")
+                .replace(Regex("([^\\.])\\.\\.([^\\.])"), "$1.$2")
+                .replace(Regex("([\\!\\?] )(\\D)")) { m -> m.groupValues[1] + m.groupValues[2].toUpperCase() }
+                .replace(Regex("([^\\.])[\\.]{2}$"), "$1.")
+                .replace(" .", ".")
+                .replace(" ,", ",")
+                .replace(",,", ",")
+        }
         val item = Response.Item(plainText,
                 ssml = if (text != plainText) text else null,
                 image = image,
