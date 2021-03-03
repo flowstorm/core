@@ -99,14 +99,16 @@ class CoreResourceImpl : CoreResource {
     }
 
     private fun processPipeline(context: Context): Context {
+        var processedContext = context
         try {
-            val processedContext = context.pipeline.process(context)
-            contextPersister.persist(processedContext)
+            processedContext = context.pipeline.process(context)
             return processedContext
         } catch (e: Throwable) {
             context.createDialogueEvent(e)
             monitor.capture(e)
             throw e
+        } finally {
+            contextPersister.persist(processedContext)
         }
     }
 

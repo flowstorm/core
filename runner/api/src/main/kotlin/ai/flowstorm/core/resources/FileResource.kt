@@ -23,7 +23,8 @@ interface FileResource {
     @Path("{path: .*}/_object")
     @Produces(MediaType.APPLICATION_JSON)
     fun getFile(
-            @ApiParam(required = true) @PathParam("path") path: String): FileObject
+            @ApiParam(required = true) @PathParam("path") path: String
+    ): Response
 
     @POST
     @Path("{path: .*}")

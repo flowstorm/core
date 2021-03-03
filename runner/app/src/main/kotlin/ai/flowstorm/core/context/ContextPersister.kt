@@ -41,23 +41,24 @@ class ContextPersister {
     @Inject
     lateinit var monitor: Monitor
 
-    fun persist(context: Context) {
-        context.turn.log.addAll(dialogueLog.log)
-        context.turn.duration = System.currentTimeMillis() - context.turn.datetime.time
-        context.session.datetime = Date()
-        context.communities.values.forEach {
-            context.communityRepository.update(it)
-        }
+    fun persist(context: Context) = with (context) {
+        turn.log.addAll(dialogueLog.log)
+        turn.duration = System.currentTimeMillis() - turn.datetime.time
+        session.datetime = Date()
         try {
-            saveToElastic(context.turn)
-            saveToElastic(context.session)
-            saveToElastic(context.userProfile)
+            sessionResource.create(turn)
+            sessionResource.update(session)
+            profileRepository.update(userProfile, true)
+            communities.values.forEach {
+                communityRepository.update(it)
+            }
+            saveToElastic(turn)
+            saveToElastic(session)
+            saveToElastic(userProfile)
         } catch (e: Throwable) {
-            monitor.capture(e, context.session)
+            monitor.capture(e, session)
+            throw e
         }
-        sessionResource.create(context.turn)
-        sessionResource.update(context.session)
-        profileRepository.update(context.userProfile, true)
     }
 
     private fun saveToElastic(entity: Entity<*>) = elasticClient?.let { client ->
