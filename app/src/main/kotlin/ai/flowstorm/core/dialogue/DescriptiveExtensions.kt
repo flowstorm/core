@@ -62,7 +62,11 @@ fun BasicDialogue.describe(data: Any?, detail: Int = 0) =
             is Location -> describe(data)
             is DateTime -> if (data.isDate) describeDate(data, detail) else describeTime(data, detail)
             is String -> data
-            null -> "undefined"
+            null -> when (language) {
+                "de" -> "undefiniert"
+                "cs" -> "nedefinované"
+                else -> "undefined"
+            }
             else -> data.toString()
         }
 
