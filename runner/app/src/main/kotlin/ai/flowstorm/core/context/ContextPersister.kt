@@ -52,12 +52,16 @@ class ContextPersister {
             communities.values.forEach {
                 communityRepository.update(it)
             }
+        } catch (e: Throwable) {
+            monitor.capture(e, session)
+            throw e
+        }
+        try {
             saveToElastic(turn)
             saveToElastic(session)
             saveToElastic(userProfile)
         } catch (e: Throwable) {
             monitor.capture(e, session)
-            throw e
         }
     }
 
