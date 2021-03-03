@@ -11,15 +11,16 @@ class DialogueSecurityManager : SecurityManager() {
 
         private val allowedPackages = listOf(
             "model\\..*",
-            "java.lang",
-            "java.util",
             "kotlin",
             "kotlin\\..*",
-            "kotlin.jvm.internal",
-            "ai.flowstorm\\..*",
-            "org.slf4j",
-            "javax.ws.rs.client",
-            "org.glassfish.jersey.client"
+            "java.lang",
+            "java.util",
+            "java.time",                        // required by date time operations
+            "ai.flowstorm.core\\..*",
+            "org.slf4j",                        // required by contextual logging
+            "javax.ws.rs.client",               // required by API calls
+            "org.glassfish.jersey.client",      // required by API calls
+            "com.fasterxml.jackson.core.type"   // required by TypeReference in inlined code
         ).joinToString("|")
 
         private val logger by LoggerDelegate()

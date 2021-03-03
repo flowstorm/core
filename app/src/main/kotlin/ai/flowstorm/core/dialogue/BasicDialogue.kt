@@ -240,8 +240,12 @@ abstract class BasicDialogue : AbstractDialogue() {
     @Deprecated("Use metric instead", replaceWith = ReplaceWith("metric"))
     fun metricValue(metricSpec: String) = MetricDelegate(metricSpec)
 
-    inline fun <reified T: Any> loader(path: String): Lazy<T> = lazy {
+    inline fun <T: Any> loader(path: String): Lazy<T> = lazy {
         val typeRef = object : TypeReference<T>() {}
+        loadResource(path, typeRef)
+    }
+
+    fun <T: Any> loadResource(path: String, typeRef: TypeReference<T>): T =
         when {
             path.startsWith("file:///") ->
                 FileInputStream(File(path.substring(7))).use {
@@ -256,7 +260,6 @@ abstract class BasicDialogue : AbstractDialogue() {
             else ->
                 loader.loadObject(path.substringBeforeLast(".json"), typeRef)
         }
-    }
 
 //    This method was not used anywhere but it won't work since communityResource.get() requires space ID which is not accessible in this class
 //    fun communityAttributes(communityName: String) =
