@@ -16,7 +16,7 @@ class DialogueSecurityManager : SecurityManager() {
             "java.lang",
             "java.util",
             "java.time",                        // required by date time operations
-            "ai.flowstorm.core\\..*",
+            "ai.flowstorm\\..*",
             "org.slf4j",                        // required by contextual logging
             "javax.ws.rs.client",               // required by API calls
             "org.glassfish.jersey.client",      // required by API calls

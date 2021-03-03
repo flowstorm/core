@@ -4,6 +4,7 @@ import ai.flowstorm.core.*
 import ai.flowstorm.core.model.IntentModel
 import ai.flowstorm.core.dialogue.AbstractDialogue
 import ai.flowstorm.core.dialogue.BasicDialogue
+import ai.flowstorm.core.type.Memory
 import ai.flowstorm.util.LoggerDelegate
 import org.slf4j.Logger
 import javax.inject.Inject
@@ -22,8 +23,9 @@ class DialogueManager : Component {
         Thread.currentThread().contextClassLoader = DialogueClassLoader(contextClassLoader)
         try {
             if (session.dialogueStack.isEmpty()) {
+                val nodeId = context.getAttribute("turnNodeId")?.let { (it as Memory<Int>).value } ?: 0
                 session.dialogueStack.push(
-                    Frame(application.dialogue_id.toString(), session.sessionId, application.properties, 0)
+                    Frame(application.dialogue_id.toString(), session.sessionId, application.properties, nodeId)
                 )
             }
             proceed(context)

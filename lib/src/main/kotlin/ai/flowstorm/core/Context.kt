@@ -1,6 +1,7 @@
 package ai.flowstorm.core
 
 import ai.flowstorm.common.messaging.MessageSender
+import ai.flowstorm.core.dialogue.AbstractDialogue
 import ai.flowstorm.core.model.*
 import ai.flowstorm.core.repository.CommunityRepository
 import ai.flowstorm.core.repository.DialogueEventRepository
@@ -41,6 +42,8 @@ data class Context(
             turn.attributes
         else
             session.attributes
+
+    fun getAttribute(name: String, namespace: String = AbstractDialogue.defaultNamespace) = getAttributes(name)[namespace][name]
 
     fun sendMessage(subject: String, text: String) = with (user) {
         messageSender.sendMessage(MessageSender.Recipient(username, "$name $surname"), subject, text)
