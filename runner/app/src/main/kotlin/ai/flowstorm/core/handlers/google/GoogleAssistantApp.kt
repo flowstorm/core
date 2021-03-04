@@ -9,7 +9,7 @@ import com.google.api.services.actions_fulfillment.v2.model.Image
 import com.google.api.services.actions_fulfillment.v2.model.SimpleResponse
 import ai.flowstorm.client.BotContext
 import ai.flowstorm.common.AppConfig
-import ai.flowstorm.core.BotCore
+import ai.flowstorm.core.Bot
 import ai.flowstorm.core.Response
 import ai.flowstorm.core.type.Dynamic
 import ai.flowstorm.util.LoggerDelegate
@@ -51,7 +51,7 @@ class GoogleAssistantApp : ActionsSdkApp() {
     }
 
     private fun withContext(request: ActionRequest, block: ContextualBlock.() -> ResponseBuilder): ResponseBuilder {
-        val context = BotCore.context(
+        val context = Bot.context(
                 request.sessionId!!,
                 "google-device",
                 appKey.get(),
@@ -68,14 +68,14 @@ class GoogleAssistantApp : ActionsSdkApp() {
 
     @ForIntent("actions.intent.MAIN")
     fun onMainIntent(request: ActionRequest) = withContext(request) {
-        val response = BotCore.doIntro(context)
+        val response = Bot.doIntro(context)
         addResponse(response)
     }.build()
 
     @ForIntent("actions.intent.TEXT")
     fun onTextIntent(request: ActionRequest) = withContext(request) {
         val text = request.getArgument("text")!!.textValue
-        val response = BotCore.doText(context, text)
+        val response = Bot.doText(context, text)
         addResponse(response)
     }.build()
 

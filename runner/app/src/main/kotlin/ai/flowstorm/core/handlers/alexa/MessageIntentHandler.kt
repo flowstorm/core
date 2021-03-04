@@ -3,7 +3,7 @@ package ai.flowstorm.core.handlers.alexa
 import com.amazon.ask.dispatcher.request.handler.HandlerInput
 import com.amazon.ask.model.IntentRequest
 import com.amazon.ask.request.Predicates.intentName
-import ai.flowstorm.core.BotCore
+import ai.flowstorm.core.Bot
 
 class MessageIntentHandler : AmazonAlexaHandler(intentName("MessageIntent")) {
 
@@ -15,7 +15,7 @@ class MessageIntentHandler : AmazonAlexaHandler(intentName("MessageIntent")) {
                     .withSpeech("")
                     .withShouldEndSession(true)
         } else {
-            val speech = BotCore.doText(context, text)
+            val speech = Bot.doText(context, text)
             addResponse(speech)
         }
     }.build()

@@ -1,20 +1,20 @@
 package ai.flowstorm.core.runtime
 
-import org.junit.jupiter.api.Assertions.assertEquals
+import ai.flowstorm.core.model.LogEntry
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import ai.flowstorm.core.model.LogEntry
+import kotlin.test.assertEquals
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-internal class DialogueLogTest {
+internal class ContextLogTest {
 
     @Test
     fun `test logger`() {
-        val log = DialogueLog()
+        val contextLog = ContextLog()
 
-        log.logger.info("Log something")
+        contextLog.logger.info("Log something")
 
-        with(log.log.first()) {
+        with(contextLog.log.first()) {
             assertEquals(LogEntry.Level.INFO, level)
             assertEquals("Log something", text)
         }

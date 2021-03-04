@@ -4,7 +4,7 @@ import com.amazon.ask.dispatcher.request.handler.HandlerInput
 import com.amazon.ask.model.Response
 import com.amazon.ask.model.SessionEndedRequest
 import com.amazon.ask.request.Predicates.requestType
-import ai.flowstorm.core.BotCore
+import ai.flowstorm.core.Bot
 import java.util.*
 
 class SessionEndedRequestHandler : AmazonAlexaHandler(requestType(SessionEndedRequest::class.java)) {
@@ -12,7 +12,7 @@ class SessionEndedRequestHandler : AmazonAlexaHandler(requestType(SessionEndedRe
     override fun handle(input: HandlerInput): Optional<Response> {
         val context = getContext(input)
         //context.attributes["alexaSessionEndedReason"] = (input.requestEnvelope as SessionEndedRequest).reason.toString()
-        BotCore.doBye(context)
+        Bot.doBye(context)
         return Optional.empty()
     }
 }

@@ -17,8 +17,8 @@ import ai.flowstorm.common.messaging.StdOutSender
 import ai.flowstorm.common.mongo.KMongoIdParamConverterProvider
 import ai.flowstorm.common.monitoring.Monitor
 import ai.flowstorm.common.query.*
-import ai.flowstorm.core.context.ContextFactory
-import ai.flowstorm.core.context.ContextPersister
+import ai.flowstorm.core.runtime.ContextFactory
+import ai.flowstorm.core.runtime.ContextPersister
 import ai.flowstorm.core.model.Space
 import ai.flowstorm.core.model.SpaceImpl
 import ai.flowstorm.common.monitoring.StdOutMonitor
@@ -72,9 +72,10 @@ open class RunnerApplication : JerseyApplication() {
                 /**
                  * NLP components
                  */
-                bindAsContract(PipelineFactory::class.java)
-                bindAsContract(ContextFactory::class.java)
-                bindAsContract(ContextPersister::class.java)
+                bindAsContract(PipelineFactory::class.java).`in`(Singleton::class.java)
+                bindAsContract(PipelineRuntime::class.java).`in`(Singleton::class.java)
+                bindAsContract(ContextFactory::class.java).`in`(Singleton::class.java)
+                bindAsContract(ContextPersister::class.java).`in`(Singleton::class.java)
 
                 // IR component
                 bind(Illusionist::class.java).to(Component::class.java).named("illusionist")
@@ -106,7 +107,7 @@ open class RunnerApplication : JerseyApplication() {
                 bind(MongoTurnRepository::class.java).to(TurnRepository::class.java)
                 bind(MongoEventRepository::class.java).to(EventRepository::class.java)
 
-                this.bindAsContract(DialogueLog::class.java).`in`(RequestScoped::class.java)
+                this.bindAsContract(ContextLog::class.java).`in`(RequestScoped::class.java)
 
                 bind(KMongoIdParamConverterProvider::class.java).to(ParamConverterProvider::class.java).`in`(Singleton::class.java)
                 bindFactory(QueryValueFactory::class.java).to(Query::class.java).`in`(PerLookup::class.java)

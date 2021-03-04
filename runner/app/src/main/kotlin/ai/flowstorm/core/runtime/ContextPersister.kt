@@ -1,4 +1,4 @@
-package ai.flowstorm.core.context
+package ai.flowstorm.core.runtime
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonTypeInfo
@@ -22,7 +22,6 @@ import ai.flowstorm.core.model.Turn
 import ai.flowstorm.core.monitoring.capture
 import ai.flowstorm.core.repository.ProfileRepository
 import ai.flowstorm.core.resources.SessionResource
-import ai.flowstorm.core.runtime.DialogueLog
 import ai.flowstorm.core.type.Memorable
 import java.util.*
 import javax.inject.Inject
@@ -36,13 +35,13 @@ class ContextPersister {
     lateinit var sessionResource: SessionResource
 
     @Inject
-    lateinit var dialogueLog: DialogueLog
+    lateinit var log: ContextLog
 
     @Inject
     lateinit var monitor: Monitor
 
     fun persist(context: Context) = with (context) {
-        turn.log.addAll(dialogueLog.log)
+        turn.log.addAll(this@ContextPersister.log.log)
         turn.duration = System.currentTimeMillis() - turn.datetime.time
         session.datetime = Date()
         try {

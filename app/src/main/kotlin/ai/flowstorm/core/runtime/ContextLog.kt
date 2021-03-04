@@ -12,7 +12,7 @@ import java.time.LocalDateTime
 import java.util.*
 import kotlin.reflect.KClass
 
-class DialogueLog {
+class ContextLog {
 
     val log: MutableList<LogEntry> = mutableListOf()
     private val context = LoggerContext()

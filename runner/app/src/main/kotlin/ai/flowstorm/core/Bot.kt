@@ -7,7 +7,7 @@ import ai.flowstorm.core.resources.CoreResource
 import ai.flowstorm.core.type.Dynamic
 import java.util.*
 
-object BotCore {
+object Bot {
 
     val url = ServiceUrlResolver.getEndpointUrl("core", ServiceUrlResolver.RunMode.local)
     val resource = RestClient.resource(CoreResource::class.java, url)
@@ -23,13 +23,13 @@ object BotCore {
             Request(context.key, context.deviceId, context.token, context.sessionId!!, context.initiationId,
                     Input(context.locale, context.zoneId, Input.Transcript(text)), context.attributes)
 
-    fun doRequest(context: BotContext, request: Request) = resource.process(request)
+    private fun doRequest(request: Request) = resource.process(request)
 
     fun doIntro(context: BotContext) = doText(context, context.introText)
 
-    fun doText(context: BotContext, text: String) = doRequest(context, createRequest(context, text))
+    fun doText(context: BotContext, text: String) = doRequest(createRequest(context, text))
 
-    fun doHelp(context: BotContext) = doRequest(context, createRequest(context, "help"))
+    fun doHelp(context: BotContext) = doRequest(createRequest(context, "help"))
 
-    fun doBye(context: BotContext) = doRequest(context, createRequest(context, "stop"))
+    fun doBye(context: BotContext) = doRequest(createRequest(context, "stop"))
 }

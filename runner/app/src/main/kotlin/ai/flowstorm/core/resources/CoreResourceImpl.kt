@@ -1,17 +1,11 @@
 package ai.flowstorm.core.resources
 
 import ch.qos.logback.classic.Level
-import ai.flowstorm.common.monitoring.Monitor
 import ai.flowstorm.core.*
-import ai.flowstorm.core.context.ContextFactory
-import ai.flowstorm.core.context.ContextPersister
-import ai.flowstorm.core.dialogue.AbstractDialogue
 import ai.flowstorm.core.model.*
-import ai.flowstorm.core.model.metrics.Metric
-import ai.flowstorm.core.resources.ContentDistributionResource.ContentRequest
-import ai.flowstorm.core.runtime.DialogueLog
+import ai.flowstorm.core.runtime.ContextLog
+import ai.flowstorm.core.runtime.PipelineRuntime
 import ai.flowstorm.core.type.Dynamic
-import ai.flowstorm.core.type.Memory
 import ai.flowstorm.util.LoggerDelegate
 import java.util.*
 import javax.inject.Inject
@@ -34,81 +28,31 @@ class CoreResourceImpl : CoreResource {
     lateinit var pairingResource: DevicePairingResource
 
     @Inject
-    lateinit var dialogueEventResource: DialogueEventResource
+    lateinit var contextLog: ContextLog
 
     @Inject
-    lateinit var pipelineFactory: PipelineFactory
-
-    @Inject
-    lateinit var contextFactory: ContextFactory
-
-    @Inject
-    lateinit var dialogueLog: DialogueLog
-
-    @Inject
-    lateinit var contextPersister: ContextPersister
-
-    @Inject
-    lateinit var monitor: Monitor
+    lateinit var pipelineRuntime: PipelineRuntime
 
     private val logger by LoggerDelegate()
 
     override fun process(request: Request): Response = with(request) {
 
         //todo get logger level from request
-        dialogueLog.level = Level.ALL
+        contextLog.level = Level.ALL
 
-        val session = try {
-            initSession(appKey, deviceId, token, sessionId, initiationId, input)
-        } catch (e: Exception) {
-            return processException(request, e)
-        }
-
-        updateAutomaticMetrics(session)
+        val session = initSession(appKey, deviceId, token, sessionId, initiationId, input)
 
         val response = try {
-            val pipeline = pipelineFactory.createPipeline()
-            val context = contextFactory.createContext(pipeline, session, request)
-            with (processPipeline(context)) {
-                // client attributes
-                listOf("speakingRate", "speakingPitch", "speakingVolumeGain").forEach {
-                    if (!turn.attributes[AbstractDialogue.defaultNamespace].containsKey(it)) {
-                        val value = session.attributes[AbstractDialogue.defaultNamespace][it]
-                                ?: userProfile.attributes[AbstractDialogue.defaultNamespace][it]
-                        if (value != null)
-                            turn.attributes[AbstractDialogue.defaultNamespace][it] = value
-                    }
-                }
-                turn.responseItems.forEach {
-                    it.ttsConfig = it.ttsConfig ?: Voice.forLanguage(locale?.language ?: "en").config
-                }
-                Response(locale, turn.responseItems, dialogueLog.log,
-                        turn.attributes[AbstractDialogue.defaultNamespace].map { it.key to (it.value as Memory<*>).value }.toMap().toMutableMap(),
-                        turn.sttMode, turn.expectedPhrases, sessionEnded, sleepTimeout)
-            }
+            pipelineRuntime.process(session, request, contextLog)
         } catch (e: Throwable) {
             processException(request, e)
         }
 
-        return try {
+        try {
             sessionResource.update(session)
-            response
+            return response
         } catch (e: Throwable) {
             return processException(request, e)
-        }
-    }
-
-    private fun processPipeline(context: Context): Context {
-        var processedContext = context
-        try {
-            processedContext = context.pipeline.process(context)
-            return processedContext
-        } catch (e: Throwable) {
-            context.createDialogueEvent(e)
-            monitor.capture(e)
-            throw e
-        } finally {
-            contextPersister.persist(processedContext)
         }
     }
 
@@ -120,7 +64,7 @@ class CoreResourceImpl : CoreResource {
         } else {
             logger.info("Starting a new session $sessionId")
             val contentResponse = contentDistributionResource.resolve(
-                    ContentRequest(deviceId, token, key, input.locale.language)
+                ContentDistributionResource.ContentRequest(deviceId, token, key, input.locale.language)
             )
             Session(
                 sessionId = sessionId,
@@ -135,15 +79,6 @@ class CoreResourceImpl : CoreResource {
         }
         sessionResource.update(session)
         return session
-    }
-
-    private fun updateAutomaticMetrics(session: Session) {
-        with(session.metrics) {
-            find { it.name == "count" && it.namespace == "session" }
-                    ?: add(Metric("session", "count", 1))
-            find { it.name == "turns" && it.namespace == "session" }?.increment()
-                    ?: add(Metric("session", "turns", 1))
-        }
     }
 
     private fun processException(request: Request, e: Throwable): Response {
@@ -162,7 +97,7 @@ class CoreResourceImpl : CoreResource {
             else ->
                 text = (e.cause?:e).message
         }
-        dialogueLog.logger.error(DialogueEvent.toText(e))
+        contextLog.logger.error(DialogueEvent.toText(e))
 
         return Response(request.input.locale, mutableListOf<Response.Item>().apply {
             if (text?.startsWith("admin:NotFoundException: Device") == true) {
@@ -186,7 +121,7 @@ class CoreResourceImpl : CoreResource {
                     add(Response.Item(ttsConfig = Voice.forLanguage("en").config,
                         text = text))
             }
-        }, dialogueLog.log, mutableMapOf(), null, mutableListOf(), sessionEnded = true)
+        }, contextLog.log, mutableMapOf(), null, mutableListOf(), sessionEnded = true)
     }
 
     private fun getMessageResourceString(language: String, type: String, params: List<Any> = listOf()): String {

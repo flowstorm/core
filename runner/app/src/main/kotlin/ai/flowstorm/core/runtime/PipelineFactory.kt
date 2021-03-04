@@ -1,5 +1,8 @@
-package ai.flowstorm.core
+package ai.flowstorm.core.runtime
 
+import ai.flowstorm.core.Component
+import ai.flowstorm.core.Context
+import ai.flowstorm.core.Pipeline
 import org.glassfish.hk2.api.IterableProvider
 import ai.flowstorm.core.Pipeline.PipelineComponentFailure
 import ai.flowstorm.util.LoggerDelegate

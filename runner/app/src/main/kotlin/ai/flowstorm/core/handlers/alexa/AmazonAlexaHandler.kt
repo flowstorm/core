@@ -20,7 +20,7 @@ import ai.flowstorm.common.AppConfig
 import ai.flowstorm.common.JerseyApplication
 import ai.flowstorm.common.ObjectUtil.defaultMapper
 import ai.flowstorm.common.monitoring.Monitor
-import ai.flowstorm.core.BotCore
+import ai.flowstorm.core.Bot
 import ai.flowstorm.core.Response
 import ai.flowstorm.core.model.Card
 import ai.flowstorm.core.type.Dynamic
@@ -153,7 +153,7 @@ abstract class AmazonAlexaHandler(private val predicate: Predicate<HandlerInput>
     protected val logger by LoggerDelegate()
 
     protected fun getContext(input: HandlerInput) = with (input.requestEnvelope) {
-        BotCore.context(
+        Bot.context(
             session.sessionId,
             context.system.device.deviceId.let { deviceId ->
                 getDeviceIdMapping(deviceId)?.let { mapping ->

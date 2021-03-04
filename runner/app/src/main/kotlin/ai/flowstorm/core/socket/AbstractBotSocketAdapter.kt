@@ -163,7 +163,7 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
         }
         attributes.putAll(request.attributes)
         request.attributes = attributes
-        val response = BotCore.resource.process(request)
+        val response = Bot.resource.process(request)
         attributes.clear()
         if (response.expectedPhrases != null) {
             expectedPhrases = response.expectedPhrases!!

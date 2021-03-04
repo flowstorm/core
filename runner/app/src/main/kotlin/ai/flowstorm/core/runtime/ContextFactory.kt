@@ -1,4 +1,4 @@
-package ai.flowstorm.core.context
+package ai.flowstorm.core.runtime
 
 import ai.flowstorm.common.messaging.MessageSender
 import ai.flowstorm.core.Context
@@ -11,7 +11,6 @@ import ai.flowstorm.core.model.Turn
 import ai.flowstorm.core.repository.ProfileRepository
 import ai.flowstorm.core.resources.CommunityResource
 import ai.flowstorm.core.resources.DialogueEventResource
-import ai.flowstorm.core.runtime.DialogueLog
 import ai.flowstorm.core.type.Dynamic
 import ai.flowstorm.core.type.toLocation
 import javax.inject.Inject
@@ -28,12 +27,9 @@ class ContextFactory {
     lateinit var profileRepository: ProfileRepository
 
     @Inject
-    lateinit var dialogueLog: DialogueLog
-
-    @Inject
     lateinit var messageSender: MessageSender
 
-    fun createContext(pipeline: Pipeline, session: Session, request: Request): Context {
+    fun createContext(pipeline: Pipeline, session: Session, request: Request, contextLog: ContextLog): Context {
         val userProfile = profileRepository.findBy(session.user._id, session.space_id)
             ?: Profile(user_id = session.user._id, space_id = session.space_id)
 
@@ -44,7 +40,7 @@ class ContextFactory {
             Turn(session_id = session._id, input = request.input).also {
                 it.request.attributes = request.attributes
             },
-            dialogueLog.logger,
+            contextLog.logger,
             request.input.locale,
             communityResource,
             dialogueEventResource,
