@@ -70,7 +70,7 @@ class PipelineRuntime {
         var result: T? = null
         val thread = Thread {
             try {
-                block()
+                result = block()
             } catch (e: Throwable) {
                 error = e
             }
@@ -90,7 +90,7 @@ class PipelineRuntime {
                 thread.stop()
                 error("Thread stopped after timeout $timeout milliseconds")
             }
-            else -> result
+            else -> result!!
         }
     }
 

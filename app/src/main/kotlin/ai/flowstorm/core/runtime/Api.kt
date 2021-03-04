@@ -12,6 +12,7 @@ import javax.ws.rs.client.WebTarget
 
 open class Api {
 
+    @Deprecated("Obsolete", ReplaceWith("pass URL as String instead of WebTarget to API methods"))
     fun target(targetUrl: String) = RestClient.webTarget(targetUrl)
 
     fun encode(text: String): String = URLEncoder.encode(text, "utf-8")
