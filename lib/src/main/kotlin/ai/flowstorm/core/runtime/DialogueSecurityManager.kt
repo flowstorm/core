@@ -5,25 +5,36 @@ import java.io.FileDescriptor
 import java.net.InetAddress
 import java.security.Permission
 
-class DialogueSecurityManager : SecurityManager() {
+class DialogueSecurityManager(private val raiseExceptions: Boolean) : SecurityManager() {
 
     companion object {
 
-        private val allowedPackages = listOf(
+        val importedPackages = listOf(
+            "ai.flowstorm.core",
+            "ai.flowstorm.core.type",
+            "ai.flowstorm.core.type.value",
+            "ai.flowstorm.core.model",
+            "ai.flowstorm.core.dialogue",
+            "ai.flowstorm.core.runtime"
+        )
+        private val allowedPackages = mutableListOf(
             "model\\..*",
             "kotlin",
             "kotlin\\..*",
             "java.lang",
             "java.util",
             "java.time",                        // required by date time operations
-            "ai.flowstorm\\..*",
             "org.slf4j",                        // required by contextual logging
-            "javax.ws.rs.client",               // required by API calls
-            "org.glassfish.jersey.client",      // required by API calls
             "com.fasterxml.jackson.core.type"   // required by TypeReference in inlined code
-        ).joinToString("|")
+        ).apply {
+            addAll(importedPackages)
+        }.joinToString("|")
 
         private val logger by LoggerDelegate()
+    }
+
+    init {
+        logger.info("Creating security manager (raiseExceptions=$raiseExceptions)")
     }
 
     private val active = ThreadLocal.withInitial { false }
@@ -35,6 +46,16 @@ class DialogueSecurityManager : SecurityManager() {
 
     internal fun disable() {
         active.set(false)
+    }
+    
+    private fun issue(text: String, warn: Boolean = true) {
+        if (raiseExceptions)
+            throw SecurityException(text)
+        else if (warn) {
+            val s = "Security $text"
+            logger.warn(s)
+            DialogueRuntime.run.context.logger.warn(s)
+        }
     }
 
     /**
@@ -51,9 +72,9 @@ class DialogueSecurityManager : SecurityManager() {
                 val p = stackTrace[i - 1]
                 if (p.className == "java.lang.ClassLoader") {
                     if (pkg != null && !pkg.matches(Regex("($allowedPackages)")))
-                        throw SecurityException("denied package $pkg access for ${m.className}.${m.methodName}:${m.lineNumber}")
+                        issue("denied package $pkg access for ${m.className}.${m.methodName}:${m.lineNumber}")
                 } else if (!p.className.matches(Regex("($allowedPackages).*"))) {
-                    throw SecurityException("denied class ${p.className} access for ${m.className}.${m.methodName}:${m.lineNumber}")
+                    issue("denied class ${p.className} access for ${m.className}.${m.methodName}:${m.lineNumber}")
                 }
             }
         } finally {
@@ -70,8 +91,8 @@ class DialogueSecurityManager : SecurityManager() {
         if (active.get()) {
             logger.debug("Checking permission $perm" + (context?.let { " with context $context" } ?: ""))
             if (perm is RuntimePermission) {
-                if (perm.name == "getClassLoader" || perm.name == "setSecurityManager")
-                    SecurityException("denied permission ${perm.name}")
+                if (perm.name == "setSecurityManager")
+                    issue("denied permission ${perm.name}")
             }
         }
     }
@@ -95,22 +116,22 @@ class DialogueSecurityManager : SecurityManager() {
 
     override fun checkLink(lib: String?) {
         if (active.get())
-            throw SecurityException("denied link $lib")
+            issue("denied link $lib")
     }
 
     override fun checkSecurityAccess(target: String?) {
         if (active.get())
-            throw SecurityException("denied securityAccess $target")
+            issue("denied securityAccess $target")
     }
 
     override fun checkPackageDefinition(pkg: String?) {
         if (active.get())
-            throw SecurityException("packageDefinition $pkg")
+            issue("packageDefinition $pkg")
     }
 
     override fun checkListen(port: Int) {
         if (active.get())
-            throw SecurityException("denied listen $port")
+            issue("denied listen $port")
     }
 
     override fun checkAccept(host: String?, port: Int) {
@@ -120,14 +141,14 @@ class DialogueSecurityManager : SecurityManager() {
 
     override fun checkConnect(host: String?, port: Int, context: Any?) {
         if (active.get())
-        logger.info("Checking connect $host:$port" + (context?.let { " with context $context" } ?: ""))
+            logger.info("Checking connect $host:$port" + (context?.let { " with context $context" } ?: ""))
     }
 
     override fun checkConnect(host: String?, port: Int) = checkConnect(host, port, null)
 
     override fun checkMulticast(maddr: InetAddress?) {
         if (active.get())
-            throw SecurityException("multicast $maddr")
+            issue("multicast $maddr")
     }
 
     override fun checkSetFactory() {
@@ -154,22 +175,22 @@ class DialogueSecurityManager : SecurityManager() {
 
     override fun checkWrite(file: String?) {
         if (active.get())
-            throw SecurityException("defined write $file")
+            issue("defined write $file")
     }
 
     override fun checkDelete(file: String?) {
         if (active.get())
-            throw SecurityException("denied delete $file")
+            issue("denied delete $file")
     }
 
     override fun checkPrintJobAccess() {
         if (active.get())
-            throw SecurityException("denied printJobAccess")
+            issue("denied printJobAccess")
     }
 
     override fun checkPropertiesAccess() {
         if (active.get())
-            throw SecurityException("denied propertiesAccess")
+            issue("denied propertiesAccess", false)
     }
 
     override fun checkPropertyAccess(key: String?) {
@@ -179,7 +200,7 @@ class DialogueSecurityManager : SecurityManager() {
 
     override fun checkExec(cmd: String?) {
         if (active.get())
-            throw SecurityException("denied exec $cmd")
+            issue("denied exec $cmd")
     }
 
     override fun checkExit(status: Int) {

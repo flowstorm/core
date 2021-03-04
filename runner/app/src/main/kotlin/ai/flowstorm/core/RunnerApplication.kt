@@ -51,9 +51,9 @@ import javax.ws.rs.ext.ParamConverterProvider
 open class RunnerApplication : JerseyApplication() {
 
     init {
-        System.setSecurityManager(DialogueSecurityManager())
         AppConfig.instance["name"] = "core"
-        logger.info("dsuffix=$dsuffix")
+        logger.info("Creating application (dsuffix=$dsuffix)")
+        System.setSecurityManager(DialogueSecurityManager(AppConfig.instance.get("security.raiseExceptions", "true") != "false"))
 
         register(object : ResourceBinder() {
             override fun configure() {

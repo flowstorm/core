@@ -23,8 +23,8 @@ object DialogueRuntime {
         logger.info("Running ${node.javaClass.simpleName} ${node.dialogue.dialogueName}#${node.id}")
         val securityManager = System.getSecurityManager() as DialogueSecurityManager
         try {
-            securityManager.enable()
             threadRun.set(Run(node, context))
+            securityManager.enable()
             return block()
         } catch (e: Throwable) {
             throw DialogueException(node, e)
