@@ -4,7 +4,6 @@ package ai.flowstorm.core.repository.dynamodb
 
 import com.amazonaws.services.dynamodbv2.document.KeyAttribute
 import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec
-import com.amazonaws.services.dynamodbv2.document.utils.ValueMap
 import org.jetbrains.kotlin.utils.addToStdlib.ifNotEmpty
 import org.litote.kmongo.Id
 import ai.flowstorm.common.ObjectUtil
@@ -21,9 +20,8 @@ class DynamoTurnRepository: DynamoAbstractEntityRepository<Turn>(), TurnReposito
     override val tableName = "turn"
 
     override fun findBy(session_id: Id<Session>): List<Turn> {
-        val spec: QuerySpec = QuerySpec().withKeyConditionExpression("session_id = :v_id")
-            .withValueMap(ValueMap().withString(":v_id", session_id.toString()))
-        return table.query(spec).toEntityList()
+        val index = table.getIndex("session_id")
+        return index.query(KeyAttribute(Turn::session_id.name, session_id.toString())).toEntityList()
     }
 
     override fun findBy(session_ids: List<Id<Session>>): List<Turn> {
@@ -31,7 +29,7 @@ class DynamoTurnRepository: DynamoAbstractEntityRepository<Turn>(), TurnReposito
     }
 
     override fun find(id: Id<Turn>): Turn? {
-        return table.getItem(KeyAttribute("_id", id.toString()))?.toEntity()
+        return table.getItem(KeyAttribute(Turn::_id.name, id.toString()))?.toEntity()
     }
 
     override fun find(query: Query): List<Turn> {
