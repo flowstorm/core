@@ -37,7 +37,7 @@ class ContextFactory {
             pipeline,
             userProfile,
             session,
-            Turn(session_id = session._id, input = request.input).also {
+            Turn(session_id = session._id, dialogue_id = session.application.dialogue_id, input = request.input).also {
                 it.request.attributes = request.attributes
             },
             contextLog.logger,

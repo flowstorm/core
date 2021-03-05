@@ -17,7 +17,7 @@ class DialogueSecurityManager(private val raiseExceptions: Boolean) : SecurityMa
             "ai.flowstorm.core.dialogue",
             "ai.flowstorm.core.runtime"
         )
-        private val allowedPackages = mutableListOf(
+        private val allowedPackages = (listOf(
             "model\\..*",
             "kotlin",
             "kotlin\\..*",
@@ -26,9 +26,8 @@ class DialogueSecurityManager(private val raiseExceptions: Boolean) : SecurityMa
             "java.time",                        // required by date time operations
             "org.slf4j",                        // required by contextual logging
             "com.fasterxml.jackson.core.type"   // required by TypeReference in inlined code
-        ).apply {
-            addAll(importedPackages)
-        }.joinToString("|")
+        ) + importedPackages)
+            .joinToString("|")
 
         private val logger by LoggerDelegate()
     }
@@ -100,18 +99,24 @@ class DialogueSecurityManager(private val raiseExceptions: Boolean) : SecurityMa
     override fun checkPermission(perm: Permission) = checkPermission(perm, null)
 
     override fun checkCreateClassLoader() {
-        if (active.get())
+        if (active.get()) {
             logger.info("Checking createClassLoader")
+            checkStackTrace()
+        }
     }
 
     override fun checkAccess(t: Thread?) {
-        if (active.get())
+        if (active.get()) {
             logger.info("Checking access $t")
+            checkStackTrace()
+        }
     }
 
     override fun checkAccess(g: ThreadGroup?) {
-        if (active.get())
+        if (active.get()) {
             logger.info("Checking access $g")
+            checkStackTrace()
+        }
     }
 
     override fun checkLink(lib: String?) {
@@ -136,12 +141,17 @@ class DialogueSecurityManager(private val raiseExceptions: Boolean) : SecurityMa
 
     override fun checkAccept(host: String?, port: Int) {
         if (active.get())
-            logger.info("Checking accept $host:$port")
+            issue("accept $host:$port")
     }
 
     override fun checkConnect(host: String?, port: Int, context: Any?) {
-        if (active.get())
-            logger.info("Checking connect $host:$port" + (context?.let { " with context $context" } ?: ""))
+        if (active.get()) {
+            val text = "connect $host:$port" + (context?.let { " with context $context" } ?: "")
+            if (!listOf(-1, 80, 443).contains(port))
+                issue(text)
+            else
+                logger.info("Checking connect $host:$port" + (context?.let { " with context $context" } ?: ""))
+        }
     }
 
     override fun checkConnect(host: String?, port: Int) = checkConnect(host, port, null)
@@ -152,8 +162,10 @@ class DialogueSecurityManager(private val raiseExceptions: Boolean) : SecurityMa
     }
 
     override fun checkSetFactory() {
-        if (active.get())
+        if (active.get()) {
             logger.info("Checking setFactory")
+            checkStackTrace()
+        }
     }
 
     override fun checkRead(fd: FileDescriptor?) {

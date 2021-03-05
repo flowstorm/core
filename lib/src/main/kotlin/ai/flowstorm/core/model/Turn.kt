@@ -16,6 +16,7 @@ import java.util.*
 data class Turn(
     override val _id: Id<Turn> = newId(),
     val session_id: Id<Session>? = null, // cannot be NullId due to backward compatibility with turns stored in session entity
+    val dialogue_id: Id<DialogueModel>? = null, // same issue
     var input: Input,
     var inputId: Int? = null,
     var nextId: Int? = null,
