@@ -5,7 +5,7 @@ import io.swagger.annotations.ApiParam
 import ai.flowstorm.core.builder.Info
 import ai.flowstorm.core.builder.Request
 import ai.flowstorm.core.builder.Response
-import ai.flowstorm.core.model.EntityDataset
+import ai.flowstorm.core.builder.EntityDataset
 import ai.flowstorm.security.Authenticated
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
