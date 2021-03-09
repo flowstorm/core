@@ -10,7 +10,7 @@ app:
   image:
     name: registry.gitlab.com/promethistai/flowstorm-core/builder
     tag: latest
-  mem: 512
+  mem: 1024
   resources:
     requests:
       cpu: 0.01

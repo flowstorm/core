@@ -34,12 +34,14 @@ spec:
               value: /key.json
             - name: APP_PROPERTIES
               value: /app.local.properties
+            {{ if .Values.sentry }}
             - name: SENTRY_DSN
               value: "{{ .Values.sentry.dsn }}"
             - name: SENTRY_ENVIRONMENT
               value: "{{ .Release.Namespace }}"
             - name: SENTRY_RELEASE
-              value: "{{ .Values.git.ref }}"
+              value: "{{ .Values.AppVersion }}"
+            {{ end }}
           ports:
             - containerPort: {{ .Values.app.port }}
               name: http-app

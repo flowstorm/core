@@ -20,13 +20,12 @@ class CheckResource {
         val config = AppConfig.instance
         return Check(
                 1.0,
-                config["name"],
-                config["namespace"],
+                config.get("name", "unknown"),
+                config.get("namespace", "unknown"),
                 config.get("package", JerseyApplication.instance::class.java.`package`.name),
-                config.get("base.ref", "unknown"),
-                config["git.ref"],
-                config["git.commit"],
-                config["app.image"]
+                config.get("git.ref", "unknown"),
+                config.get("git.commit", "unknown"),
+                config.get("app.image", "unknown")
         )
     }
 }
