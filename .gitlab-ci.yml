@@ -204,6 +204,28 @@ build snapshot builder/app:
       - builder/app/**/*
 
 #
+# distribute
+#
+distribute client client/standalone:
+  extends: '.distribute java client'
+  variables:
+    DIR: client/standalone
+    NAME: flowstorm
+  only:
+    changes:
+      - client/**/*
+      - common/**/*
+
+distribute charts:
+  stage: distribute
+  image: registry.gitlab.com/promethistai/system/deployer
+  only:
+    refs:
+      - tags
+  script:
+    - helm3 repo index $REPO_DIR/helm
+
+#
 # document
 #
 document release lib:
@@ -265,25 +287,3 @@ document snapshot builder/api:
   only:
     changes:
       - builder/api/**/*
-
-#
-# distribute
-#
-distribute client client/standalone:
-  extends: '.distribute java client'
-  variables:
-    DIR: client/standalone
-    NAME: flowstorm
-  only:
-    changes:
-      - client/**/*
-      - common/**/*
-
-distribute charts:
-  stage: deploy
-  image: registry.gitlab.com/promethistai/system/deployer
-  only:
-    refs:
-      - tags
-  script:
-    - helm3 repo index $REPO_DIR/helm
