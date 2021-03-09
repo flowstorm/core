@@ -182,7 +182,7 @@ build release runner/app:
 build snapshot runner/app:
   extends: '.build snapshot'
   variables:
-    DIR: runner/app
+    DIR: runner
   only:
     changes:
       - runner/app/**/*
