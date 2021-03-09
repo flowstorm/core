@@ -1,12 +1,11 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  namespace: {{ .Values.namespace }}
-  name: {{ .Values.name }}
+  name: {{ .Release.Name }}
 data:
   app.properties: |
     runmode=dist
-    namespace={{ .Values.namespace }}
+    namespace={{ .Release.Namespace }}
     app.image={{ .Values.app.image.name }}:{{ .Values.app.image.tag }}
     app.logging={{ .Values.app.logging }}
     app.tracing={{ .Values.app.tracing }}

@@ -1,18 +1,17 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ .Values.name }}
-  namespace: {{ .Values.namespace }}
+  name: {{ .Release.Name }}
 spec:
-  serviceName: {{ .Values.name }}
-  replicas: {{ if ne .Values.namespace "develop" }}{{ .Values.replicas }}{{ else }}1{{ end }}
+  serviceName: {{ .Release.Name }}
+  replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ .Values.name }}
+      app: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app: {{ .Values.name }}
+        app: {{ .Release.Name }}
     spec:
       affinity:
         podAntiAffinity:
@@ -22,7 +21,7 @@ spec:
               - key: app
                 operator: In
                 values:
-                - {{ .Values.name }}
+                - {{ .Release.Name }}
             topologyKey: "kubernetes.io/hostname"
       containers:
         - name: app
@@ -38,7 +37,7 @@ spec:
             - name: SENTRY_DSN
               value: "{{ .Values.sentry.dsn }}"
             - name: SENTRY_ENVIRONMENT
-              value: "{{ .Values.namespace }}"
+              value: "{{ .Release.Namespace }}"
             - name: SENTRY_RELEASE
               value: "{{ .Values.git.ref }}"
           ports:
@@ -61,7 +60,7 @@ spec:
       volumes:
         - name: config
           configMap:
-            name: {{ .Values.name }}
+            name: {{ .Release.Name }}
         - name: config-local
           secret:
             secretName: app-local

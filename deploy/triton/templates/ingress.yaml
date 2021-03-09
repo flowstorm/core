@@ -1,8 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ .Values.name }}
-  namespace: {{ .Values.namespace }}
+  name: {{ .Release.Name }}
   annotations:
     kubernetes.io/tls-acme: "true"
     cert-manager.io/cluster-issuer: "letsencrypt"
@@ -15,38 +14,38 @@ metadata:
 spec:
   tls:
     - hosts:
-        - triton{{ if ne .Values.namespace "default" }}-{{ .Values.namespace }}{{ end }}.{{ .Values.basedomain }}
-        - triton-grpc{{ if ne .Values.namespace "default" }}-{{ .Values.namespace }}{{ end }}.{{ .Values.basedomain }}
-        - triton-metrics{{ if ne .Values.namespace "default" }}-{{ .Values.namespace }}{{ end }}.{{ .Values.basedomain }}
-      secretName: {{ .Values.name }}-tls
+        - triton{{ if ne .Release.Namespace "default" }}-{{ .Release.Namespace }}{{ end }}.{{ .Values.baseDomain }}
+        - triton-grpc{{ if ne .Release.Namespace "default" }}-{{ .Release.Namespace }}{{ end }}.{{ .Values.baseDomain }}
+        - triton-metrics{{ if ne .Release.Namespace "default" }}-{{ .Release.Namespace }}{{ end }}.{{ .Values.baseDomain }}
+      secretName: {{ .Release.Name }}-tls
   rules:
-    - host: triton{{ if ne .Values.namespace "default" }}-{{ .Values.namespace }}{{ end }}.{{ .Values.basedomain }}
+    - host: triton{{ if ne .Release.Namespace "default" }}-{{ .Release.Namespace }}{{ end }}.{{ .Values.baseDomain }}
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: {{ .Values.name }}
+                name: {{ .Release.Name }}
                 port:
                   number: 8000
-    - host: triton-grpc{{ if ne .Values.namespace "default" }}-{{ .Values.namespace }}{{ end }}.{{ .Values.basedomain }}
+    - host: triton-grpc{{ if ne .Release.Namespace "default" }}-{{ .Release.Namespace }}{{ end }}.{{ .Values.baseDomain }}
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: {{ .Values.name }}
+                name: {{ .Release.Name }}
                 port:
                   number: 8001
-    - host: triton-metrics{{ if ne .Values.namespace "default" }}-{{ .Values.namespace }}{{ end }}.{{ .Values.basedomain }}
+    - host: triton-metrics{{ if ne .Release.Namespace "default" }}-{{ .Release.Namespace }}{{ end }}.{{ .Values.baseDomain }}
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: {{ .Values.name }}
+                name: {{ .Release.Name }}
                 port:
                   number: 8002
