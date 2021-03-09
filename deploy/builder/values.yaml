@@ -10,7 +10,7 @@ service:
 app:
   port: 8080
   image:
-    name: registry.gitlab.com/promethistai/flowstorm-core/builder/app
+    name: registry.gitlab.com/promethistai/flowstorm-core/builder
     tag: latest
   mem: 512
   resources:
