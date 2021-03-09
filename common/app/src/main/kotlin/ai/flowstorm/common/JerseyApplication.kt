@@ -20,7 +20,7 @@ open class JerseyApplication : ResourceConfig(), ServerConfigProvider {
 
     init {
         AppConfig.instance.let {
-            logger.info("Starting application (version=${it["git.ref"]}, namespace=${it["namespace"]})")
+            logger.info("Starting application (version=${it.get("git.ref", "unknown")}, namespace=${it["namespace"]})")
         }
         registerDefaultPackages()
 
