@@ -1,19 +1,18 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ .Values.name }}
-  namespace: {{ .Release.Namespace }}
+  name: {{ .Release.Name }}
 spec:
-  serviceName: {{ .Values.name }}
-  replicas: {{ if ne .Values.namespace "develop" }}{{ .Values.replicas }}{{ else }}1{{ end }}
+  serviceName: {{ .Release.Name }}
+  replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ .Values.name }}
+      app: {{ .Release.Name }}
       release: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app: {{ .Values.name }}
+        app: {{ .Release.Name }}
         release: {{ .Release.Name }}
 
     spec:

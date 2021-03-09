@@ -1,10 +1,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.name }}
-  namespace: {{ .Values.namespace }}
+  name: {{ .Release.Name }}
   labels:
-    app: {{ .Values.name }}
+    app: {{ .Release.Name }}
 spec:
   type: {{ .Values.service.type }}
   ports:
@@ -18,5 +17,5 @@ spec:
       targetPort: 8002
       name: metrics-inference-server
   selector:
-    app: {{ .Values.name }}
+    app: {{ .Release.Name }}
     release: {{ .Release.Name }}

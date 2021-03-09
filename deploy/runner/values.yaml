@@ -1,9 +1,7 @@
-namespace: default
-name: flowstorm-runner
-replicas: 2
+replicaCount: 2
 imagePullSecrets: promethistai-registry
 imagePullPolicy: IfNotPresent
-basedomain: flowstorm.ai
+baseDomain: flowstorm.ai
 service:
   type: ClusterIP
   app:
@@ -20,11 +18,6 @@ app:
       memory: 1024Mi
   logging: "FALSE"
   tracing: "OFF"
-slack:
-  enable: true
-git:
-  ref: branch_or_tag
-  commit: short_sha
 sender:
   from:
     email: "app@flowstorm.ai"
