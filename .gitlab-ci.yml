@@ -21,7 +21,7 @@ stages:
     refs:
       - tags
   script:
-    - sed -i -- "s/chart.version/$CI_COMMIT_REF_NAME/g; s/app.version/$CI_COMMIT_REF_NAME/g" $NAME/Chart.yaml
+    - sed -i -- "s/chart.version/$CI_COMMIT_REF_NAME/g; s/app.version/$CI_COMMIT_REF_NAME/g" deploy/$NAME/Chart.yaml
     - helm3 package deploy/$NAME
     - cp *.tgz $REPO_DIR/helm
 
