@@ -14,6 +14,16 @@ spec:
       labels:
         app: {{ .Values.name }}
     spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - {{ .Values.name }}
+            topologyKey: "kubernetes.io/hostname"
       containers:
         - name: app
           image: {{ .Values.app.image.name }}:{{ .Values.app.image.tag }}
@@ -25,6 +35,12 @@ spec:
               value: /key.json
             - name: APP_PROPERTIES
               value: /app.local.properties
+            - name: SENTRY_DSN
+              value: "{{ .Values.sentry.dsn }}"
+            - name: SENTRY_ENVIRONMENT
+              value: "{{ .Values.namespace }}"
+            - name: SENTRY_RELEASE
+              value: "{{ .Values.git.ref }}"
           ports:
             - containerPort: {{ .Values.app.port }}
               name: http-app

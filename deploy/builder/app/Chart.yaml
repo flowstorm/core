@@ -1,5 +1,0 @@
-apiVersion: v1
-name: flowstorm-builder
-version: "chart.version"
-description: Flowstorm Core Builder Helm Chart
-appVersion: "app.version"

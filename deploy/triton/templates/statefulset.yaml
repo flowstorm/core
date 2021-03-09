@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  serviceName: {{ .Values.name }}
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.name }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.name }}
+        release: {{ .Release.Name }}
+
+    spec:
+      securityContext:
+        fsGroup: 1000
+      volumes:
+        - name: dshm
+          emptyDir:
+            medium: Memory
+        - name: google-sa
+          secret:
+            secretName: google-sa
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.imageName }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          resources:
+            limits:
+              nvidia.com/gpu: {{ .Values.image.numGpus }}
+              memory: {{ .Values.image.memory }}
+          args:
+            - "tritonserver"
+            - "--model-repository={{ .Values.image.modelRepositoryPath }}"
+            - "--strict-model-config=false"
+            - "--log-verbose=1"
+            - "--log-info=1"
+            - "--allow-gpu-metrics=false"
+            - "--model-control-mode=poll"
+            - "--repository-poll-secs=10"
+          env:
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /key.json
+          ports:
+            - containerPort: 8000
+              name: http
+            - containerPort: 8001
+              name: grpc
+            - containerPort: 8002
+              name: metrics
+          livenessProbe:
+            failureThreshold: 30
+            initialDelaySeconds: 300
+            periodSeconds: 5
+            httpGet:
+              path: /v2/health/live
+              port: http
+          readinessProbe:
+            failureThreshold: 30
+            initialDelaySeconds: 300
+            periodSeconds: 5
+            httpGet:
+              path: /v2/health/ready
+              port: http
+          securityContext:
+            runAsUser: 1000
+          volumeMounts:
+            - mountPath: /dev/shm
+              name: dshm
+            - name: google-sa
+              mountPath: /key.json
+              subPath: key.json

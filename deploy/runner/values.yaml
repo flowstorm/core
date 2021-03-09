@@ -1,10 +1,9 @@
-baseDomain: flowstorm.ai
-clusterIssuer: letsencrypt
 namespace: default
 name: flowstorm-runner
 replicas: 2
 imagePullSecrets: promethistai-registry
 imagePullPolicy: IfNotPresent
+basedomain: flowstorm.ai
 service:
   type: ClusterIP
   app:
@@ -12,7 +11,7 @@ service:
 app:
   port: 8080
   image:
-    name: registry.gitlab.com/promethistai/core/runner/app
+    name: registry.gitlab.com/promethistai/flowstorm-core/runner/app
     tag: latest
   mem: 1024
   resources:
@@ -21,6 +20,15 @@ app:
       memory: 1024Mi
   logging: "FALSE"
   tracing: "OFF"
+slack:
+  enable: true
 git:
   ref: branch_or_tag
   commit: short_sha
+sender:
+  from:
+    email: "app@flowstorm.ai"
+    name: "Flowstorm App"
+jwtauth:
+  issuer: "https://auth.flowstorm.ai/"
+  verify: "true"

@@ -1,0 +1,46 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Values.namespace }}
+  annotations:
+    kubernetes.io/tls-acme: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt"
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "16k"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "10"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-body-size: "256m"
+    nginx.ingress.kubernetes.io/affinity: "cookie"
+    # ciphers order from older ingress-nginx version, which works for Alexa REST endpoint expectations
+    nginx.ingress.kubernetes.io/ssl-ciphers: "ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256"
+spec:
+  tls:
+    - hosts:
+        - core{{ if ne .Values.namespace "default" }}-{{ .Values.namespace }}{{ end }}.{{ .Values.basedomain }}
+      secretName: {{ .Values.name }}-tls
+  rules:
+    - host: core{{ if ne .Values.namespace "default" }}-{{ .Values.namespace }}{{ end }}.{{ .Values.basedomain }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Values.name }}
+                port:
+                  number: 8080
+          - path: /builder
+            pathType: Prefix
+            backend:
+              service:
+                name: flowstorm-builder
+                port:
+                  number: 8080
+          - path: /apidoc
+            pathType: Prefix
+            backend:
+              service:
+                name: apidoc
+                port:
+                  number: 80

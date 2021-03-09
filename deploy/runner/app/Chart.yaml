@@ -1,5 +1,0 @@
-apiVersion: v1
-name: flowstorm-runner
-version: "chart.version"
-description: Flowstorm Core Runner Helm Chart
-appVersion: "app.version"

@@ -27,7 +27,7 @@ object ServiceUrlResolver {
         } ?: when (runMode) {
             RunMode.local -> "${protocol}://localhost:${servicePorts[serviceName] ?: error("Port for service $serviceName not defined.")}"
             RunMode.docker -> "${protocol}://${serviceName}:8080"
-            RunMode.dist -> "${protocol}s://" + serviceName + (if (namespace != "default") ".$namespace" else "") + "." + domain
+            RunMode.dist -> "${protocol}s://" + serviceName + (if (namespace != "default") "-$namespace" else "") + "." + domain
             RunMode.detect -> getEndpointUrl(serviceName,
                     RunMode.valueOf(System.getenv("RUN_MODE") ?: AppConfig.instance.get("runmode", RunMode.dist.name)),
                     protocol, namespace, domain, false)

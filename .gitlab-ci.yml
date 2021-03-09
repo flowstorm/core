@@ -1,11 +1,30 @@
+variables:
+  REPO_DIR: /ext/cluster/default/default/repository
+
 stages:
-  - deploy_packages
+  - package
   - build
   - distribute
   - document
 
 #
 # JOB TEMPLATES
+#
+# .package
+#
+.package chart:
+  stage: package
+  image: registry.gitlab.com/promethistai/system/deployer
+  variables:
+    NAME: xxx
+  only:
+    refs:
+      - tags
+  script:
+    - sed -i -- "s/chart.version/$CI_COMMIT_REF_NAME/g; s/app.version/$CI_COMMIT_REF_NAME/g" $NAME/Chart.yaml
+    - helm3 package deploy/$NAME
+    - cp *.tgz $REPO_DIR/helm
+
 #
 # .distribute
 #
@@ -22,7 +41,7 @@ stages:
   script:
     - cd $DIR
     - mvn -B package # maybe useless - should be already packaged by build job
-    - cp target/$NAME.jar /ext/cluster/default/default/repository/dist/$NAME-$CI_COMMIT_REF_NAME.jar
+    - cp target/$NAME.jar $REPO_DIR/dist/$NAME-$CI_COMMIT_REF_NAME.jar
 
 #
 # .build
@@ -98,10 +117,34 @@ stages:
 #
 # JOBS
 #
-# deploy all release packages
+# package
 #
-deploy release packages:
-  stage: deploy_packages
+package chart runner:
+  extends: '.package chart'
+  variables:
+    NAME: runner
+  only:
+    changes:
+      - deploy/runner/**/*
+
+package chart builder:
+  extends: '.package chart'
+  variables:
+    NAME: builder
+  only:
+    changes:
+      - deploy/builder/**/*
+
+package chart triton:
+  extends: '.package chart'
+  variables:
+    NAME: triton
+  only:
+    changes:
+      - deploy/triton/**/*
+
+package release packages:
+  stage: package
   image: registry.gitlab.com/promethistai/system/builder
   only:
     refs:
@@ -114,11 +157,8 @@ deploy release packages:
     - mvn -B versions:set -DnewVersion=$CI_COMMIT_REF_NAME
     - mvn -B deploy -Dapi.basedomain=flowstorm.ai -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false
 
-#
-# deploy all snaphot packages
-#
-deploy snaphot packages:
-  stage: deploy_packages
+package snaphot packages:
+  stage: package
   image: registry.gitlab.com/promethistai/system/builder
   only:
     refs:
@@ -129,7 +169,7 @@ deploy snaphot packages:
     - mvn -B deploy -Dapi.basedomain=preview.flowstorm.ai -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false
 
 #
-# build docker images
+# build
 #
 build release runner/app:
   extends: '.build release'
@@ -164,7 +204,7 @@ build snapshot builder/app:
       - builder/app/**/*
 
 #
-# documents
+# document
 #
 document release lib:
   extends: '.document release'
@@ -227,7 +267,7 @@ document snapshot builder/api:
       - builder/api/**/*
 
 #
-# distribute client/standalone
+# distribute
 #
 distribute client client/standalone:
   extends: '.distribute java client'
@@ -238,3 +278,12 @@ distribute client client/standalone:
     changes:
       - client/**/*
       - common/**/*
+
+distribute charts:
+  stage: deploy
+  image: registry.gitlab.com/promethistai/system/deployer
+  only:
+    refs:
+      - tags
+  script:
+    - helm3 repo index $REPO_DIR/helm

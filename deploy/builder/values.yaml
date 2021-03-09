@@ -1,4 +1,3 @@
-baseDomain: flowstorm.ai
 namespace: default
 name: flowstorm-builder
 replicas: 2
@@ -11,7 +10,7 @@ service:
 app:
   port: 8080
   image:
-    name: registry.gitlab.com/promethistai/core/builder/app
+    name: registry.gitlab.com/promethistai/flowstorm-core/builder/app
     tag: latest
   mem: 512
   resources:
@@ -23,3 +22,5 @@ app:
 git:
   ref: branch_or_tag
   commit: short_sha
+illusionist:
+  approach: logistic
