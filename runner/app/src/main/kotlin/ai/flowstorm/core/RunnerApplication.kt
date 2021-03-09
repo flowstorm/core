@@ -78,7 +78,7 @@ open class RunnerApplication : JerseyApplication() {
                 bindAsContract(ContextPersister::class.java).`in`(Singleton::class.java)
 
                 // IR component
-                bind(Illusionist::class.java).to(Component::class.java).named("illusionist")
+                bind(IllusionistIR::class.java).to(Component::class.java).named("ir")
                 bind(Action::class.java).to(Component::class.java).named("actionResolver")
 
                 // DM component (third - dialog user input decides whether to process the rest of pipeline or not)
@@ -89,7 +89,7 @@ open class RunnerApplication : JerseyApplication() {
                 // Duckling (time values)
                 bind(Duckling::class.java).to(Component::class.java).named("duckling")
                 // NER component (second)
-                bind(Cassandra::class.java).to(Component::class.java).named("cassandra")
+                bind(IllusionistNER::class.java).to(Component::class.java).named("ner")
                 // tokenizer (first)
                 bind(InternalTokenizer::class.java).to(Component::class.java).named("tokenizer")
 
@@ -119,7 +119,6 @@ open class RunnerApplication : JerseyApplication() {
             override fun configure() {
                 //Intent recognition
                 bind(RestClient.webTarget(ServiceUrlResolver.getEndpointUrl("illusionist"))
-                        .path("/query")
                         .queryParam("key", AppConfig.instance["illusionist.apiKey"])
                 ).to(WebTarget::class.java).named("illusionist")
 
@@ -127,11 +126,6 @@ open class RunnerApplication : JerseyApplication() {
                 bind(RestClient.webTarget(ServiceUrlResolver.getEndpointUrl("duckling"))
                         .path("/parse")
                 ).to(WebTarget::class.java).named("duckling")
-
-                //Casandra
-                bind(RestClient.webTarget(ServiceUrlResolver.getEndpointUrl("cassandra"))
-                        .path("/query")
-                ).to(WebTarget::class.java).named("cassandra")
 
                 //Triton
                 bind(RestClient.webTarget(ServiceUrlResolver.getEndpointUrl("triton"))

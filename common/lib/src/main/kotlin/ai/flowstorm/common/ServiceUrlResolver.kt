@@ -13,8 +13,6 @@ object ServiceUrlResolver {
             "builder" to 8081,
             "admin" to 8089,
             "illusionist" to 8090,
-            "cassandra" to 8093,
-            "cassandra-training" to 8094,
             "illusionist-training" to 8095,
             "duckling" to 8096,
             "triton" to 8097

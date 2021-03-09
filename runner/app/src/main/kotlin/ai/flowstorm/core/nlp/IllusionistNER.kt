@@ -10,30 +10,28 @@ import javax.ws.rs.client.Entity
 import javax.ws.rs.client.WebTarget
 import javax.ws.rs.core.GenericType
 
-class Cassandra : Component {
+class IllusionistNER : Component {
 
     @Inject
     lateinit var webTargets: IterableProvider<WebTarget>
 
-    val webTarget: WebTarget get() = webTargets.named("cassandra").get()
+    val webTarget: WebTarget get() = webTargets.named("illusionist").get()
 
     private val logger by LoggerDelegate()
 
     override fun process(context: Context): Context {
-        if (context.session.dialogueStack.isEmpty()) {
-            logger.info("Processing NER - nothing to do")
-            return context.pipeline.process(context)
-        }
         logger.info("Processing NER with input ${context.input}")
 
         try {
-            context.turn.input =
-                    webTarget.path("/all/default").queryParam("language", context.input.locale.toString())
-                            .request().post(Entity.json(context.input), object : GenericType<Input>() {})
+            val response = webTarget.path("/entity/query/default_en").queryParam("language", context.input.locale.toString())
+                .request().post(Entity.json(context.input), object : GenericType<Response>() {})
+            context.turn.input.tokens.clear()
+            context.turn.input.tokens.addAll(response.tokens)
         } catch (t:Throwable) {
-            //TODO we are not using cassandra - exception should not block pipeline processing
-            context.logger.error("Call to Cassandra failed: " + t.message)
+            context.logger.error("Call to Illusionist (entity) failed: " + t.message)
         }
         return context.pipeline.process(context)
     }
+
+    data class Response(val tokens: List<Input.Token>)
 }
