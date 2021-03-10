@@ -13,6 +13,7 @@ import ai.flowstorm.core.resources.CommunityResource
 import ai.flowstorm.core.resources.DialogueEventResource
 import ai.flowstorm.core.type.Dynamic
 import ai.flowstorm.core.type.toLocation
+import org.litote.kmongo.toId
 import javax.inject.Inject
 
 class ContextFactory {
@@ -32,12 +33,12 @@ class ContextFactory {
     fun createContext(pipeline: Pipeline, session: Session, request: Request, contextLog: ContextLog): Context {
         val userProfile = profileRepository.findBy(session.user._id, session.space_id)
             ?: Profile(user_id = session.user._id, space_id = session.space_id)
-
+        val dialogue_id = session.dialogueStack.peek()?.id?.toId() ?: session.application.dialogue_id
         val context = Context(
             pipeline,
             userProfile,
             session,
-            Turn(session_id = session._id, dialogue_id = session.application.dialogue_id, input = request.input).also {
+            Turn(session_id = session._id, dialogue_id = dialogue_id, input = request.input).also {
                 it.request.attributes = request.attributes
             },
             contextLog.logger,
