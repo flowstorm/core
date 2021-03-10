@@ -72,10 +72,10 @@ open class RunnerApplication : JerseyApplication() {
                 /**
                  * NLP components
                  */
-                bindAsContract(PipelineFactory::class.java).`in`(Singleton::class.java)
-                bindAsContract(PipelineRuntime::class.java).`in`(Singleton::class.java)
-                bindAsContract(ContextFactory::class.java).`in`(Singleton::class.java)
-                bindAsContract(ContextPersister::class.java).`in`(Singleton::class.java)
+                bindAsContract(PipelineFactory::class.java)
+                bindAsContract(PipelineRuntime::class.java)
+                bindAsContract(ContextFactory::class.java)
+                bindAsContract(ContextPersister::class.java)
 
                 // IR component
                 bind(IllusionistIR::class.java).to(Component::class.java).named("ir")
