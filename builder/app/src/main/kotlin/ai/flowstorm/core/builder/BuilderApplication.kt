@@ -1,9 +1,6 @@
 package ai.flowstorm.core.builder
 
-import ai.flowstorm.common.AppConfig
-import ai.flowstorm.common.JerseyApplication
-import ai.flowstorm.common.ResourceBinder
-import ai.flowstorm.common.ServiceUrlResolver
+import ai.flowstorm.common.*
 import ai.flowstorm.core.resources.FileResource
 
 open class BuilderApplication : JerseyApplication() {
@@ -34,5 +31,10 @@ open class BuilderApplication : JerseyApplication() {
                 bindTo(FileResource::class.java, "$coreUrl/file", AppConfig.instance["core.apiKey"])
             }
         })
+    }
+
+    companion object {
+        @JvmStatic
+        fun main(args: Array<String>) = JettyServer.run(BuilderApplication())
     }
 }
