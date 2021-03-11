@@ -5,7 +5,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
 spec:
   serviceName: {{ .Values.name }}
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ if ne .Values.namespace "develop" }}{{ .Values.replicas }}{{ else }}1{{ end }}
   selector:
     matchLabels:
       app: {{ .Values.name }}
