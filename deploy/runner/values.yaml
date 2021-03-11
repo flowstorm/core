@@ -9,7 +9,7 @@ service:
 app:
   port: 8080
   image:
-    name: registry.gitlab.com/promethistai/flowstorm-core/runner
+    name: registry.gitlab.com/promethistai/flowstorm-core/runner/app
     tag: latest
   mem: 1024
   resources:

@@ -66,7 +66,7 @@ stages:
       --cache-from $CI_REGISTRY_IMAGE/$DIR
       --tag $CI_REGISTRY_IMAGE/$DIR:$CI_COMMIT_REF_NAME
       --tag $CI_REGISTRY_IMAGE/$DIR:latest
-      $DIR/app
+      $DIR
     - docker push $CI_REGISTRY_IMAGE/$DIR:$CI_COMMIT_REF_NAME
     - docker push $CI_REGISTRY_IMAGE/$DIR:latest
 
@@ -87,7 +87,7 @@ stages:
     - docker build
       --cache-from $CI_REGISTRY_IMAGE/$DIR
       --tag $CI_REGISTRY_IMAGE/$DIR:$CI_COMMIT_SHORT_SHA
-      $DIR/app
+      $DIR
     - docker push $CI_REGISTRY_IMAGE/$DIR:$CI_COMMIT_SHORT_SHA
 
 #
@@ -183,7 +183,7 @@ package snaphot packages:
 build release runner:
   extends: '.build release'
   variables:
-    DIR: runner
+    DIR: runner/app
   only:
     changes:
       - runner/**/*
@@ -191,7 +191,7 @@ build release runner:
 build snapshot runner:
   extends: '.build snapshot'
   variables:
-    DIR: runner
+    DIR: runner/app
   only:
     changes:
       - runner/**/*
@@ -199,7 +199,7 @@ build snapshot runner:
 build release builder:
   extends: '.build release'
   variables:
-    DIR: builder
+    DIR: builder/app
   only:
     changes:
       - builder/**/*
@@ -207,7 +207,7 @@ build release builder:
 build snapshot builder:
   extends: '.build snapshot'
   variables:
-    DIR: builder
+    DIR: builder/app
   only:
     changes:
       - builder/**/*
