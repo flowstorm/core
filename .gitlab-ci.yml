@@ -46,22 +46,6 @@ stages:
 #
 # .build
 #
-.build snapshot:
-  stage: build
-  image: docker:stable
-  variables:
-    DIR: DIR
-  only:
-    refs:
-      - master
-  services:
-    - docker:dind
-  before_script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-  script:
-    - docker build --force-rm --tag $CI_REGISTRY_IMAGE/$DIR:snapshot --build-arg API_REF=$CI_COMMIT_SHORT_SHA --build-arg API_HOST=$CI_PROJECT_NAME.preview.flowstorm.ai --build-arg VERSION=1.0.0-SNAPSHOT $DIR/app
-    - docker push $CI_REGISTRY_IMAGE/$DIR:snapshot
-
 .build release:
   stage: build
   image: docker:stable
@@ -76,10 +60,35 @@ stages:
     - docker:dind
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker pull $CI_REGISTRY_IMAGE/$DIR || true
   script:
-    - docker build --force-rm --cache-from $CI_REGISTRY_IMAGE/$DIR --tag $CI_REGISTRY_IMAGE/$DIR:$CI_COMMIT_REF_NAME --tag $CI_REGISTRY_IMAGE/$DIR:latest --build-arg API_REF=$CI_COMMIT_REF_NAME --build-arg API_HOST=$CI_PROJECT_NAME.flowstorm.ai --build-arg VERSION=$CI_COMMIT_REF_NAME $DIR/app
+    - docker build
+      --cache-from $CI_REGISTRY_IMAGE/$DIR
+      --tag $CI_REGISTRY_IMAGE/$DIR:$CI_COMMIT_REF_NAME
+      --tag $CI_REGISTRY_IMAGE/$DIR:latest
+      $DIR/app
     - docker push $CI_REGISTRY_IMAGE/$DIR:$CI_COMMIT_REF_NAME
     - docker push $CI_REGISTRY_IMAGE/$DIR:latest
+
+.build snapshot:
+  stage: build
+  image: docker:stable
+  variables:
+    DIR: DIR
+  only:
+    refs:
+      - master
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker pull $CI_REGISTRY_IMAGE/$DIR || true
+  script:
+    - docker build
+      --cache-from $CI_REGISTRY_IMAGE/$DIR
+      --tag $CI_REGISTRY_IMAGE/$DIR:$CI_COMMIT_SHORT_SHA
+      $DIR/app
+    - docker push $CI_REGISTRY_IMAGE/$DIR:$CI_COMMIT_SHORT_SHA
 
 #
 # .document
@@ -171,7 +180,7 @@ package snaphot packages:
 #
 # build
 #
-build release runner/app:
+build release runner:
   extends: '.build release'
   variables:
     DIR: runner
@@ -179,15 +188,15 @@ build release runner/app:
     changes:
       - runner/**/*
 
-build snapshot runner/app:
+build snapshot runner:
   extends: '.build snapshot'
   variables:
     DIR: runner
   only:
     changes:
-      - runner/app/**/*
+      - runner/**/*
 
-build release builder/app:
+build release builder:
   extends: '.build release'
   variables:
     DIR: builder
@@ -195,7 +204,7 @@ build release builder/app:
     changes:
       - builder/**/*
 
-build snapshot builder/app:
+build snapshot builder:
   extends: '.build snapshot'
   variables:
     DIR: builder

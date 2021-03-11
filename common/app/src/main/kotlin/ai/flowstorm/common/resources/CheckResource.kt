@@ -19,13 +19,14 @@ class CheckResource {
     fun getCheck(): Check {
         val config = AppConfig.instance
         return Check(
-                1.0,
-                config.get("name", "unknown"),
-                config.get("namespace", "unknown"),
-                config.get("package", JerseyApplication.instance::class.java.`package`.name),
-                config.get("git.ref", "unknown"),
-                config.get("git.commit", "unknown"),
-                config.get("app.image", "unknown")
+            1.0,
+            config.get("name", "unknown"),
+            config.get("namespace", "unknown"),
+            config.get("package", JerseyApplication.instance::class.java.`package`.name),
+            config.get("base.ref", "unknown"),
+            config.get("git.ref", "unknown"),
+            config.get("git.commit", "unknown"),
+            config.get("app.image", "unknown")
         )
     }
 }
