@@ -4,6 +4,7 @@ metadata:
   name: {{ .Release.Name }}
 spec:
   replicas: {{ .Values.replicaCount }}
+  revisionHistoryLimit: 3
   selector:
     matchLabels:
       app: {{ .Release.Name }}
@@ -11,6 +12,8 @@ spec:
     metadata:
       labels:
         app: {{ .Release.Name }}
+        group: flowstorm-core
+        domain: flowstorm
     spec:
       affinity:
         podAntiAffinity:

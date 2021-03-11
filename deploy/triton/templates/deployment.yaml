@@ -4,16 +4,18 @@ metadata:
   name: {{ .Release.Name }}
 spec:
   replicas: {{ .Values.replicaCount }}
+  revisionHistoryLimit: 3
   selector:
     matchLabels:
-      app: {{ .Release.Name }}
       release: {{ .Release.Name }}
+      app: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}
         release: {{ .Release.Name }}
-
+        app: {{ .Release.Name }}
+        group: flowstorm-nlp
+        domain: flowstorm
     spec:
       securityContext:
         fsGroup: 1000
