@@ -4,8 +4,6 @@ import ai.flowstorm.common.RestClient
 import ai.flowstorm.common.ServiceUrlResolver
 import ai.flowstorm.core.builder.IntentModelBuilder.Output
 import ai.flowstorm.core.dialogue.AbstractDialogue
-import ai.flowstorm.core.model.DialogueSourceCode
-import ai.flowstorm.core.model.EntityDataset
 import ai.flowstorm.core.model.IntentModel
 import ai.flowstorm.util.LoggerDelegate
 import java.net.URL
@@ -63,7 +61,7 @@ class IllusionistModelBuilder(val apiUrl: String, val apiKey: String, val approa
     }
 
     override fun trainEntityModel(dataset: EntityDataset) {
-        val url = URL("$url/entity/train/${dataset._id}?language=${dataset.language}" )
-        RestClient.call<Any>(url, "POST", output = dataset, timeout = buildTimeout)
+        val url = URL("$url/entity/${dataset._id}?space_id=${dataset.space_id}&language=${dataset.language}" )
+        RestClient.call<Any>(url, "PUT", output = dataset, timeout = buildTimeout)
     }
 }
