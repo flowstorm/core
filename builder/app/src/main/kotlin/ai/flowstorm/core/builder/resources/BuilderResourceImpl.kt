@@ -2,7 +2,6 @@ package ai.flowstorm.core.builder.resources
 
 import ai.flowstorm.common.security.Authorized
 import ai.flowstorm.core.builder.*
-import ai.flowstorm.core.model.EntityDataset
 import javax.inject.Inject
 import javax.ws.rs.Path
 import javax.ws.rs.Produces
