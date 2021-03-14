@@ -15,6 +15,7 @@ spec:
         group: flowstorm-core
         domain: flowstorm
     spec:
+      {{ if gt (int .Values.replicaCount) 1 }}
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -27,6 +28,7 @@ spec:
                   values:
                   - {{ .Release.Name }}
               topologyKey: "kubernetes.io/hostname"
+      {{ end }}
       containers:
         - name: app
           image: {{ .Values.app.image.name }}:{{ .Values.app.image.tag }}
