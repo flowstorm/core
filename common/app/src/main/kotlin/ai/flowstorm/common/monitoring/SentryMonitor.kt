@@ -2,6 +2,7 @@ package ai.flowstorm.common.monitoring
 
 import io.sentry.Sentry
 import io.sentry.SentryEvent
+import io.sentry.SentryOptions
 
 class SentryMonitor : AbstractMonitor() {
 
@@ -11,7 +12,9 @@ class SentryMonitor : AbstractMonitor() {
         try {
             if (!initialized) {
                 initialized = true
-                Sentry.init()
+                val options = SentryOptions()
+                options.dsn = ""//FIXME get value from injected AppConfig
+                Sentry.init(options)
             }
             with(SentryEvent()) {
                 throwable = e
