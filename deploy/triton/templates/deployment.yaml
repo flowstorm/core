@@ -1,20 +1,36 @@
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
   name: {{ .Release.Name }}
 spec:
   replicas: {{ .Values.replicaCount }}
+  revisionHistoryLimit: 3
   selector:
     matchLabels:
-      app: {{ .Release.Name }}
       release: {{ .Release.Name }}
+      app: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}
         release: {{ .Release.Name }}
-
+        app: {{ .Release.Name }}
+        group: flowstorm-nlp
+        domain: flowstorm
     spec:
+      {{ if gt (int .Values.replicaCount) 1 }}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - {{ .Release.Name }}
+              topologyKey: "kubernetes.io/hostname"
+      {{ end }}
       securityContext:
         fsGroup: 1000
       volumes:

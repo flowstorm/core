@@ -171,11 +171,15 @@ package snaphot packages:
   image: registry.gitlab.com/promethistai/system/builder
   only:
     refs:
-      - master
+      - branches
+  except:
+    - master
   artifacts:
     untracked: true
   script:
-    - mvn -B deploy -Dapi.basedomain=preview.flowstorm.ai -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false
+    - NAMESPACE=`echo $CI_COMMIT_BRANCH | cut -d'-' -f 2`
+    - mvn -B versions:set -DnewVersion=$NAMESPACE-SNAPSHOT
+    - mvn -B deploy -Dapi.basedomain=core-$NAMESPACE.flowstorm.ai -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false
 
 #
 # build
