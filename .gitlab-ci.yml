@@ -164,7 +164,7 @@ package release packages:
     untracked: true
   script:
     - mvn -B versions:set -DnewVersion=$CI_COMMIT_REF_NAME
-    - mvn -B deploy -Dapi.basedomain=flowstorm.ai -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false
+    - mvn -B deploy -Dapi.basedomain=core.flowstorm.ai -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false
 
 package snaphot packages:
   stage: package
