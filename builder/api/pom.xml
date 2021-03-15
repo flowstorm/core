@@ -14,7 +14,7 @@
 
     <properties>
         <swagger.version>1.5.22</swagger.version>
-        <flowstorm.api.basedomain>flowstorm.ai</flowstorm.api.basedomain>
+        <flowstorm.api.basedomain>core.flowstorm.ai</flowstorm.api.basedomain>
         <flowstorm.api.locations>ai.flowstorm.common.resources,ai.flowstorm.core.builder.resources</flowstorm.api.locations>
         <flowstorm.api.description>Flowstorm API</flowstorm.api.description>
     </properties>
@@ -104,7 +104,7 @@
                             <springmvc>false</springmvc>
                             <locations>${flowstorm.api.locations}</locations>
                             <schemes>https,http</schemes>
-                            <host>core.${flowstorm.api.basedomain}</host>
+                            <host>${flowstorm.api.basedomain}</host>
                             <basePath>/</basePath>
                             <outputFormats>json,yaml</outputFormats>
                             <swaggerDirectory>${project.build.outputDirectory}/META-INF/core-api</swaggerDirectory>
