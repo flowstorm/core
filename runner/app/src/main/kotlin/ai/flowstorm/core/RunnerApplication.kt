@@ -173,7 +173,7 @@ open class RunnerApplication : JerseyApplication() {
 
         override fun provide(): FileStorage = when (config.get("storage.type", "Google")) {
             "FileSystem" -> LocalFileStorage(File(config["storage.base"]))
-            "AmazonS3" -> AmazonS3Storage()
+            "AmazonS3" -> AmazonS3Storage(config["s3bucket"])
             else -> GoogleStorage("filestore-${config.dsuffix}")
         }
 

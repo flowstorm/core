@@ -1,6 +1,5 @@
 package ai.flowstorm.core.storage
 
-import ai.flowstorm.common.AppConfig
 import ai.flowstorm.core.model.FileObject
 import software.amazon.awssdk.core.sync.RequestBody
 import software.amazon.awssdk.core.sync.ResponseTransformer
@@ -12,14 +11,13 @@ import java.nio.ByteBuffer
 import java.nio.channels.Channels
 import java.nio.channels.ReadableByteChannel
 
-class AmazonS3Storage: FileStorage {
+class AmazonS3Storage(private val bucket:String): FileStorage {
 
     companion object {
         const val BUFFER_SIZE = 5 * 1024 * 1024
     }
 
     private val s3 = S3Client.builder().build()
-    private val bucket = AppConfig.instance["s3bucket"]
 
     override fun readFile(path: String, output: OutputStream) {
         s3.getObject(
