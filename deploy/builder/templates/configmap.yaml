@@ -10,4 +10,5 @@ data:
     app.logging={{ .Values.app.logging }}
     app.tracing={{ .Values.app.tracing }}
     illusionist.approach={{ .Values.illusionist.approach }}
+    illusionist.url=https://illusionist-preview.flowstorm.ai
 
