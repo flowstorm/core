@@ -13,7 +13,15 @@ class ConfigValueInjectionResolver : InjectionResolver<ConfigValue> {
 
     override fun resolve(injectee: Injectee, handle: ServiceHandle<*>?): Any {
 
-        val value = config[getKey(injectee)]
+        val annotation = getAnnotation(injectee)
+
+        val value = try {
+            with(annotation) {
+                if (default == ConfigValue.NULL) config[key] else config.get(key, default)
+            }
+        } catch (t: Throwable) {
+            throw Exception("Can not inject config value for key `${annotation.key}` in ${injectee.injecteeClass.simpleName}", t)
+        }
 
         return when (injectee.requiredType) {
             String::class.java -> value
@@ -22,11 +30,10 @@ class ConfigValueInjectionResolver : InjectionResolver<ConfigValue> {
         }
     }
 
-    private fun getKey(injectee: Injectee): String = when (val elem = injectee.parent) {
+    private fun getAnnotation(injectee: Injectee) = when (val elem = injectee.parent) {
         is Constructor<*> -> elem.parameterAnnotations[injectee.position][0] as ConfigValue
         else -> elem.getAnnotation(ConfigValue::class.java)
-    }.key
-
+    }
 
     override fun isConstructorParameterIndicator() = true
     override fun isMethodParameterIndicator() = false
