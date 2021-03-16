@@ -12,6 +12,7 @@ import org.glassfish.jersey.process.internal.RequestScoped
 import org.litote.kmongo.KMongo
 import ai.flowstorm.common.*
 import ai.flowstorm.common.ServerConfigProvider.ServerConfig
+import ai.flowstorm.common.config.Config
 import ai.flowstorm.common.messaging.MessageSender
 import ai.flowstorm.common.messaging.StdOutSender
 import ai.flowstorm.common.mongo.KMongoIdParamConverterProvider
@@ -51,9 +52,9 @@ import javax.ws.rs.ext.ParamConverterProvider
 open class RunnerApplication : JerseyApplication() {
 
     init {
-        AppConfig.instance["name"] = "core"
-        logger.info("Creating application (dsuffix=$dsuffix)")
-        System.setSecurityManager(DialogueSecurityManager(AppConfig.instance.get("security.raiseExceptions", "true") != "false"))
+        config["name"] = "core"
+        logger.info("Creating application (dsuffix=${config.dsuffix})")
+        System.setSecurityManager(DialogueSecurityManager(config.get("security.raiseExceptions", "true") != "false"))
 
         register(object : ResourceBinder() {
             override fun configure() {
@@ -99,9 +100,11 @@ open class RunnerApplication : JerseyApplication() {
                 bind(StdOutSender::class.java).to(MessageSender::class.java).`in`(Singleton::class.java)
 
                 //TODO replace by object repository
-                bindTo(MongoDatabase::class.java,
-                    KMongo.createClient(ConnectionString(AppConfig.instance["database.url"]))
-                        .getDatabase(AppConfig.instance["name"] + "-" + dsuffix))
+                bindTo(
+                    MongoDatabase::class.java,
+                    KMongo.createClient(ConnectionString(config["database.url"]))
+                        .getDatabase(config["name"] + "-" + config.dsuffix)
+                )
                 bind(MongoProfileRepository::class.java).to(ProfileRepository::class.java)
                 bind(MongoSessionRepository::class.java).to(SessionRepository::class.java)
                 bind(MongoTurnRepository::class.java).to(TurnRepository::class.java)
@@ -118,8 +121,9 @@ open class RunnerApplication : JerseyApplication() {
         register(object : AbstractBinder() {
             override fun configure() {
                 //Intent recognition
-                bind(RestClient.webTarget(ServiceUrlResolver.getEndpointUrl("illusionist"))
-                        .queryParam("key", AppConfig.instance["illusionist.apiKey"])
+                bind(
+                    RestClient.webTarget(ServiceUrlResolver.getEndpointUrl("illusionist"))
+                        .queryParam("key", config["illusionist.apiKey"])
                 ).to(WebTarget::class.java).named("illusionist")
 
                 //Duckling
@@ -149,20 +153,30 @@ open class RunnerApplication : JerseyApplication() {
         @Inject
         lateinit var fileStorage: FileStorage
 
-        override fun provide(): FileResourceLoader = FileResourceLoader("dialogue",
-                AppConfig.instance.get("loader.noCache", "false") == "true",
-                AppConfig.instance.get("loader.useScript", "false") == "true").apply {
+        @Inject
+        lateinit var config: Config
+
+        override fun provide(): FileResourceLoader = FileResourceLoader(
+            "dialogue",
+            config.get("loader.noCache", "false") == "true",
+            config.get("loader.useScript", "false") == "true"
+        ).apply {
             fileStorage = this@FileResourceLoaderFactory.fileStorage
         }
+
         override fun dispose(p0: FileResourceLoader?) {}
     }
 
     class FileStorageFactory : Factory<FileStorage> {
-        override fun provide(): FileStorage = when (AppConfig.instance.get("storage.type", "Google")) {
-            "FileSystem" -> LocalFileStorage(File(AppConfig.instance["storage.base"]))
+        @Inject
+        lateinit var config: Config
+
+        override fun provide(): FileStorage = when (config.get("storage.type", "Google")) {
+            "FileSystem" -> LocalFileStorage(File(config["storage.base"]))
             "AmazonS3" -> AmazonS3Storage()
-            else -> GoogleStorage("filestore-$dsuffix")
+            else -> GoogleStorage("filestore-${config.dsuffix}")
         }
+
         override fun dispose(storage: FileStorage?) {}
     }
 
@@ -177,9 +191,6 @@ open class RunnerApplication : JerseyApplication() {
         )
 
     companion object {
-
-        val dsuffix = AppConfig.instance.get("dsuffix", AppConfig.instance["namespace"])
-
         @JvmStatic
         fun main(args: Array<String>) = JettyServer.run(RunnerApplication())
     }
