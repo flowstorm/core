@@ -3,13 +3,11 @@ package ai.flowstorm.core
 import com.fasterxml.jackson.core.Version
 import com.fasterxml.jackson.databind.module.SimpleAbstractTypeResolver
 import com.fasterxml.jackson.databind.module.SimpleModule
-import com.mongodb.ConnectionString
 import com.mongodb.client.MongoDatabase
 import org.glassfish.hk2.api.Factory
 import org.glassfish.hk2.api.PerLookup
 import org.glassfish.hk2.utilities.binding.AbstractBinder
 import org.glassfish.jersey.process.internal.RequestScoped
-import org.litote.kmongo.KMongo
 import ai.flowstorm.common.*
 import ai.flowstorm.common.ServerConfigProvider.ServerConfig
 import ai.flowstorm.common.binding.MongoDatabaseFactory
@@ -25,7 +23,6 @@ import ai.flowstorm.core.model.Space
 import ai.flowstorm.core.model.SpaceImpl
 import ai.flowstorm.common.monitoring.StdOutMonitor
 import ai.flowstorm.core.binding.ElasticClientFactory
-import ai.flowstorm.core.binding.MongoDatabaseFactory
 import ai.flowstorm.core.nlp.*
 import ai.flowstorm.core.provider.LocalFileStorage
 import ai.flowstorm.core.repository.EventRepository
