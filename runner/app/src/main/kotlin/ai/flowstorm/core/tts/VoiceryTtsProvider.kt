@@ -7,8 +7,9 @@ import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import javax.ws.rs.client.Entity
 
-object VoiceryTtsService : TtsService {
+class VoiceryTtsProvider : TtsProvider {
 
+    override val name = "Voicery"
     private val logger by LoggerDelegate()
 
     override fun speak(ttsRequest: TtsRequest): ByteArray {
@@ -34,14 +35,5 @@ object VoiceryTtsService : TtsService {
             it.copyTo(buf)
         }
         return buf.toByteArray()
-    }
-
-    @JvmStatic
-    fun main(args: Array<String>) {
-        /*val ttsRequest = TtsRequest(Voice.Victoria.config,
-                """<speak>Hello world from Voicery! How are you?</speak>""",
-                true
-        )
-        ByteArrayInputStream(speak(ttsRequest)).copyTo(FileOutputStream("/Users/tomas.zajicek/Downloads/voicery.mp3"))*/
     }
 }

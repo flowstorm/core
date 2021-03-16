@@ -2,7 +2,7 @@ package ai.flowstorm.core.tts
 
 import java.io.IOException
 
-class TtsAudio(val request: TtsRequest, val type: String = "audio/mpeg") {
+class TtsAudioFile(private val service: TtsService, val request: TtsRequest, val type: String = "audio/mpeg") {
 
     val path: String = "tts/${request.code}.mp3"
     var data: ByteArray? = null
@@ -10,10 +10,10 @@ class TtsAudio(val request: TtsRequest, val type: String = "audio/mpeg") {
     /**
      * Returns or generates audio data if not already set.
      */
-    fun speak(): TtsAudio {
+    fun speak(): TtsAudioFile {
         if (data == null) {
             try {
-                data = TtsServiceFactory.speak(request)
+                data = service.speak(request)
             } catch (e: Throwable) {
                 throw IOException(e.message, e)
             }
