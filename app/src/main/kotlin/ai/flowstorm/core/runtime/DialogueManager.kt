@@ -276,7 +276,7 @@ class DialogueManager : Component {
         var rest = nodes
         do {
             dialogueNodes = rest.takeWhile { it.dialogue.dialogueName == rest.first().dialogue.dialogueName }
-            logger.info("Passed nodes ${dialogueNodes.first().dialogue.dialogueName}:${dialogueNodes.first().dialogue.version} >> " +
+            logger.info("Flow ${dialogueNodes.first().dialogue.dialogueName}:${dialogueNodes.first().dialogue.version} >> " +
                     dialogueNodes.map { it.toString() }.reduce { acc, s -> "$acc > $s" })
             rest = rest.drop(dialogueNodes.size)
         } while (rest.isNotEmpty())
