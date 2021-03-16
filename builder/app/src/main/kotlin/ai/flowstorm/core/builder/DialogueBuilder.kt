@@ -1,6 +1,6 @@
 package ai.flowstorm.core.builder
 
-import ai.flowstorm.common.AppConfig
+import ai.flowstorm.common.config.ConfigValue
 import ai.flowstorm.core.dialogue.AbstractDialogue
 import ai.flowstorm.core.model.DialogueSourceCode
 import ai.flowstorm.core.model.DialogueBuild
@@ -25,6 +25,9 @@ class DialogueBuilder(
 
     @Inject
     lateinit var intentModelBuilder: IntentModelBuilder
+
+    @ConfigValue("git.ref", "unknown")
+    lateinit var gitRef: String
 
     private val logger by LoggerDelegate()
 
@@ -53,7 +56,7 @@ class DialogueBuilder(
             Name: model/${source.buildId}/
             Sealed: true
             Specification-Title: "Flowstorm Dialogue Model" 
-            Specification-Version: "${AppConfig.instance.get("git.ref", "unknown")}"
+            Specification-Version: "$gitRef"
             Specification-Vendor: "PromethistAI a.s.".
             Implementation-Title: "Dialogue Model ${source.dialogueId}" 
             Implementation-Version: "${source.version}"
