@@ -13,3 +13,4 @@ data:
     sender.from.name={{ .Values.sender.from.name }}
     jwtauth.issuer={{ .Values.jwtauth.issuer }}
     jwtauth.verify={{ .Values.jwtauth.verify }}
+    illusionist.url=https://illusionist-preview.flowstorm.ai
