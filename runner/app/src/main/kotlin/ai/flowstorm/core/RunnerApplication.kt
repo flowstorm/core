@@ -12,6 +12,7 @@ import org.glassfish.jersey.process.internal.RequestScoped
 import org.litote.kmongo.KMongo
 import ai.flowstorm.common.*
 import ai.flowstorm.common.ServerConfigProvider.ServerConfig
+import ai.flowstorm.common.binding.MongoDatabaseFactory
 import ai.flowstorm.common.config.Config
 import ai.flowstorm.common.messaging.MessageSender
 import ai.flowstorm.common.messaging.StdOutSender
@@ -23,6 +24,8 @@ import ai.flowstorm.core.runtime.ContextPersister
 import ai.flowstorm.core.model.Space
 import ai.flowstorm.core.model.SpaceImpl
 import ai.flowstorm.common.monitoring.StdOutMonitor
+import ai.flowstorm.core.binding.ElasticClientFactory
+import ai.flowstorm.core.binding.MongoDatabaseFactory
 import ai.flowstorm.core.nlp.*
 import ai.flowstorm.core.provider.LocalFileStorage
 import ai.flowstorm.core.repository.EventRepository
@@ -43,6 +46,7 @@ import ai.flowstorm.core.storage.FileStorage
 import ai.flowstorm.core.storage.GoogleStorage
 import ai.flowstorm.core.storage.AmazonS3Storage
 import ai.flowstorm.core.tts.TtsAudioService
+import org.elasticsearch.client.RestHighLevelClient
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -99,12 +103,8 @@ open class RunnerApplication : JerseyApplication() {
                  */
                 bind(StdOutSender::class.java).to(MessageSender::class.java).`in`(Singleton::class.java)
 
-                //TODO replace by object repository
-                bindTo(
-                    MongoDatabase::class.java,
-                    KMongo.createClient(ConnectionString(config["database.url"]))
-                        .getDatabase(config["name"] + "-" + config.dsuffix)
-                )
+                bindFactory(MongoDatabaseFactory::class.java).to(MongoDatabase::class.java).`in`(Singleton::class.java)
+
                 bind(MongoProfileRepository::class.java).to(ProfileRepository::class.java)
                 bind(MongoSessionRepository::class.java).to(SessionRepository::class.java)
                 bind(MongoTurnRepository::class.java).to(TurnRepository::class.java)
@@ -114,6 +114,8 @@ open class RunnerApplication : JerseyApplication() {
 
                 bind(KMongoIdParamConverterProvider::class.java).to(ParamConverterProvider::class.java).`in`(Singleton::class.java)
                 bindFactory(QueryValueFactory::class.java).to(Query::class.java).`in`(PerLookup::class.java)
+
+                bindFactory(ElasticClientFactory::class.java).to(RestHighLevelClient::class.java).`in`(Singleton::class.java)
             }
         })
 
