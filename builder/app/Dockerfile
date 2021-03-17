@@ -9,4 +9,4 @@ RUN apk add --no-cache bash rsync && \
 
 COPY target/app.jar app.jar
 
-CMD ["sh", "-c", "java $JAVA_OPTIONS -jar app.jar"]
+CMD ["sh", "-c", "java $JAVA_OPTIONS $APP_OPTIONS -jar app.jar"]

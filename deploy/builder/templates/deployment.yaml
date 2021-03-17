@@ -36,10 +36,10 @@ spec:
           env:
             - name: JAVA_OPTIONS
               value: "-Xmx{{ .Values.app.mem }}m"
+            - name: APP_OPTIONS
+              value: "{{ .Values.app.options }}"
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /key.json
-            - name: APP_PROPERTIES
-              value: /app.local.properties
             {{ if .Values.sentry }}
             - name: SENTRY_DSN
               value: "{{ .Values.sentry.dsn }}"

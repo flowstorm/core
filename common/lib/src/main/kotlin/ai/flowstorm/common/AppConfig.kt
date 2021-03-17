@@ -52,18 +52,11 @@ class AppConfig: Serializable, Cloneable {
         }
     }
 
-    fun get(key: String, defaultValue: String): String {
-        return if (properties[key] == null) defaultValue else properties[key] as String
-    }
+    fun getOrNull(key: String): String? = System.getProperty(key) ?: properties[key] as? String
 
-    fun getOrNull(key: String): String? = properties[key] as String?
+    fun get(key: String, defaultValue: String) = getOrNull(key) ?: defaultValue
 
-    operator fun get(key: String): String {
-        return if (properties[key] == null)
-            throw NullPointerException("Missing config property $key")
-        else
-            properties[key] as String
-    }
+    operator fun get(key: String) = getOrNull(key) ?: error("Missing config property $key")
 
     operator fun set(key: String, value: Any) {
         properties[key] = value
