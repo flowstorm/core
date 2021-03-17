@@ -166,7 +166,7 @@ package release packages:
     - mvn -B versions:set -DnewVersion=$CI_COMMIT_REF_NAME
     - mvn -B deploy -Dapi.basedomain=core.flowstorm.ai -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false
 
-package snaphot packages:
+package branch packages:
   stage: package
   image: registry.gitlab.com/promethistai/system/builder
   only:
@@ -180,6 +180,17 @@ package snaphot packages:
     - NAMESPACE=`echo $CI_COMMIT_BRANCH | cut -d'-' -f 2`
     - mvn -B versions:set -DnewVersion=$NAMESPACE-SNAPSHOT
     - mvn -B deploy -Dapi.basedomain=core-$NAMESPACE.flowstorm.ai -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false
+
+package snaphot packages:
+  stage: package
+  image: registry.gitlab.com/promethistai/system/builder
+  only:
+    refs:
+      - master
+  artifacts:
+    untracked: true
+  script:
+    - mvn -B package -Dapi.basedomain=core.flowstorm.ai -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false
 
 #
 # build
