@@ -28,11 +28,19 @@ class PipelineRuntime {
         updateAutomaticMetrics(session)
 
         val pipeline = pipelineFactory.createPipeline()
-        val context = contextFactory.createContext(pipeline, session, request, contextLog)
+        var context = contextFactory.createContext(pipeline, session, request, contextLog)
 
-        val processedContext = call { process(context) }
+        try {
+            context = call { pipeline.process(context) }
+        } catch (e: Throwable) {
+            context.createDialogueEvent(e)
+            monitor.capture(e)
+            throw e
+        } finally {
+            contextPersister.persist(context)
+        }
 
-        return with(processedContext) {
+        return with(context) {
             // client attributes
             listOf("speakingRate", "speakingPitch", "speakingVolumeGain").forEach {
                 if (!turn.attributes[defaultNamespace].containsKey(it)) {
@@ -48,20 +56,6 @@ class PipelineRuntime {
             Response(locale, turn.responseItems, contextLog.log,
                 turn.attributes[defaultNamespace].map { it.key to (it.value as Memory<*>).value }.toMap().toMutableMap(),
                 turn.sttMode, turn.expectedPhrases, sessionEnded, sleepTimeout)
-        }
-    }
-
-    private fun process(context: Context): Context {
-        var processedContext = context
-        try {
-            processedContext = context.pipeline.process(context)
-            return processedContext
-        } catch (e: Throwable) {
-            context.createDialogueEvent(e)
-            monitor.capture(e)
-            throw e
-        } finally {
-            contextPersister.persist(processedContext)
         }
     }
 
