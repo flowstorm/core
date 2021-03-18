@@ -3,6 +3,7 @@ package ai.flowstorm.core.builder.resources
 import ai.flowstorm.common.security.Authorized
 import ai.flowstorm.core.builder.*
 import javax.inject.Inject
+import javax.ws.rs.NotFoundException
 import javax.ws.rs.Path
 import javax.ws.rs.Produces
 import javax.ws.rs.core.MediaType
@@ -36,4 +37,7 @@ class BuilderResourceImpl : BuilderResource {
     override fun trainEntityModel(dataset: EntityDataset) {
         entityModelBuilder.trainEntityModel(dataset)
     }
+
+    @Authorized
+    override fun modelStatus(id: String): EntityDataset.Status = entityModelBuilder.modelStatus(id) ?: throw NotFoundException()
 }
