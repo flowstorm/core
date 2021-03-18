@@ -21,4 +21,6 @@ data class EntityDataset(
     }
 
     data class DataSample(val text: String, var _id: Int = -1)
+
+    data class Status(val status: String)
 }

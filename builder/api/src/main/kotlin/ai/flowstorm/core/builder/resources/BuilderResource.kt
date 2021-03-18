@@ -25,6 +25,10 @@ interface BuilderResource {
     fun build(@ApiParam("Request", required = true) request: Request): Response
 
     @POST
-    @Path("/train/entity")
+    @Path("/entity/train")
     fun trainEntityModel(dataset: EntityDataset)
+
+    @GET
+    @Path("/entity/{modelId}/status")
+    fun modelStatus(@ApiParam(required = true) @PathParam("modelId") id: String): EntityDataset.Status
 }

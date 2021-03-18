@@ -64,4 +64,13 @@ class IllusionistModelBuilder(val apiUrl: String, val apiKey: String, val approa
         val url = URL("$url/entity/${dataset._id}?space_id=${dataset.space_id}&language=${dataset.language}" )
         RestClient.call<Any>(url, "PUT", output = dataset, timeout = buildTimeout)
     }
+
+    override fun modelStatus(id: String): EntityDataset.Status? {
+        val url = URL("$url/entity/$id/status" )
+        try {
+            return RestClient.call(url, responseType = EntityDataset.Status::class.java, timeout = buildTimeout)
+        } catch (e: WebApplicationException) {
+            return null
+        }
+    }
 }
