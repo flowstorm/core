@@ -125,7 +125,9 @@ open class RunnerApplication : JerseyApplication() {
                 bind(KMongoIdParamConverterProvider::class.java).to(ParamConverterProvider::class.java).`in`(Singleton::class.java)
                 bindFactory(QueryValueFactory::class.java).to(Query::class.java).`in`(PerLookup::class.java)
 
-                bindFactory(ElasticClientFactory::class.java).to(RestHighLevelClient::class.java).`in`(Singleton::class.java)
+                config.getOrNull("es.host")?.let {
+                    bindFactory(ElasticClientFactory::class.java).to(RestHighLevelClient::class.java).`in`(Singleton::class.java)
+                }
             }
         })
 
