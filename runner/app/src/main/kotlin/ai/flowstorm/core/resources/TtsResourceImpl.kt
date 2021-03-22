@@ -18,6 +18,8 @@ class TtsResourceImpl : TtsResource {
     lateinit var ttsAudioFileService: TtsAudioFileService
 
     override fun synthesize(request: TtsRequest): TtsResponse {
+        if (request.text.matches(Regex("<.*[^\\>]>")))
+            request.isSsml = true
         val ttsAudioFile = ttsAudioFileService.get(request, asyncSave = false, download = false)
         return TtsResponse(ttsAudioFile.path, ttsAudioFile.type)
     }
