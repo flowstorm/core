@@ -18,7 +18,7 @@ open class ClientConfig {
     var url = ServiceUrlResolver.getEndpointUrl("core")
 
     @Parameter(names = ["-k", "--key"], order = 13, description = "Application key")
-    var key = AppConfig.instance.get("port.key", "flowstorm")
+    var key = AppConfig.instance.get("core.key", "6058c10767f4ca2fa0d0cb14"/* hello world app key */)
 
     @Parameter(names = ["-x", "--secret"], order = 14, description = "Application secret (some may require)")
     var secret: String? = null
