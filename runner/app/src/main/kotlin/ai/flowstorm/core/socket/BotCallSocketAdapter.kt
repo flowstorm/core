@@ -6,14 +6,13 @@ import ai.flowstorm.client.BotConfig
 import ai.flowstorm.client.BotEvent
 import ai.flowstorm.common.AppConfig
 import ai.flowstorm.common.ObjectUtil.defaultMapper
+import ai.flowstorm.common.SystemUtil
 import ai.flowstorm.core.Defaults
 import ai.flowstorm.core.Input
 import ai.flowstorm.core.model.SttConfig
 import ai.flowstorm.core.type.Dynamic
 import ai.flowstorm.security.Digest
-import java.io.BufferedReader
 import java.io.File
-import java.io.InputStreamReader
 import java.util.*
 
 class BotCallSocketAdapter : AbstractBotSocketAdapter() {
@@ -135,20 +134,7 @@ class BotCallSocketAdapter : AbstractBotSocketAdapter() {
             logger.info("Generating MULAW $code")
             val mp3File = File(workDir, "$code.mp3")
             mp3File.writeBytes(data)
-            ProcessBuilder(
-                    "/usr/local/bin/ffmpeg", "-y", "-i", mp3File.absolutePath,
-                    "-codec:a", "pcm_mulaw", "-ar", "8k", "-ac", "1",
-                    "-f", "mulaw", mulawFile.absolutePath
-            ).apply {
-                redirectErrorStream(true)
-                val buf = StringBuilder()
-                val proc = start()
-                val input = BufferedReader(InputStreamReader(proc.inputStream))
-                while (true)
-                    buf.appendLine(input.readLine() ?: break)
-                if (proc.waitFor() != 0)
-                    error(buf)
-            }
+            SystemUtil.exec("/usr/local/bin/ffmpeg -y -i ${mp3File.absolutePath} -codec:a pcm_mulaw -ar 8k -ac 1 -f mulaw ${mulawFile.absolutePath}")
         }
         return mulawFile.readBytes()
     }
