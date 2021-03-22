@@ -1,28 +1,27 @@
 package ai.flowstorm.common.monitoring
 
+import ai.flowstorm.common.config.ConfigValue
 import io.sentry.Sentry
 import io.sentry.SentryEvent
 import io.sentry.SentryOptions
 
-class SentryMonitor : AbstractMonitor() {
+class SentryMonitor(@ConfigValue("sentry.dsn") val dsn: String) : AbstractMonitor() {
 
-    private var initialized = false
+    init {
+        val options = SentryOptions()
+        options.dsn = dsn
+        Sentry.init(options)
+    }
 
     override fun capture(e: Throwable, extras: Map<String, Any?>) {
         try {
-            if (!initialized) {
-                initialized = true
-                val options = SentryOptions()
-                options.dsn = ""//FIXME get value from injected AppConfig
-                Sentry.init(options)
-            }
             with(SentryEvent()) {
                 throwable = e
                 setExtras(extras)
                 Sentry.captureEvent(this)
             }
         } catch (t: Throwable) {
-            logger.error("Monitoring error ${t.message}", t)
+            logger.error("Sentry monitor error: ${t.message}", t)
         }
     }
 }

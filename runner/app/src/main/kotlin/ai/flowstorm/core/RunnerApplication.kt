@@ -16,6 +16,7 @@ import ai.flowstorm.common.messaging.MessageSender
 import ai.flowstorm.common.messaging.StdOutSender
 import ai.flowstorm.common.mongo.KMongoIdParamConverterProvider
 import ai.flowstorm.common.monitoring.Monitor
+import ai.flowstorm.common.monitoring.SentryMonitor
 import ai.flowstorm.common.query.*
 import ai.flowstorm.core.runtime.ContextFactory
 import ai.flowstorm.core.runtime.ContextPersister
@@ -59,7 +60,11 @@ open class RunnerApplication : JerseyApplication() {
 
         register(object : ResourceBinder() {
             override fun configure() {
-                bind(StdOutMonitor::class.java).to(Monitor::class.java).`in`(Singleton::class.java)
+                (if (config.getOrNull("sentry.dsn") != null)
+                    bind(SentryMonitor::class.java)
+                else
+                    bind(StdOutMonitor::class.java)).to(Monitor::class.java).`in`(Singleton::class.java)
+
                 bindFactory(FileStorageFactory::class.java).to(FileStorage::class.java).`in`(Singleton::class.java)
                 bindFactory(FileResourceLoaderFactory::class.java).to(Loader::class.java).`in`(Singleton::class.java)
 
