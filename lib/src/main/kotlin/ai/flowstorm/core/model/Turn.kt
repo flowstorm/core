@@ -38,7 +38,7 @@ data class Turn(
         addResponseItem(text, image, audio, video, code, background, repeatable, voice?.config)
 
     fun addResponseItem(text: String?, image: String? = null, audio: String? = null, video: String? = null, code: String? = null, background: String? = null, repeatable: Boolean = true, ttsConfig: TtsConfig? = null) {
-        val plainText = text?.let {
+        val plainText = if (text?.startsWith('#') == true) text else text?.let {
             it.replace(Regex("\\<.*?\\>"), "")
                 .trim()
                 .capitalize()

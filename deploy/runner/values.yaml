@@ -18,6 +18,7 @@ app:
       memory: 1024Mi
   logging: "FALSE"
   tracing: "OFF"
+  options: ""
 sender:
   from:
     email: "app@flowstorm.ai"
