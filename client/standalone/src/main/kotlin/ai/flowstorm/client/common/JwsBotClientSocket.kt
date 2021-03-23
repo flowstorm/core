@@ -7,8 +7,8 @@ import ai.flowstorm.client.BotSocket
 import java.net.URI
 import java.nio.ByteBuffer
 
-class JwsBotClientSocket(url: String, raiseExceptions: Boolean = false, socketPing: Long = 10):
-        BotClientSocket(url, raiseExceptions, socketPing) {
+class JwsBotClientSocket(url: String, raiseExceptions: Boolean = false):
+        BotClientSocket(url, raiseExceptions) {
 
     private var client: WebSocketClient? = null
 

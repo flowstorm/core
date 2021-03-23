@@ -7,7 +7,7 @@ import ai.flowstorm.util.LoggerDelegate
 import java.io.IOException
 import java.nio.ByteBuffer
 
-abstract class BotClientSocket(open val url: String, open val raiseExceptions: Boolean = false, open val socketPing: Long = 10): BotSocket {
+abstract class BotClientSocket(open val url: String, open val raiseExceptions: Boolean = false): BotSocket {
 
     companion object {
         const val DEFAULT_URI = "/socket/"

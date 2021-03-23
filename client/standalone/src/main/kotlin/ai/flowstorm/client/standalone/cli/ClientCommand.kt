@@ -119,9 +119,6 @@ class ClientCommand: CommandRunner<Application.Config, ClientCommand.Config> {
 
         // networking
 
-        @Parameter(names = ["-sp", "--socketPing"], order = 80, description = "Socket ping period (in seconds, 0 = do not ping)")
-        var socketPing = 10L
-
         @Parameter(names = ["-st", "--socketType"], order = 81, description = "Socket implementation type (OkHttp3, JWS)")
         var socketType = BotSocketType.OkHttp3
 
@@ -291,8 +288,8 @@ class ClientCommand: CommandRunner<Application.Config, ClientCommand.Config> {
         client = BotClient(
                 context,
                 when (config.socketType) {
-                    BotSocketType.JWS -> JwsBotClientSocket(context.url, config.exitOnError, config.socketPing)
-                    else -> OkHttp3BotClientSocket(context.url, config.exitOnError, config.socketPing)
+                    BotSocketType.JWS -> JwsBotClientSocket(context.url, config.exitOnError)
+                    else -> OkHttp3BotClientSocket(context.url, config.exitOnError)
                 },
                 if (config.noInputAudio)
                     null

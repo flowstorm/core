@@ -5,11 +5,10 @@ import okio.ByteString
 import okio.ByteString.Companion.toByteString
 import ai.flowstorm.client.BotEvent
 import ai.flowstorm.client.BotSocket
+import ai.flowstorm.client.util.HttpUtil
 import java.nio.ByteBuffer
-import java.util.concurrent.TimeUnit
 
-class OkHttp3BotClientSocket(url: String, raiseExceptions: Boolean = false, socketPing: Long = 10):
-        BotClientSocket(url, raiseExceptions, socketPing) {
+class OkHttp3BotClientSocket(url: String, raiseExceptions: Boolean = false) : BotClientSocket(url, raiseExceptions) {
 
     private val socketListener = object : WebSocketListener() {
         override fun onOpen(webSocket: WebSocket, response: Response) {
@@ -52,10 +51,7 @@ class OkHttp3BotClientSocket(url: String, raiseExceptions: Boolean = false, sock
         val url = url.replace("http", "ws") + DEFAULT_URI
         logger.info("Opening (url=$url)")
         val request = Request.Builder().url(url).build()
-        val socketBuilder = OkHttpClient.Builder()
-        if (socketPing > 0)
-            socketBuilder.pingInterval(socketPing, TimeUnit.SECONDS)
-        socket = socketBuilder.build().newWebSocket(request, socketListener)
+        socket = HttpUtil.builder.build().newWebSocket(request, socketListener)
     }
 
     override fun close() {
