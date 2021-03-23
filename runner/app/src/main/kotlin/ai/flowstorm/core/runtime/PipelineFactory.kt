@@ -32,7 +32,7 @@ class PipelineFactory {
         }
     }
     @Inject
-    lateinit var bindedComponents: IterableProvider<Component>
+    lateinit var boundComponents: IterableProvider<Component>
 
-    fun createPipeline(): Pipeline = PipelineImpl(LinkedList(bindedComponents.toList().reversed()))
+    fun createPipeline(): Pipeline = PipelineImpl(LinkedList(boundComponents.toList().reversed()))
 }

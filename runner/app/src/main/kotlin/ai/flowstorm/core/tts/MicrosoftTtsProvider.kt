@@ -15,7 +15,9 @@ import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
 
-object MicrosoftTtsService: TtsService {
+class MicrosoftTtsProvider: TtsProvider {
+
+    override val name = "Microsoft"
 
     object XmlTransformer {
 
@@ -94,12 +96,14 @@ object MicrosoftTtsService: TtsService {
         return synthetize(ssml)
     }
 
-    @JvmStatic
-    @Throws(Exception::class)
-    fun main(args: Array<String>) {
-        val str = "<speak><s>Mluv na mě jen když zrovna svítí světlo.</s> <s>Je to jasné?</s> </speak>"
-        val audioData = speak(TtsRequest(Voice.Milan.config, str, true))
-        println("${audioData.size}")
-        File("/Users/tomas.zajicek/Downloads/testx.mp3").writeBytes(audioData)
+    companion object {
+        @JvmStatic
+        @Throws(Exception::class)
+        fun main(args: Array<String>) {
+            val str = "<speak><s>Mluv na mě jen když zrovna svítí světlo.</s> <s>Je to jasné?</s> </speak>"
+            val audioData = MicrosoftTtsProvider().speak(TtsRequest(Voice.Milan.config, str, true))
+            println("${audioData.size}")
+            File("/Users/tomas.zajicek/Downloads/testx.mp3").writeBytes(audioData)
+        }
     }
 }

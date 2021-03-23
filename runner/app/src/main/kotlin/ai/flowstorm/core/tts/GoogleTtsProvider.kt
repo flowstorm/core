@@ -1,10 +1,13 @@
 package ai.flowstorm.core.tts
 
+import ai.flowstorm.util.LoggerDelegate
 import com.google.cloud.texttospeech.v1.*
 import io.sentry.Sentry
 
-object GoogleTtsService: TtsService {
+class GoogleTtsProvider: TtsProvider {
 
+    override val name = "Google"
+    private val logger by LoggerDelegate()
     private val client = TextToSpeechClient.create()
 
     override fun speak(ttsRequest: TtsRequest): ByteArray {
@@ -31,7 +34,7 @@ object GoogleTtsService: TtsService {
                 .setVolumeGainDb(ttsRequest.speakingVolumeGain)
                 .build()
 
-        TtsServiceFactory.logger.info("speak ttsRequest=$ttsRequest")
+        logger.info("speak ttsRequest=$ttsRequest")
         // Perform the text-to-speech request on the text input with the selected voice parameters and stream file type
         val response = client.synthesizeSpeech(input, voice, audioConfig)
 

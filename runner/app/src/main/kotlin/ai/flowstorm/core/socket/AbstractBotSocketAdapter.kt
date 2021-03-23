@@ -16,7 +16,7 @@ import ai.flowstorm.core.stt.SttCallback
 import ai.flowstorm.core.stt.SttService
 import ai.flowstorm.core.stt.SttServiceFactory
 import ai.flowstorm.core.stt.SttStream
-import ai.flowstorm.core.tts.TtsAudioService
+import ai.flowstorm.core.tts.TtsAudioFileService
 import ai.flowstorm.core.tts.TtsRequest
 import ai.flowstorm.core.type.Dynamic
 import ai.flowstorm.core.type.MutablePropertyMap
@@ -32,7 +32,7 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
     lateinit var fileStorage: FileStorage
 
     @Inject
-    lateinit var ttsAudioService: TtsAudioService
+    lateinit var ttsAudioFileService: TtsAudioFileService
 
     @Inject
     lateinit var monitor: Monitor
@@ -245,7 +245,7 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
                         }
                     }
                 if (config.tts != BotConfig.TtsType.None && ttsRequest.text.isNotBlank()) {
-                    val audio = ttsAudioService.get(
+                    val audio = ttsAudioFileService.get(
                             ttsRequest,
                             config.tts != BotConfig.TtsType.RequiredLinks,
                             config.tts == BotConfig.TtsType.RequiredStreaming

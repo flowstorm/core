@@ -13,8 +13,9 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.FileOutputStream
 
-object AmazonTtsService: TtsService {
+class AmazonTtsProvider: TtsProvider {
 
+    override val name = "Amazon"
     //val region = Region.getRegion(Regions.EU_WEST_1)
     private val client = AmazonPollyClient(
             /*DefaultAWSCredentialsProviderChain()*/
@@ -38,12 +39,15 @@ object AmazonTtsService: TtsService {
         return buf.toByteArray()
     }
 
-    @JvmStatic
-    fun main(args: Array<String>) {
-        val ttsRequest = TtsRequest(Voice.Audrey.config,
+    companion object {
+        @JvmStatic
+        fun main(args: Array<String>) {
+            val ttsRequest = TtsRequest(
+                Voice.Audrey.config,
                 """<speak><amazon:domain name="news">There has been a concerted effort among aides and allies to get President Donald Trump to stop conducting the daily coronavirus briefings, multiple sources tell CNN.</amazon:domain></speak>""",
                 true
-        )
-        ByteArrayInputStream(speak(ttsRequest)).copyTo(FileOutputStream("/Users/tomas.zajicek/Downloads/test.mp3"))
+            )
+            ByteArrayInputStream(AmazonTtsProvider().speak(ttsRequest)).copyTo(FileOutputStream("/Users/tomas.zajicek/Downloads/test.mp3"))
+        }
     }
 }

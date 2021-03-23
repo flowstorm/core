@@ -8,17 +8,20 @@ import java.io.IOException
 import javax.inject.Inject
 import kotlin.concurrent.thread
 
-class TtsAudioService {
+class TtsAudioFileService {
 
     @Inject
     lateinit var fileStorage: FileStorage
+
+    @Inject
+    lateinit var ttsService: TtsService
 
     private val logger by LoggerDelegate()
 
     /**
      * Saves TTS audio to filestore for future usage.
      */
-    private fun save(audio: TtsAudio) = with(audio) {
+    private fun save(audioFile: TtsAudioFile) = with(audioFile) {
         fileStorage.writeFile(path, type, listOf("text:${request.text}"), data!!.inputStream())
     }
 
@@ -26,8 +29,8 @@ class TtsAudioService {
      * This creates and stores or loads existing audio from database cache for the specified TTS request.
      */
     @Throws(IOException::class)
-    internal fun get(ttsRequest: TtsRequest, asyncSave: Boolean, download: Boolean): TtsAudio {
-        val audio = TtsAudio(ttsRequest)
+    internal fun get(ttsRequest: TtsRequest, asyncSave: Boolean, download: Boolean): TtsAudioFile {
+        val audio = TtsAudioFile(ttsService, ttsRequest)
         try {
             if (AppConfig.instance.get("tts.no-cache", "false") == "true")
                 throw FileStorage.NotFoundException("no cache")

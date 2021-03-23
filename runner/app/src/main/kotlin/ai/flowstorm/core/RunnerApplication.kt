@@ -69,7 +69,15 @@ open class RunnerApplication : JerseyApplication() {
                 bind(DevicePairingResourceImpl::class.java).to(DevicePairingResource::class.java)
                 bind(DialogueEventResourceImpl::class.java).to(DialogueEventResource::class.java)
 
-                bind(TtsAudioService::class.java).to(TtsAudioService::class.java).`in`(Singleton::class.java)
+                bind(TtsAudioFileService::class.java).to(TtsAudioFileService::class.java).`in`(Singleton::class.java)
+
+                /**
+                 * TTS services
+                 */
+                bind(GoogleTtsProvider::class.java).to(TtsProvider::class.java).`in`(Singleton::class.java)
+                bind(AmazonTtsProvider::class.java).to(TtsProvider::class.java).`in`(Singleton::class.java)
+                bind(MicrosoftTtsProvider::class.java).to(TtsProvider::class.java).`in`(Singleton::class.java)
+                bindAsContract(TtsService::class.java).`in`(Singleton::class.java)
 
                 /**
                  * NLP components
