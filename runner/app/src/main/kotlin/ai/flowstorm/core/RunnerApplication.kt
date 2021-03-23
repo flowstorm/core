@@ -43,7 +43,7 @@ import ai.flowstorm.core.servlets.GoogleAssistantServlet
 import ai.flowstorm.core.storage.FileStorage
 import ai.flowstorm.core.storage.GoogleStorage
 import ai.flowstorm.core.storage.AmazonS3Storage
-import ai.flowstorm.core.tts.TtsAudioService
+import ai.flowstorm.core.tts.*
 import org.elasticsearch.client.RestHighLevelClient
 import java.io.File
 import javax.inject.Inject
