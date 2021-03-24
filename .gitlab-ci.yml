@@ -40,7 +40,6 @@ stages:
       - tags
   script:
     - cd $DIR
-    - mvn -B package # maybe useless - should be already packaged by build job
     - cp target/$NAME.jar $REPO_DIR/dist/$NAME-$CI_COMMIT_REF_NAME.jar
 
 #
