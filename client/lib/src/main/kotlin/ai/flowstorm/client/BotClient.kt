@@ -58,6 +58,7 @@ class BotClient(
     private var lastStateDuration = 0L
     private var waking = false
     private var sleepLimitTime = 0L
+    private var recoverable = false
     var state = State.Closed
         set(state) {
             if (state != State.Sleeping)
@@ -148,15 +149,24 @@ class BotClient(
     }
 
     fun onReady() {
-        callback.onReady(this)
-        state = State.Sleeping
-        if (context.autoStart) {
-            doIntro()
+        if (!recoverable) {
+            callback.onReady(this)
+            state = State.Sleeping
+            if (context.autoStart) {
+                doIntro()
+            } else {
+                if (lostThread?.running == true)
+                    lostThread!!.running = false
+                else
+                    builtinAudio("${context.locale.language}/bot_ready")
+            }
         } else {
             if (lostThread?.running == true)
                 lostThread!!.running = false
-            else
-                builtinAudio("${context.locale.language}/bot_ready")
+            state = State.Sleeping
+            logger.info("Session recovered.")
+            recoverable = false
+            doText("#silence")
         }
     }
 
@@ -297,8 +307,14 @@ class BotClient(
                 lostThread = object : LazyThread(20) {
                     override fun lazy() {
                         builtinAudio("${context.locale.language}/connection_lost")
+                        recoverable = false
+                        context.sessionId = null
+                        logger.info("Failed to recover session")
                     }
-                }.apply { start() }
+                }.apply {
+                    recoverable = true
+                    start()
+                }
             callback.onFailure(this, t)
         }
         state = State.Failed
