@@ -247,6 +247,7 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
                 if (config.tts != BotConfig.TtsType.None && ttsRequest.text.isNotBlank()) {
                     val audio = ttsAudioFileService.get(
                             ttsRequest,
+                            config.ttsFileType,
                             config.tts != BotConfig.TtsType.RequiredLinks,
                             config.tts == BotConfig.TtsType.RequiredStreaming
                     )

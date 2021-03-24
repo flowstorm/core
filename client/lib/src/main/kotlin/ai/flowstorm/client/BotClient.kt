@@ -7,6 +7,7 @@ import ai.flowstorm.core.Input
 import ai.flowstorm.core.Request
 import ai.flowstorm.core.Response
 import ai.flowstorm.core.model.SttConfig
+import ai.flowstorm.core.AudioFileType
 import ai.flowstorm.core.type.Dynamic
 import ai.flowstorm.core.type.PropertyMap
 import ai.flowstorm.util.LoggerDelegate
@@ -16,14 +17,15 @@ import java.util.*
  * Bot client
  */
 class BotClient(
-        val context: BotContext,
-        val socket: BotSocket,
-        val inputAudioDevice: AudioDevice? = null,
-        val callback: BotClientCallback,
-        val tts: BotConfig.TtsType = BotConfig.TtsType.RequiredLinks,
-        val sttMode: SttConfig.Mode = SttConfig.Mode.Default,
-        val pauseMode: Boolean = false,
-        val inputAudioRecorder: AudioRecorder? = null
+    val context: BotContext,
+    val socket: BotSocket,
+    val inputAudioDevice: AudioDevice? = null,
+    val callback: BotClientCallback,
+    val tts: BotConfig.TtsType = BotConfig.TtsType.RequiredLinks,
+    val ttsFileType: AudioFileType = AudioFileType.mp3,
+    val sttMode: SttConfig.Mode = SttConfig.Mode.Default,
+    val pauseMode: Boolean = false,
+    val inputAudioRecorder: AudioRecorder? = null
 ) : BotSocket.Listener {
 
     enum class State { Listening, Processing, Responding, Paused, Sleeping, Open, Closed, Failed }
@@ -105,7 +107,7 @@ class BotClient(
     override fun onOpen() {
         logger.info("Open")
         state = State.Open
-        val config = BotConfig(tts = tts, voice = context.voice, sttMode = sttMode)
+        val config = BotConfig(tts = tts, ttsFileType = ttsFileType, voice = context.voice, sttMode = sttMode)
         socket.sendEvent(BotEvent.Init(context.key, context.deviceId, context.token, config))
     }
 

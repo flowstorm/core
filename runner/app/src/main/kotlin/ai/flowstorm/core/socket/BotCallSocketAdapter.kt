@@ -6,13 +6,12 @@ import ai.flowstorm.client.BotConfig
 import ai.flowstorm.client.BotEvent
 import ai.flowstorm.common.AppConfig
 import ai.flowstorm.common.ObjectUtil.defaultMapper
-import ai.flowstorm.common.SystemUtil
 import ai.flowstorm.core.Defaults
 import ai.flowstorm.core.Input
 import ai.flowstorm.core.model.SttConfig
+import ai.flowstorm.core.AudioFileType
+import ai.flowstorm.core.util.AudioUtil
 import ai.flowstorm.core.type.Dynamic
-import ai.flowstorm.security.Digest
-import java.io.File
 import java.util.*
 
 class BotCallSocketAdapter : AbstractBotSocketAdapter() {
@@ -59,7 +58,6 @@ class BotCallSocketAdapter : AbstractBotSocketAdapter() {
     override val sttConfig
         get() = SttConfig(config.locale, config.zoneId, config.sttSampleRate, SttConfig.Encoding.MULAW, config.sttMode, "phone_call")
     private var streamSid: String? = null
-    private val workDir = File(System.getProperty("java.io.tmpdir"))
     private val outSound = javaClass.getResourceAsStream("/audio/out.mp3").readBytes()
 
     private fun sendMessage(message: OutputMessage) = remote.sendString(defaultMapper.writeValueAsString(message))
@@ -81,7 +79,7 @@ class BotCallSocketAdapter : AbstractBotSocketAdapter() {
     }
 
     override fun sendAudioData(data: ByteArray, count: Int?) {
-        val payload = getMulawData(data)
+        val payload = AudioUtil.convert(data, AudioFileType.mulaw)
         val message = OutputMessage.Media(streamSid!!, OutputMessage.Media.Media(payload))
         logger.info("Sending audio MP3 ${data.size} bytes as MULAW ${payload.size} bytes")
         sendMessage(message)
@@ -125,17 +123,5 @@ class BotCallSocketAdapter : AbstractBotSocketAdapter() {
                 }
             }
         }
-    }
-
-    private fun getMulawData(data: ByteArray): ByteArray {
-        val code = Digest.md5(data)
-        val mulawFile = File(workDir, "$code.mulaw")
-        if (!mulawFile.exists()) {
-            logger.info("Generating MULAW $code")
-            val mp3File = File(workDir, "$code.mp3")
-            mp3File.writeBytes(data)
-            SystemUtil.exec("/usr/local/bin/ffmpeg -y -i ${mp3File.absolutePath} -codec:a pcm_mulaw -ar 8k -ac 1 -f mulaw ${mulawFile.absolutePath}")
-        }
-        return mulawFile.readBytes()
     }
 }
