@@ -1,6 +1,7 @@
 package ai.flowstorm.core.tts
 
-import ai.flowstorm.common.AppConfig
+import ai.flowstorm.common.config.ConfigValue
+import ai.flowstorm.core.AudioFileType
 import ai.flowstorm.core.storage.FileStorage
 import ai.flowstorm.util.LoggerDelegate
 import java.io.ByteArrayOutputStream
@@ -9,6 +10,9 @@ import javax.inject.Inject
 import kotlin.concurrent.thread
 
 class TtsAudioFileService {
+
+    @ConfigValue("tts.no-cache", "false")
+    lateinit var ttsNoCache: String
 
     @Inject
     lateinit var fileStorage: FileStorage
@@ -22,38 +26,38 @@ class TtsAudioFileService {
      * Saves TTS audio to filestore for future usage.
      */
     private fun save(audioFile: TtsAudioFile) = with(audioFile) {
-        fileStorage.writeFile(path, type, listOf("text:${request.text}"), data!!.inputStream())
+        fileStorage.writeFile(path, fileType.contentType, listOf("text:${request.text}"), data!!.inputStream())
     }
 
     /**
      * This creates and stores or loads existing audio from database cache for the specified TTS request.
      */
     @Throws(IOException::class)
-    internal fun get(ttsRequest: TtsRequest, asyncSave: Boolean, download: Boolean): TtsAudioFile {
-        val audio = TtsAudioFile(ttsService, ttsRequest)
+    internal fun get(request: TtsRequest, fileType: AudioFileType, asyncSave: Boolean, download: Boolean): TtsAudioFile {
+        val audioFile = TtsAudioFile(ttsService, request, fileType)
         try {
-            if (AppConfig.instance.get("tts.no-cache", "false") == "true")
-                throw FileStorage.NotFoundException("no cache")
-            val file = fileStorage.getFile(audio.path)
-            logger.info("[HIT] ttsRequest=$ttsRequest")
+            if (ttsNoCache == "true")
+                throw FileStorage.NotFoundException("Bypassing TTS cache")
+            val fileObject = fileStorage.getFile(audioFile.path)
+            logger.info("HIT ${audioFile.path} $request")
             if (download) {
                 ByteArrayOutputStream().apply {
-                    fileStorage.readFile(audio.path, this)
-                    audio.data = toByteArray()
+                    fileStorage.readFile(audioFile.path, this)
+                    audioFile.data = toByteArray()
                 }
             }
         } catch (e: FileStorage.NotFoundException) {
-            logger.info("[MISS] ttsRequest=$ttsRequest")
-            audio.speak()
+            logger.info("MISS ${audioFile.path} $request")
+            audioFile.speak()
             if (asyncSave) {
                 thread(start = true) {
-                    save(audio)
+                    save(audioFile)
                 }
             } else {
-                save(audio)
+                save(audioFile)
             }
-            logger.info("[DONE]")
+            logger.info("DONE ${audioFile.path}")
         }
-        return audio
+        return audioFile
     }
 }

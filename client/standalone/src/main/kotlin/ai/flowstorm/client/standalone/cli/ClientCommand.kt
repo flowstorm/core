@@ -32,6 +32,7 @@ import ai.flowstorm.common.ObjectUtil.defaultMapper
 import ai.flowstorm.common.ServiceUrlResolver
 import ai.flowstorm.core.model.SttConfig
 import ai.flowstorm.core.model.Voice
+import ai.flowstorm.core.AudioFileType
 import ai.flowstorm.core.type.Dynamic
 import ai.flowstorm.core.type.PropertyMap
 import org.slf4j.LoggerFactory
@@ -85,8 +86,11 @@ class ClientCommand: CommandRunner<Application.Config, ClientCommand.Config> {
 
         // audio
 
-        @Parameter(names = ["-stt", "--sttMode"], order = 30, description = "STT mode (Default, SingleUtterance, Duplex)")
+        @Parameter(names = ["-stt", "--sttMode"], order = 29, description = "STT mode (Default, SingleUtterance, Duplex)")
         var sttMode = SttConfig.Mode.SingleUtterance
+
+        @Parameter(names = ["-tts", "--ttsFileType"], order = 30, description = "TTS file type (mp3, wav)")
+        var ttsFileType = AudioFileType.mp3
 
         @Parameter(names = ["-v", "--voice"], order = 31, description = "TTS voice")
         var voice: Voice? = null
@@ -303,6 +307,7 @@ class ClientCommand: CommandRunner<Application.Config, ClientCommand.Config> {
                     BotConfig.TtsType.None
                 else
                     BotConfig.TtsType.RequiredLinks,
+                config.ttsFileType,
                 config.sttMode,
                 config.pauseMode,
                 if (config.noInputAudio || (config.audioRecordUpload == WavFileAudioRecorder.UploadMode.none))
