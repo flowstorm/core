@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+
+	<script src="https://repository.promethist.ai/dist/bot-service.js"></script>
+	<script src="https://repository.promethist.ai/dist/bot/default/ui/app.bundle.js"></script>
+	<script src="https://repository.promethist.ai/dist/bot/default/ui/vendor.bundle.js"></script>
+	<link href="https://repository.promethist.ai/dist/bot/default/ui/app.css" rel="stylesheet">
+	<title>Bot</title>
+</head>
+<body>
+<!--TODO move to CSS-->
+<div style="background-image: url('../assets/play.png');"
+		 class="play"
+		 id="play"
+		 title="Start"
+		 onclick="
+		 		window.startBot();
+		 		document.getElementById('play').style.display='none';
+		 "
+></div>
+<div id="client"></div>
+<script>
+			const urlParams = new URLSearchParams(window.location.search);
+			const animObjects = urlParams.get('animObjects') === null ? 5 : parseInt(urlParams.get('animObjects'));
+			const animate = urlParams.get('animate') === null ? true : urlParams.get('animate') === 'true';
+			const animSpeed = animate ? 500 : 0;
+			const botUI = new BotUI('client', {
+							fullScreen: true,
+							widgetSize: {
+									width: '700px',
+									height: '400px',
+							},
+							imageAverageColorOpacity: 0.5,
+							backgroundImageBlur: 0,
+							animationSpeed: animSpeed,
+							backgroundAdvancedAnimationParticlesCount: animObjects,
+							backgroundSimpleAnimation: animate
+					}
+			);
+			botUI.setUserText();
+			botUI.setBackgroundColor('#22272B');
+			const bot = window.initBot(botUI);
+</script>
+</body>
+</html>

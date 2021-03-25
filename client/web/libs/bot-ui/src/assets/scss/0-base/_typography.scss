@@ -1,0 +1,8 @@
+/*
+ -  Theme typography
+ -
+ -  This file contains @font-face declarations.
+ */
+
+// Font weight: Regular
+@include font-face('Century Gothic', './fonts/Century-Gothic', 400);

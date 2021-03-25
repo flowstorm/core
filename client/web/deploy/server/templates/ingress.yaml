@@ -1,0 +1,22 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Values.namespace }}
+  annotations:
+    kubernetes.io/tls-acme: "true"
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt"
+spec:
+  tls:
+    - hosts:
+        - bot{{ if ne .Values.namespace "default" }}.{{ .Values.namespace }}{{ end }}.promethist.ai
+      secretName: {{ .Values.name }}-tls
+  rules:
+    - host: bot{{ if ne .Values.namespace "default" }}.{{ .Values.namespace }}{{ end }}.promethist.ai
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: gateway
+              servicePort: 80

@@ -1,0 +1,155 @@
+publish service non-production:
+  stage: build
+  image: registry.gitlab.com/promethistai/system/builder
+  only:
+    refs:
+      - master
+    changes:
+      - libs/bot-service/**/*
+  script:
+    - cd libs/bot-service
+    - yarn
+    - CI=false yarn build
+    - rsync -rv --delete ./build/bot-service.js /ext/cluster/default/default/repository/dist/bot-service-preview.js
+
+publish service production:
+  stage: build
+  image: registry.gitlab.com/promethistai/system/builder
+  only:
+    refs:
+      - tags
+    changes:
+      - libs/bot-service/**/*
+  except:
+    - /^(!master).+@/
+  script:
+    - cd libs/bot-service
+    - yarn
+    - CI=false yarn build
+    - rsync -rv --delete ./build/bot-service.js /ext/cluster/default/default/repository/dist/bot-service.js
+
+publish ui non-production:
+  stage: build
+  image: registry.gitlab.com/promethistai/system/builder
+  only:
+    refs:
+      - master
+    changes:
+      - libs/bot-ui/**/*
+  script:
+    - cd libs/bot-ui
+    - yarn
+    - yarn build
+    - rsync -rv -e "ssh -o StrictHostKeyChecking=no -i $DEPLOYER_KEY" -O --delete ./dist/* /ext/cluster/default/default/repository/dist/bot/preview/ui/
+    - rm -f /ext/cluster/default/default/repository/dist/bot/preview/ui/index.html
+
+publish ui production:
+  stage: build
+  image: registry.gitlab.com/promethistai/system/builder
+  only:
+    refs:
+      - tags
+    changes:
+      - libs/bot-ui/**/*
+  except:
+    - /^(!master).+@/
+  script:
+    - cd libs/bot-ui
+    - yarn
+    - yarn build
+    - rsync -rv --delete ./dist/* /ext/cluster/default/default/repository/dist/bot/default/ui/
+    - rm -f /ext/cluster/default/default/repository/dist/bot/default/ui/index.html
+
+build+deploy bot non-production:
+  stage: build
+  image: registry.gitlab.com/promethistai/system/builder
+  only:
+    refs:
+      - master
+    changes:
+      - apps/bot/**/*
+  script:
+    - cd apps/bot
+    - sed -i -- "s/#stage#/preview/g" config/webpack.config.js
+    - sed -i -- "s/default/preview/g" public/index.html
+    - yarn
+    - CI=false yarn build
+    - rsync -rv --delete ./build/static/js/main.js /ext/cluster/default/default/repository/dist/bot/preview/ui.js
+    - rsync -rv --delete ./build/static/css/main.css /ext/cluster/default/default/repository/dist/bot/preview/ui.css
+
+build+deploy bot production:
+  stage: build
+  image: registry.gitlab.com/promethistai/system/builder
+  only:
+    refs:
+      - tags
+    changes:
+      - apps/bot/**/*
+  except:
+    - /^(!master).+@/
+  script:
+    - cd apps/bot
+    - sed -i -- "s/#stage#//g" config/webpack.config.js
+    - yarn
+    - CI=false yarn build
+    - rsync -rv --delete ./build/static/js/main.js /ext/cluster/default/default/repository/dist/bot/default/ui.js
+    - rsync -rv --delete ./build/static/css/main.css /ext/cluster/default/default/repository/dist/bot/default/ui.css
+
+build+deploy client non-production:
+  stage: build
+  image: registry.gitlab.com/promethistai/system/builder
+  only:
+    refs:
+      - master
+    changes:
+      - apps/client/**/*
+  script:
+    - cd apps/client
+    - sed -i -- "s/#env#/preview/g" src/main.js
+    - sed -i -- "s/default/preview/g" public/index.html
+    - yarn install
+    - yarn build
+    - rsync -rv --delete ./dist/ /ext/cluster/default/preview/site/bot
+
+build+deploy client production:
+  stage: build
+  image: registry.gitlab.com/promethistai/system/builder
+  only:
+    refs:
+      - tags
+    changes:
+      - apps/client/**/*
+  except:
+    - /^(!master).+@/
+  script:
+    - cd apps/client
+    - sed -i -- "s/#env#/default/g" src/main.js
+    - yarn install
+    - yarn build
+    - rsync -rv --delete ./dist/ /ext/cluster/default/default/site/bot
+
+deploy server non-production:
+  stage: deploy
+  image: registry.gitlab.com/promethistai/system/deployer
+  only:
+    refs:
+      - master
+    changes:
+      - deploy/server/**/*
+  script:
+    - sed -i -- "s/chart.version/$CI_COMMIT_SHORT_SHA/g; s/app.version/preview/g" deploy/server/Chart.yaml
+    - helm3 upgrade --install --namespace preview --set namespace=preview $CI_PROJECT_NAME deploy/server
+
+deploy server production:
+  stage: deploy
+  image: registry.gitlab.com/promethistai/system/deployer
+  only:
+    refs:
+      - tags
+    changes:
+      - deploy/server/**/*
+  except:
+    - /^(!master).+@/
+  script:
+    - sed -i -- "s/chart.version/$CI_COMMIT_REF_NAME/g; s/app.version/$CI_COMMIT_REF_NAME/g" deploy/server/Chart.yaml
+    - helm3 upgrade --install $CI_PROJECT_NAME deploy/server

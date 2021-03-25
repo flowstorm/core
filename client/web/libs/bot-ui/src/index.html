@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="cs">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta http-equiv="X-UA-Compatible" content="ie=edge">
+		<title>Bot UI</title>
+	</head>
+	<body>
+		<div id="stage" style="margin: auto; background: black;"></div>
+		<script>
+			const botUI = new BotUI('stage', {
+			    guiMode: 'chat', // 'kiosk' or 'chat'
+			    fullScreen: true,
+                widgetSize: {
+			        width: '700px',
+			        height: '400px',
+                },
+                imageAverageColorOpacity: 0.5,
+                backgroundImageBlur: 5,
+                animationSpeed: 500,
+                backgroundAdvancedAnimationParticlesCount: 0,
+                backgroundSimpleAnimation: false
+            });
+			botUI.setScreen();
+			botUI.setBackgroundColor('#927263');
+            botUI.setUserText("You said something very long and keep talking ...");
+            botUI.setBotText("Bot said something more interesting ...");
+            botUI.setImage('https://cosmicbook.news/images/star-wars-rise-skywalker-mark-hamill-luke-r2.jpg');
+            botUI.setBotText("Bot said something more interesting ...");
+            botUI.setUserText("You said");
+
+            botUI.chatInputCallback = ((inputValue) => {
+               console.log(`Do something with input value - ${inputValue}`);
+            });
+
+            botUI.chatMuteCallback = ((isChatMuted) => {
+                console.log(`Do something with chat muted value - ${isChatMuted}`);
+            });
+
+            botUI.chatMicrophoneCallback = ((allowMicrophone) => {
+                console.log(`Do something with allowed microphone value - ${allowMicrophone}`);
+            });
+            botUI.chatBargeCallback = (() => {
+                alert('click');
+            });
+        </script>
+	</body>
+</html>

@@ -1,0 +1,671 @@
+// Typography
+@import "scss/0-base/base";
+
+// Typography
+@import "scss/0-base/typography";
+
+// Variables
+@import "scss/1-variables/app";
+
+@import "scss/0-base/icons";
+
+@import "scss/0-base/bootstrap";
+
+:root {
+	--background-color: #927263;
+	--window-width: 100vw;
+	--window-height: 100vh;
+	--image-background-color: rgba(0, 0, 0, .25);
+	--background-url: none;
+	--animation-speed: 500ms;
+	--background-url-blur: 0px;
+	--scrollbar-background: transparent;
+	--thumb-background: rgba(0, 0, 0, .5);
+	--message-color-bot: #ffffff;
+	--message-color-user: #ffffff;
+	--message-background-bot: rgba(0, 0, 0, .4);
+	--message-background-user: rgba(255, 255, 255, .3);
+}
+
+body {
+	margin: 0;
+}
+
+$base-color: #5e5e5e;
+$particleSizeLandscape: 100vw;
+$particleSizePortrait: 100vh;
+$particleSize: 100vw / 1.5;
+$animationDuration: 1s;
+$amount: 20;
+$avatar-height: 0px;
+$chat-height: 80px;
+
+.bot {
+	background-color: transparent;
+	overflow: hidden;
+	box-sizing: border-box;
+	font-family: 'Century Gothic', sans-serif;
+	line-height: 1.5;
+	height: 100%;
+	display: flex;
+	position: relative;
+
+	* {
+		box-sizing: border-box;
+	}
+
+	.column {
+		padding: 0;
+		z-index: 1;
+
+		&-messages {
+			display: none;
+		}
+
+		&-image {
+			display: none;
+		}
+
+		&-avatar {
+			display: none;
+		}
+	}
+
+	.chat-message {
+		display: none;
+	}
+
+	.chat-input {
+		display: none;
+	}
+
+	.pcm {
+		position: absolute;
+		width: 100%;
+	}
+}
+
+[data-gui-mode="chat"] {
+
+	.bot {
+
+		.column {
+
+			&-messages {
+				display: flex;
+				flex-direction: column;
+				height: calc( 100% -  #{$chat-height} - #{$avatar-height} );
+				width: 100%;
+				overflow-x: hidden;
+				overflow-y: auto;
+				padding: .7rem 0 0 0;
+				scrollbar-width: thin;
+				scrollbar-color: var(--thumb-background) var(--scrollbar-background);
+
+				&::-webkit-scrollbar {
+					width: 11px;
+				}
+				&::-webkit-scrollbar-track {
+					background: var(--scrollbar-background);
+				}
+				&::-webkit-scrollbar-thumb {
+					background-color: var(--thumb-background) ;
+					border-radius: 6px;
+					border: 3px solid var(--scrollbar-background);
+				}
+			}
+		}
+
+		.chat-input {
+			display: flex;
+			height: $chat-height;
+			z-index: 1;
+			bottom: 0;
+			padding: calc(#{$chat-height} / 4) .7rem;
+			width: 100%;
+			position: absolute;
+
+			&-wrapper {
+				position: relative;
+				width: 100%;
+
+				input {
+					width: 100%;
+					border-radius: .7rem;
+					height: 100%;
+					border-width: 0;
+					background-color: #ffffff;
+					padding: 0 #{$chat-height} 0 2.7rem;
+
+					&:focus {
+						outline: none;
+					}
+
+					&[disabled] {
+						background-color: rgba(255, 255, 255, .75);
+						cursor: not-allowed;
+					}
+				}
+
+				.icon {
+					cursor: pointer;
+					position: absolute;
+
+					&--mic {
+						right: 40px;
+						top: calc(50% - 10px);
+					}
+
+					&--volume {
+						right: 10px;
+						top: calc(50% - 10px);
+					}
+
+					&--speaking-head {
+						left: 10px;
+						top: calc(50% - 10px);
+					}
+				}
+			}
+		}
+
+		.chat-message {
+			display: block;
+			align-self: flex-end;
+			max-width: min(500px, 95%);
+			position: relative;
+			overflow-wrap: break-word;
+			padding: .5rem;
+			border-radius: .7rem;
+			margin: .2rem .7rem 0 .7rem;
+
+
+			&.chat-message-last {
+				margin-bottom: 1rem;
+
+				&:after {
+					content: '';
+					position: absolute;
+					width: .7rem;
+					height: .7rem;
+					bottom: - 1rem;
+					right: .7rem;
+					border-radius: 0 0 0 .7rem;
+
+				}
+			}
+
+			&[data-message-type='bot'] {
+				color: var(--message-color-bot);
+				align-self: flex-start;
+				background-color: var(--message-background-bot);
+				margin-right: 1.4rem;
+
+				&:after {
+					right: auto;
+					left: .7rem;
+					background-color: var(--message-background-bot);
+					border-radius: 0 0 .7rem 0;
+				}
+
+				img {
+					width: 100%;
+					height: auto;
+					border-radius: .7rem;
+					margin-bottom: -.5rem;
+				}
+			}
+
+			&[data-message-type='user'] {
+				color: var(--message-color-user);
+				background-color: var(--message-background-user);
+				margin-left: 1.4rem;
+
+				&:after {
+					background-color: var(--message-background-user);
+				}
+			}
+
+			span:empty {
+				display: none;
+			}
+		}
+
+		.pcm {
+			bottom: 0;
+			opacity: .75;
+			z-index: 1;
+			height: $chat-height;
+			transition: all var(--animation-speed) linear;
+			pointer-events: none;
+
+			&.bu-invisible {
+				opacity: 0;
+			}
+
+			&-user {
+				background: #727272;
+				background: linear-gradient(0deg, #727272 0%, rgba(255,255,255,0) 100%);
+			}
+
+			&-bot {
+				background: #05e505;
+				background: linear-gradient(0deg, #05e505 0%, rgba(255,255,255,0) 100%);
+			}
+		}
+	}
+
+}
+
+[data-gui-mode="kiosk"] {
+	.bot {
+
+		.column {
+			position: relative;
+			height: 100%;
+
+			&-messages {
+				display: block;
+			}
+
+			&-image {
+				display: none;
+			}
+		}
+
+		.message {
+			z-index: 1;
+			quotes: "“" "”" "‘" "’";
+			padding: 0 10px;
+
+			span {
+				transition: all var(--animation-speed) linear;
+				opacity: 0;
+			}
+
+			span:not([data-empty]) {
+				transition: all var(--animation-speed) linear;
+				opacity: .5;
+			}
+
+			&-user {
+				color: var(--message-color-user);
+
+				span {
+					&:before {
+						content: open-quote;
+					}
+					&:after {
+						content: close-quote;
+					}
+				}
+			}
+
+			&-bot {
+				color: var(--message-color-bot);
+				margin: auto;
+
+				span:not([data-empty]) {
+					opacity: 1;
+				}
+			}
+		}
+
+		.image {
+			z-index: 1;
+		}
+
+		.pcm {
+			bottom: 0;
+			opacity: .75;
+			z-index: 1;
+			height: 5%;
+			transition: all var(--animation-speed) linear;
+
+			&.bu-invisible {
+				opacity: 0;
+			}
+
+			&-user {
+				background-color: #727272;
+			}
+
+			&-bot {
+				background-color: #05e505;
+			}
+		}
+	}
+
+	&[data-orientation="landscape"] {
+
+		.background span {
+			$particleSize: $particleSizeLandscape;
+		}
+
+		&:not([data-width-image]) {
+
+			.bot {
+
+				.column {
+					&-messages {
+						display: flex;
+					}
+				}
+
+				&-wrapper {
+					flex-direction: column;
+				}
+
+				.message {
+					&-user {
+						flex: 1 1 50%;
+						font-size: calc( var(--window-width) / 35 );
+						width: 50%;
+						display: inline-flex;
+						text-align: center;
+						align-self: center;
+						justify-content: center;
+						align-items: center;
+					}
+
+					&-bot {
+						flex: 1 1 50%;
+						font-size: calc( var(--window-width) / 25 );
+						width: 50%;
+						display: inline-flex;
+						text-align: center;
+						align-self: center;
+						justify-content: center;
+						align-items: center;
+					}
+				}
+			}
+
+		}
+
+		&[data-width-image] {
+
+			.bot {
+
+				.column {
+					width: 50%;
+					&-image {
+						display: flex;
+					}
+
+					&-messages {
+
+						.message {
+							&-user {
+								padding: 5% 5% 0 5%;
+								min-height: 20%;
+								text-align: center;
+							}
+
+							&-bot {
+								padding: 5% 5% 0 5%;
+								text-align: center;
+							}
+						}
+					}
+				}
+
+				.message {
+					&-user {
+						font-size: calc( var(--window-width) / 35 );
+					}
+
+					&-bot {
+						font-size: calc( var(--window-width) / 25 );
+					}
+				}
+
+				.image {
+					text-align: center;
+					align-self: center;
+					display: inline-flex;
+					height: 100%;
+					background: var(--image-background-color);
+					align-items: center;
+
+					img {
+						width: 100%;
+						height: auto;
+					}
+				}
+			}
+		}
+	}
+
+	&[data-orientation="portrait"] {
+		.background span {
+			$particleSize: $particleSizePortrait;
+		}
+
+		&:not([data-width-image]) {
+
+			.bot {
+
+				.column {
+					&-messages {
+						display: flex;
+						flex-direction: column;
+					}
+				}
+
+				&-wrapper {
+					flex-direction: column;
+				}
+
+				.message {
+					&-user {
+						flex: 0 0 50%;
+						font-size: calc( var(--window-height) / 35 );
+						display: inline-flex;
+						text-align: center;
+						align-self: center;
+						justify-content: center;
+						align-items: center;
+					}
+
+					&-bot {
+						flex: 0 0 50%;
+						font-size: calc( var(--window-height) / 25 );
+						display: inline-flex;
+						text-align: center;
+						align-self: center;
+						justify-content: center;
+						align-items: center;
+					}
+				}
+			}
+
+		}
+
+		&[data-width-image] {
+
+			.bot {
+
+				.column {
+					&-image {
+						display: flex;
+						height: 50%;
+						overflow: hidden;
+					}
+
+					&-messages {
+
+						.message {
+							&-user {
+								padding: 5% 5% 0 5%;
+								min-height: 20%;
+								text-align: center;
+							}
+
+							&-bot {
+								padding: 5% 5% 0 5%;
+								text-align: center;
+							}
+						}
+					}
+				}
+
+				&-wrapper {
+					flex-direction: column;
+				}
+
+				.message {
+					&-user {
+						font-size: calc( var(--window-height) / 35 );
+					}
+
+					&-bot {
+						font-size: calc( var(--window-height) / 25 );
+					}
+				}
+
+				.image {
+					text-align: center;
+					align-self: center;
+					display: inline-flex;
+					height: 100%;
+					background: var(--image-background-color);
+					align-items: center;
+					//width: 50%;
+
+					img {
+						width: 100%;
+						height: auto;
+					}
+				}
+			}
+		}
+	}
+
+}
+
+.background {
+	width: 100%;
+	height: 100%;
+	background-color: $base-color;
+	z-index: 0;
+	position: absolute;
+	transition: background-image var(--animation-speed) linear;
+	background-image:
+		radial-gradient(
+				ellipse,
+				var(--background-color),
+				darken($base-color, 30)
+		);
+
+	&--image {
+		background-image: var(--background-url);
+		background-size: cover;
+		filter: blur(var(--background-url-blur));
+
+		&:before {
+			background-image:
+				radial-gradient(
+						ellipse,
+						transparent,
+						darken($base-color, 30)
+				);
+		}
+
+		&:after {
+			background-image: none;
+		}
+	}
+
+	&[data-background-animation]:before {
+		opacity: 0.2;
+		width: 100%;
+		height: 100%;
+		content: '';
+		top: 0;
+		left: 0;
+		position: absolute;
+		transition: background-image var(--animation-speed) linear;
+		background-image:
+			radial-gradient(
+					ellipse at 75% 75%,
+					var(--background-color),
+					darken($base-color, 30)
+			);
+		z-index: 1;
+		animation-name: pulse;
+		animation-duration: 5s;
+		animation-timing-function: linear;
+		animation-iteration-count: infinite;
+	}
+
+	&[data-background-animation]:after {
+		opacity: 0.2;
+		width: 100%;
+		height: 100%;
+		content: '';
+		top: 0;
+		left: 0;
+		position: absolute;
+		transition: background-image var(--animation-speed) linear;
+		background-image:
+			radial-gradient(
+					ellipse at 25% 25%,
+					var(--background-color),
+					darken($base-color, 30)
+			);
+		z-index: 2;
+		animation-name: pulse;
+		animation-duration: 10s;
+		animation-timing-function: linear;
+		animation-iteration-count: infinite;
+	}
+
+	span {
+		z-index: 3;
+		width: $particleSize;
+		height: $particleSize;
+		border-radius: $particleSize;
+		backface-visibility: hidden;
+		position: absolute;
+		animation-name: move;
+		animation-duration: $animationDuration;
+		animation-timing-function: linear;
+		animation-iteration-count: infinite;
+		$colors: (
+			#000000
+		);
+		@for $i from 1 through $amount {
+			&:nth-child(#{$i}) {
+				opacity: random(50) / 100;
+				color: nth($colors, random(length($colors)));
+				top: random(100) * 1%;
+				left: random(100) * 1%;
+				animation-duration: (random($animationDuration * 10) / 10) * 1s + 10s;
+				animation-delay: random(($animationDuration + 10s) * 10) / 10 * -1s;
+				transform-origin: (random(50) - 25) * 1vw (random(50) - 25) * 1vh;
+				$blurRadius: (random() + 0.5) * $particleSize * 0.5;
+				$x: if(random() > 0.5, -1, 1);
+				box-shadow: ($particleSize * 2 * $x) 0 $blurRadius currentColor;
+			}
+		}
+	}
+}
+
+@keyframes move {
+	100% {
+		transform: translate3d(0, 0, 1px) rotate(360deg);
+	}
+}
+
+@keyframes pulse {
+	0% {
+		opacity: 0;
+	}
+	50% {
+		opacity: random(70) / 100;
+	}
+	100% {
+		opacity: 0;
+	}
+}

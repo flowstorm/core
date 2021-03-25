@@ -1,0 +1,23 @@
+@mixin font-face($font-name, $file-name, $weight: 400, $style: normal) {
+	@font-face {
+		font-family: quote($font-name);
+		src: url($file-name + '.ttf')  format('truetype');
+		font-weight: $weight;
+		font-style: $style;
+	}
+}
+
+@include font-face('Century Gothic', './fonts/Century-Gothic', 400);
+
+.play {
+	position:absolute;
+	left: 40%;
+	top: 30vh;
+	z-index: 10;
+	width: 20vw;
+	height: 20vw;
+	background-repeat: no-repeat;
+	background-size: contain;
+	opacity: 0.4;
+	cursor: pointer;
+}

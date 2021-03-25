@@ -1,0 +1,33 @@
+/*
+ -	Font-face declaration for custom typography
+ -	@param {String} [font-name] - Name of the font family
+ -	@param {url} [file-name] - URL address for font files
+ -	@param {Number} [weight=400] - Weight or boldness of the font
+ -	@param {String} [style=normal] - Face of the font-family (normal, italic or oblique)
+ */
+
+@mixin font-face($font-name, $file-name, $weight: 400, $style: normal) {
+	@font-face {
+		font-family: quote($font-name);
+		// src: url($file-name + '.eot');
+		src: url($file-name + '.ttf')  format('truetype');
+		 //url($file-name + '.woff') format('woff');
+		// url($file-name + '.eot?#iefix')  format('embedded-opentype'),
+		// url($file-name + '.svg##{$font-name}')  format('svg');
+		font-weight: $weight;
+		font-style: $style;
+	}
+}
+
+@mixin icon() {
+	/* stylelint-disable-next-line font-family-no-missing-generic-family-keyword, declaration-no-important */
+	font-family: 'icons' !important;
+	speak: none;
+	font-style: normal;
+	font-weight: 400;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1;
+	font-size: $icon-size;
+	color: $icons-active;
+}

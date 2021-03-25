@@ -1,0 +1,64 @@
+/*
+ -  Theme icons
+ */
+
+$icon-version: random();
+
+@font-face {
+	font-family: 'icons';
+	src:
+		url('#{$icon-path}/icons.ttf?#{$icon-version}') format('truetype'),
+		url('#{$icon-path}/icons.woff?#{$icon-version}') format('woff'),
+		url('#{$icon-path}/icons.svg?#{$icon-version}#icons') format('svg');
+	font-weight: 400;
+	font-style: normal;
+}
+
+.icon {
+	@include icon;
+
+	&--small {
+		font-size: $icon-size-small;
+	}
+
+	&--large {
+		font-size: $icon-size-large;
+	}
+
+	&--light {
+		color: $icons-inactive;
+	}
+
+	&__holder-small {
+		position: relative;
+		display: inline-block;
+		width: 20px;
+		height: 20px;
+		vertical-align: middle;
+
+		.icon {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+		}
+	}
+}
+
+@function unicode ($str) {
+	@return unquote('\"') + $str + unquote('\"');
+}
+
+// Icons variables array
+$icons: (
+	mic:         	 \e91e,
+	volume:          \ea26,
+	speaking-head:   \e900
+);
+
+// Icons aplication to class
+@each $name, $icon in $icons {
+	.icon--#{$name}::before {
+		content: unicode($icon);
+	}
+}

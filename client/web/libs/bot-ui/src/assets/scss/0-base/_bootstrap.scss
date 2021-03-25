@@ -1,0 +1,21 @@
+.bu {
+	&-d-none {
+		display: none !important;
+	}
+
+	&-visible {
+		visibility: visible !important;
+	}
+
+	&-invisible {
+		visibility: hidden !important;
+	}
+
+	&-position-relative {
+		position: relative !important;
+	}
+
+	&-position-absolute {
+		position: absolute !important;
+	}
+}
