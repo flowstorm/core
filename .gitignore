@@ -7,11 +7,7 @@ venv
 client/custom
 release.properties
 dependency-reduced-pom.xml
-/client/web/apps/client/yarn.lock
-/client/web/apps/client/node_modules/
-/client/web/libs/bot-service/node_modules/
+yarn-error.log
+node_modules
 /client/web/libs/bot-service/build/
-/client/web/libs/bot-service/yarn.lock
-/client/web/libs/bot-ui/node_modules/
 /client/web/libs/bot-ui/dist/
-/client/web/libs/bot-ui/yarn.lock

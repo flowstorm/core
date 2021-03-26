@@ -1,6 +1,12 @@
 const { merge } = require('webpack-merge');
 const common = require('./webpack.common.js');
 const globImporter = require('node-sass-glob-importer');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+
+const miniCss = new MiniCssExtractPlugin({
+	filename: '[name].css?[hash]',
+	chunkFilename: '[id].css',
+});
 
 module.exports = merge(common, {
 	mode: "development",
@@ -15,7 +21,8 @@ module.exports = merge(common, {
 				exclude: /node_modules/,
 				use: [
 					{
-						loader: 'style-loader'
+//						loader: 'style-loader'
+						loader: MiniCssExtractPlugin.loader
 					},
 					{
 						loader: 'css-loader',
@@ -36,5 +43,8 @@ module.exports = merge(common, {
 				]
 			}
 		]
-	}
+	},
+    plugins: [
+        miniCss
+    ]
 });

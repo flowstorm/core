@@ -1,11 +1,20 @@
 const HtmlWebPackPlugin = require("html-webpack-plugin");
+const htmlWebpackInjectAttributesPlugin = require("html-webpack-inject-attributes-plugin");
 const path = require('path');
 
 const htmlPlugin = new HtmlWebPackPlugin({
 	template: "./src/index.html",
 	filename: "./index.html",
 	// scriptLoading: 'defer'
-	inject: 'head'
+	inject: 'head',
+	attributes: {
+        'data-bot-ui-resource': function (tag, compilation, index) {
+            if (tag.tagName === 'script') {
+                return true;
+            }
+            return false;
+        }
+    },
 });
 
 module.exports = {
@@ -17,7 +26,8 @@ module.exports = {
 	},
 	output: {
 		filename: '[name].bundle.js?[hash]',
-		path: path.resolve(__dirname, 'dist')
+		path: path.resolve(__dirname, 'dist'),
+		chunkFilename: 'app-store'
 	},
 	resolve: {
 		extensions: [".ts", ".js", ".json"]
@@ -61,6 +71,7 @@ module.exports = {
 		]
 	},
 	plugins: [
-		htmlPlugin
+		htmlPlugin,
+		new htmlWebpackInjectAttributesPlugin()
 	]
 };
