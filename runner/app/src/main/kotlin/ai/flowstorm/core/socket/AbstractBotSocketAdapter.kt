@@ -114,7 +114,9 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
         sttService.close()
     }
 
-    fun inputAudioStreamOpen() {
+    fun inputAudioStreamOpen(sessionId: String? = null) {
+        if (sessionId != null)
+            this.sessionId = sessionId
         if (sttStream == null) {
             logger.info("Opening STT stream")
             sttStream = sttService.createStream(sttConfig, expectedPhrases)

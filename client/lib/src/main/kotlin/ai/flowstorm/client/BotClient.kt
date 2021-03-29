@@ -58,7 +58,7 @@ class BotClient(
     private var lastStateDuration = 0L
     private var waking = false
     private var sleepLimitTime = 0L
-    private var recoverable = false
+    private var previousWorkingState: State? = null
     var state = State.Closed
         set(state) {
             if (state != State.Sleeping)
@@ -149,25 +149,33 @@ class BotClient(
     }
 
     fun onReady() {
-        if (!recoverable) {
-            callback.onReady(this)
-            state = State.Sleeping
-            if (context.autoStart) {
-                doIntro()
-            } else {
+        previousWorkingState?.let { logger.info("Session recovered to state $it") }
+        when(previousWorkingState) {
+            null, State.Sleeping, State.Open -> {
+                callback.onReady(this)
+                state = State.Sleeping
+                if (context.autoStart && previousWorkingState != State.Sleeping) {
+                    doIntro()
+                } else {
+                    if (lostThread?.running == true)
+                        lostThread!!.running = false
+                    else
+                        builtinAudio("${context.locale.language}/bot_ready")
+                }
+            }
+            State.Listening -> {
+                state = State.Listening
                 if (lostThread?.running == true)
                     lostThread!!.running = false
-                else
-                    builtinAudio("${context.locale.language}/bot_ready")
+                doText("#silence")
             }
-        } else {
-            if (lostThread?.running == true)
-                lostThread!!.running = false
-            state = State.Sleeping
-            logger.info("Session recovered.")
-            recoverable = false
-            doText("#silence")
+            else -> {
+                state = previousWorkingState ?: state
+                if (lostThread?.running == true)
+                    lostThread!!.running = false
+            }
         }
+        previousWorkingState = null
     }
 
     private fun onError(text: String) {
@@ -264,6 +272,7 @@ class BotClient(
                 if (pauseMode) {
                     if (inputAudioDevice != null)
                         state = State.Paused
+                        previousWorkingState?.let { previousWorkingState = State.Paused }
                 } else {
                     outputAudioPlayCancel()
                     if (sttMode != SttConfig.Mode.Duplex)
@@ -272,6 +281,7 @@ class BotClient(
             }
             State.Paused -> {
                 state = State.Responding
+                previousWorkingState?.let { previousWorkingState = State.Responding }
             }
             State.Sleeping -> {
                 outputAudioPlayCancel()
@@ -306,18 +316,24 @@ class BotClient(
             if (lostThread == null || !lostThread!!.running)
                 lostThread = object : LazyThread(20) {
                     override fun lazy() {
-                        builtinAudio("${context.locale.language}/connection_lost")
-                        recoverable = false
-                        context.sessionId = null
-                        logger.info("Failed to recover session")
+                        if (previousWorkingState != BotClient.State.Responding)
+                            endSession()
                     }
                 }.apply {
-                    recoverable = true
+                    previousWorkingState = this@BotClient.state
                     start()
                 }
             callback.onFailure(this, t)
         }
         state = State.Failed
+    }
+
+    fun endSession() {
+        lostThread!!.running = false
+        builtinAudio("${context.locale.language}/connection_lost")
+        previousWorkingState = null
+        context.sessionId = null
+        logger.info("Failed to recover session")
     }
 
     private fun builtinAudio(name: String, type: OutputQueue.Item.Type = OutputQueue.Item.Type.Client) =
@@ -339,7 +355,7 @@ class BotClient(
                 state = State.Listening
                 inputAudioQueue.clear()
                 inputAudioDevice.start()
-                socket.sendEvent(BotEvent.InputAudioStreamOpen())
+                socket.sendEvent(BotEvent.InputAudioStreamOpen(context.sessionId))
             }
         } else {
             state = State.Listening

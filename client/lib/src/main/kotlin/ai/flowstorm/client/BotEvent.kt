@@ -26,7 +26,7 @@ open class BotEvent {
     data class Recognized(val text: String) : BotEvent()
     data class SessionStarted(val sessionId: String) : BotEvent()
     class SessionEnded : BotEvent()
-    class InputAudioStreamOpen : BotEvent()
+    class InputAudioStreamOpen(val sessionId: String? = null) : BotEvent()
     class InputAudioStreamClose : BotEvent()
 
     override fun toString(): String = if (this::class.isData) super.toString() else this::class.simpleName!!

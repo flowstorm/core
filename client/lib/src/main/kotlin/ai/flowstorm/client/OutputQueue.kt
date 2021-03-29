@@ -29,7 +29,9 @@ class OutputQueue(val client: BotClient) : Runnable {
                         is Item.Image -> image(item.url)
                     }
                     if (items.isEmpty()) {
-                        if ((state == BotClient.State.Responding) && (item.type == Item.Type.Server)) {
+                        if (state == BotClient.State.Failed && context.sessionId != null) {
+                            endSession()
+                        } else if ((state == BotClient.State.Responding) && (item.type == Item.Type.Server)) {
                             inputAudioStreamOpen()
                         } else if (state == BotClient.State.Sleeping && (context.sessionId == null)) {
                             inputAudioRecorder?.stop()

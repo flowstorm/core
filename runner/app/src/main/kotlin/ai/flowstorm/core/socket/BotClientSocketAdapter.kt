@@ -30,7 +30,7 @@ class BotClientSocketAdapter : AbstractBotSocketAdapter() {
                     sendEvent(BotEvent.Ready())
                 }
                 is BotEvent.Request -> onRequest(event.request)
-                is BotEvent.InputAudioStreamOpen -> inputAudioStreamOpen()
+                is BotEvent.InputAudioStreamOpen -> inputAudioStreamOpen(event.sessionId)
                 is BotEvent.InputAudioStreamClose -> inputAudioStreamClose()
                 is BotEvent.SessionEnded -> sendEvent(BotEvent.SessionEnded())
                 else -> error("Unexpected event of type ${event::class.simpleName}")
