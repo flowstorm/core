@@ -9,7 +9,7 @@ import java.io.IOException
 import javax.inject.Inject
 import kotlin.concurrent.thread
 
-class TtsAudioFileService {
+class TtsAudioService {
 
     @ConfigValue("tts.no-cache", "false")
     lateinit var ttsNoCache: String

@@ -196,6 +196,27 @@
             <artifactId>s3</artifactId>
             <version>${aws.java.sdk.version}</version>
         </dependency>
+        <!--<dependency>
+            <groupId>org.jcodec</groupId>
+            <artifactId>jcodec-javase</artifactId>
+            <version>0.2.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mp4parser</groupId>
+            <artifactId>isoparser</artifactId>
+            <version>1.9.27</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.kokorin.jaffree</groupId>
+            <artifactId>jaffree</artifactId>
+            <version>0.10.1</version>
+        </dependency>-->
+        <dependency>
+            <groupId>io.lindstrom</groupId>
+            <artifactId>m3u8-parser</artifactId>
+            <version>0.19</version>
+        </dependency>
+
 
 
         <!-- Test dependencies -->

@@ -16,7 +16,7 @@ import ai.flowstorm.core.stt.SttCallback
 import ai.flowstorm.core.stt.SttService
 import ai.flowstorm.core.stt.SttServiceFactory
 import ai.flowstorm.core.stt.SttStream
-import ai.flowstorm.core.tts.TtsAudioFileService
+import ai.flowstorm.core.tts.TtsAudioService
 import ai.flowstorm.core.tts.TtsRequest
 import ai.flowstorm.core.type.Dynamic
 import ai.flowstorm.core.type.MutablePropertyMap
@@ -32,7 +32,7 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
     lateinit var fileStorage: FileStorage
 
     @Inject
-    lateinit var ttsAudioFileService: TtsAudioFileService
+    lateinit var ttsAudioService: TtsAudioService
 
     @Inject
     lateinit var monitor: Monitor
@@ -181,8 +181,7 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
         }
     }
 
-    @Throws(IOException::class)
-    internal fun sendResponse(response: Response, ttsOnly: Boolean = false) {
+    open fun sendResponse(response: Response) {
         val items = response.items.toList()
         var shift = 0
         for (i in items.indices) {
@@ -216,7 +215,7 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
                 it.groupValues[2]
             }
 
-            if (item.audio == null && !item.text.isNullOrBlank()) {
+            if (config.tts != BotConfig.TtsType.RequiredVideoStreaming && item.audio == null && !item.text.isNullOrBlank()) {
                 val ttsRequest =
                     TtsRequest(
                         ttsConfig,
@@ -245,7 +244,7 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
                         }
                     }
                 if (config.tts != BotConfig.TtsType.None && ttsRequest.text.isNotBlank()) {
-                    val audio = ttsAudioFileService.get(
+                    val audio = ttsAudioService.get(
                             ttsRequest,
                             config.ttsFileType,
                             config.tts != BotConfig.TtsType.RequiredLinks,
@@ -261,8 +260,7 @@ abstract class AbstractBotSocketAdapter : BotSocket, WebSocketAdapter() {
                 }
             }
         }
-        if (!ttsOnly)
-            sendEvent(BotEvent.Response(response))
+        sendEvent(BotEvent.Response(response))
     }
 
     companion object {

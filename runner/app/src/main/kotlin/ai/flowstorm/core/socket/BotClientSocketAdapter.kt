@@ -3,11 +3,18 @@ package ai.flowstorm.core.socket
 import ai.flowstorm.client.BotConfig
 import ai.flowstorm.client.BotEvent
 import ai.flowstorm.common.ObjectUtil.defaultMapper
+import ai.flowstorm.core.Response
 import ai.flowstorm.core.model.SttConfig
+import ai.flowstorm.core.video.VideoService
 import java.io.IOException
 import java.nio.ByteBuffer
+import javax.inject.Inject
+import kotlin.concurrent.thread
 
 class BotClientSocketAdapter : AbstractBotSocketAdapter() {
+
+    @Inject
+    lateinit var videoService: VideoService
 
     override lateinit var config: BotConfig
     override lateinit var appKey: String
@@ -16,6 +23,7 @@ class BotClientSocketAdapter : AbstractBotSocketAdapter() {
     override val sttConfig
         get() = SttConfig(locale ?: config.locale,
                 config.zoneId, config.sttSampleRate, SttConfig.Encoding.LINEAR16, config.sttMode)
+    private var avatarId = "_default" //TODO redefine from response
 
     override fun onWebSocketText(json: String?) {
         try {
@@ -45,6 +53,22 @@ class BotClientSocketAdapter : AbstractBotSocketAdapter() {
     }
 
     override fun onWebSocketBinary(payload: ByteArray, offset: Int, length: Int) = onInputAudio(payload, offset, length)
+
+    private fun createRespondingVideoSegments(response: Response) {
+        videoService.createSequenceSegments(deviceId, response, true)
+        createListeningVideoSegments()
+    }
+
+    private fun createListeningVideoSegments() {
+        videoService.createSequenceSegments(deviceId, Response(items = mutableListOf(Response.Item("#listen"))))
+    }
+
+    override fun sendResponse(response: Response) {
+        if (config.tts == BotConfig.TtsType.RequiredVideoStreaming) thread {
+            createRespondingVideoSegments(response)
+        }
+        super.sendResponse(response)
+    }
 
     @Synchronized
     @Throws(IOException::class)

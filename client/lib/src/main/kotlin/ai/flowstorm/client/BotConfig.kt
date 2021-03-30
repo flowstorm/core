@@ -26,6 +26,7 @@ data class BotConfig(
     enum class TtsType {
         None,
         RequiredStreaming,
+        RequiredVideoStreaming,
         RequiredLinks
     }
 }

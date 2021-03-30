@@ -22,6 +22,7 @@ object Digest {
     }
 
     fun md5(input: ByteArray) = digest(MD5, input)
+    fun md5(input: String) = md5(input.toByteArray())
     fun md5() = md5(random.nextLong().toString().toByteArray())
     fun sha1(input: ByteArray) = digest(SHA1, input)
     fun sha1() = sha1(random.nextLong().toString().toByteArray())

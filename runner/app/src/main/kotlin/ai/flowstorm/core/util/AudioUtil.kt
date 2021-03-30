@@ -12,11 +12,11 @@ object AudioUtil {
     private val workDir = File(System.getProperty("java.io.tmpdir"))
     private val logger by LoggerDelegate()
 
-    fun convert(data: ByteArray, fileType: AudioFileType, code: String = md5(data)): ByteArray {
-        val destFile = File(workDir, "$code.${fileType.name}")
+    fun convert(data: ByteArray, fileType: AudioFileType, hash: String = md5(data)): ByteArray {
+        val destFile = File(workDir, "$hash.${fileType.name}")
         if (!destFile.exists()) {
             logger.info("Generating $destFile")
-            val sourceFile = File(workDir, "$code.mp3")
+            val sourceFile = File(workDir, "$hash.mp3")
             sourceFile.writeBytes(data)
             when (fileType) {
                 AudioFileType.mulaw -> exec("$ffmpeg -y -i ${sourceFile.absolutePath} -codec:a pcm_mulaw -ar 8k -ac 1 -f mulaw ${destFile.absolutePath}")

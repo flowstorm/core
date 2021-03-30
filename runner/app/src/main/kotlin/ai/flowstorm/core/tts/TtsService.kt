@@ -16,6 +16,6 @@ class TtsService {
         if (request.isSsml && !request.text.startsWith("<speak>"))
             request.text = "<speak>${request.text}</speak>"
         val data = get(request.config.provider).speak(request)
-        return if (fileType == AudioFileType.mp3) data else AudioUtil.convert(data, fileType, request.code)
+        return if (fileType == AudioFileType.mp3) data else AudioUtil.convert(data, fileType, request.hash())
     }
 }

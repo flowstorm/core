@@ -5,7 +5,7 @@ import java.io.IOException
 
 class TtsAudioFile(private val service: TtsService, val request: TtsRequest, val fileType: AudioFileType) {
 
-    val path: String = "tts/${request.code}.${fileType.name}"
+    val path: String = "tts/${request.hash()}.${fileType.name}"
     var data: ByteArray? = null
 
     /**

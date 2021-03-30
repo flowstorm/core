@@ -1,7 +1,7 @@
 package ai.flowstorm.core.resources
 
 import ai.flowstorm.common.security.Authorized
-import ai.flowstorm.core.tts.TtsAudioFileService
+import ai.flowstorm.core.tts.TtsAudioService
 import ai.flowstorm.core.AudioFileType
 import ai.flowstorm.core.tts.TtsRequest
 import ai.flowstorm.core.tts.TtsResponse
@@ -16,12 +16,12 @@ import javax.ws.rs.core.MediaType
 class TtsResourceImpl : TtsResource {
 
     @Inject
-    lateinit var ttsAudioFileService: TtsAudioFileService
+    lateinit var ttsAudioService: TtsAudioService
 
     override fun synthesize(request: TtsRequest): TtsResponse {
         if (request.text.matches(Regex("<.*[^\\>]>")))
             request.isSsml = true
-        val ttsAudioFile = ttsAudioFileService.get(request, AudioFileType.mp3, asyncSave = false, download = false)
+        val ttsAudioFile = ttsAudioService.get(request, AudioFileType.mp3, asyncSave = false, download = false)
         return TtsResponse(ttsAudioFile.path, ttsAudioFile.fileType.contentType)
     }
 }

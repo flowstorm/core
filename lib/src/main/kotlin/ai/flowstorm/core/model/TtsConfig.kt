@@ -1,5 +1,6 @@
 package ai.flowstorm.core.model
 
+import ai.flowstorm.core.Hashable
 import com.fasterxml.jackson.annotation.JsonIgnore
 import ai.flowstorm.security.Digest
 import java.util.*
@@ -12,7 +13,7 @@ data class TtsConfig(
     val engine: String? = null,
     val amazonAlexa: String? = null,
     val googleAssistant: String? = null
-) {
+) : Hashable {
     constructor(provider: String, locale: Locale, gender: Gender, name: String, engine: String?) :
             this(provider, locale, gender, name, engine, null, null)
 
@@ -21,6 +22,5 @@ data class TtsConfig(
     @get:JsonIgnore
     val language: String get() = locale.language
 
-    @get:JsonIgnore
-    val code = Digest.md5((provider + locale.toString() + gender.name + name + engine).toByteArray())
+    override fun hash() = Digest.md5(provider + locale.toString() + gender.name + name + engine)
 }
