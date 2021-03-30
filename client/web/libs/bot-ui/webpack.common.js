@@ -9,25 +9,21 @@ const htmlPlugin = new HtmlWebPackPlugin({
 	inject: 'head',
 	attributes: {
         'data-bot-ui-resource': function (tag, compilation, index) {
-            if (tag.tagName === 'script') {
-                return true;
-            }
-            return false;
+            return tag.tagName === 'script';
         }
     },
 });
 
 module.exports = {
 	entry:  {
-		app: './src/app/app.ts',
-		vendor: [
-			'@babel/polyfill'
-		]
+		app: [
+			'@babel/polyfill',
+			'./src/app/app.ts',
+		],
 	},
 	output: {
 		filename: '[name].bundle.js?[hash]',
-		path: path.resolve(__dirname, 'dist'),
-		chunkFilename: 'app-store'
+		path: path.resolve(__dirname, 'dist')
 	},
 	resolve: {
 		extensions: [".ts", ".js", ".json"]

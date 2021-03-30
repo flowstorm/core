@@ -2,7 +2,7 @@
     "name": "bot-ui",
     "version": "1.0.0",
     "description": "BOT UI",
-    "main": "app.js",
+    "main": "app.bundle.js",
     "author": "Anonymous",
     "license": "MIT",
     "private": true,
@@ -41,12 +41,9 @@
         "webpack-merge": "^5.1.4"
     },
     "dependencies": {
-        "@babel/polyfill": "^7.11.5",
+        "@babel/polyfill": "^7.12.1",
         "core-js": "^3.6.5",
-        "fast-average-color": "^6.0.3",
-        "ramda": "^0.27.1",
-        "ramda-extension": "^0.10.3",
-        "rxjs": "^6.6.3",
-        "rxjs-compat": "^6.6.3"
+        "fast-average-color": "^6.3.0",
+        "ramda": "^0.27.1"
     }
 }

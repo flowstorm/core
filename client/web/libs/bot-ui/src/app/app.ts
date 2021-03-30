@@ -5,8 +5,6 @@ import isEmpty from 'ramda/es/isEmpty';
 import defaultTo from 'ramda/es/defaultTo';
 import times from 'ramda/es/times';
 import clamp from 'ramda/es/clamp';
-import { fromEvent } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
 import FastAverageColor from 'fast-average-color';
 
 import '../assets/main.scss';
@@ -74,13 +72,6 @@ export class BotUI  {
     private static isChatMuted: boolean = isNil(sessionStorage.getItem(chatVolumeMuteStorageKey));
     private static isMicrophoneEnabled: boolean = !isNil(sessionStorage.getItem(chatMicrophoneStorageKey));
 
-    private resizeEvent$ = fromEvent(window, 'resize')
-        .pipe(
-            debounceTime(100),
-        );
-
-    private loadEvent$ = fromEvent(window, 'load');
-
     constructor(element: string, settings: Settings = defaults) {
         BotUI.settings = merge(defaults, settings);
         const root = document.documentElement;
@@ -142,19 +133,18 @@ export class BotUI  {
             BotUI.backgroundElement.appendChild(document.createElement('span'));
         }, BotUI.settings.backgroundAdvancedAnimationParticlesCount);
 
-        this.resizeEvent$
-            .subscribe((value) => {
-                const rect: DOMRect = BotUI.element.getBoundingClientRect();
-                const orientation: OrientationEnum = (rect.width > rect.height) ? OrientationEnum.LANDSCAPE : OrientationEnum.PORTRAIT;
-                this.setOrientation(orientation);
-                BotUI.element.setAttribute('data-orientation', orientation);
-            });
-        this.loadEvent$
-            .subscribe((value) => {
-                const rect: DOMRect = BotUI.element.getBoundingClientRect();
-                const orientation: OrientationEnum = (rect.width > rect.height) ? OrientationEnum.LANDSCAPE : OrientationEnum.PORTRAIT;
-                this.setOrientation(orientation);
-            });
+        window.addEventListener('resize', BotUI.debounce((e) => {
+            const rect: DOMRect = BotUI.element.getBoundingClientRect();
+            const orientation: OrientationEnum = (rect.width > rect.height) ? OrientationEnum.LANDSCAPE : OrientationEnum.PORTRAIT;
+            this.setOrientation(orientation);
+            BotUI.element.setAttribute('data-orientation', orientation);
+        }));
+
+        window.addEventListener('load', (e) => {
+            const rect: DOMRect = BotUI.element.getBoundingClientRect();
+            const orientation: OrientationEnum = (rect.width > rect.height) ? OrientationEnum.LANDSCAPE : OrientationEnum.PORTRAIT;
+            this.setOrientation(orientation);
+        });
 
         BotUI.chatInputElement.onkeydown = (e) => {
             if (e.keyCode === 13) {
@@ -446,6 +436,16 @@ export class BotUI  {
                 head.appendChild(link);
             }
         }
+    }
+
+    private static debounce = (func: Function, timeout = 100) => {
+        let timer;
+        return function(event) {
+            if (timer) {
+                clearTimeout(timer);
+            }
+            timer = setTimeout(func, timeout, event);
+        };
     }
 }
 
