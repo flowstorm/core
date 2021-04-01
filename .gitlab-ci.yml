@@ -221,7 +221,7 @@ package branch packages:
     - mvn -B deploy -Dapi.basedomain=core-$NAMESPACE.flowstorm.ai -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false
 
 package release client:
-  stage: build
+  stage: package
   image: registry.gitlab.com/promethistai/system/builder
   only:
     refs:
@@ -234,7 +234,7 @@ package release client:
     - client/web/package.sh
 
 package snapshot client:
-  stage: build
+  stage: package
   image: registry.gitlab.com/promethistai/system/builder
   only:
     refs:
@@ -245,7 +245,7 @@ package snapshot client:
     - client/web/package.sh
 
 package branch client:
-  stage: build
+  stage: package
   image: registry.gitlab.com/promethistai/system/builder
   only:
     refs:
