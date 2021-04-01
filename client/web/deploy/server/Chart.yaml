@@ -1,5 +1,0 @@
-apiVersion: v1
-name: web
-version: "chart.version"
-description: React Helm Chart
-appVersion: "app.version"

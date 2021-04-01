@@ -77,7 +77,7 @@ Wants=sound.target
 
 [Service]
 TimeoutSec=0
-ExecStart=/home/pi/promethist.run bg
+ExecStart=/home/pi/flowstorm.run bg
 WorkingDirectory=/home/pi
 User=pi
 Restart=always

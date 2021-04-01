@@ -1,8 +1,8 @@
 {
-  "name": "@promethist/client",
+  "name": "@flowstorm/client",
   "version": "0.0.1",
   "private": true,
-  "homepage": "https://bot.promethist.ai",
+  "homepage": "https://bot.flowstorm.ai",
   "scripts": {
     "start": "webpack-dev-server --hot --open --config webpack.dev.js",
     "build": "webpack --config webpack.prod.js"

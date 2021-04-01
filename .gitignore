@@ -9,5 +9,7 @@ release.properties
 dependency-reduced-pom.xml
 yarn-error.log
 node_modules
-/client/web/libs/bot-service/build/
-/client/web/libs/bot-ui/dist/
+yarn.lock
+client/web/app/dist
+client/web/lib/service/build
+client/web/lib/ui/dist

@@ -144,6 +144,14 @@ package chart builder:
     changes:
       - deploy/builder/**/*
 
+package chart client:
+  extends: '.package chart'
+  variables:
+    NAME: client
+  only:
+    changes:
+      - deploy/client/**/*
+
 package chart triton:
   extends: '.package chart'
   variables:
@@ -192,6 +200,35 @@ package snaphot packages:
   script:
     - mvn -B package -Dapi.basedomain=core.flowstorm.ai -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false
 
+package snapshot client:
+  stage: build
+  image: registry.gitlab.com/promethistai/system/builder
+  only:
+    refs:
+      - master
+      - branches
+    changes:
+      - client/web/**/*
+  artifacts:
+    untracked: true
+  script:
+    - client/web/package.sh
+
+package release client:
+  stage: build
+  image: registry.gitlab.com/promethistai/system/builder
+  only:
+    refs:
+      - tags
+    changes:
+      - client/web/**/*
+  except:
+    - /^(!master).+@/
+  artifacts:
+    untracked: true
+  script:
+    - client/web/package.sh
+
 #
 # build
 #
@@ -227,6 +264,21 @@ build snapshot builder:
     changes:
       - builder/**/*
 
+build release client/web:
+  extends: '.build release'
+  variables:
+    DIR: client/web
+  only:
+    changes:
+      - client/web/**/*
+
+build snapshot client/web:
+  extends: '.build snapshot'
+  variables:
+    DIR: client/web
+  only:
+    changes:
+      - client/web/**/*
 #
 # distribute
 #

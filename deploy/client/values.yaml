@@ -1,0 +1,13 @@
+replicaCount: 1
+baseDomain: flowstorm.ai
+imagePullSecrets: promethistai-registry
+imagePullPolicy: IfNotPresent
+app:
+  port: 80
+  image:
+    name: registry.gitlab.com/promethistai/flowstorm-core/client/web
+    tag: latest
+  resources:
+    requests:
+      cpu: 0.01
+      memory: 192Mi

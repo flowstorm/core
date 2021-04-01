@@ -1,7 +1,6 @@
 {
-    "name": "bot-ui",
+    "name": "@flowstorm/ui",
     "version": "1.0.0",
-    "description": "BOT UI",
     "main": "app.bundle.js",
     "author": "Anonymous",
     "license": "MIT",
