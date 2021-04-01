@@ -90,6 +90,26 @@ stages:
       $DIR
     - docker push $CI_REGISTRY_IMAGE/$DIR:$CI_COMMIT_SHORT_SHA
 
+.build branch:
+  stage: build
+  image: docker:stable
+  variables:
+    DIR: DIR
+  only:
+    refs:
+      - branches
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker pull $CI_REGISTRY_IMAGE/$DIR || true
+  script:
+    - docker build
+      --cache-from $CI_REGISTRY_IMAGE/$DIR
+      --tag $CI_REGISTRY_IMAGE/$DIR:$CI_COMMIT_SHORT_SHA
+      $DIR
+    - docker push $CI_REGISTRY_IMAGE/$DIR:$CI_COMMIT_SHORT_SHA
+
 #
 # .document
 #
@@ -174,6 +194,17 @@ package release packages:
     - mvn -B versions:set -DnewVersion=$CI_COMMIT_REF_NAME
     - mvn -B deploy -Dapi.basedomain=core.flowstorm.ai -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false
 
+package snaphot packages:
+  stage: package
+  image: registry.gitlab.com/promethistai/system/builder
+  only:
+    refs:
+      - master
+  artifacts:
+    untracked: true
+  script:
+    - mvn -B package -Dapi.basedomain=core.flowstorm.ai -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false
+
 package branch packages:
   stage: package
   image: registry.gitlab.com/promethistai/system/builder
@@ -189,31 +220,6 @@ package branch packages:
     - mvn -B versions:set -DnewVersion=$NAMESPACE-SNAPSHOT
     - mvn -B deploy -Dapi.basedomain=core-$NAMESPACE.flowstorm.ai -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false
 
-package snaphot packages:
-  stage: package
-  image: registry.gitlab.com/promethistai/system/builder
-  only:
-    refs:
-      - master
-  artifacts:
-    untracked: true
-  script:
-    - mvn -B package -Dapi.basedomain=core.flowstorm.ai -Dmaven.wagon.http.pool=false -Dhttp.keepAlive=false
-
-package snapshot client:
-  stage: build
-  image: registry.gitlab.com/promethistai/system/builder
-  only:
-    refs:
-      - master
-      - branches
-    changes:
-      - client/web/**/*
-  artifacts:
-    untracked: true
-  script:
-    - client/web/package.sh
-
 package release client:
   stage: build
   image: registry.gitlab.com/promethistai/system/builder
@@ -224,6 +230,32 @@ package release client:
       - client/web/**/*
   except:
     - /^(!master).+@/
+  artifacts:
+    untracked: true
+  script:
+    - client/web/package.sh
+
+package snapshot client:
+  stage: build
+  image: registry.gitlab.com/promethistai/system/builder
+  only:
+    refs:
+      - master
+    changes:
+      - client/web/**/*
+  artifacts:
+    untracked: true
+  script:
+    - client/web/package.sh
+
+package branch client:
+  stage: build
+  image: registry.gitlab.com/promethistai/system/builder
+  only:
+    refs:
+      - branches
+    changes:
+      - client/web/**/*
   artifacts:
     untracked: true
   script:
@@ -248,6 +280,14 @@ build snapshot runner:
     changes:
       - runner/**/*
 
+build branch runner:
+  extends: '.build branch'
+  variables:
+    DIR: runner/app
+  only:
+    changes:
+      - runner/**/*
+
 build release builder:
   extends: '.build release'
   variables:
@@ -258,6 +298,14 @@ build release builder:
 
 build snapshot builder:
   extends: '.build snapshot'
+  variables:
+    DIR: builder/app
+  only:
+    changes:
+      - builder/**/*
+
+build branch builder:
+  extends: '.build branch'
   variables:
     DIR: builder/app
   only:
@@ -279,6 +327,15 @@ build snapshot client/web:
   only:
     changes:
       - client/web/**/*
+
+build branch client/web:
+  extends: '.build branch'
+  variables:
+    DIR: client/web
+  only:
+    changes:
+      - client/web/**/*
+
 #
 # distribute
 #
