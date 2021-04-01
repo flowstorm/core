@@ -226,8 +226,6 @@ package release client:
   only:
     refs:
       - tags
-    changes:
-      - client/web/**/*
   except:
     - /^(!master).+@/
   artifacts:
@@ -241,8 +239,6 @@ package snapshot client:
   only:
     refs:
       - master
-    changes:
-      - client/web/**/*
   artifacts:
     untracked: true
   script:
@@ -254,8 +250,6 @@ package branch client:
   only:
     refs:
       - branches
-    changes:
-      - client/web/**/*
   artifacts:
     untracked: true
   script:
